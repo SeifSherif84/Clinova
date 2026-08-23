@@ -1,0 +1,1234 @@
+[
+  {
+    "Name": "Nasr City",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Heliopolis (Masr El Gedida)",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "New Cairo & 5th Settlement",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Maadi",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Helwan",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Shubra",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Downtown Cairo (Wast El Balad)",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Zamalek",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Garden City",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Manial",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Abbassia",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Ain Shams",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Matareya",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Marg",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Shorouk",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Badr City",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Al Rehab & Madinaty",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Mokattam",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Hadayek El Kobba",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Zaytoun",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Zaher & Bab El Sharia",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "New Administrative Capital",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "15th of May City",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "El Basatin",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Dar El Salam",
+    "GovernorateId": 1
+  },
+  {
+    "Name": "Dokki",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Mohandessin",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Agouza",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Al Haram",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Faisal",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "6th of October City",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Sheikh Zayed City",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Hadayek Al Ahram",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Hadayek October",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "October Gardens (New October)",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Omraneya",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Talbia",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Boulaq El Dakrour",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Imbaba",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Kit Kat",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Warraq",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Smart Village",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Kerdasa",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Oseem",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Hawamdia",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "El Badrasheen",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Al Ayat",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Al Saff",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Atfih",
+    "GovernorateId": 2
+  },
+  {
+    "Name": "Smouha",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Sidi Gaber",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Miami",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Louran",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Gleem",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Stanley",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Roushdy",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Sporting",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Ibrahimia",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Cleopatra",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Gianaclis",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "San Stefano",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Montaza",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Mandara",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Asafra",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Sidi Bishr",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Moharam Bek",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Mansheya",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Bahary & El Anfoushi",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Agami",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "Borg El Arab",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "King Mariout",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Dekheila",
+    "GovernorateId": 3
+  },
+  {
+    "Name": "El Mansoura City",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Talkha",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Mit Ghamr",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Dekernes",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "El Senbellawein",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Belqas",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Aga",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Sherbin",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "El Manzala",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "El Matareya (Dakahlia)",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Menyet El Nasr",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Nabroh",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Bani Ebeid",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Gamasa",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "New Mansoura City",
+    "GovernorateId": 4
+  },
+  {
+    "Name": "Hurghada (El Dahar)",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Hurghada (El Kawther)",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Hurghada (El Sakala)",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "El Gouna",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Sahl Hasheesh",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Makadi Bay",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Soma Bay",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Safaga",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "El Qoseir",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Marsa Alam",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Ras Gharib",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Shalatin",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Halayeb",
+    "GovernorateId": 5
+  },
+  {
+    "Name": "Damanhur",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Kafr El Dawwar",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Itay El Baroud",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Kom Hamada",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Rashid (Rosetta)",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Abu Hummus",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "El Delengat",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Hosh Essa",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Shubrakeit",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "El Mahmoudiyah",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Edku",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Wadi El Natrun",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "El Nubariya",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Badr (Beheira)",
+    "GovernorateId": 6
+  },
+  {
+    "Name": "Fayoum City",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Senuris",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Ibshaway",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Tamiya",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Etsa",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Youssef El Seddik",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "New Fayoum",
+    "GovernorateId": 7
+  },
+  {
+    "Name": "Tanta",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "El Mahalla El Kubra",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Kafr El Zayat",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Zifta",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Basyoun",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Samanoud",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Qutour",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "El Santa",
+    "GovernorateId": 8
+  },
+  {
+    "Name": "Ismailia City",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "Fayed",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "Qantara Gharb",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "Qantara Sharq",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "El Tel El Kebir",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "Abu Suwir",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "El Qassasin",
+    "GovernorateId": 9
+  },
+  {
+    "Name": "Shebin El Kom",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Menouf",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Ashmoun",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Quesna",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Sadat City",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Berket El Sabaa",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Tala",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "El Shohada (Martyrs)",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Sers El Lyan",
+    "GovernorateId": 10
+  },
+  {
+    "Name": "Minya City",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Mallawi",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Maghagha",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Beni Mazar",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Samalut",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Abu Qurqas",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Deir Mawas",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Matai",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "El Idwa",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "New Minya",
+    "GovernorateId": 11
+  },
+  {
+    "Name": "Banha",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Shubra El Kheima",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Qalyub",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Toukh",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "El Obour City",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "El Khanka",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Shebin El Qanater",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Kafr Shukr",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "Qaha",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "El Qanater El Khayreya",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "El Khosous",
+    "GovernorateId": 12
+  },
+  {
+    "Name": "El Kharga",
+    "GovernorateId": 13
+  },
+  {
+    "Name": "El Dakhla",
+    "GovernorateId": 13
+  },
+  {
+    "Name": "Farafra",
+    "GovernorateId": 13
+  },
+  {
+    "Name": "Baris",
+    "GovernorateId": 13
+  },
+  {
+    "Name": "Balat",
+    "GovernorateId": 13
+  },
+  {
+    "Name": "Suez District",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "El Arbaeen District",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "Faisal District (Suez)",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "Attaka District",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "El Ganayen District",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "Ain Sokhna",
+    "GovernorateId": 14
+  },
+  {
+    "Name": "Aswan City",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Kom Ombo",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Edfu",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Nasr El Nuba",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Daraw",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Abu Simbel",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "New Aswan",
+    "GovernorateId": 15
+  },
+  {
+    "Name": "Assiut City",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Dairut",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Manfalut",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "El Qusiya",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Abnoub",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Abu Tig",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Sedfa",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "El Fateh",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "El Badari",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Sahel Selim",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "El Ghanayem",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "New Assiut",
+    "GovernorateId": 16
+  },
+  {
+    "Name": "Beni Suef City",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "El Wasta",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "Beba",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "Nasser (Bush)",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "El Fashn",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "Ihnasya",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "Sumusta El Waqf",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "New Beni Suef",
+    "GovernorateId": 17
+  },
+  {
+    "Name": "Sharq District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Arab District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Manakh District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Zohour District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Dawahy District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Ganoub District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Gharb District",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Port Fouad",
+    "GovernorateId": 18
+  },
+  {
+    "Name": "Damietta City",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "New Damietta",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Ras El Bar",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Faraskour",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Kafr Saad",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "El Zarqa",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Ezbet El Borg",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Kafr El Battikh",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Mit Abu Ghaleb",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "El Roda",
+    "GovernorateId": 19
+  },
+  {
+    "Name": "Zagazig",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "10th of Ramadan City",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Belbeis",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Faqous",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Minya El Qamh",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Abu Hammad",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Abu Kebir",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Hihya",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Diarb Negm",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Kafr Saqr",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Awlad Saqr",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "El Husseiniya",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Mashtool El Souk",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "El Qenayat",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Salheya El Gedida",
+    "GovernorateId": 20
+  },
+  {
+    "Name": "Sharm El Sheikh (Naama Bay)",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Sharm El Sheikh (Nabq)",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Sharm El Sheikh (Hadaba)",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Dahab",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Nuweiba",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Taba",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "El Tor (Tor Sinai)",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Ras Sedr",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Saint Catherine",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Abu Rudeis",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Abu Zenima",
+    "GovernorateId": 21
+  },
+  {
+    "Name": "Kafr El Sheikh City",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Desouk",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Baltim",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Bella",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Fuwwah",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Metoubes",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Qallin",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Sidi Salem",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "El Hamool",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "El Riyad",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Sidi Ghazi",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Borollos",
+    "GovernorateId": 22
+  },
+  {
+    "Name": "Marsa Matrouh",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "El Alamein & North Coast",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "New Alamein City",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "Sidi Abdel Rahman",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "Ras El Hekma",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "El Dabaa",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "El Hammam",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "Siwa Oasis",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "Sidi Barrani",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "El Negila",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "El Salloum",
+    "GovernorateId": 23
+  },
+  {
+    "Name": "Luxor City",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "Esna",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "Armant",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "El Qurna (West Bank)",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "El Bayadiya",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "El Toud",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "El Zinnia",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "New Luxor",
+    "GovernorateId": 24
+  },
+  {
+    "Name": "Qena City",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Nag Hammadi",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Qous",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Deshna",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Abu Tesht",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Farshout",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Naqada",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "El Waqf",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Qift",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "New Qena",
+    "GovernorateId": 25
+  },
+  {
+    "Name": "Arish",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Bir El Abd",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Sheikh Zuweid",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Rafah",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Nakhl",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Hasna",
+    "GovernorateId": 26
+  },
+  {
+    "Name": "Sohag City",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Tahta",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Girga",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Akhmim",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "El Maragha",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Tama",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "El Balyana",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "El Monshaa",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Saqultah",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Dar El Salam (Sohag)",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "Juhayna",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "New Sohag",
+    "GovernorateId": 27
+  },
+  {
+    "Name": "New Akhmim",
+    "GovernorateId": 27
+  }
+]

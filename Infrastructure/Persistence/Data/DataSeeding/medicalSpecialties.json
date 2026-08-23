@@ -1,0 +1,142 @@
+[
+  {
+    "Name": "Internal Medicine",
+    "IconUrl": "/icons/specialties/internal-medicine.svg"
+  },
+  {
+    "Name": "Cardiology & Vascular Diseases",
+    "IconUrl": "/icons/specialties/cardiology.svg"
+  },
+  {
+    "Name": "Neurology",
+    "IconUrl": "/icons/specialties/neurology.svg"
+  },
+  {
+    "Name": "Orthopedics & Joint Surgery",
+    "IconUrl": "/icons/specialties/orthopedics.svg"
+  },
+  {
+    "Name": "Pediatrics & Neonatology",
+    "IconUrl": "/icons/specialties/pediatrics.svg"
+  },
+  {
+    "Name": "Obstetrics & Gynecology",
+    "IconUrl": "/icons/specialties/gynecology.svg"
+  },
+  {
+    "Name": "Ophthalmology (Eye Care)",
+    "IconUrl": "/icons/specialties/ophthalmology.svg"
+  },
+  {
+    "Name": "Dermatology & Venereology",
+    "IconUrl": "/icons/specialties/dermatology.svg"
+  },
+  {
+    "Name": "Ear, Nose & Throat (ENT)",
+    "IconUrl": "/icons/specialties/ent.svg"
+  },
+  {
+    "Name": "Dentistry & Oral Surgery",
+    "IconUrl": "/icons/specialties/dentistry.svg"
+  },
+  {
+    "Name": "General Surgery",
+    "IconUrl": "/icons/specialties/general-surgery.svg"
+  },
+  {
+    "Name": "Urology & Genital Surgery",
+    "IconUrl": "/icons/specialties/urology.svg"
+  },
+  {
+    "Name": "Psychiatry & Addiction Treatment",
+    "IconUrl": "/icons/specialties/psychiatry.svg"
+  },
+  {
+    "Name": "Oncology (Cancer Care)",
+    "IconUrl": "/icons/specialties/oncology.svg"
+  },
+  {
+    "Name": "Physiotherapy & Rehabilitation",
+    "IconUrl": "/icons/specialties/physiotherapy.svg"
+  },
+  {
+    "Name": "Clinical Nutrition & Obesity",
+    "IconUrl": "/icons/specialties/nutrition.svg"
+  },
+  {
+    "Name": "Pulmonology & Chest Diseases",
+    "IconUrl": "/icons/specialties/pulmonology.svg"
+  },
+  {
+    "Name": "Gastroenterology, Hepatology & Endoscopy",
+    "IconUrl": "/icons/specialties/gastroenterology.svg"
+  },
+  {
+    "Name": "Nephrology & Kidney Diseases",
+    "IconUrl": "/icons/specialties/nephrology.svg"
+  },
+  {
+    "Name": "Endocrinology & Diabetes",
+    "IconUrl": "/icons/specialties/endocrinology.svg"
+  },
+  {
+    "Name": "Rheumatology & Immunology",
+    "IconUrl": "/icons/specialties/rheumatology.svg"
+  },
+  {
+    "Name": "Plastic, Reconstructive & Burn Surgery",
+    "IconUrl": "/icons/specialties/plastic-surgery.svg"
+  },
+  {
+    "Name": "Neurosurgery",
+    "IconUrl": "/icons/specialties/neurosurgery.svg"
+  },
+  {
+    "Name": "Vascular Surgery",
+    "IconUrl": "/icons/specialties/vascular-surgery.svg"
+  },
+  {
+    "Name": "Cardiothoracic Surgery",
+    "IconUrl": "/icons/specialties/cardiothoracic-surgery.svg"
+  },
+  {
+    "Name": "Pain Management & Anesthesiology",
+    "IconUrl": "/icons/specialties/pain-management.svg"
+  },
+  {
+    "Name": "Hematology (Blood Diseases)",
+    "IconUrl": "/icons/specialties/hematology.svg"
+  },
+  {
+    "Name": "Phoniatrics & Speech Therapy",
+    "IconUrl": "/icons/specialties/phoniatrics.svg"
+  },
+  {
+    "Name": "Radiology & Interventional Imaging",
+    "IconUrl": "/icons/specialties/radiology.svg"
+  },
+  {
+    "Name": "Clinical Pathology & Laboratory Medicine",
+    "IconUrl": "/icons/specialties/pathology.svg"
+  },
+  {
+    "Name": "Allergy & Clinical Immunology",
+    "IconUrl": "/icons/specialties/allergy.svg"
+  },
+  {
+    "Name": "Geriatrics & Elderly Care",
+    "IconUrl": "/icons/specialties/geriatrics.svg"
+  },
+  {
+    "Name": "Andrology & Male Infertility",
+    "IconUrl": "/icons/specialties/andrology.svg"
+  },
+  {
+    "Name": "Pediatric Surgery",
+    "IconUrl": "/icons/specialties/pediatric-surgery.svg"
+  },
+  {
+    "Name": "Bariatric (Weight Loss) Surgery",
+    "IconUrl": "/icons/specialties/bariatric-surgery.svg"
+  }
+]

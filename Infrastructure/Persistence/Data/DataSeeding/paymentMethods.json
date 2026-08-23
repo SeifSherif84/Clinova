@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "Credit / Debit Card (Visa & Mastercard)",
+    "LogoUrl": "/icons/payments/credit-card.svg"
+  },
+  {
+    "Name": "Mobile Wallets (Vodafone Cash, Orange, WE, Etisalat)",
+    "LogoUrl": "/icons/payments/mobile-wallets.svg"
+  },
+  {
+    "Name": "InstaPay (IPN)",
+    "LogoUrl": "/icons/payments/instapay.svg"
+  },
+  {
+    "Name": "Fawry Pay",
+    "LogoUrl": "/icons/payments/fawry.svg"
+  },
+  {
+    "Name": "ValU / Buy Now Pay Later (BNPL)",
+    "LogoUrl": "/icons/payments/valu.svg"
+  },
+  {
+    "Name": "Apple Pay",
+    "LogoUrl": "/icons/payments/apple-pay.svg"
+  }
+]
