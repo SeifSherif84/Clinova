@@ -10,10 +10,16 @@ namespace Domain.Entities.BusinessEntities
 {
     public class Doctor : UserApp
     {
-        public string Title { get; set; } = null!;
-        public int ExperienceYears { get; set; }
+        public string? Title { get; set; }
+        public int? ExperienceYears { get; set; }
         public string? Bio { get; set; }
-        public bool IsApprovedByAdmin { get; set; } = false;
+
+        public DoctorApprovalStatus ApprovalStatus { get; set; }
+            = DoctorApprovalStatus.Pending;
+
+        public string SyndicateNumber { get; set; } = null!;
+        public string SyndicateCardImageUrl { get; set; } = null!;
+        public string NationalIdImageUrl { get; set; } = null!;
 
 
         public int MedicalSpecialtyId { get; set; }
