@@ -1,9 +1,17 @@
 using Domain.Contracts;
 using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Persistence.Data.Contexts;
 using Persistence.Data.DataSeeding;
+using Services;
+using Services.Abstractions;
+using Services.AutoMapping.Auth;
+using Services.MailKitFeature;
+using Store.G02.Shared;
+using System.Text;
 
 namespace Web
 {
@@ -20,6 +28,8 @@ namespace Web
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+            // UserDefined Services Start
             builder.Services.AddDbContext<AppDbContext>(DbContextOptions =>
             {
                 DbContextOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -33,6 +43,41 @@ namespace Web
 
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
+            builder.Services.AddAutoMapper(MapperConfig =>
+            {
+                MapperConfig.AddProfile(new AuthProfile());
+            });
+
+            builder.Services.Configure<MailKitSetting>(builder.Configuration.GetSection("MailKitSetting"));
+            builder.Services.AddScoped<IMailService, MailService>();    
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
+            builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWTOptions"));
+
+            var JWTOptions = builder.Configuration.GetSection("JWTOptions").Get<JWTOptions>();
+            builder.Services.AddAuthentication(authConfig =>
+            {
+                authConfig.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authConfig.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwtBearerConfig =>
+            {
+                jwtBearerConfig.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = JWTOptions?.Issuer,
+                    ValidAudience = JWTOptions?.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTOptions.SecurityKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+
+
+            // UserDefined Services End
 
             var app = builder.Build();
 
