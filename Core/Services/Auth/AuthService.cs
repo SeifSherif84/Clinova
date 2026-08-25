@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Numerics;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -55,9 +56,9 @@ namespace Services.Auth
                 throw new RoleAssignmentException(roleFlag.Errors.Select(error => error.Description).ToList());
 
 
-            var emailConfirmationflag = await SendEmailConfirmationURL(doctor);
-            if(!emailConfirmationflag)
-                throw new EmailConfirmationSendException("The account was created successfully, but we could not send the email confirmation message.");
+            var sendEmailConfirmationflag = await SendEmailConfirmationURL(doctor);
+            if(!sendEmailConfirmationflag)
+                throw new EmailConfirmationSendException("Your account was created successfully, but we couldn't send the email confirmation right now. Please try again later.");
 
             return new DoctorRegistrationResponse()
             {
@@ -66,6 +67,7 @@ namespace Services.Auth
                 ApprovalStatus = doctor.ApprovalStatus
             };
         }
+
 
 
         private async Task<bool> SendEmailConfirmationURL(UserApp user)
@@ -301,9 +303,10 @@ namespace Services.Auth
         }
 
 
-        public async Task ConfirmEmailAsync(string? email, string? token)
+
+        public async Task<string> ConfirmEmailAsync(string? email, string? token)
         {
-            if (email is null || token is null)
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
                 throw new BadRequestException("Invalid or missing email confirmation information.");
 
             var user = await _userManager.FindByEmailAsync(email);
@@ -313,7 +316,10 @@ namespace Services.Auth
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (!result.Succeeded)
                 throw new InvalidEmailConfirmationException(result.Errors.Select(error => error.Description).ToList());
+
+            return "Your email address has been successfully confirmed. Welcome to Clinova!";
         }
+
 
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
@@ -416,6 +422,7 @@ namespace Services.Auth
         }
 
 
+
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -425,5 +432,270 @@ namespace Services.Auth
         }
 
 
+
+        public async Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordByEmail.Email);
+            if (user == null) 
+                throw new NotFoundException("No account was found with the provided email address.");
+            if (!user.EmailConfirmed)
+                throw new UnconfirmedEmailException("Please confirm your email address before resetting your password.");
+
+            var sendResetPasswordflag = await SendResetPasswordURL(user);
+            if (!sendResetPasswordflag)
+                throw new ResetPasswordEmailSendException("We couldn't send the password reset email right now. Please try again later.");
+
+            return "A password reset link has been sent to your email address. Please check your inbox to continue.";
+        }
+
+
+        private async Task<bool> SendResetPasswordURL(UserApp user)
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = System.Web.HttpUtility.UrlEncode(token);
+            var encodedEmail = HttpUtility.UrlEncode(user.Email);
+            var callbackUrl = $"{_configuration["BaseURL"]}/{_configuration["ResetPasswordURL"]}?email={encodedEmail}&token={encodedToken}";
+
+            var email = new Email()
+            {
+                To = user.Email!,
+                Subject = "Reset Your Clinova Password",
+                Body = $$"""
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                            <style>
+                                * {
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }
+
+                                @keyframes fadeIn {
+                                    from { opacity: 0; transform: translateY(12px); }
+                                    to { opacity: 1; transform: translateY(0); }
+                                }
+
+                                @keyframes pulseGlow {
+                                    0%, 100% {
+                                        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.45);
+                                    }
+                                    50% {
+                                        box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+                                    }
+                                }
+
+                                @keyframes floatIcon {
+                                    0%, 100% { transform: translateY(0); }
+                                    50% { transform: translateY(-5px); }
+                                }
+
+                                @keyframes shimmerText {
+                                    0% { background-position: -200% center; }
+                                    100% { background-position: 200% center; }
+                                }
+
+                                body {
+                                    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+                                    background-color: #0a0b14;
+                                    background-image:
+                                        linear-gradient(160deg, #12142a 0%, #0a0b14 55%, #0d0a1c 100%);
+                                    padding: 50px 20px;
+                                }
+
+                                .container {
+                                    max-width: 600px;
+                                    margin: 0 auto;
+                                    background-color: #12131f;
+                                    border-radius: 20px;
+                                    padding: 46px 40px;
+                                    border: 1px solid #23253a;
+                                    animation: fadeIn 0.6s ease-out;
+                                }
+
+                                .header {
+                                    text-align: center;
+                                    margin-bottom: 32px;
+                                }
+
+                                .icon-badge {
+                                    width: 64px;
+                                    height: 64px;
+                                    border-radius: 50%;
+                                    background: linear-gradient(135deg, #6366f1, #a855f7);
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 28px;
+                                    margin-bottom: 16px;
+                                    animation: floatIcon 3s ease-in-out infinite;
+                                }
+
+                                .header h2 {
+                                    font-size: 25px;
+                                    font-weight: 800;
+                                    letter-spacing: 1.5px;
+                                    color: #f1f0fb;
+                                    text-transform: uppercase;
+                                }
+
+                                .header h2 span {
+                                    background: linear-gradient(90deg, #a5b4fc, #f0abfc, #a5b4fc);
+                                    background-size: 200% auto;
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    background-clip: text;
+                                    animation: shimmerText 3.5s linear infinite;
+                                }
+
+                                .subtitle {
+                                    color: #64748b;
+                                    font-size: 12.5px;
+                                    letter-spacing: 2.5px;
+                                    text-transform: uppercase;
+                                    margin-top: 8px;
+                                }
+
+                                .content {
+                                    color: #cbd5e1;
+                                    font-size: 15.5px;
+                                    line-height: 1.75;
+                                }
+
+                                .content p {
+                                    margin-bottom: 16px;
+                                }
+
+                                .greeting {
+                                    font-size: 19px;
+                                    font-weight: 700;
+                                    color: #f1f5f9;
+                                    margin-bottom: 14px;
+                                }
+
+                                .btn-container {
+                                    text-align: center;
+                                    margin: 34px 0 26px;
+                                }
+
+                                .btn {
+                                    display: inline-block;
+                                    background: linear-gradient(135deg, #6366f1, #a855f7);
+                                    color: #ffffff !important;
+                                    text-decoration: none;
+                                    font-weight: 700;
+                                    font-size: 15px;
+                                    letter-spacing: 0.5px;
+                                    padding: 15px 44px;
+                                    border-radius: 12px;
+                                    animation: pulseGlow 2.4s infinite;
+                                    text-transform: uppercase;
+                                }
+
+                                .note {
+                                    background-color: #191a2a;
+                                    padding: 16px 20px;
+                                    border-radius: 12px;
+                                    border: 1px solid #262841;
+                                    border-left: 3px solid #a855f7;
+                                    font-size: 13.5px;
+                                    color: #94a3b8;
+                                    margin-top: 24px;
+                                }
+
+                                .divider-line {
+                                    height: 1px;
+                                    background-color: #23253a;
+                                    margin: 34px 0 22px;
+                                }
+
+                                .footer {
+                                    text-align: center;
+                                    font-size: 13px;
+                                    color: #64748b;
+                                }
+
+                                .footer strong {
+                                    color: #c4b5fd;
+                                }
+                            </style>
+                        </head>
+
+                        <body>
+
+                            <div class="container">
+
+                                <div class="header">
+                                    <h2>CLI<span>NOVA</span></h2>
+                                    <div class="subtitle">Password Reset</div>
+                                </div>
+
+                                <div class="content">
+
+                                    <p class="greeting">
+                                        Forgot your password? 🔐
+                                    </p>
+
+                                    <p>
+                                        We received a request to reset the password
+                                        for your Clinova account.
+                                    </p>
+
+                                    <p>
+                                        If you made this request, click the button below
+                                        to create a new password and regain access to your account:
+                                    </p>
+
+                                    <div class="btn-container">
+                                        <a href="{{callbackUrl}}" class="btn">
+                                            Reset My Password
+                                        </a>
+                                    </div>
+
+                                    <div class="note">
+                                        🔒 If you did not request a password reset,
+                                        you can safely ignore this email — your account and password will remain unchanged.
+                                    </div>
+
+                                </div>
+
+                                <div class="divider-line"></div>
+
+                                <div class="footer">
+                                    Best regards,<br>
+                                    <strong>Clinova Team</strong>
+                                </div>
+
+                            </div>
+
+                        </body>
+                        </html>
+                        """,
+                IsHtml = true
+            };
+
+            var result = _mailService.SendMail(email);
+            return result;
+        }
+
+
+        public async Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest updatePasswordRequest)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+                throw new BadRequestException("Invalid or missing reset password information.");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                throw new NotFoundException("User associated with the email address was not found.");
+
+            var result = await _userManager.ResetPasswordAsync(user, token, updatePasswordRequest.NewPassword);
+            if (!result.Succeeded)
+                throw new InvalidResetPasswordException(result.Errors.Select(error => error.Description).ToList());
+
+            return "Your password has been successfully reset. You can now sign in with your new password.";
+        }
     }
 }

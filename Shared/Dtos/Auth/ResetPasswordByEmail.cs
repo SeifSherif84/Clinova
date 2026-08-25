@@ -7,15 +7,11 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos.Auth
 {
-    public class LoginRequest
+    public class ResetPasswordByEmail
     {
         [Required]
         [EmailAddress]
         [MaxLength(256)]
         public string Email { get; set; } = null!;
-
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = null!;
     }
 }
