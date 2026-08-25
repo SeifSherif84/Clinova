@@ -23,25 +23,43 @@ namespace Presentation.Controllers.Auth
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest loginRequest)
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             var Response = await _serviceManager.AuthService.LoginAsync(loginRequest);
             return Ok(Response);
         }
 
 
-        [HttpGet("Confirm-Email")]
+        [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
         {
-            await _serviceManager.AuthService.ConfirmEmailAsync(email, token);
-            return Ok();
+            var response = await _serviceManager.AuthService.ConfirmEmailAsync(email, token);
+            return Ok(response);
         }
 
 
-        [HttpPost("refresh-Token")]
+        [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest refreshTokenRequest)
         {
             var response = await _serviceManager.AuthService.RefreshTokenAsync(refreshTokenRequest);
+            return Ok(response);
+        }
+
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordByEmail resetPasswordByEmail)
+        {
+            var response = await _serviceManager.AuthService.ResetPaswordByEmailAsync(resetPasswordByEmail);
+            return Ok(response);
+        }
+
+
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromQuery] string email,
+                                                        [FromQuery] string token,
+                                                        [FromBody] UpdatePasswordRequest updatePasswordRequest)
+        {
+            var response = await _serviceManager.AuthService.UpdatePasswordAsync(email, token, updatePasswordRequest);
             return Ok(response);
         }
 

@@ -22,6 +22,7 @@ namespace Shared.Dtos.Auth
 
         [Required]
         [EmailAddress]
+        [MaxLength(256)]
         public string Email { get; set; } = null!;
 
         [Required]
@@ -34,8 +35,9 @@ namespace Shared.Dtos.Auth
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
+
         [Required]
-        [Compare(nameof(Password))]
+        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 
