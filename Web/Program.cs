@@ -76,7 +76,6 @@ namespace Web
             });
 
 
-
             // UserDefined Services End
 
             var app = builder.Build();
@@ -93,12 +92,17 @@ namespace Web
                 app.UseSwaggerUI();
             }
 
+
             app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
-
             app.MapControllers();
+
 
             app.Run();
         }

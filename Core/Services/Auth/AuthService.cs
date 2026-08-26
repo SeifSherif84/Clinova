@@ -69,7 +69,6 @@ namespace Services.Auth
         }
 
 
-
         private async Task<bool> SendEmailConfirmationURL(UserApp user)
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -303,7 +302,6 @@ namespace Services.Auth
         }
 
 
-
         public async Task<string> ConfirmEmailAsync(string? email, string? token)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
@@ -319,7 +317,6 @@ namespace Services.Auth
 
             return "Your email address has been successfully confirmed. Welcome to Clinova!";
         }
-
 
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
@@ -364,7 +361,6 @@ namespace Services.Auth
         }
 
 
-
         public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
         {
             if (string.IsNullOrEmpty(refreshTokenRequest.RefreshToken))
@@ -388,7 +384,6 @@ namespace Services.Auth
                 RefreshToken = user.RefreshToken
             };
         }
-
 
 
         private async Task<string> GenerateJwtToken(UserApp user)
@@ -422,7 +417,6 @@ namespace Services.Auth
         }
 
 
-
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -430,7 +424,6 @@ namespace Services.Auth
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-
 
 
         public async Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail)
@@ -696,6 +689,64 @@ namespace Services.Auth
                 throw new InvalidResetPasswordException(result.Errors.Select(error => error.Description).ToList());
 
             return "Your password has been successfully reset. You can now sign in with your new password.";
+        }
+
+
+        public async Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest)
+        {
+            if (string.IsNullOrWhiteSpace(resendEmailConfirmationRequest.Email))
+                throw new BadRequestException("Email address is required.");
+
+            var user = await _userManager.FindByEmailAsync(resendEmailConfirmationRequest.Email);
+            if(user is null)
+                throw new NotFoundException("User associated with the email address was not found.");
+
+            if (user.EmailConfirmed)
+                return "Your email address has already been confirmed.";
+
+            var sendEmailConfirmationflag = await SendEmailConfirmationURL(user);
+            if (!sendEmailConfirmationflag)
+                throw new EmailConfirmationSendException("we couldn't send the email confirmation right now. Please try again later.");
+
+            return "A new email confirmation link has been sent to your email address.";
+        }
+
+
+        public async Task<string> LogoutAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("Unable to identify the current user.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+                throw new NotFoundException("The current user could not be found.");
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpirationDate = null;
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new UserUpdateException(
+                    result.Errors.Select(error => error.Description).ToList());
+
+            return "You have been successfully logged out.";
+        }
+
+
+        public async Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("Unable to identify the current user.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+                throw new NotFoundException("The current user could not be found.");
+
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordRequest.CurrentPassword, changePasswordRequest.NewPassword);
+            if (!result.Succeeded)
+                throw new InvalidPasswordChangeException(
+                    result.Errors.Select(error => error.Description).ToList());
+
+            return "Your password has been changed successfully.";
         }
     }
 }
