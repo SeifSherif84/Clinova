@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Middleware\" />
     <Folder Include="wwwroot\files\images\clinics\" />
     <Folder Include="wwwroot\files\images\doctors\nationalIds\" />
     <Folder Include="wwwroot\files\images\doctors\profilePictures\" />

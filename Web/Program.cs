@@ -12,6 +12,7 @@ using Services.AutoMapping.Auth;
 using Services.MailKitFeature;
 using Store.G02.Shared;
 using System.Text;
+using Web.Middleware;
 
 namespace Web
 {
@@ -75,6 +76,7 @@ namespace Web
                 };
             });
 
+            builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 
             // UserDefined Services End
 
@@ -92,6 +94,7 @@ namespace Web
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
