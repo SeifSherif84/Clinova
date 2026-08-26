@@ -100,5 +100,23 @@ namespace Presentation.Controllers.Auth
             return Ok(response);
         }
 
+
+        [HttpPost("patient-registration")]
+        public async Task<IActionResult> PatientRegistration([FromBody] PatientRegistrationRequest patientRegistrationRequest)
+        {
+            var response = await _serviceManager.AuthService.PatientRegistrationAsync(patientRegistrationRequest);
+            return Ok(response);
+        }
+
+
+        [Authorize]
+        [HttpDelete("delete-account")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AuthService.DeleteAccountAsync(userId ?? string.Empty);
+            return Ok(response);
+        }
+
     }
 }
