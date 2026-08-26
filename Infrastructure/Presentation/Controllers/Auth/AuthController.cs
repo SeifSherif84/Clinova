@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Shared.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,12 +24,14 @@ namespace Presentation.Controllers.Auth
             return Ok(response);
         }
 
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             var Response = await _serviceManager.AuthService.LoginAsync(loginRequest);
             return Ok(Response);
         }
+
 
 
         [HttpGet("confirm-email")]
@@ -38,12 +42,14 @@ namespace Presentation.Controllers.Auth
         }
 
 
+
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest refreshTokenRequest)
         {
             var response = await _serviceManager.AuthService.RefreshTokenAsync(refreshTokenRequest);
             return Ok(response);
         }
+
 
 
         [HttpPost("reset-password")]
@@ -54,12 +60,43 @@ namespace Presentation.Controllers.Auth
         }
 
 
+
         [HttpPost("update-password")]
         public async Task<IActionResult> UpdatePassword([FromQuery] string email,
                                                         [FromQuery] string token,
                                                         [FromBody] UpdatePasswordRequest updatePasswordRequest)
         {
             var response = await _serviceManager.AuthService.UpdatePasswordAsync(email, token, updatePasswordRequest);
+            return Ok(response);
+        }
+
+
+        [HttpPost("resend-email-confirmation")]
+        public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationRequest resendEmailConfirmationRequest)
+        {
+            var response = await _serviceManager.AuthService.ResendEmailConfirmationAsync(resendEmailConfirmationRequest);
+            return Ok(response);
+        }
+
+
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AuthService.LogoutAsync(userId ?? string.Empty);
+            return Ok(response);
+        }
+
+
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AuthService.ChangePasswordAsync(userId ?? string.Empty, changePasswordRequest);
             return Ok(response);
         }
 

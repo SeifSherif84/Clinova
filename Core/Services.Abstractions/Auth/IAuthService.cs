@@ -15,5 +15,8 @@ namespace Services.Abstractions.Auth
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
         Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail);
         Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest updatePasswordRequest);
+        Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest);
+        Task<string> LogoutAsync(string userId);
+        Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest);
     }
 }
