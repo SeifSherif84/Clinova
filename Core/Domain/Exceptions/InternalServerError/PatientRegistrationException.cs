@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Exceptions.InternalServerError
 {
-    public class RoleAssignmentException(IEnumerable<string> errors) 
+    public class PatientRegistrationException(IEnumerable<string> errors)
         : InternalServerErrorException(string.Join(", ", errors))
     {
     }

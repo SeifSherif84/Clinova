@@ -71,12 +71,13 @@ namespace Web
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = JWTOptions?.Issuer,
                     ValidAudience = JWTOptions?.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTOptions.SecurityKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTOptions?.SecurityKey ?? string.Empty)),
                     ClockSkew = TimeSpan.Zero
                 };
             });
 
             builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
+            builder.Services.AddTransient<ValidateUserStatusMiddleware>();
 
             // UserDefined Services End
 
@@ -101,6 +102,8 @@ namespace Web
             app.UseRouting();
 
             app.UseAuthentication();
+
+            app.UseMiddleware<ValidateUserStatusMiddleware>();
 
             app.UseAuthorization();
 

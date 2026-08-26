@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Services.AutoMapping.Auth
 {
@@ -14,6 +15,9 @@ namespace Services.AutoMapping.Auth
         public AuthProfile()
         {
             CreateMap<DoctorRegistrationRequest, Doctor>()
+                .ForMember(D => D.UserName, config => config.MapFrom(S => S.Email));
+
+            CreateMap<PatientRegistrationRequest, Patient>()
                 .ForMember(D => D.UserName, config => config.MapFrom(S => S.Email));
         }
     }

@@ -40,7 +40,8 @@ namespace Services.Auth
         public async Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest doctorRegistrationRequest)
         {
             var user = await _userManager.FindByEmailAsync(doctorRegistrationRequest.Email);
-            if(user is not null)  throw new EmailAlreadyExistsException("An account with this email address already exists.");
+            if (user is not null)
+                throw new EmailAlreadyExistsException("An account with this email address already exists.");
 
             var doctor = _mapper.Map<Doctor>(doctorRegistrationRequest);
 
@@ -57,8 +58,8 @@ namespace Services.Auth
 
 
             var sendEmailConfirmationflag = await SendEmailConfirmationURL(doctor);
-            if(!sendEmailConfirmationflag)
-                throw new EmailConfirmationSendException("Your account was created successfully, but we couldn't send the email confirmation right now. Please try again later.");
+            if (!sendEmailConfirmationflag)
+                throw new EmailConfirmationSendException("Your account was created successfully, but We couldn't send the email confirmation right now. Please try again later.");
 
             return new DoctorRegistrationResponse()
             {
@@ -67,6 +68,7 @@ namespace Services.Auth
                 ApprovalStatus = doctor.ApprovalStatus
             };
         }
+
 
 
         private async Task<bool> SendEmailConfirmationURL(UserApp user)
@@ -302,6 +304,7 @@ namespace Services.Auth
         }
 
 
+
         public async Task<string> ConfirmEmailAsync(string? email, string? token)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
@@ -317,6 +320,7 @@ namespace Services.Auth
 
             return "Your email address has been successfully confirmed. Welcome to Clinova!";
         }
+
 
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
@@ -361,6 +365,7 @@ namespace Services.Auth
         }
 
 
+
         public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
         {
             if (string.IsNullOrEmpty(refreshTokenRequest.RefreshToken))
@@ -384,6 +389,7 @@ namespace Services.Auth
                 RefreshToken = user.RefreshToken
             };
         }
+
 
 
         private async Task<string> GenerateJwtToken(UserApp user)
@@ -417,6 +423,7 @@ namespace Services.Auth
         }
 
 
+
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -426,10 +433,11 @@ namespace Services.Auth
         }
 
 
+
         public async Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail)
         {
             var user = await _userManager.FindByEmailAsync(resetPasswordByEmail.Email);
-            if (user == null) 
+            if (user == null)
                 throw new NotFoundException("No account was found with the provided email address.");
             if (!user.EmailConfirmed)
                 throw new UnconfirmedEmailException("Please confirm your email address before resetting your password.");
@@ -440,6 +448,7 @@ namespace Services.Auth
 
             return "A password reset link has been sent to your email address. Please check your inbox to continue.";
         }
+
 
 
         private async Task<bool> SendResetPasswordURL(UserApp user)
@@ -675,6 +684,7 @@ namespace Services.Auth
         }
 
 
+
         public async Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest updatePasswordRequest)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
@@ -692,13 +702,14 @@ namespace Services.Auth
         }
 
 
+
         public async Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest)
         {
             if (string.IsNullOrWhiteSpace(resendEmailConfirmationRequest.Email))
                 throw new BadRequestException("Email address is required.");
 
             var user = await _userManager.FindByEmailAsync(resendEmailConfirmationRequest.Email);
-            if(user is null)
+            if (user is null)
                 throw new NotFoundException("User associated with the email address was not found.");
 
             if (user.EmailConfirmed)
@@ -710,6 +721,7 @@ namespace Services.Auth
 
             return "A new email confirmation link has been sent to your email address.";
         }
+
 
 
         public async Task<string> LogoutAsync(string userId)
@@ -732,6 +744,7 @@ namespace Services.Auth
         }
 
 
+
         public async Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -747,6 +760,58 @@ namespace Services.Auth
                     result.Errors.Select(error => error.Description).ToList());
 
             return "Your password has been changed successfully.";
+        }
+
+
+
+        public async Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest patientRegistrationRequest)
+        {
+            var user = await _userManager.FindByEmailAsync(patientRegistrationRequest.Email);
+            if (user is not null)
+                throw new EmailAlreadyExistsException("An account with this email address already exists.");
+
+            var patient = _mapper.Map<Patient>(patientRegistrationRequest);
+            var result = await _userManager.CreateAsync(patient, patientRegistrationRequest.Password);
+            if (!result.Succeeded)
+                throw new PatientRegistrationException(result.Errors.Select(error => error.Description).ToList());
+
+            var roleFlag = await _userManager.AddToRoleAsync(patient, "Patient");
+            if (!roleFlag.Succeeded)
+                throw new RoleAssignmentException(roleFlag.Errors.Select(error => error.Description).ToList());
+
+            var sendEmailConfirmationflag = await SendEmailConfirmationURL(patient);
+            if (!sendEmailConfirmationflag)
+                throw new EmailConfirmationSendException("Your account was created successfully, but We couldn't send the email confirmation right now. Please try again later.");
+
+            return new PatientRegistrationResponse()
+            {
+                Message = "Registration successful. Please check your email to confirm your account.",
+                Email = patientRegistrationRequest.Email,
+            };
+        }
+
+
+
+        public async Task<string> DeleteAccountAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("Unable to identify the current user.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null || user.IsDeleted)
+                throw new NotFoundException("User not found or already deleted.");
+
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.UtcNow;
+            user.RefreshToken = null;
+            user.RefreshTokenExpirationDate = null;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new UserUpdateException(
+                    result.Errors.Select(error => error.Description).ToList());
+
+            return "Your account has been successfully deleted.";
         }
     }
 }

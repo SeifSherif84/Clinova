@@ -33,6 +33,8 @@ namespace Persistence.Data.Contexts
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
+
+            builder.Entity<UserApp>().HasQueryFilter(user => !user.IsDeleted);
         }
 
         public DbSet<Doctor> Doctors { get; set; }

@@ -18,5 +18,7 @@ namespace Services.Abstractions.Auth
         Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest);
         Task<string> LogoutAsync(string userId);
         Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest);
+        Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest patientRegistrationRequest);
+        Task<string> DeleteAccountAsync(string userId);
     }
 }
