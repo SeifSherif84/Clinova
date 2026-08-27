@@ -1,5 +1,7 @@
 ﻿using Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Data.Contexts;
+using Persistence.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,34 +12,53 @@ namespace Persistence.Repositories
 {
     public class GenericRepositiry<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class
     {
-        private AppDbContext _context;
+        private readonly AppDbContext _context;
 
         public GenericRepositiry(AppDbContext context)
         {
             _context = context;
         }
 
-        public Task<TEntity?> GetByIdAsync(TKey id)
+        public async Task<TEntity?> GetByIdAsync(TKey id)
         {
-            throw new NotImplementedException();
+            return await _context.Set<TEntity>().FindAsync(id);
         }
 
-        public Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Set<TEntity>().ToListAsync();
         }
-        public Task AddAsync(TEntity entity)
+
+        public async Task AddAsync(TEntity entity)
         {
-            throw new NotImplementedException();
+            await _context.Set<TEntity>().AddAsync(entity);
         }
 
         public void Update(TEntity entity)
         {
-            throw new NotImplementedException();
+            _context.Set<TEntity>().Update(entity);
         }
-        public void Delete(TKey id)
+        public void Delete(TEntity entity)
         {
-            throw new NotImplementedException();
+            _context.Set<TEntity>().Remove(entity);
+        }
+
+
+        
+        public async Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications)
+        {
+            return await ApplySpecifications(specifications).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecifications<TEntity, TKey> specifications)
+        {
+            return await ApplySpecifications(specifications).ToListAsync();
+        }
+
+
+        private IQueryable<TEntity> ApplySpecifications(IBaseSpecifications<TEntity, TKey> specifications)
+        {
+            return SpecificationsEvaluator.GenerateQuery(_context.Set<TEntity>(), specifications);
         }
     }
 }

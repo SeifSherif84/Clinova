@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Data.Contexts;
 using Persistence.Data.DataSeeding;
+using Persistence.UnitOfWork;
 using Services;
 using Services.Abstractions;
 using Services.AutoMapping.Auth;
+using Services.AutoMapping.Doctors;
 using Services.MailKitFeature;
 using Store.G02.Shared;
 using System.Text;
@@ -36,25 +38,29 @@ namespace Web
                 DbContextOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+
             builder.Services.AddIdentity<UserApp, IdentityRole>(identityOptions =>
             {
                 identityOptions.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<AppDbContext>()
               .AddDefaultTokenProviders();
-
-
-            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            
 
             builder.Services.AddAutoMapper(MapperConfig =>
             {
                 MapperConfig.AddProfile(new AuthProfile());
+                MapperConfig.AddProfile(new DoctorProfile(builder.Configuration));
             });
 
-            builder.Services.Configure<MailKitSetting>(builder.Configuration.GetSection("MailKitSetting"));
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IMailService, MailService>();    
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+
+            builder.Services.Configure<MailKitSetting>(builder.Configuration.GetSection("MailKitSetting"));
             builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWTOptions"));
+
 
             var JWTOptions = builder.Configuration.GetSection("JWTOptions").Get<JWTOptions>();
             builder.Services.AddAuthentication(authConfig =>
@@ -94,6 +100,8 @@ namespace Web
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles();
 
             app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 

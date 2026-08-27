@@ -20,6 +20,7 @@
     <Folder Include="wwwroot\files\images\doctors\nationalIds\" />
     <Folder Include="wwwroot\files\images\doctors\profilePictures\" />
     <Folder Include="wwwroot\files\images\doctors\syndicateCards\" />
+    <Folder Include="wwwroot\files\images\patients\profilePictures\" />
   </ItemGroup>
 
   <ItemGroup>
