@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Presentation.Controllers.Auth
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController(IServiceManager _serviceManager) : ControllerBase
     {
 
