@@ -15,7 +15,7 @@ namespace Presentation.Controllers.Doctors
     [Route("api/doctors")]
     public class DoctorsController(IServiceManager _serviceManager) : ControllerBase
     {
-        [Authorize]
+        
         [HttpGet("my-profile")]
         public async Task<IActionResult> GetProfile()
         {

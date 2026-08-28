@@ -29,7 +29,7 @@ namespace Shared.Dtos.Doctors
         public string MedicalSpecialtyName { get; set; } = null!;
 
         // Verification / Approval
-        public DoctorApprovalStatus ApprovalStatus { get; set; }
+        public string ApprovalStatusName { get; set; } = null!;
 
         // Registration / Verification Documents
         public string SyndicateNumber { get; set; } = null!;
