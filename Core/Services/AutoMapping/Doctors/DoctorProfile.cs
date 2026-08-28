@@ -18,10 +18,12 @@ namespace Services.AutoMapping.Doctors
                 .ForMember(D => D.MedicalSpecialtyName, config => config.MapFrom(S => S.MedicalSpecialty.Name))
                 .ForMember(D => D.NationalIdImageUrl, config => config.MapFrom(new NationalIdImageUrlResolver(_configuration)))
                 .ForMember(D => D.SyndicateCardImageUrl, config => config.MapFrom(new SyndicateCardImageUrlResolver(_configuration)))
-                .ForMember(D => D.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver(_configuration)));
+                .ForMember(D => D.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver(_configuration)))
+                .ForMember(D => D.ApprovalStatusName, config => config.MapFrom(S => (S.ApprovalStatus).ToString()));
 
             CreateMap<UpdateDoctorProfileRequest, Doctor>()
                     .ForAllMembers(config => config.Condition((S, D, srcMember) => srcMember != null));
+
         }
     }
 }
