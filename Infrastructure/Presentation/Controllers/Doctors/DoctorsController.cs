@@ -15,8 +15,9 @@ namespace Presentation.Controllers.Doctors
     [Route("api/doctors")]
     public class DoctorsController(IServiceManager _serviceManager) : ControllerBase
     {
-        
-        [HttpGet("my-profile")]
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("me")]
         public async Task<IActionResult> GetProfile()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -24,18 +25,20 @@ namespace Presentation.Controllers.Doctors
             return Ok(response);
         }
 
-        [Authorize]
-        [HttpPatch("my-profile")]
-        public async Task<IActionResult> UpdateProfile(UpdateDoctorProfileRequest request)
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("me")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.DoctorService.UpdateProfileAsync(userId ?? string.Empty, request);
             return Ok(response);
         }
 
-        [Authorize]
-        [HttpPatch("profile-picture")]
-        public async Task<IActionResult> UpdateProfilePicture(UpdateDoctorProfilePictureRequest request)
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("me/profile-picture")]
+        public async Task<IActionResult> UpdateProfilePicture([FromForm] UpdateDoctorProfilePictureRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.DoctorService.UpdateProfilePictureAsync(userId ?? string.Empty, request);

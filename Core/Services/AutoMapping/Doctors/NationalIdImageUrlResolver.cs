@@ -23,7 +23,8 @@ namespace Services.AutoMapping.Doctors
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:DoctorNationalIdImagesPath"];
-            return $"{baseUrl}/{imagesFolderPath}/{source.NationalIdImageUrl}"; 
+            destMember = $"{baseUrl}/{imagesFolderPath}/{source.NationalIdImageUrl}";
+            return destMember;
         }
     }
 }

@@ -19,9 +19,15 @@ namespace Persistence.UnitOfWork
             return (IGenericRepository<TEntity, TKey>) _repositories.GetOrAdd(typeof(TEntity).Name, new GenericRepositiry<TEntity, TKey>(_context));
         }
 
+        public ICompositeKeyGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class
+        {
+            return (ICompositeKeyGenericRepository<TEntity>)_repositories.GetOrAdd(typeof(TEntity).Name, new CompositeKeyGenericRepository<TEntity>(_context));
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
         }
+
     }
 }

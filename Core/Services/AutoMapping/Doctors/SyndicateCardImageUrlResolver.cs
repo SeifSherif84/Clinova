@@ -19,7 +19,8 @@ namespace Services.AutoMapping.Doctors
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:DoctorSyndicateCardImagesPath"];
-            return $"{baseUrl}/{imagesFolderPath}/{source.SyndicateCardImageUrl}";
+            destMember = $"{baseUrl}/{imagesFolderPath}/{source.SyndicateCardImageUrl}";
+            return destMember;
         }
     }
 }

@@ -9,16 +9,16 @@ namespace Services.Abstractions.Auth
 {
     public interface IAuthService
     {
-        Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest doctorRegistrationRequest);
+        Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest request);
         Task<string> ConfirmEmailAsync(string? email, string? token);
-        Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
-        Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
-        Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail);
-        Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest updatePasswordRequest);
-        Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest);
+        Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request);
+        Task<LoginResponse> LoginAsync(LoginRequest request);
+        Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmailRequest request);
+        Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest request);
+        Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest request);
         Task<string> LogoutAsync(string userId);
-        Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest);
-        Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest patientRegistrationRequest);
+        Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest request);
+        Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest request);
         Task<string> DeleteAccountAsync(string userId);
     }
 }

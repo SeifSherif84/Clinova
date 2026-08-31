@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace Persistence.Repositories
 {
-    public class GenericRepositiry<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class
+    public class GenericRepositiry<TEntity, TKey> :
+        IGenericRepository<TEntity, TKey> where TEntity : class
     {
         private readonly AppDbContext _context;
 
@@ -59,6 +60,12 @@ namespace Persistence.Repositories
         private IQueryable<TEntity> ApplySpecifications(IBaseSpecifications<TEntity, TKey> specifications)
         {
             return SpecificationsEvaluator.GenerateQuery(_context.Set<TEntity>(), specifications);
+        }
+
+
+        public async Task<TEntity?> GetByCompositeKeyAsync(params object[] keyValues)
+        {
+            return await _context.Set<TEntity>().FindAsync(keyValues);
         }
     }
 }

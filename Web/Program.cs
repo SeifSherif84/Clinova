@@ -10,6 +10,7 @@ using Persistence.UnitOfWork;
 using Services;
 using Services.Abstractions;
 using Services.AutoMapping.Auth;
+using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.MailKitFeature;
 using Store.G02.Shared;
@@ -50,6 +51,7 @@ namespace Web
             {
                 MapperConfig.AddProfile(new AuthProfile());
                 MapperConfig.AddProfile(new DoctorProfile(builder.Configuration));
+                MapperConfig.AddProfile(new ClinicProfile(builder.Configuration));
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();

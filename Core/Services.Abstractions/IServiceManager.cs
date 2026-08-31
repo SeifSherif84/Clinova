@@ -1,4 +1,5 @@
 ﻿using Services.Abstractions.Auth;
+using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
 using Services.Abstractions.Lookups;
 using System;
@@ -14,5 +15,6 @@ namespace Services.Abstractions
         IAuthService AuthService { get; }
         IDoctorService DoctorService { get; }
         ILookupsService LookupsService { get; }
+        IClinicService ClinicService { get; }
     }
 }

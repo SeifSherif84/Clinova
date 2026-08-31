@@ -24,12 +24,12 @@ namespace Services.Doctors
         public async Task<DoctorProfileResponse> GetProfileAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("Unable to identify the current user.");
+                throw new BadRequestException("We couldn't identify your account.");
 
             var doctorSpec = new DoctorSpecifications(userId);
             var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorSpec);
             if (doctor is null)
-                throw new NotFoundException("Doctor profile could not be found.");
+                throw new NotFoundException("We couldn't find your account.");
 
 
             var doctorResponse = _mapper.Map<DoctorProfileResponse>(doctor);
@@ -40,12 +40,12 @@ namespace Services.Doctors
         public async Task<string> UpdateProfileAsync(string userId, UpdateDoctorProfileRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("Unable to identify the current user.");
+                throw new BadRequestException("We couldn't identify your account.");
 
             var doctorSpec = new DoctorSpecifications(userId);
             var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorSpec);
             if (doctor is null)
-                throw new NotFoundException("Doctor profile could not be found.");
+                throw new NotFoundException("We couldn't find your account.");
 
             _mapper.Map(request, doctor);
             int result = await _unitOfWork.SaveChangesAsync(); // If saving the changes fails due to a database or server-side error,
@@ -61,12 +61,12 @@ namespace Services.Doctors
         public async Task<string> UpdateProfilePictureAsync(string userId, UpdateDoctorProfilePictureRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("Unable to identify the current user.");
+                throw new BadRequestException("We couldn't identify your account.");
 
             var doctorSpec = new DoctorSpecifications(userId);
             var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorSpec);
             if (doctor is null)
-                throw new NotFoundException("Doctor profile could not be found.");
+                throw new NotFoundException("We couldn't find your account.");
 
             if (request.ProfilePicture is not null)
             {
