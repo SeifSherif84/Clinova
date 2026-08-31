@@ -9,6 +9,12 @@ namespace Domain.Contracts
     public interface IUnitOfWork
     {
         IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>() where TEntity : class;
+
+        ICompositeKeyGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
+
         Task<int> SaveChangesAsync();
+
+
+
     }
 }

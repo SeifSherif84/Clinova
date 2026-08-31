@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Entities.BusinessEntities;
+using Domain.Entities.Contracts;
 using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -8,7 +9,9 @@ using Persistence.Data.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,7 +37,25 @@ namespace Persistence.Data.Contexts
             builder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
             builder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
 
+            //foreach (var entityType in builder.Model.GetEntityTypes())
+            //{
+            //    if (entityType.BaseType == null && typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
+            //        builder.Entity(entityType.ClrType).HasQueryFilter(GetIsDeletedRestriction(entityType.ClrType));
+            //}
+
+
+            //static LambdaExpression GetIsDeletedRestriction(Type type)
+            //{
+            //    ParameterExpression parameter = Expression.Parameter(type, "entity");
+            //    MemberExpression property = Expression.Property(parameter, nameof(ISoftDelete.IsDeleted));
+            //    ConstantExpression falseConstant = Expression.Constant(false);
+            //    BinaryExpression condition = Expression.Equal(property, falseConstant);
+            //    LambdaExpression lamdaCondition = Expression.Lambda(condition, parameter);
+            //    return lamdaCondition;
+            //}
+
             builder.Entity<UserApp>().HasQueryFilter(user => !user.IsDeleted);
+            builder.Entity<Clinic>().HasQueryFilter(clinic => !clinic.IsDeleted);
         }
 
         public DbSet<Doctor> Doctors { get; set; }

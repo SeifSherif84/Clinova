@@ -27,11 +27,12 @@ namespace Shared.Dtos.Auth
 
         [Required]
         [Phone]
+        [EgyptianPhone]
         public string PhoneNumber { get; set; } = null!;
 
+
         [Required]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$",
-                                  ErrorMessage = "Password must be at least 8 characters and contain uppercase, lowercase, digit and special character.")]
+        [PasswordPolicy]
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 

@@ -27,7 +27,9 @@ namespace Shared.Dtos.Auth
 
         [Required]
         [Phone]
+        [EgyptianPhone]
         public string PhoneNumber { get; set; } = null!;
+
 
         [Required]
         [PasswordPolicy]

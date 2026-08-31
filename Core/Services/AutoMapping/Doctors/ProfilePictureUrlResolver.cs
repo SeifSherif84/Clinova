@@ -19,7 +19,8 @@ namespace Services.AutoMapping.Doctors
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:DoctorProfileImagesPath"];
-            return $"{baseUrl}/{imagesFolderPath}/{source.ProfilePicture}";
+            destMember = $"{baseUrl}/{imagesFolderPath}/{source.ProfilePicture}";
+            return destMember;
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Services.Abstractions;
 using Services.Abstractions.Auth;
+using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
 using Services.Abstractions.Lookups;
 using Services.Auth;
@@ -31,5 +32,6 @@ namespace Services
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions);
         public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
         public ILookupsService LookupsService { get; } = new LookupsService(_unitOfWork);
+        public IClinicService ClinicService { get; } = new ClinicService(_unitOfWork, _mapper);
     }
 }

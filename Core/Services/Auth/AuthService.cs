@@ -37,18 +37,18 @@ namespace Services.Auth
                              IMailService _mailService,
                              IOptions<JWTOptions> _jwtOptions) : IAuthService
     {
-        public async Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest doctorRegistrationRequest)
+        public async Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(doctorRegistrationRequest.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is not null)
                 throw new EmailAlreadyExistsException("An account with this email address already exists.");
 
-            var doctor = _mapper.Map<Doctor>(doctorRegistrationRequest);
+            var doctor = _mapper.Map<Doctor>(request);
 
-            doctor.NationalIdImageUrl = await FileStorageHandler.UploadAsync(doctorRegistrationRequest.NationalId, @"doctors\nationalIds");
-            doctor.SyndicateCardImageUrl = await FileStorageHandler.UploadAsync(doctorRegistrationRequest.SyndicateCard, @"doctors\syndicateCards");
+            doctor.NationalIdImageUrl = await FileStorageHandler.UploadAsync(request.NationalId, @"doctors\nationalIds");
+            doctor.SyndicateCardImageUrl = await FileStorageHandler.UploadAsync(request.SyndicateCard, @"doctors\syndicateCards");
 
-            var result = await _userManager.CreateAsync(doctor, doctorRegistrationRequest.Password);
+            var result = await _userManager.CreateAsync(doctor, request.Password);
             if (!result.Succeeded)
                 throw new DoctorRegistrationException(result.Errors.Select(error => error.Description).ToList());
 
@@ -64,7 +64,7 @@ namespace Services.Auth
             return new DoctorRegistrationResponse()
             {
                 Message = "Registration successful. Please check your email to confirm your account.",
-                Email = doctorRegistrationRequest.Email,
+                Email = request.Email,
                 ApprovalStatus = doctor.ApprovalStatus
             };
         }
@@ -323,13 +323,13 @@ namespace Services.Auth
 
 
 
-        public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
+        public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(loginRequest.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is null)
                 throw new FailedLoginException("Invalid email or password.");
 
-            var flag = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
+            var flag = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!flag)
                 throw new FailedLoginException("Invalid email or password.");
 
@@ -366,12 +366,12 @@ namespace Services.Auth
 
 
 
-        public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
+        public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request)
         {
-            if (string.IsNullOrEmpty(refreshTokenRequest.RefreshToken))
+            if (string.IsNullOrEmpty(request.RefreshToken))
                 throw new RequiredRefreshTokenException("Refresh token is required.");
 
-            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.RefreshToken == refreshTokenRequest.RefreshToken);
+            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.RefreshToken == request.RefreshToken);
             if (user is null || user.RefreshTokenExpirationDate <= DateTime.UtcNow)
                 throw new InvalidRefreshTokenException("Invalid or expired refresh token.");
 
@@ -434,9 +434,9 @@ namespace Services.Auth
 
 
 
-        public async Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmail resetPasswordByEmail)
+        public async Task<string> ResetPaswordByEmailAsync(ResetPasswordByEmailRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(resetPasswordByEmail.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
                 throw new NotFoundException("No account was found with the provided email address.");
             if (!user.EmailConfirmed)
@@ -685,7 +685,7 @@ namespace Services.Auth
 
 
 
-        public async Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest updatePasswordRequest)
+        public async Task<string> UpdatePasswordAsync(string email, string token, UpdatePasswordRequest request)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
                 throw new BadRequestException("Invalid or missing reset password information.");
@@ -694,7 +694,7 @@ namespace Services.Auth
             if (user is null)
                 throw new NotFoundException("User associated with the email address was not found.");
 
-            var result = await _userManager.ResetPasswordAsync(user, token, updatePasswordRequest.NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
             if (!result.Succeeded)
                 throw new InvalidResetPasswordException(result.Errors.Select(error => error.Description).ToList());
 
@@ -703,12 +703,12 @@ namespace Services.Auth
 
 
 
-        public async Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest resendEmailConfirmationRequest)
+        public async Task<string> ResendEmailConfirmationAsync(ResendEmailConfirmationRequest request)
         {
-            if (string.IsNullOrWhiteSpace(resendEmailConfirmationRequest.Email))
+            if (string.IsNullOrWhiteSpace(request.Email))
                 throw new BadRequestException("Email address is required.");
 
-            var user = await _userManager.FindByEmailAsync(resendEmailConfirmationRequest.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is null)
                 throw new NotFoundException("User associated with the email address was not found.");
 
@@ -745,7 +745,7 @@ namespace Services.Auth
 
 
 
-        public async Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest changePasswordRequest)
+        public async Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("Unable to identify the current user.");
@@ -754,7 +754,7 @@ namespace Services.Auth
             if (user is null)
                 throw new NotFoundException("The current user could not be found.");
 
-            var result = await _userManager.ChangePasswordAsync(user, changePasswordRequest.CurrentPassword, changePasswordRequest.NewPassword);
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (!result.Succeeded)
                 throw new InvalidPasswordChangeException(
                     result.Errors.Select(error => error.Description).ToList());
@@ -764,14 +764,14 @@ namespace Services.Auth
 
 
 
-        public async Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest patientRegistrationRequest)
+        public async Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(patientRegistrationRequest.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is not null)
                 throw new EmailAlreadyExistsException("An account with this email address already exists.");
 
-            var patient = _mapper.Map<Patient>(patientRegistrationRequest);
-            var result = await _userManager.CreateAsync(patient, patientRegistrationRequest.Password);
+            var patient = _mapper.Map<Patient>(request);
+            var result = await _userManager.CreateAsync(patient, request.Password);
             if (!result.Succeeded)
                 throw new PatientRegistrationException(result.Errors.Select(error => error.Description).ToList());
 
@@ -786,7 +786,7 @@ namespace Services.Auth
             return new PatientRegistrationResponse()
             {
                 Message = "Registration successful. Please check your email to confirm your account.",
-                Email = patientRegistrationRequest.Email,
+                Email = request.Email,
             };
         }
 
