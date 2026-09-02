@@ -11,6 +11,6 @@ namespace Shared.Dtos.Auth
     {
         public string Message { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public DoctorApprovalStatus ApprovalStatus { get; set; }
+        public string DoctorApprovalStatusName { get; set; } = null!;
     }
 }

@@ -17,7 +17,7 @@ namespace Presentation.Controllers.Doctors
     {
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("me")]
+        [HttpGet("me")] // Get api/doctors/me
         public async Task<IActionResult> GetProfile()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -27,7 +27,7 @@ namespace Presentation.Controllers.Doctors
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPatch("me")]
+        [HttpPatch("me")] // Patch api/doctors/me
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -37,7 +37,7 @@ namespace Presentation.Controllers.Doctors
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPatch("me/profile-picture")]
+        [HttpPatch("me/profile-picture")] // Patch api/doctors/me/profile-picture
         public async Task<IActionResult> UpdateProfilePicture([FromForm] UpdateDoctorProfilePictureRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

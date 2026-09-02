@@ -9,9 +9,11 @@ using Services.Abstractions;
 using Services.Abstractions.Auth;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
+using Services.Abstractions.Invitations;
 using Services.Abstractions.Lookups;
 using Services.Auth;
 using Services.Doctors;
+using Services.Invitations;
 using Services.MailKitFeature;
 using Store.G02.Shared;
 using System;
@@ -33,5 +35,6 @@ namespace Services
         public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
         public ILookupsService LookupsService { get; } = new LookupsService(_unitOfWork);
         public IClinicService ClinicService { get; } = new ClinicService(_unitOfWork, _mapper);
+        public IInvitationService InvitationService { get; } = new InvitationService(_userManager, _unitOfWork, _mapper);
     }
 }

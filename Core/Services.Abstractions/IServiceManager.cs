@@ -1,6 +1,7 @@
 ﻿using Services.Abstractions.Auth;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
+using Services.Abstractions.Invitations;
 using Services.Abstractions.Lookups;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,6 @@ namespace Services.Abstractions
         IDoctorService DoctorService { get; }
         ILookupsService LookupsService { get; }
         IClinicService ClinicService { get; }
+        IInvitationService InvitationService { get; }
     }
 }

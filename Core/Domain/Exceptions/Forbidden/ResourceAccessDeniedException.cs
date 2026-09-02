@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities.Enums
+namespace Domain.Exceptions.Forbidden
 {
-    public enum InvitationStatus
+    public class ResourceAccessDeniedException(string message) : ForbiddenException(message)
     {
-        Pending = 1,
-        Accepted,
-        Rejected,
     }
 }

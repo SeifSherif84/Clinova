@@ -6,6 +6,7 @@ using Domain.Exceptions.BadRequest;
 using Domain.Exceptions.Forbidden;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
+using Services.Clinics;
 using Services.FileStorage;
 using Services.Specifications.Clinics;
 using Services.Specifications.Doctors;
@@ -19,12 +20,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Services.Abstractions.Clinics
 {
-    public class DoctorClinicContext
-    {
-        public Doctor Doctor { get; init; } = null!;
-        public Clinic Clinic { get; init; } = null!;
-    }
-
     public class ClinicService(IUnitOfWork _unitOfWork, IMapper _mapper) : IClinicService
     {
         public async Task<string> AddClinicAsync(string userId, AddClinicRequest request)
@@ -72,12 +67,12 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> UpdateClinicAsync(string userId, int clinicId, UpdateClinicRequest request)
         {
-            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId);
+            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
-            _mapper.Map(request, doctorClinicAccess.Clinic);
+            _mapper.Map(request, doctorClinicOwnedAccess.Clinic);
 
             if(request.RegionId.HasValue)
-                doctorClinicAccess.Clinic.RegionId = request.RegionId.Value;
+                doctorClinicOwnedAccess.Clinic.RegionId = request.RegionId.Value;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -89,9 +84,10 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> DeleteClinicAsync(string userId, int clinicId)
         {
-            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId);
-            doctorClinicAccess.Clinic.IsDeleted = true;
-            doctorClinicAccess.Clinic.DeletedAt = DateTime.UtcNow;
+            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            doctorClinicOwnedAccess.Clinic.IsDeleted = true;
+            doctorClinicOwnedAccess.Clinic.DeletedAt = DateTime.UtcNow;
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
                 throw new BadRequestException(
@@ -103,15 +99,15 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> AddImageAsync(string userId, int clinicId, AddClinicImagesRequest request)
         {
-            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId, includeClinicImages: true);
+            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicImages: true);
 
-            if (doctorClinicAccess.Clinic.Images.Count + request.Images.Count > 6)
+            if (doctorClinicOwnedAccess.Clinic.Images.Count + request.Images.Count > 6)
                 throw new BadRequestException("You can have up to 6 images for your clinic.");
 
 
             foreach (var image in request.Images)
             {
-                doctorClinicAccess.Clinic.Images.Add(new ClinicImages()
+                doctorClinicOwnedAccess.Clinic.Images.Add(new ClinicImages()
                 {
                     Image = await FileStorageHandler.UploadAsync(image, "clinics")
                 });
@@ -128,13 +124,13 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> AddPhoneNumberAsync(string userId, int clinicId, AddClinicPhoneNumberRequest request)
         {
-            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId, includeClinicPhoneNumbers: true);
+            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicPhoneNumbers: true);
 
-            if (doctorClinicAccess.Clinic.PhoneNumbers.Count >= 6)
+            if (doctorClinicOwnedAccess.Clinic.PhoneNumbers.Count >= 6)
                 throw new BadRequestException("You can have up to 6 phone numbers for your clinic.");
 
 
-            doctorClinicAccess.Clinic.PhoneNumbers.Add(new ClinicPhoneNumbers()
+            doctorClinicOwnedAccess.Clinic.PhoneNumbers.Add(new ClinicPhoneNumbers()
             {
                 PhoneNumber = request.PhoneNumber,
             });
@@ -151,7 +147,7 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> DeleteImageAsync(string userId, int clinicId, int imageId)
         {
-            await GetDoctorClinicAccessAsync(userId, clinicId);
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
             var clinicImagesRepo = _unitOfWork.GetRepository<ClinicImages, int>();
 
@@ -173,7 +169,7 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> DeletePhoneNumberAsync(string userId, int clinicId, int phoneNumberId)
         {
-            await GetDoctorClinicAccessAsync(userId, clinicId);
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
             var clinicPhoneNumbersRepo = _unitOfWork.GetRepository<ClinicPhoneNumbers, int>();
 
@@ -249,8 +245,28 @@ namespace Services.Abstractions.Clinics
             return new DoctorClinicContext
             {
                 Doctor = doctor,
-                Clinic = clinic
+                Clinic = clinic,
+                IsOwner = doctorClinic.IsOwner
             };
+        }
+
+
+        private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync( string userId,
+                                                                                 int clinicId,
+                                                                                 bool includeClinicImages = false,
+                                                                                 bool includeClinicPhoneNumbers = false,
+                                                                                 bool includeClinicRegion = false)
+        {
+            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId,
+                                                                      clinicId,
+                                                                      includeClinicImages,
+                                                                      includeClinicPhoneNumbers,
+                                                                      includeClinicRegion);
+
+            if (!doctorClinicAccess.IsOwner)
+                throw new ResourceAccessDeniedException("Only the clinic owner can perform this action.");
+
+            return doctorClinicAccess;
         }
 
 

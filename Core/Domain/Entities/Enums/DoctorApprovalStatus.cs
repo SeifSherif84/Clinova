@@ -8,7 +8,7 @@ namespace Domain.Entities.Enums
 {
     public enum DoctorApprovalStatus
     {
-        Pending,
+        Pending = 1,
         Rejected,
         Approved
     }

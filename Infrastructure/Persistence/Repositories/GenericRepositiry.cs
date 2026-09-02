@@ -62,10 +62,5 @@ namespace Persistence.Repositories
             return SpecificationsEvaluator.GenerateQuery(_context.Set<TEntity>(), specifications);
         }
 
-
-        public async Task<TEntity?> GetByCompositeKeyAsync(params object[] keyValues)
-        {
-            return await _context.Set<TEntity>().FindAsync(keyValues);
-        }
     }
 }
