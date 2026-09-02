@@ -16,7 +16,7 @@ namespace Presentation.Controllers.Auth
     public class AuthController(IServiceManager _serviceManager) : ControllerBase
     {
 
-        [HttpPost("doctor-registration")] 
+        [HttpPost("doctor-registration")] // Post api/auth/doctor-registration
         public async Task<IActionResult> DoctorRegistration([FromForm] DoctorRegistrationRequest request)
         {
             // Call the AuthService to handle doctor registration
@@ -25,7 +25,7 @@ namespace Presentation.Controllers.Auth
         }
 
 
-        [HttpPost("login")]
+        [HttpPost("login")] // Post api/auth/login
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var response = await _serviceManager.AuthService.LoginAsync(request);
@@ -34,7 +34,7 @@ namespace Presentation.Controllers.Auth
 
 
 
-        [HttpGet("confirm-email")]
+        [HttpGet("confirm-email")] // Get api/auth/confirm-email?email={email}&token={token}
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
         {
             var response = await _serviceManager.AuthService.ConfirmEmailAsync(email, token);
@@ -43,7 +43,7 @@ namespace Presentation.Controllers.Auth
 
 
 
-        [HttpPost("refresh-token")]
+        [HttpPost("refresh-token")] // Post api/auth/refresh-token
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             var response = await _serviceManager.AuthService.RefreshTokenAsync(request);
@@ -52,7 +52,7 @@ namespace Presentation.Controllers.Auth
 
 
 
-        [HttpPost("reset-password")]
+        [HttpPost("reset-password")] // Post api/auth/reset-password
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordByEmailRequest request)
         {
             var response = await _serviceManager.AuthService.ResetPaswordByEmailAsync(request);
@@ -61,7 +61,7 @@ namespace Presentation.Controllers.Auth
 
 
 
-        [HttpPost("update-password")]
+        [HttpPost("update-password")] // Post api/auth/update-password?email={email}&token={token}
         public async Task<IActionResult> UpdatePassword([FromQuery] string email,
                                                         [FromQuery] string token,
                                                         [FromBody] UpdatePasswordRequest request)
@@ -71,7 +71,7 @@ namespace Presentation.Controllers.Auth
         }
 
 
-        [HttpPost("resend-email-confirmation")]
+        [HttpPost("resend-email-confirmation")] // Post api/auth/resend-email-confirmation
         public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationRequest request)
         {
             var response = await _serviceManager.AuthService.ResendEmailConfirmationAsync(request);
@@ -81,7 +81,7 @@ namespace Presentation.Controllers.Auth
 
 
         [Authorize]
-        [HttpPost("logout")]
+        [HttpPost("logout")] // Post api/auth/logout
         public async Task<IActionResult> Logout()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -92,7 +92,7 @@ namespace Presentation.Controllers.Auth
 
 
         [Authorize]
-        [HttpPost("change-password")]
+        [HttpPost("change-password")] // Post api/auth/change-password
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -101,7 +101,7 @@ namespace Presentation.Controllers.Auth
         }
 
 
-        [HttpPost("patient-registration")]
+        [HttpPost("patient-registration")] // Post api/auth/patient-registration
         public async Task<IActionResult> PatientRegistration([FromBody] PatientRegistrationRequest request)
         {
             var response = await _serviceManager.AuthService.PatientRegistrationAsync(request);
@@ -110,7 +110,7 @@ namespace Presentation.Controllers.Auth
 
 
         [Authorize]
-        [HttpDelete("account")]
+        [HttpDelete("account")] // Delete api/auth/account
         public async Task<IActionResult> DeleteAccount()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -17,7 +17,7 @@ namespace Presentation.Controllers.Clinics
     public class ClinicsController(IServiceManager _serviceManager) : ControllerBase
     {
         [Authorize(Roles = "Doctor")]
-        [HttpPost]
+        [HttpPost] // Post api/clinics
         public async Task<IActionResult> AddClinic([FromForm] AddClinicRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -27,7 +27,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPatch("{clinicId}")]
+        [HttpPatch("{clinicId}")] // Patch api/clinics/{clinicId}
         public async Task<IActionResult> UpdateClinic([FromBody] UpdateClinicRequest request,
                                                       [FromRoute] int clinicId)
         {
@@ -38,7 +38,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpDelete("{clinicId}")]
+        [HttpDelete("{clinicId}")] // Delete api/clinics/{clinicId}
         public async Task<IActionResult> DeleteClinic([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -49,7 +49,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("{clinicId}/images")]
+        [HttpPost("{clinicId}/images")] // Post api/clinics/{clinicId}/images
         public async Task<IActionResult> AddImage([FromForm] AddClinicImagesRequest request,
                                                   [FromRoute] int clinicId)
         {
@@ -61,7 +61,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpDelete("{clinicId}/images/{imageId}")]
+        [HttpDelete("{clinicId}/images/{imageId}")] // Delete api/clinics/{clinicId}/images/{imageId}
         public async Task<IActionResult> DeleteImage([FromRoute] int clinicId, [FromRoute] int imageId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -72,7 +72,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("{clinicId}/phone-numbers")]
+        [HttpPost("{clinicId}/phone-numbers")] // Post api/clinics/{clinicId}/phone-numbers
         public async Task<IActionResult> AddPhoneNumber([FromBody] AddClinicPhoneNumberRequest request,
                                                         [FromRoute] int clinicId)
         {
@@ -83,7 +83,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpDelete("{clinicId}/phone-numbers/{phoneNumberId}")]
+        [HttpDelete("{clinicId}/phone-numbers/{phoneNumberId}")] // Delete api/clinics/{clinicId}/phone-numbers/{phoneNumberId}
         public async Task<IActionResult> DeletePhoneNumber([FromRoute] int clinicId, [FromRoute] int phoneNumberId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -93,7 +93,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet]
+        [HttpGet] // Get api/clinics
         public async Task<IActionResult> GetAllClinics()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -103,7 +103,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("{clinicId}")]
+        [HttpGet("{clinicId}")] // Get api/clinics/{clinicId}
         public async Task<IActionResult> GetClinicDetails([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

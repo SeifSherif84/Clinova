@@ -65,7 +65,7 @@ namespace Services.Auth
             {
                 Message = "Registration successful. Please check your email to confirm your account.",
                 Email = request.Email,
-                ApprovalStatus = doctor.ApprovalStatus
+                DoctorApprovalStatusName = doctor.ApprovalStatus.ToString()
             };
         }
 

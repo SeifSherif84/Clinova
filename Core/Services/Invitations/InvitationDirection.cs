@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Exceptions.InternalServerError
+namespace Services.Invitations
 {
-    public class ResourceAccessDeniedException(string message) : Exception(message)
+    public enum InvitationDirection
     {
+        Sent = 1,
+        Received
     }
 }
