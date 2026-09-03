@@ -13,17 +13,15 @@ namespace Services.AutoMapping.Invitations
     {
         public InvitationProfile()
         {
-            CreateMap<Invitation, SentInvitationsResponse>()
-                .ForMember(D => D.ReceiverDoctorName, config => config.MapFrom(S => $"Dr. {S.DoctorReceiver.FirstName} {S.DoctorReceiver.LastName}"))
+            CreateMap<Invitation, SentInvitationResponse>()
+                .ForMember(D => D.ReceiverName, config => config.MapFrom(S => $"Dr. {S.DoctorReceiver.FirstName} {S.DoctorReceiver.LastName}"))
                 .ForMember(D => D.ClinicName, config => config.MapFrom(S => S.Clinic.Name))
-                .ForMember(D => D.InvitationStatusName, config => config.MapFrom(S => S.Status.ToString()))
-                .ForMember(D => D.RespondedAt, config => config.MapFrom(S => S.RespondedAt ?? DateTime.MinValue));
+                .ForMember(D => D.Status, config => config.MapFrom(S => S.Status.ToString()));
 
-            CreateMap<Invitation, ReceivedInvitationsResponse>()
-                .ForMember(D => D.SenderDoctorName, config => config.MapFrom(S => $"Dr. {S.DoctorSender.FirstName} {S.DoctorSender.LastName}"))
+            CreateMap<Invitation, ReceivedInvitationResponse>()
+                .ForMember(D => D.SenderName, config => config.MapFrom(S => $"Dr. {S.DoctorSender.FirstName} {S.DoctorSender.LastName}"))
                 .ForMember(D => D.ClinicName, config => config.MapFrom(S => S.Clinic.Name))
-                .ForMember(D => D.InvitationStatusName, config => config.MapFrom(S => S.Status.ToString()))
-                .ForMember(D => D.RespondedAt, config => config.MapFrom(S => S.RespondedAt ?? DateTime.MinValue));
+                .ForMember(D => D.Status, config => config.MapFrom(S => S.Status.ToString()));
         }
     }
 }

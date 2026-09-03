@@ -13,7 +13,7 @@ namespace Domain.Entities.BusinessEntities
     {
         public string Title { get; set; } = null!;
         public string Message { get; set; } = null!;
-        public NotificationType? Type { get; set; }
+        public NotificationType Type { get; set; } 
         public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

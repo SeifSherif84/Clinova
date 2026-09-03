@@ -59,10 +59,13 @@ namespace Services.Abstractions.Clinics
 
             await _unitOfWork.GetRepository<Clinic, int>().AddAsync(clinic);
             await _unitOfWork.GetRepository<DoctorClinic>().AddAsync(doctorClinic);
-            await _unitOfWork.SaveChangesAsync();
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("We couldn't add your clinic right now. Please try again.");
 
             return "Your clinic has been added successfully.";
         }
+
 
 
         public async Task<string> UpdateClinicAsync(string userId, int clinicId, UpdateClinicRequest request)
@@ -82,19 +85,25 @@ namespace Services.Abstractions.Clinics
         }
 
 
+
         public async Task<string> DeleteClinicAsync(string userId, int clinicId)
         {
             var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
+            if (doctorClinicOwnedAccess.Clinic.IsDeleted)
+                return "The clinic is already deleted.";
+
             doctorClinicOwnedAccess.Clinic.IsDeleted = true;
             doctorClinicOwnedAccess.Clinic.DeletedAt = DateTime.UtcNow;
+
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new BadRequestException(
+                throw new InternalServerErrorException(
                     "We couldn't delete the clinic right now. Please try again.");
 
             return "The clinic has been deleted successfully.";
         }
+
 
 
         public async Task<string> AddImageAsync(string userId, int clinicId, AddClinicImagesRequest request)
@@ -115,11 +124,12 @@ namespace Services.Abstractions.Clinics
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new BadRequestException(
+                throw new InternalServerErrorException(
                     "We couldn't add the clinic images right now. Please try again.");
 
             return "Your clinic images have been added successfully.";
         }
+
 
 
         public async Task<string> AddPhoneNumberAsync(string userId, int clinicId, AddClinicPhoneNumberRequest request)
@@ -138,11 +148,12 @@ namespace Services.Abstractions.Clinics
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new BadRequestException(
+                throw new InternalServerErrorException(
                     "We couldn't add the phone number right now. Please try again.");
 
             return "Your phone number has been added successfully.";
         }
+
 
 
         public async Task<string> DeleteImageAsync(string userId, int clinicId, int imageId)
@@ -160,11 +171,12 @@ namespace Services.Abstractions.Clinics
             clinicImagesRepo.Delete(clinicImage);
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new BadRequestException(
+                throw new InternalServerErrorException(
                     "We couldn't delete the clinic image right now. Please try again.");
 
             return "The clinic image has been deleted successfully.";
         }
+
 
 
         public async Task<string> DeletePhoneNumberAsync(string userId, int clinicId, int phoneNumberId)
@@ -182,11 +194,12 @@ namespace Services.Abstractions.Clinics
             var result = await _unitOfWork.SaveChangesAsync();
 
             if (result == 0)
-                throw new BadRequestException(
+                throw new InternalServerErrorException(
                     "We couldn't delete the phone number right now. Please try again.");
 
             return "The phone number has been deleted successfully.";
         }
+
 
 
         public async Task<IEnumerable<ClinicResponse>> GetAllClinicAsync(string userId)
@@ -202,10 +215,11 @@ namespace Services.Abstractions.Clinics
             var clinicSpec = new ClinicSpecifications(userId, includeRegion: true);
             var clinics = await _unitOfWork.GetRepository<Clinic, int>().GetAllAsync(clinicSpec);
             if (!clinics.Any())
-                return new List<ClinicResponse>();
+                return Enumerable.Empty<ClinicResponse>();
 
             return _mapper.Map<IEnumerable<ClinicResponse>>(clinics);
         }
+
 
 
         public async Task<ClinicDetailsResponse> GetClinicDetailsAsync(string userId, int clinicId)
@@ -214,6 +228,7 @@ namespace Services.Abstractions.Clinics
             var clinicDetailsResponse = _mapper.Map<ClinicDetailsResponse>(doctorClinicAccess.Clinic);
             return clinicDetailsResponse;
         }
+
 
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string userId,
@@ -234,7 +249,7 @@ namespace Services.Abstractions.Clinics
             var clinicSpec = new ClinicSpecifications(clinicId, includeClinicImages, includeClinicPhoneNumbers, includeClinicRegion);
             var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicSpec);
             if (clinic is null)
-                throw new NotFoundException("The clinic you're trying to update could not be found.");
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
 
 
             var doctorClinic = await _unitOfWork.GetRepository<DoctorClinic>().GetByCompositeKeyAsync(doctor.Id, clinic.Id);
@@ -249,6 +264,7 @@ namespace Services.Abstractions.Clinics
                 IsOwner = doctorClinic.IsOwner
             };
         }
+
 
 
         private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync( string userId,
