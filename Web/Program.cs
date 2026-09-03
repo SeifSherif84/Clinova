@@ -9,14 +9,19 @@ using Persistence.Data.DataSeeding;
 using Persistence.UnitOfWork;
 using Services;
 using Services.Abstractions;
+using Services.Abstractions.Notifications;
 using Services.AutoMapping.Auth;
 using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.AutoMapping.Invitations;
+using Services.AutoMapping.Notifications;
 using Services.MailKitFeature;
+using Services.Notifications;
 using Store.G02.Shared;
 using System.Text;
+using Web.Hubs;
 using Web.Middleware;
+using Web.SignalR;
 
 namespace Web
 {
@@ -54,6 +59,7 @@ namespace Web
                 MapperConfig.AddProfile(new DoctorProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicProfile(builder.Configuration));
                 MapperConfig.AddProfile(new InvitationProfile());
+                MapperConfig.AddProfile(new NotificationProfile());
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
@@ -89,6 +95,13 @@ namespace Web
             builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
             builder.Services.AddTransient<ValidateUserStatusMiddleware>();
 
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<INotificationPublisher, NotificationPublisher>();    
+
+
+            builder.Services.AddSignalR();
+
+
             // UserDefined Services End
 
             var app = builder.Build();
@@ -121,6 +134,7 @@ namespace Web
 
             app.MapControllers();
 
+            app.MapHub<NotificationHub>("/hubs/notifications");
 
             app.Run();
         }

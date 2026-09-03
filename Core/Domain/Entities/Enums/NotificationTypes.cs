@@ -12,6 +12,9 @@ namespace Domain.Entities.Enums
         BookingConfirmation,
         PaymentSuccess,
         InvitationReceived,
+        InvitationAccepted,
+        InvitationRejected,
+        InvitationCancelled,
         ReviewSubmitted
     }
 }

@@ -37,6 +37,7 @@ namespace Services.Doctors
         }
 
 
+
         public async Task<string> UpdateProfileAsync(string userId, UpdateDoctorProfileRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -56,6 +57,7 @@ namespace Services.Doctors
 
             return "Your profile has been updated successfully.";
         }
+
 
 
         public async Task<string> UpdateProfilePictureAsync(string userId, UpdateDoctorProfilePictureRequest request)
@@ -79,7 +81,8 @@ namespace Services.Doctors
             int result = await _unitOfWork.SaveChangesAsync();
 
             if (result == 0)
-                return "Your profile picture is already up to date.";
+                throw new InternalServerErrorException(
+                    "An error occurred while updating your profile picture. Please try again later.");
 
             return "Your profile picture has been updated successfully.";
         }

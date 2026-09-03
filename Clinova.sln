@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{FEDD95D4-623A-4C90-B734-19AD2763154C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.TestClient", "SignalR.TestClient\SignalR.TestClient.csproj", "{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{FEDD95D4-623A-4C90-B734-19AD2763154C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEDD95D4-623A-4C90-B734-19AD2763154C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEDD95D4-623A-4C90-B734-19AD2763154C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

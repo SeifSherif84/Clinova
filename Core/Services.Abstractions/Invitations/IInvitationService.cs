@@ -11,8 +11,8 @@ namespace Services.Abstractions.Invitations
     public interface IInvitationService 
     {
         Task<string> SendInvitationAsync(string userId, int clinicId, SendInvitationRequest request);
-        Task<List<SentInvitationsResponse>> GetSentInvitationsAsync(string userId);
-        Task<List<ReceivedInvitationsResponse>> GetReceivedInvitationsAsync(string userId);
+        Task<IEnumerable<SentInvitationResponse>> GetSentInvitationsAsync(string userId);
+        Task<IEnumerable<ReceivedInvitationResponse>> GetReceivedInvitationsAsync(string userId);
         Task<string> AcceptInvitationAsync(string userId, int invitationId);
         Task<string> RejectInvitationAsync(string userId, int invitationId);
         Task<string> CancelInvitationAsync(string userId, int invitationId);
