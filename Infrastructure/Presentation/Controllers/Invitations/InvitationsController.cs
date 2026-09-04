@@ -18,7 +18,7 @@ namespace Presentation.Controllers.Invitations
 
         [Authorize(Roles = "Doctor")]
         [HttpPost("send/clinic/{clinicId}")] // Post api/invitations/send/clinic/{clinicId}
-        public async Task<IActionResult> SendInvitation(int clinicId, [FromBody] SendInvitationRequest request)
+        public async Task<IActionResult> SendInvitation([FromRoute] int clinicId, [FromBody] SendInvitationRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             var response = await _serviceManager.InvitationService.SendInvitationAsync(userId ?? string.Empty, clinicId, request);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers.Invitations
 
         [Authorize(Roles = "Doctor")]
         [HttpPost("accept/{invitationId}")] // Post api/invitations/accept/{invitationId}
-        public async Task<IActionResult> AcceptInvitationAsync(int invitationId)
+        public async Task<IActionResult> AcceptInvitationAsync([FromRoute] int invitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             var response = await _serviceManager.InvitationService.AcceptInvitationAsync(userId ?? string.Empty, invitationId);
@@ -58,7 +58,7 @@ namespace Presentation.Controllers.Invitations
 
         [Authorize(Roles = "Doctor")]
         [HttpPost("reject/{invitationId}")] // Post api/invitations/reject/{invitationId}
-        public async Task<IActionResult> RejectInvitationAsync(int invitationId)
+        public async Task<IActionResult> RejectInvitationAsync([FromRoute] int invitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             var response = await _serviceManager.InvitationService.RejectInvitationAsync(userId ?? string.Empty, invitationId);
@@ -68,7 +68,7 @@ namespace Presentation.Controllers.Invitations
 
         [Authorize(Roles = "Doctor")]
         [HttpPost("cancel/{invitationId}")] // Post api/invitations/cancel/{invitationId}
-        public async Task<IActionResult> CancelInvitationAsync(int invitationId)
+        public async Task<IActionResult> CancelInvitationAsync([FromRoute] int invitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             var response = await _serviceManager.InvitationService.CancelInvitationAsync(userId ?? string.Empty, invitationId);

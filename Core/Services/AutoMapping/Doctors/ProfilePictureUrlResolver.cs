@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Doctors
 {
-    public class ProfilePictureUrlResolver(IConfiguration _configuration) : IValueResolver<Doctor, DoctorProfileResponse, string>
+    public class ProfilePictureUrlResolver<TDestination>(IConfiguration _configuration)
+        : IValueResolver<Doctor, TDestination, string?>
     {
-        public string Resolve(Doctor source, DoctorProfileResponse destination, string destMember, ResolutionContext context)
+
+        public string? Resolve(Doctor source, TDestination destination, string? destMember, ResolutionContext context)
         {
             if (string.IsNullOrEmpty(source.ProfilePicture))
-                return string.Empty;
+                return null;
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:DoctorProfileImagesPath"];

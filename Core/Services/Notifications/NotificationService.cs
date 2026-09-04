@@ -103,5 +103,6 @@ namespace Services.Notifications
 
             await _notificationPublisher.SendNotificationAsync(notificationReceiverId, notificationResponse);
         }
+
     }
 }

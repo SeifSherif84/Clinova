@@ -11,6 +11,7 @@ namespace Services.Clinics
     {
         public Doctor Doctor { get; init; } = null!;
         public Clinic Clinic { get; init; } = null!;
+        public DoctorClinic DoctorClinic { get; set; } = null!;
         public bool IsOwner { get; set; }
     }
 }

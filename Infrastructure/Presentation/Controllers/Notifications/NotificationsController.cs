@@ -26,7 +26,7 @@ namespace Presentation.Controllers.Notifications
 
         [Authorize]
         [HttpPost("{notificationId}/mark-as-read")] // Post api/notifications/{notificationId}/mark-as-read
-        public async Task<IActionResult> MarkAsRead(int notificationId)
+        public async Task<IActionResult> MarkAsRead([FromRoute] int notificationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             await _serviceManager.NotificationService.MarkAsReadAsync(userId ?? string.Empty, notificationId);

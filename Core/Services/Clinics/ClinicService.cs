@@ -1,11 +1,16 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Domain.Contracts;
 using Domain.Entities;
 using Domain.Entities.BusinessEntities;
+using Domain.Entities.Enums;
 using Domain.Exceptions.BadRequest;
 using Domain.Exceptions.Forbidden;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Org.BouncyCastle.Bcpg;
+using Services.Abstractions.Notifications;
 using Services.Clinics;
 using Services.FileStorage;
 using Services.Specifications.Clinics;
@@ -14,13 +19,16 @@ using Shared.Dtos.Clinics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Services.Abstractions.Clinics
 {
-    public class ClinicService(IUnitOfWork _unitOfWork, IMapper _mapper) : IClinicService
+    public class ClinicService(IUnitOfWork _unitOfWork, 
+                               IMapper _mapper,
+                               INotificationService _notificationService) : IClinicService
     {
         public async Task<string> AddClinicAsync(string userId, AddClinicRequest request)
         {
@@ -38,7 +46,8 @@ namespace Services.Abstractions.Clinics
             {
                 Doctor = doctor,
                 Clinic = clinic,
-                IsOwner = true
+                IsOwner = true,
+                JoinedAt = DateTime.UtcNow,
             };
 
             foreach (var image in request.Images)
@@ -70,12 +79,12 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> UpdateClinicAsync(string userId, int clinicId, UpdateClinicRequest request)
         {
-            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
-            _mapper.Map(request, doctorClinicOwnedAccess.Clinic);
+            _mapper.Map(request, doctorOwnedClinicAccess.Clinic);
 
             if(request.RegionId.HasValue)
-                doctorClinicOwnedAccess.Clinic.RegionId = request.RegionId.Value;
+                doctorOwnedClinicAccess.Clinic.RegionId = request.RegionId.Value;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -88,13 +97,13 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> DeleteClinicAsync(string userId, int clinicId)
         {
-            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
-            if (doctorClinicOwnedAccess.Clinic.IsDeleted)
+            if (doctorOwnedClinicAccess.Clinic.IsDeleted)
                 return "The clinic is already deleted.";
 
-            doctorClinicOwnedAccess.Clinic.IsDeleted = true;
-            doctorClinicOwnedAccess.Clinic.DeletedAt = DateTime.UtcNow;
+            doctorOwnedClinicAccess.Clinic.IsDeleted = true;
+            doctorOwnedClinicAccess.Clinic.DeletedAt = DateTime.UtcNow;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -108,15 +117,15 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> AddImageAsync(string userId, int clinicId, AddClinicImagesRequest request)
         {
-            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicImages: true);
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicImages: true);
 
-            if (doctorClinicOwnedAccess.Clinic.Images.Count + request.Images.Count > 6)
+            if (doctorOwnedClinicAccess.Clinic.Images.Count + request.Images.Count > 6)
                 throw new BadRequestException("You can have up to 6 images for your clinic.");
 
 
             foreach (var image in request.Images)
             {
-                doctorClinicOwnedAccess.Clinic.Images.Add(new ClinicImages()
+                doctorOwnedClinicAccess.Clinic.Images.Add(new ClinicImages()
                 {
                     Image = await FileStorageHandler.UploadAsync(image, "clinics")
                 });
@@ -134,13 +143,13 @@ namespace Services.Abstractions.Clinics
 
         public async Task<string> AddPhoneNumberAsync(string userId, int clinicId, AddClinicPhoneNumberRequest request)
         {
-            var doctorClinicOwnedAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicPhoneNumbers: true);
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId, includeClinicPhoneNumbers: true);
 
-            if (doctorClinicOwnedAccess.Clinic.PhoneNumbers.Count >= 6)
+            if (doctorOwnedClinicAccess.Clinic.PhoneNumbers.Count >= 6)
                 throw new BadRequestException("You can have up to 6 phone numbers for your clinic.");
 
 
-            doctorClinicOwnedAccess.Clinic.PhoneNumbers.Add(new ClinicPhoneNumbers()
+            doctorOwnedClinicAccess.Clinic.PhoneNumbers.Add(new ClinicPhoneNumbers()
             {
                 PhoneNumber = request.PhoneNumber,
             });
@@ -231,6 +240,82 @@ namespace Services.Abstractions.Clinics
 
 
 
+        public async Task<string> RemoveMemberAsync(string userId, int clinicId, string memberId)
+        {
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var doctorClinic = await _unitOfWork.GetRepository<DoctorClinic>().GetByCompositeKeyAsync(memberId, clinicId);
+            if (doctorClinic is null)
+                throw new NotFoundException("The member you're trying to remove could not be found in this clinic.");
+
+            if (doctorClinic.IsOwner)
+                throw new BadRequestException("You cannot remove the clinic owner from the clinic.");
+
+            _unitOfWork.GetRepository<DoctorClinic>().Delete(doctorClinic);
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException(
+                    "We couldn't remove this member from the clinic right now. Please try again.");
+
+
+            await _notificationService.CreateAndSendAsync(
+                memberId,
+                "Removed from Clinic",
+                $"Dr. {doctorOwnedClinicAccess.Doctor.FirstName} {doctorOwnedClinicAccess.Doctor.LastName} removed you from {doctorOwnedClinicAccess.Clinic.Name}.",
+                NotificationType.MemberRemoved);
+
+
+            return "The member has been removed from the clinic successfully.";
+        }
+
+
+
+        public async Task<string> LeaveClinicAsync(string userId, int clinicId)
+        {
+            var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId);
+
+            if (doctorClinicAccess.IsOwner)
+                throw new BadRequestException(
+                    "The clinic owner cannot leave the clinic.");
+
+            var ownerDoctorSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.Owner);
+            var owner = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(ownerDoctorSpec);
+            if (owner is null)
+                throw new InternalServerErrorException(
+                    "We couldn't process your request to leave the clinic right now. Please try again.");
+
+            _unitOfWork.GetRepository<DoctorClinic>().Delete(doctorClinicAccess.DoctorClinic);
+
+            var result = await _unitOfWork.SaveChangesAsync();
+
+            if (result == 0)
+                throw new InternalServerErrorException(
+                    "We couldn't process your request to leave the clinic right now. Please try again.");
+
+
+            await _notificationService.CreateAndSendAsync(
+                owner.Id,
+                "Member Left Clinic",
+                $"Dr. {doctorClinicAccess.Doctor.FirstName} {doctorClinicAccess.Doctor.LastName} left {doctorClinicAccess.Clinic.Name}.",
+                NotificationType.MemberLeft);
+
+            return "You have successfully left the clinic.";
+        }
+
+
+
+        public async Task<IEnumerable<ClinicMemberResponse>> GetClinicMembersAsync(string userId, int clinicId)
+        {
+            await GetDoctorClinicAccessAsync(userId, clinicId);
+            var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
+            var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
+            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponse>>(members);
+            return clinicMembersResponse;
+        }
+
+
+
+
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string userId,
                                                                            int clinicId,
                                                                            bool includeClinicImages = false,
@@ -261,6 +346,7 @@ namespace Services.Abstractions.Clinics
             {
                 Doctor = doctor,
                 Clinic = clinic,
+                DoctorClinic = doctorClinic,
                 IsOwner = doctorClinic.IsOwner
             };
         }
