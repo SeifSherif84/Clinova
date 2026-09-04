@@ -150,7 +150,8 @@ namespace Services.Invitations
             {
                 Doctor = doctor,
                 ClinicId = invitation.ClinicId,
-                IsOwner = false
+                IsOwner = false,
+                JoinedAt = DateTime.UtcNow,
             };
 
             await _unitOfWork.GetRepository<DoctorClinic>().AddAsync(doctorClinic);
@@ -275,7 +276,8 @@ namespace Services.Invitations
             {
                 Doctor = doctor,
                 Clinic = clinic,
-                IsOwner = doctorClinic.IsOwner
+                DoctorClinic = doctorClinic,
+                IsOwner = doctorClinic.IsOwner,
             };
         }
 

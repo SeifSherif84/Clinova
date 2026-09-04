@@ -18,6 +18,9 @@ namespace Services.Abstractions.Clinics
         Task<IEnumerable<ClinicResponse>> GetAllClinicAsync(string userId);
         Task<ClinicDetailsResponse> GetClinicDetailsAsync(string userId, int clinicId);
         Task<string> DeleteClinicAsync(string userId, int clinicId);
+        Task<string> RemoveMemberAsync(string userId, int clinicId, string memberId);
+        Task<string> LeaveClinicAsync(string userId, int clinicId);
+        Task<IEnumerable<ClinicMemberResponse>> GetClinicMembersAsync(string userId, int clinicId);
 
     }
 }

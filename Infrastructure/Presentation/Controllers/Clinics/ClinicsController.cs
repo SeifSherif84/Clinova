@@ -111,5 +111,37 @@ namespace Presentation.Controllers.Clinics
             return Ok(response);
         }
 
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpDelete("{clinicId}/members/{memberId}")] // Delete api/clinics/{clinicId}/members/{memberId}
+        public async Task<IActionResult> RemoveMember([FromRoute] int clinicId, [FromRoute] string memberId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.RemoveMemberAsync(userId ?? string.Empty, clinicId, memberId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpDelete("{clinicId}/members/me")] // Delete api/clinics/{clinicId}/members/me
+        public async Task<IActionResult> LeaveClinic([FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.LeaveClinicAsync(userId ?? string.Empty, clinicId);
+            return Ok(response);
+        }
+
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("{clinicId}/members")] // Get api/clinics/{clinicId}/members
+        public async Task<IActionResult> GetClinicMembers([FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.GetClinicMembersAsync(userId ?? string.Empty, clinicId);
+            return Ok(response);
+        }
+
     }
 }

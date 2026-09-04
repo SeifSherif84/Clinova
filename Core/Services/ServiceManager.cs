@@ -38,7 +38,7 @@ namespace Services
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions);
         public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
         public ILookupsService LookupsService { get; } = new LookupsService(_unitOfWork);
-        public IClinicService ClinicService { get; } = new ClinicService(_unitOfWork, _mapper);
+        public IClinicService ClinicService { get; } = new ClinicService(_unitOfWork, _mapper, _notificationService);
         public IInvitationService InvitationService { get; } = new InvitationService(_userManager, _unitOfWork, _mapper, _notificationService);
         public INotificationService NotificationService { get; } = new NotificationService(_unitOfWork, _mapper, _notificationPublisher);
     }

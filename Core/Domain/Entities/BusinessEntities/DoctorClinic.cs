@@ -17,5 +17,8 @@ namespace Domain.Entities.BusinessEntities
         public ICollection<WorkingHours> WorkingHours { get; set; } = new List<WorkingHours>();
 
         public bool IsOwner { get; set; } = false;
+
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+
     }
 }
