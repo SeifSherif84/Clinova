@@ -18,8 +18,8 @@ namespace Domain.Entities.BusinessEntities
         public string PatientId { get; set; } = null!;
         public Patient Patient { get; set; } = null!;
 
-        public int AvailableSlotId { get; set; }
-        public  AvailableSlots AvailableSlot { get; set; } = null!;
+        public int AppointmentSlotId { get; set; }
+        public AppointmentSlot AppointmentSlot { get; set; } = null!;
 
         public Payment? Payment { get; set; }
         public Review? Review { get; set; }

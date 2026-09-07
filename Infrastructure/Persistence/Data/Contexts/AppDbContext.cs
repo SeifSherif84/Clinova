@@ -71,8 +71,8 @@ namespace Persistence.Data.Contexts
         public DbSet<ClinicImages> ClinicImages { get; set; }
         public DbSet<DoctorClinic> DoctorClinics { get; set; }
 
-        public DbSet<WorkingHours> WorkingHours { get; set; }
-        public DbSet<AvailableSlots> AvailableSlots { get; set; }
+        public DbSet<WorkingHour> WorkingHours { get; set; }
+        public DbSet<AppointmentSlot> AppointmentSlots { get; set; }
 
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }

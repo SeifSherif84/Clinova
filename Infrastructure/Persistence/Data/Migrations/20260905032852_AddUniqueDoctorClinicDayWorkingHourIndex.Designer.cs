@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Data.Contexts;
 
@@ -11,9 +12,11 @@ using Persistence.Data.Contexts;
 namespace Persistence.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260905032852_AddUniqueDoctorClinicDayWorkingHourIndex")]
+    partial class AddUniqueDoctorClinicDayWorkingHourIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppointmentSlotId")
+                    b.Property<int>("AvailableSlotId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("BookingDate")
@@ -53,7 +56,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppointmentSlotId")
+                    b.HasIndex("AvailableSlotId")
                         .IsUnique();
 
                     b.HasIndex("PatientId");
@@ -61,7 +64,7 @@ namespace Persistence.Data.Migrations
                     b.ToTable("Appointments");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.AvailableSlots", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -69,15 +72,11 @@ namespace Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<string>("DoctorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
@@ -88,14 +87,14 @@ namespace Persistence.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WorkingHourId")
+                    b.Property<int>("WorkingHoursId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkingHourId");
+                    b.HasIndex("WorkingHoursId");
 
-                    b.ToTable("AppointmentSlots");
+                    b.ToTable("AvailableSlots");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Clinic", b =>
@@ -459,7 +458,7 @@ namespace Persistence.Data.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHours", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -817,9 +816,9 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Appointment", b =>
                 {
-                    b.HasOne("Domain.Entities.BusinessEntities.AppointmentSlot", "AppointmentSlot")
+                    b.HasOne("Domain.Entities.BusinessEntities.AvailableSlots", "AvailableSlot")
                         .WithOne("Appointment")
-                        .HasForeignKey("Domain.Entities.BusinessEntities.Appointment", "AppointmentSlotId")
+                        .HasForeignKey("Domain.Entities.BusinessEntities.Appointment", "AvailableSlotId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -829,19 +828,20 @@ namespace Persistence.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AppointmentSlot");
+                    b.Navigation("AvailableSlot");
 
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.AvailableSlots", b =>
                 {
-                    b.HasOne("Domain.Entities.BusinessEntities.WorkingHour", "WorkingHour")
-                        .WithMany("AppointmentSlots")
-                        .HasForeignKey("WorkingHourId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("Domain.Entities.BusinessEntities.WorkingHours", "WorkingHours")
+                        .WithMany("AvailableSlots")
+                        .HasForeignKey("WorkingHoursId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("WorkingHour");
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Clinic", b =>
@@ -975,7 +975,7 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Appointment");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHours", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.DoctorClinic", "DoctorClinic")
                         .WithMany("WorkingHours")
@@ -1099,7 +1099,7 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Review");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.AvailableSlots", b =>
                 {
                     b.Navigation("Appointment");
                 });
@@ -1142,9 +1142,9 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Clinics");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHours", b =>
                 {
-                    b.Navigation("AppointmentSlots");
+                    b.Navigation("AvailableSlots");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.UserApp", b =>

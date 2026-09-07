@@ -9,12 +9,15 @@ using Persistence.Data.DataSeeding;
 using Persistence.UnitOfWork;
 using Services;
 using Services.Abstractions;
+using Services.Abstractions.AppointmentSlots;
 using Services.Abstractions.Notifications;
+using Services.AppointmentSlots;
 using Services.AutoMapping.Auth;
 using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.AutoMapping.Invitations;
 using Services.AutoMapping.Notifications;
+using Services.AutoMapping.WorkingHours;
 using Services.MailKitFeature;
 using Services.Notifications;
 using Store.G02.Shared;
@@ -60,6 +63,7 @@ namespace Web
                 MapperConfig.AddProfile(new ClinicProfile(builder.Configuration));
                 MapperConfig.AddProfile(new InvitationProfile());
                 MapperConfig.AddProfile(new NotificationProfile());
+                MapperConfig.AddProfile(new WorkingHourProfile());
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
@@ -97,6 +101,7 @@ namespace Web
 
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<INotificationPublisher, NotificationPublisher>();    
+            builder.Services.AddScoped<IAppointmentSlotService, AppointmentSlotService>();
 
 
             builder.Services.AddSignalR();

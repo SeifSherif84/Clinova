@@ -8,16 +8,20 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.BusinessEntities
 {
-    public class AvailableSlots : BaseEntity<int>
+    public class AppointmentSlot : BaseEntity<int>
     {
         public DateOnly Date { get; set; }
-        public DayOfWeek Day { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public SlotStatus Status { get; set; } = SlotStatus.Available;
 
-        public int WorkingHoursId { get; set; }
-        public WorkingHours WorkingHours { get; set; } = null!;
+        public int? WorkingHourId { get; set; }
+        public WorkingHour? WorkingHour { get; set; }
+
+        // Snapshot of the doctor and clinic this slot belongs to.
+        // These values remain available even after the WorkingHour is deleted.
+        public string DoctorId { get; set; } = null!;
+        public int ClinicId { get; set; }
 
         public Appointment? Appointment { get; set; }
     }

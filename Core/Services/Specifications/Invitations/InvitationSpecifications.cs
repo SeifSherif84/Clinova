@@ -39,7 +39,7 @@ namespace Services.Specifications.Invitations
                                         InvitationDirection direction,
                                         bool includeSender = false,
                                         bool includeReceiver = false,
-                                        bool includeClinic = false)
+                                        bool includeClinic = false) : base()
         {
             ApplyCriteriaToGetSentOrReceivedInvitationsForSpecificDoctor(doctorId, direction);
             ApplyIncludes(includeSender, includeReceiver, includeClinic);
@@ -63,7 +63,7 @@ namespace Services.Specifications.Invitations
         public InvitationSpecifications(int invitationId,
                                         bool includeSender = false,
                                         bool includeReceiver = false,
-                                        bool includeClinic = false)
+                                        bool includeClinic = false) : base()
         {
             ApplyCriteriaToGetInvitationWithSpecificId(invitationId);
             ApplyIncludes(includeSender, includeReceiver, includeClinic);

@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Persistence.Data.Configurations
 {
-    public class AvailableSlotConfig : IEntityTypeConfiguration<AvailableSlots>
+    public class AvailableSlotConfig : IEntityTypeConfiguration<AppointmentSlot>
     {
-        public void Configure(EntityTypeBuilder<AvailableSlots> builder)
+        public void Configure(EntityTypeBuilder<AppointmentSlot> builder)
         {
             builder.HasKey(availableSlot => availableSlot.Id);
 
@@ -19,8 +19,8 @@ namespace Persistence.Data.Configurations
 
 
             builder.HasOne(availableSlot => availableSlot.Appointment)
-                   .WithOne(Appointment => Appointment.AvailableSlot)
-                   .HasForeignKey<Appointment>(Appointment => Appointment.AvailableSlotId)
+                   .WithOne(Appointment => Appointment.AppointmentSlot)
+                   .HasForeignKey<Appointment>(Appointment => Appointment.AppointmentSlotId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

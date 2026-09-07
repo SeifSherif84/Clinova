@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Data.Contexts;
 
@@ -11,9 +12,11 @@ using Persistence.Data.Contexts;
 namespace Persistence.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260907022535_MakeWorkingHourForeignKeyNullable")]
+    partial class MakeWorkingHourForeignKeyNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,15 +72,8 @@ namespace Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
-
-                    b.Property<string>("DoctorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");

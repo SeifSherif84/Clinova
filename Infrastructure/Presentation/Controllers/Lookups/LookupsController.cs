@@ -25,6 +25,15 @@ namespace Presentation.Controllers.Enums
 
 
         [Authorize]
+        [HttpGet("days-of-week")]
+        public IActionResult GetDaysOfWeek()
+        {
+            var response = _serviceManager.LookupsService.GetDaysOfWeekAsync();
+            return Ok(response);
+        }
+
+
+        [Authorize]
         [HttpGet("medical-specialties")] // Get api/lookups/medical-specialties
         public async Task<IActionResult> GetMedicalSpecialties()
         {
@@ -49,8 +58,6 @@ namespace Presentation.Controllers.Enums
             var response = await _serviceManager.LookupsService.GetRegionsAsync(governorateId);
             return Ok(response);
         }
-
-
 
     }
 }

@@ -28,7 +28,7 @@ namespace Services.Specifications.Doctors
 
 
         // constructor to get doctors for a specific clinic based on the scope (owner or all members)
-        public DoctorSpecifications(int clinicId, ClinicDoctorScope scope)
+        public DoctorSpecifications(int clinicId, ClinicDoctorScope scope) : base()
         {
             ApplyCriteriaToGetDoctorsForSpecificClinicBasedOnScope(clinicId, scope);
             ApplyClinicMemberIncludes(clinicId);

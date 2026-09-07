@@ -1,9 +1,11 @@
-﻿using Services.Abstractions.Auth;
+﻿using Services.Abstractions.AppointmentSlots;
+using Services.Abstractions.Auth;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
 using Services.Abstractions.Invitations;
 using Services.Abstractions.Lookups;
 using Services.Abstractions.Notifications;
+using Services.Abstractions.WorkingHours;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,5 +22,7 @@ namespace Services.Abstractions
         IClinicService ClinicService { get; }
         IInvitationService InvitationService { get; }
         INotificationService NotificationService { get; }
+        IWorkingHourService WorkingHourService { get; }
+        IAppointmentSlotService AppointmentSlotService { get; }
     }
 }
