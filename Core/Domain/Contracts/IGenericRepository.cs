@@ -15,8 +15,10 @@ namespace Domain.Contracts
         void Delete(TEntity entity);
 
 
+
         Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecifications<TEntity, TKey> specifications);
+        Task<int>? CountAsync(IBaseSpecifications<TEntity, TKey> specifications);
 
 
     }

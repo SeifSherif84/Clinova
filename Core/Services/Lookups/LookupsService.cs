@@ -24,6 +24,17 @@ namespace Services.Abstractions.Lookups
             return result;
         }
 
+        public IEnumerable<LookupResponse> GetDaysOfWeekAsync()
+        {
+            var daysOfWeekList = Enum.GetValues<DayOfWeek>().ToList();
+            var result = daysOfWeekList.Select(day => new LookupResponse
+            {
+                Id = (int)day,
+                Name = day.ToString(),
+            });
+            return result;
+        }
+
 
         public async Task<IEnumerable<LookupResponse>> GetMedicalSpecialtiesAsync()
         {
@@ -58,5 +69,6 @@ namespace Services.Abstractions.Lookups
             });
             return result;
         }
+
     }
 }

@@ -46,6 +46,8 @@ namespace Persistence.Repositories
 
 
         
+
+
         public async Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications)
         {
             return await ApplySpecifications(specifications).FirstOrDefaultAsync();
@@ -56,11 +58,17 @@ namespace Persistence.Repositories
             return await ApplySpecifications(specifications).ToListAsync();
         }
 
+        public async Task<int>? CountAsync(IBaseSpecifications<TEntity, TKey> specifications)
+        {
+            return await ApplySpecifications(specifications).CountAsync();
+        }
+
 
         private IQueryable<TEntity> ApplySpecifications(IBaseSpecifications<TEntity, TKey> specifications)
         {
             return SpecificationsEvaluator.GenerateQuery(_context.Set<TEntity>(), specifications);
         }
+
 
     }
 }

@@ -7,18 +7,19 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.BusinessEntities
 {
-    public class WorkingHours : BaseEntity<int>
+    public class WorkingHour : BaseEntity<int>
     {
         public DayOfWeek Day { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public int SlotDurationMinutes { get; set; }
+        public bool IsActive { get; set; } = true;
 
-        
+
         public string DoctorId { get; set; } = null!;
         public int ClinicId { get; set; }
         public DoctorClinic DoctorClinic { get; set; } = null!;
 
-        public ICollection<AvailableSlots> AvailableSlots { get; set; } = new List<AvailableSlots>();
+        public ICollection<AppointmentSlot> AppointmentSlots { get; set; } = new List<AppointmentSlot>();
     }
 }

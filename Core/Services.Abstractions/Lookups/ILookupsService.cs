@@ -12,9 +12,9 @@ namespace Services.Abstractions.Lookups
     public interface ILookupsService
     {
         IEnumerable<LookupResponse> GetGenders();
+        IEnumerable<LookupResponse> GetDaysOfWeekAsync();
         Task<IEnumerable<LookupResponse>> GetMedicalSpecialtiesAsync();
         Task<IEnumerable<LookupResponse>> GetGovernoratesAsync();
         Task<IEnumerable<LookupResponse>> GetRegionsAsync(int governorateId);
-
     }
 }

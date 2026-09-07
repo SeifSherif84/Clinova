@@ -10,7 +10,6 @@ namespace Domain.Entities.Enums
     {
         Available = 1,
         Booked,
-        Reserved,
         Cancelled
     }
 }

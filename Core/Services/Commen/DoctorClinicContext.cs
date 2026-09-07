@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Clinics
+namespace Services.Commen
 {
     public class DoctorClinicContext
     {

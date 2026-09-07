@@ -14,7 +14,7 @@ namespace Domain.Entities.BusinessEntities
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = null!;
 
-        public ICollection<WorkingHours> WorkingHours { get; set; } = new List<WorkingHours>();
+        public ICollection<WorkingHour> WorkingHours { get; set; } = new List<WorkingHour>();
 
         public bool IsOwner { get; set; } = false;
 

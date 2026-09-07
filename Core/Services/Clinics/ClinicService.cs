@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Org.BouncyCastle.Bcpg;
 using Services.Abstractions.Notifications;
 using Services.Clinics;
+using Services.Commen;
 using Services.FileStorage;
 using Services.Specifications.Clinics;
 using Services.Specifications.Doctors;
