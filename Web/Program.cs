@@ -17,6 +17,7 @@ using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.AutoMapping.Invitations;
 using Services.AutoMapping.Notifications;
+using Services.AutoMapping.Patients;
 using Services.AutoMapping.WorkingHours;
 using Services.MailKitFeature;
 using Services.Notifications;
@@ -64,6 +65,7 @@ namespace Web
                 MapperConfig.AddProfile(new InvitationProfile());
                 MapperConfig.AddProfile(new NotificationProfile());
                 MapperConfig.AddProfile(new WorkingHourProfile());
+                MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();

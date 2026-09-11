@@ -31,7 +31,6 @@ namespace Services.Doctors
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-
             var doctorResponse = _mapper.Map<DoctorProfileResponse>(doctor);
             return doctorResponse;
         }
