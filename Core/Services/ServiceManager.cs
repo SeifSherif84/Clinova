@@ -14,6 +14,7 @@ using Services.Abstractions.Doctors;
 using Services.Abstractions.Invitations;
 using Services.Abstractions.Lookups;
 using Services.Abstractions.Notifications;
+using Services.Abstractions.Patients;
 using Services.Abstractions.WorkingHours;
 using Services.AppointmentSlots;
 using Services.Auth;
@@ -21,6 +22,7 @@ using Services.Doctors;
 using Services.Invitations;
 using Services.MailKitFeature;
 using Services.Notifications;
+using Services.Patients;
 using Services.WorkingHours;
 using Store.G02.Shared;
 using System;
@@ -49,5 +51,6 @@ namespace Services
         public INotificationService NotificationService { get; } = new NotificationService(_unitOfWork, _mapper, _notificationPublisher);
         public IWorkingHourService WorkingHourService { get; } = new WorkingHourService(_unitOfWork, _mapper, _appointmentSlotService);
         public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration);
+        public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
     }
 }

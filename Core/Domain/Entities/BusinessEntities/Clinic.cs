@@ -12,7 +12,7 @@ namespace Domain.Entities.BusinessEntities
     {
         public string Name { get; set; } = null!;
         public string StreetName { get; set; } = null!;
-        public string BuildingNumber { get; set; } = null!; 
+        public string BuildingNumber { get; set; } = null!;
         public string? Landmark { get; set; }
         public string? GoogleMapsUrl { get; set; }
         public decimal ConsultationFee { get; set; }
