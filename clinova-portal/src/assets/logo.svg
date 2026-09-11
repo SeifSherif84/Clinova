@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="clinovaGradient" x1="15" y1="25" x2="85" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#75DAC7" />
+      <stop offset="0.55" stop-color="#55C9B3" />
+      <stop offset="1" stop-color="#EFA77C" />
+    </linearGradient>
+    <filter id="clinovaGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="50" cy="50" r="35" fill="url(#clinovaGradient)" opacity="0.12" />
+  <circle cx="50" cy="50" r="35" fill="none" stroke="url(#clinovaGradient)" stroke-width="2" opacity="0.38" />
+  <path d="M15 50h17l10-25 16 50 10-25h17" fill="none" stroke="url(#clinovaGradient)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#clinovaGlow)" />
+</svg>

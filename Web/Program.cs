@@ -34,10 +34,25 @@ namespace Web
         public async static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            const string FrontendCorsPolicy = "Frontend";
 
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(FrontendCorsPolicy, policy =>
+                {
+                    var frontendUrl = builder.Configuration["FrontendBaseURL"]
+                        ?? "http://localhost:5173";
+
+                    policy
+                        .WithOrigins(frontendUrl.TrimEnd('/'))
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -132,6 +147,8 @@ namespace Web
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(FrontendCorsPolicy);
 
             app.UseAuthentication();
 

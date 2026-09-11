@@ -33,7 +33,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("medical-specialties")] // Get api/lookups/medical-specialties
         public async Task<IActionResult> GetMedicalSpecialties()
         {
