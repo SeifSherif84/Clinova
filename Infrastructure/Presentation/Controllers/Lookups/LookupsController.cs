@@ -33,6 +33,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
+        [AllowAnonymous]
         [Authorize]
         [HttpGet("payment-methods")]
         public IActionResult GetPaymentMethods()
