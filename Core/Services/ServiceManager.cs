@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Services.Abstractions;
 using Services.Abstractions.AppointmentSlots;
 using Services.Abstractions.Auth;
+using Services.Abstractions.ClinicPaymentMethods;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
 using Services.Abstractions.Invitations;
@@ -24,6 +25,7 @@ using Services.MailKitFeature;
 using Services.Notifications;
 using Services.Patients;
 using Services.WorkingHours;
+using Services.ClinicPaymentMethods;
 using Store.G02.Shared;
 using System;
 using System.Collections.Generic;
@@ -50,7 +52,8 @@ namespace Services
         public IInvitationService InvitationService { get; } = new InvitationService(_userManager, _unitOfWork, _mapper, _notificationService);
         public INotificationService NotificationService { get; } = new NotificationService(_unitOfWork, _mapper, _notificationPublisher);
         public IWorkingHourService WorkingHourService { get; } = new WorkingHourService(_unitOfWork, _mapper, _appointmentSlotService);
-        public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration);
+        public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration, _mapper);
         public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
+        public IClinicPaymentMethodService ClinicPaymentMethodService { get; } = new ClinicPaymentMethodService(_unitOfWork, _mapper);
     }
 }

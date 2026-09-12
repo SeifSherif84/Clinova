@@ -15,7 +15,12 @@ namespace Domain.Entities.BusinessEntities
         public string BuildingNumber { get; set; } = null!;
         public string? Landmark { get; set; }
         public string? GoogleMapsUrl { get; set; }
+
+
+        // Payment & Booking Configuration
         public decimal ConsultationFee { get; set; }
+        public decimal DepositPercentage { get; set; }
+        public ICollection<ClinicPaymentMethod> PaymentMethods { get; set; } = new List<ClinicPaymentMethod>();
 
         public ICollection<DoctorClinic> DoctorClinics { get; set; } = new List<DoctorClinic>();
         public ICollection<ClinicPhoneNumbers> PhoneNumbers { get; set; } = new List<ClinicPhoneNumbers>();

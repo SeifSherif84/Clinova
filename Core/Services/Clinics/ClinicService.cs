@@ -9,6 +9,7 @@ using Domain.Exceptions.Forbidden;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Bcpg;
 using Services.Abstractions.Notifications;
 using Services.Clinics;
@@ -372,6 +373,32 @@ namespace Services.Abstractions.Clinics
             return doctorClinicAccess;
         }
 
+        public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
 
+            var patientRepo = _unitOfWork.GetRepository<Patient, string>();
+            var patient = await patientRepo.GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicId);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
+
+
+            var depositAmount = clinic.ConsultationFee * (clinic.DepositPercentage / 100m);
+            var remainingAmount = clinic.ConsultationFee - depositAmount;
+
+            return new ClinicBookingInfoResponse()
+            {
+                ConsultationFee = clinic.ConsultationFee,
+                DepositPercentage = clinic.DepositPercentage,
+                DepositAmount = depositAmount,
+                RemainingAmount = remainingAmount
+            };
+        }
     }
 }

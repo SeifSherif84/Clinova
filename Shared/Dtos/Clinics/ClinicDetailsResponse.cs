@@ -15,6 +15,7 @@ namespace Shared.Dtos.Clinics
         public string? Landmark { get; set; }
         public string? GoogleMapsUrl { get; set; }
         public decimal ConsultationFee { get; set; }
+        public decimal DepositPercentage { get; set; }
         public int RegionId { get; set; }
         public string RegionName { get; set; } = null!;
         public List<string> PhoneNumbers { get; set; } = new();

@@ -20,13 +20,7 @@ namespace Persistence.Data.Configurations
             builder.HasOne(payment => payment.Appointment)
                    .WithOne(appointment => appointment.Payment)
                    .HasForeignKey<Payment>(payment => payment.AppointmentId)
-                   .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Property(payment => payment.TotalAmount).HasColumnType("decimal(18,2)");
-            builder.Property(payment => payment.DepositAmount).HasColumnType("decimal(18,2)");
-            builder.Property(payment => payment.PaidAmount).HasColumnType("decimal(18,2)");
-
-            builder.Ignore(payment => payment.RemainingAmount);
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

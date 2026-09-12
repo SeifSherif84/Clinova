@@ -20,7 +20,9 @@ namespace Persistence.Data.Configurations
             builder.Property(appointment => appointment.DoctorNotes).HasColumnType("varchar").HasMaxLength(512);
             builder.Property(appointment => appointment.PatientNotes).HasColumnType("varchar").HasMaxLength(512);
 
-
+            builder.Property(appointment => appointment.ConsultationFee).HasColumnType("decimal(18,2)");
+            builder.Property(appointment => appointment.DepositAmount).HasColumnType("decimal(18,2)");
+            builder.Property(appointment => appointment.RemainingAmount).HasColumnType("decimal(18,2)");
         }
     }
 }

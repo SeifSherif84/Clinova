@@ -34,6 +34,10 @@ namespace Shared.Dtos.Clinics
         public decimal? ConsultationFee { get; set; }
 
 
+        [Range(1, 100)]
+        public decimal? DepositPercentage { get; set; }
+
+
         [Range(1, int.MaxValue)]
         public int? RegionId { get; set; }
     }

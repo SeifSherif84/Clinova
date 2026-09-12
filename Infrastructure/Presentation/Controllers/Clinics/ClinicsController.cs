@@ -143,5 +143,16 @@ namespace Presentation.Controllers.Clinics
             return Ok(response);
         }
 
+
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("{clinicId}/booking-info")]
+        public async Task<IActionResult> GetClinicBookingInfo([FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.GetClinicBookingInfoAsync(userId ?? string.Empty, clinicId);
+            return Ok(response);
+        }
+
     }
 }

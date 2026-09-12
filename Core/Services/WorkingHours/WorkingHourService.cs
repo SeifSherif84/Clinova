@@ -173,7 +173,7 @@ namespace Services.WorkingHours
                 throw new BadRequestException("The working hours you are trying to activate do not belong to this clinic.");
 
             if (ExistingworkingHour.IsActive)
-                return "These working hours are already active.";
+                throw new BadRequestException("These working hours are already active.");
 
             ExistingworkingHour.IsActive = true;
 
@@ -204,7 +204,7 @@ namespace Services.WorkingHours
                 throw new BadRequestException("The working hours you are trying to deactivate do not belong to this clinic.");
 
             if (!ExistingworkingHour.IsActive)
-                return "These working hours are already inactive.";
+                throw new BadRequestException("These working hours are already inactive.");
 
             ExistingworkingHour.IsActive = false;
 

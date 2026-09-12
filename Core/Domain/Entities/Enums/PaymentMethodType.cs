@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.Enums
 {
-    public enum AppointmentStatus
+    public enum PaymentMethodType
     {
-        PendingPayment = 1,
-        Confirmed,
-        Cancelled,
-        Completed,
-        NoShow,
-        Expired
+        OnlineGateway = 1,
+        VodafoneCash,
+        InstaPay
     }
 }
