@@ -76,7 +76,7 @@ namespace Services.Auth
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = System.Web.HttpUtility.UrlEncode(token);
             var encodedEmail = HttpUtility.UrlEncode(user.Email);
-            var callbackUrl = $"{_configuration["BaseURL"]}/{_configuration["EmailConfirmationURL"]}?email={encodedEmail}&token={encodedToken}";
+            var callbackUrl = $"{_configuration["FrontendBaseURL"] ?? _configuration["BaseURL"]}/{_configuration["EmailConfirmationURL"]}?email={encodedEmail}&token={encodedToken}";
 
             var email = new Email()
             {
@@ -456,7 +456,7 @@ namespace Services.Auth
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = System.Web.HttpUtility.UrlEncode(token);
             var encodedEmail = HttpUtility.UrlEncode(user.Email);
-            var callbackUrl = $"{_configuration["BaseURL"]}/{_configuration["ResetPasswordURL"]}?email={encodedEmail}&token={encodedToken}";
+            var callbackUrl = $"{_configuration["FrontendBaseURL"] ?? _configuration["BaseURL"]}/{_configuration["ResetPasswordURL"]}?email={encodedEmail}&token={encodedToken}";
 
             var email = new Email()
             {
