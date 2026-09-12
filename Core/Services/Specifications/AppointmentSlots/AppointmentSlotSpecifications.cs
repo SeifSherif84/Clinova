@@ -32,5 +32,18 @@ namespace Services.Specifications.AppointmentSlots
                                ((slot.Date > todayDate) || (slot.Date == todayDate && slot.EndTime > currentTime));
         }
 
+
+
+        public AppointmentSlotSpecifications(int clinicId, string doctorId,
+                                             DateOnly from, DateOnly to)
+        {
+
+            Criteria = slot => slot.ClinicId == clinicId &&
+                               slot.DoctorId == doctorId &&
+                               slot.Status == SlotStatus.Available &&
+                               slot.Date >= from &&
+                               slot.Date <= to;
+        }
+
     }
 }

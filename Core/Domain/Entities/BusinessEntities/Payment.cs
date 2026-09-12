@@ -10,19 +10,22 @@ namespace Domain.Entities.BusinessEntities
 {
     public class Payment : BaseEntity<int>
     {
-        public decimal TotalAmount { get; set; }
-        public decimal DepositAmount { get; set; }
-        public decimal PaidAmount { get; set; }
-        public decimal RemainingAmount => TotalAmount - PaidAmount;
-        public string TransactionReference { get; set; } = null!;
+        // Payment Amount
+        public decimal Amount { get; set; } 
+
+        // Payment Information
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
 
+        // Transaction Information
+        public string? TransactionReference { get; set; }
 
+        // Payment Method
+        public int ClinicPaymentMethodId { get; set; }
+        public ClinicPaymentMethod ClinicPaymentMethod { get; set; } = null!;
+
+        // Appointment
         public int AppointmentId { get; set; }
         public Appointment Appointment { get; set; } = null!;
-
-        public int PaymentMethodId { get; set; }
-        public PaymentMethod PaymentMethod { get; set; } = null!;
     }
 }

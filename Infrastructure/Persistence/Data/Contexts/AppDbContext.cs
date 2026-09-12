@@ -78,7 +78,7 @@ namespace Persistence.Data.Contexts
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Review> Reviews { get; set; }
 
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<ClinicPaymentMethod> ClinicPaymentMethods { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<Notification> Notifications { get; set; }

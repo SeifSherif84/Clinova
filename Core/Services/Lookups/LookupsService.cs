@@ -13,10 +13,10 @@ namespace Services.Abstractions.Lookups
 {
     public class LookupsService(IUnitOfWork _unitOfWork) : ILookupsService
     {
-        public IEnumerable<LookupResponse> GetGenders()
+        public IEnumerable<LookupResponse> GetGendersAsync()
         {
             var gendersList = Enum.GetValues<Gender>().ToList();
-            var result = gendersList.Select(gender => new LookupResponse
+            var result = gendersList.Select(gender => new LookupResponse()
             {
                 Id = (int)gender,
                 Name = gender.ToString(),
@@ -27,10 +27,21 @@ namespace Services.Abstractions.Lookups
         public IEnumerable<LookupResponse> GetDaysOfWeekAsync()
         {
             var daysOfWeekList = Enum.GetValues<DayOfWeek>().ToList();
-            var result = daysOfWeekList.Select(day => new LookupResponse
+            var result = daysOfWeekList.Select(day => new LookupResponse()
             {
                 Id = (int)day,
                 Name = day.ToString(),
+            });
+            return result;
+        }
+
+        public IEnumerable<LookupResponse> GetPaymentMethodsAsync()
+        {
+            var paymentMethodsList = Enum.GetValues<PaymentMethodType>().ToList();
+            var result = paymentMethodsList.Select(paymentMethod => new LookupResponse()
+            {
+                Id = (int)paymentMethod,
+                Name = paymentMethod.ToString(),
             });
             return result;
         }

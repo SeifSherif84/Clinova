@@ -15,20 +15,29 @@ namespace Presentation.Controllers.Enums
     [Route("api/lookups")]
     public class LookupsController(IServiceManager _serviceManager)  : ControllerBase
     {
-        [Authorize]
+        [Authorize(Roles = "Doctor")]
         [HttpGet("genders")] // Get api/lookups/genders
         public IActionResult GetGenders()
         {
-            var response = _serviceManager.LookupsService.GetGenders();
+            var response = _serviceManager.LookupsService.GetGendersAsync();
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("days-of-week")]
+        public IActionResult GetDaysOfWeek()
+        {
+            var response = _serviceManager.LookupsService.GetDaysOfWeekAsync();
             return Ok(response);
         }
 
 
         [Authorize]
-        [HttpGet("days-of-week")]
-        public IActionResult GetDaysOfWeek()
+        [HttpGet("payment-methods")]
+        public IActionResult GetPaymentMethods()
         {
-            var response = _serviceManager.LookupsService.GetDaysOfWeekAsync();
+            var response = _serviceManager.LookupsService.GetPaymentMethodsAsync();
             return Ok(response);
         }
 
@@ -42,7 +51,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Doctor")]
         [HttpGet("governorates")] // Get api/lookups/governorates
         public async Task<IActionResult> GetGovernorates()
         {
@@ -51,7 +60,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Doctor")]
         [HttpGet("regions")] // Get api/lookups/regions?governorateId={governorateId}
         public async Task<IActionResult> GetRegions([FromQuery] int governorateId)
         {

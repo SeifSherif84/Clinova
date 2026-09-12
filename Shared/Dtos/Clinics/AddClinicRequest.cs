@@ -41,6 +41,11 @@ namespace Shared.Dtos.Clinics
 
 
         [Required]
+        [Range(1, 100)]
+        public decimal DepositPercentage { get; set; }
+
+
+        [Required]
         [Range(1, int.MaxValue)]
         public int RegionId { get; set; }
 

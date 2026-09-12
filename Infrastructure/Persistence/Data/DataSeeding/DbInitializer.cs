@@ -56,15 +56,6 @@ namespace Persistence.Data.DataSeeding
                     await _context.Regions.AddRangeAsync(regionsList);
             }
 
-            if (!await _context.PaymentMethods.AnyAsync())
-            {
-                var paymentMethodsPath = Path.Combine(seedDataPath, "paymentMethods.json");
-                var paymentMethodsJsonString = await File.ReadAllTextAsync(paymentMethodsPath);
-                var paymentMethodsList = JsonSerializer.Deserialize<List<PaymentMethod>>(paymentMethodsJsonString);
-                if (paymentMethodsList != null && paymentMethodsList.Any())
-                    await _context.PaymentMethods.AddRangeAsync(paymentMethodsList);
-            }
-
 
             if (!await _context.Roles.AnyAsync())
             {

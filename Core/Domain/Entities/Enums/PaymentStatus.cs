@@ -9,9 +9,11 @@ namespace Domain.Entities.Enums
     public enum PaymentStatus
     {
         Pending = 1,
-        PartiallyPaid, 
-        FullyPaid,
+        PendingVerification,
+        Paid,
+        Failed,
+        Rejected,
         Refunded,
-        Failed
+        PartiallyRefunded
     }
 }

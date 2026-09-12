@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.BusinessEntities;
+using Shared.Dtos.AppointmentSlots;
 using Shared.Dtos.WorkingHours;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,9 @@ namespace Services.Abstractions.AppointmentSlots
         Task ReconcileAppointmentSlotsAsync(WorkingHour workingHour);
         Task DeleteAvailableAppointmentSlotsAsync(WorkingHour workingHour);
         Task DeleteFutureAvailableSlotsAsync(WorkingHour workingHour);
+        Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
+                                                                                              string doctorId,
+                                                                                              int clinicId,
+                                                                                              GetAvailableAppointmentSlotRequest request);
     }
 }
