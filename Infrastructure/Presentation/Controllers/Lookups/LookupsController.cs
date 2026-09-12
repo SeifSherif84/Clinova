@@ -15,7 +15,7 @@ namespace Presentation.Controllers.Enums
     [Route("api/lookups")]
     public class LookupsController(IServiceManager _serviceManager)  : ControllerBase
     {
-        [Authorize]
+        [Authorize(Roles = "Doctor")]
         [HttpGet("genders")] // Get api/lookups/genders
         public IActionResult GetGenders()
         {
@@ -33,7 +33,6 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [AllowAnonymous]
         [Authorize]
         [HttpGet("payment-methods")]
         public IActionResult GetPaymentMethods()
@@ -43,7 +42,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize(Roles = "Doctor")]
+        [AllowAnonymous]
         [HttpGet("medical-specialties")] // Get api/lookups/medical-specialties
         public async Task<IActionResult> GetMedicalSpecialties()
         {

@@ -214,6 +214,8 @@ namespace Services.ClinicPaymentMethods
             return _mapper.Map<IEnumerable<ClinicPaymentMethodResponseForOwner>>(paymentMethods);
         }
 
+
+
         public async Task<string> ActivateClinicPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
             await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
