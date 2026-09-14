@@ -52,7 +52,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.request<LoginResponse>(
         '/api/auth/login',
         { method: 'POST', body: JSON.stringify(credentials) },
-        { authenticated: false },
+        { authenticated: false, notifyOnError: false },
       )
 
       api.setSession(
@@ -65,7 +65,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     try {
-      await api.request<string>('/api/auth/logout', { method: 'POST' })
+      await api.request<string>('/api/auth/logout', { method: 'POST' }, { notifyOnError: false })
     } finally {
       api.clearSession()
     }

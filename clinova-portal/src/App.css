@@ -146,3 +146,13 @@
     letter-spacing: 0;
   }
 }
+
+@keyframes route-progress {
+  0% { transform: translateX(-110%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(310%); }
+}
+
+html[dir="rtl"] [class*="route-progress"] {
+  animation-direction: reverse;
+}

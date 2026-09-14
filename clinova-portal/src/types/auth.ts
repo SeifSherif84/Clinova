@@ -1,8 +1,10 @@
 export interface ApiProblem {
+  status?: number
   statusCode?: number
   title?: string
   message?: string
   errors?: string[] | Record<string, string[]>
+  traceId?: string
 }
 
 export interface SessionTokens {

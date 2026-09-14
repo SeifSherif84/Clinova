@@ -64,10 +64,10 @@ export default function DoctorRegisterPage() {
 
   const specialties = useQuery({
     queryKey: ['lookups', 'medical-specialties'],
-    queryFn: () => api.request<LookupOption[]>('/api/lookups/medical-specialties', {}, { authenticated: false }),
+    queryFn: () => api.request<LookupOption[]>('/api/lookups/medical-specialties', {}, { authenticated: false, notifyOnError: false }),
   })
   const register = useMutation({
-    mutationFn: (body: FormData) => api.request<RegistrationResponse>('/api/auth/doctor-registration', { method: 'POST', body }, { authenticated: false }),
+    mutationFn: (body: FormData) => api.request<RegistrationResponse>('/api/auth/doctor-registration', { method: 'POST', body }, { authenticated: false, notifyOnError: false }),
     onSuccess: (response) => navigate({ to: '/auth/status', search: { reason: 'doctor-created', email: response.email } }),
   })
 
@@ -114,7 +114,12 @@ export default function DoctorRegisterPage() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label className="text-xs font-semibold text-foreground/80">{t('doctorRegister.specialty')}</Label>
-            <Select value={specialtyId} onValueChange={setSpecialtyId} disabled={specialties.isLoading || specialties.isError}>
+            <Select
+              items={specialties.data?.map((specialty) => ({ value: String(specialty.id), label: specialty.name })) ?? []}
+              value={specialtyId}
+              onValueChange={setSpecialtyId}
+              disabled={specialties.isLoading || specialties.isError}
+            >
               <SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 text-foreground focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10">
                 <Stethoscope className="size-[18px] text-primary/70" />
                 <SelectValue placeholder={specialties.isLoading ? t('doctorRegister.loadingSpecialties') : t('doctorRegister.chooseSpecialty')} />
