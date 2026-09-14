@@ -10,6 +10,7 @@ using Services.Abstractions.ClinicPaymentMethods;
 using Services.Commen;
 using Services.Specifications.ClinicPaymentMethods;
 using Shared.Dtos.ClinicPaymentMethods;
+using Shared.Dtos.Invitations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -197,6 +198,8 @@ namespace Services.ClinicPaymentMethods
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicPaymentMethod, int>();
             var specification = ClinicPaymentMethodSpecifications.ActiveByClinic(clinicId);
             var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
+            if (!paymentMethods.Any())
+                return Enumerable.Empty<ClinicPaymentMethodResponseForPatient>();
 
             return _mapper.Map<IEnumerable<ClinicPaymentMethodResponseForPatient>>(paymentMethods);
         }
@@ -210,6 +213,8 @@ namespace Services.ClinicPaymentMethods
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicPaymentMethod, int>();
             var specification = ClinicPaymentMethodSpecifications.ByClinic(clinicId);
             var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
+            if (!paymentMethods.Any())
+                return Enumerable.Empty<ClinicPaymentMethodResponseForOwner>();
 
             return _mapper.Map<IEnumerable<ClinicPaymentMethodResponseForOwner>>(paymentMethods);
         }

@@ -12,7 +12,9 @@ using Services.Abstractions;
 using Services.Abstractions.AppointmentSlots;
 using Services.Abstractions.Notifications;
 using Services.AppointmentSlots;
+using Services.AutoMapping.AppointmentSlots;
 using Services.AutoMapping.Auth;
+using Services.AutoMapping.ClinicPaymentMethods;
 using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.AutoMapping.Invitations;
@@ -81,6 +83,8 @@ namespace Web
                 MapperConfig.AddProfile(new NotificationProfile());
                 MapperConfig.AddProfile(new WorkingHourProfile());
                 MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
+                MapperConfig.AddProfile(new ClinicPaymentMethodProfile());
+                MapperConfig.AddProfile(new AppointmentSlotProfile());
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
