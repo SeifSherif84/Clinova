@@ -41,7 +41,7 @@ namespace Presentation.Controllers.ClinicPaymentMethods
         [Authorize(Roles = "Doctor")]
         [HttpDelete("{paymentMethodId}/clinics/{clinicId}")]
         public async Task<IActionResult> DeleteClinicPaymentMethod([FromRoute] int clinicId,
-                                                           [FromRoute] int paymentMethodId)
+                                                                   [FromRoute] int paymentMethodId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.ClinicPaymentMethodService.DeleteClinicPaymentMethodAsync(userId ?? string.Empty, clinicId, paymentMethodId);
