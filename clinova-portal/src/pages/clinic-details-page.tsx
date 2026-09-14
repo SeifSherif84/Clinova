@@ -1,0 +1,180 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
+import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, LoaderCircle, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Trash2, UserMinus, UsersRound, WalletCards } from 'lucide-react'
+import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
+import FormField from '@/components/form-field'
+import Notice from '@/components/notice'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useApi } from '@/hooks/use-api'
+import { useAuth } from '@/hooks/use-auth'
+import { getErrorMessage } from '@/lib/api'
+import type { ClinicDetails, ClinicMember, UpdateClinicRequest } from '@/types/clinic'
+
+const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/webp']
+const maxImageSize = 5 * 1024 * 1024
+const phonePattern = /^01[0125]\d{8}$/
+
+interface ClinicEditForm {
+  name: string
+  streetName: string
+  buildingNumber: string
+  landmark: string
+  googleMapsUrl: string
+  consultationFee: string
+  depositPercentage: string
+}
+
+function toEditForm(clinic: ClinicDetails): ClinicEditForm {
+  return { name: clinic.name, streetName: clinic.streetName, buildingNumber: clinic.buildingNumber, landmark: clinic.landmark ?? '', googleMapsUrl: clinic.googleMapsUrl ?? '', consultationFee: String(clinic.consultationFee), depositPercentage: String(clinic.depositPercentage) }
+}
+
+export default function ClinicDetailsPage() {
+  const { t, i18n } = useTranslation()
+  const { clinicId } = useParams({ from: '/doctor/clinics/$clinicId' })
+  const numericClinicId = Number(clinicId)
+  const api = useApi()
+  const auth = useAuth()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState<ClinicEditForm | null>(null)
+  const [newPhone, setNewPhone] = useState('')
+  const [newImages, setNewImages] = useState<File[]>([])
+  const [localError, setLocalError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const details = useQuery({ queryKey: ['doctor', 'clinics', numericClinicId], queryFn: () => api.request<ClinicDetails>(`/api/clinics/${numericClinicId}`, {}, { notifyOnError: false }), enabled: Number.isInteger(numericClinicId) && numericClinicId > 0 })
+  const members = useQuery({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'], queryFn: () => api.request<ClinicMember[]>(`/api/clinics/${numericClinicId}/members`, {}, { notifyOnError: false }), enabled: Number.isInteger(numericClinicId) && numericClinicId > 0 })
+  const currentMember = members.data?.find((member) => member.id === auth.user?.id)
+  const isOwner = Boolean(currentMember?.isOwner)
+  const money = useMemo(() => new Intl.NumberFormat(i18n.resolvedLanguage === 'ar' ? 'ar-EG' : 'en-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 2 }), [i18n.resolvedLanguage])
+
+  async function refreshClinic() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics'] }),
+      queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics', numericClinicId] }),
+    ])
+  }
+
+  const updateClinic = useMutation({
+    mutationFn: (body: UpdateClinicRequest) => api.request<string>(`/api/clinics/${numericClinicId}`, { method: 'PATCH', body: JSON.stringify(body) }, { notifyOnError: false }),
+    onSuccess: async (message) => { setSuccess(message); setIsEditing(false); await refreshClinic() },
+  })
+  const addPhone = useMutation({
+    mutationFn: (phoneNumber: string) => api.request<string>(`/api/clinics/${numericClinicId}/phone-numbers`, { method: 'POST', body: JSON.stringify({ phoneNumber }) }, { notifyOnError: false }),
+    onSuccess: async (message) => { setSuccess(message); setNewPhone(''); await refreshClinic() },
+  })
+  const addImages = useMutation({
+    mutationFn: (files: File[]) => { const body = new FormData(); files.forEach((file) => body.append('Images', file)); return api.request<string>(`/api/clinics/${numericClinicId}/images`, { method: 'POST', body }, { notifyOnError: false }) },
+    onSuccess: async (message) => { setSuccess(message); setNewImages([]); await refreshClinic() },
+  })
+  const removeMember = useMutation({
+    mutationFn: (memberId: string) => api.request<string>(`/api/clinics/${numericClinicId}/members/${memberId}`, { method: 'DELETE' }, { notifyOnError: false }),
+    onSuccess: async (message) => { setSuccess(message); await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'] }) },
+  })
+  const deleteClinic = useMutation({
+    mutationFn: () => api.request<string>(`/api/clinics/${numericClinicId}`, { method: 'DELETE' }, { notifyOnError: false }),
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics'] }); navigate({ to: '/doctor/clinics' }) },
+  })
+  const leaveClinic = useMutation({
+    mutationFn: () => api.request<string>(`/api/clinics/${numericClinicId}/members/me`, { method: 'DELETE' }, { notifyOnError: false }),
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics'] }); navigate({ to: '/doctor/clinics' }) },
+  })
+
+  const actionError = updateClinic.error || addPhone.error || addImages.error || removeMember.error || deleteClinic.error || leaveClinic.error
+
+  function updateEditField<Key extends keyof ClinicEditForm>(key: Key, value: ClinicEditForm[Key]) {
+    setEditForm((current) => current ? { ...current, [key]: value } : current)
+  }
+
+  function startEditing() {
+    if (details.data) setEditForm(toEditForm(details.data))
+    setLocalError('')
+    setSuccess('')
+    setIsEditing(true)
+  }
+
+  function submitEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!editForm) return
+    setLocalError('')
+    setSuccess('')
+    updateClinic.mutate({ ...editForm, consultationFee: Number(editForm.consultationFee), depositPercentage: Number(editForm.depositPercentage) })
+  }
+
+  function selectImages(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? [])
+    const remaining = 6 - (details.data?.images.length ?? 0)
+    setLocalError('')
+    if (files.length > remaining) { setNewImages([]); setLocalError(t('clinicDetails.imageCapacityError', { count: remaining })); event.target.value = ''; return }
+    const invalid = files.find((file) => !acceptedImageTypes.includes(file.type) || file.size > maxImageSize)
+    if (invalid) { setNewImages([]); setLocalError(t(invalid.size > maxImageSize ? 'validation.imageSize' : 'validation.imageType')); event.target.value = ''; return }
+    setNewImages(files)
+  }
+
+  function submitPhone(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLocalError('')
+    setSuccess('')
+    const phone = newPhone.trim()
+    if (!phonePattern.test(phone)) return setLocalError(t('clinicForm.phoneError'))
+    addPhone.mutate(phone)
+  }
+
+  if (!Number.isInteger(numericClinicId) || numericClinicId <= 0) {
+    return <DoctorWorkspaceShell active="clinics"><div className="p-10"><Notice message={t('clinicDetails.invalidId')} /></div></DoctorWorkspaceShell>
+  }
+
+  return (
+    <DoctorWorkspaceShell active="clinics">
+      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+        <Link className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics"><ArrowLeft className="size-4 rtl:rotate-180" />{t('clinicDetails.back')}</Link>
+        {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
+        {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="outline" className="rounded-xl normal-case" onClick={() => details.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
+
+        {details.data && (
+          <div className="mt-5 grid gap-5">
+            <Card className="relative min-h-60 justify-end overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-warm/8 p-6 sm:p-8">
+              {details.data.images[0] && <img className="absolute inset-0 size-full object-cover opacity-15" src={details.data.images[0]} alt="" />}
+              <div className="relative z-10 flex flex-wrap items-end justify-between gap-5"><div><Badge className="rounded-full bg-primary/10 px-2 py-1 text-primary"><Building2 />{isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}</Badge><h1 className="mt-3 font-heading text-3xl font-medium sm:text-5xl">{details.data.name}</h1><p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground"><MapPin className="size-4 shrink-0 text-primary" />{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</p></div><div className="flex flex-wrap gap-2">{details.data.googleMapsUrl && <Button variant="outline" className="rounded-xl normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('clinicDetails.openMap')}<ExternalLink /></Button>}{isOwner && !isEditing && <Button className="rounded-xl normal-case" onClick={startEditing}><PencilLine />{t('clinicDetails.edit')}</Button>}</div></div>
+            </Card>
+
+            {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
+            {success && <Notice tone="success" message={success} />}
+
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">
+              <div className="grid gap-5">
+                <Card className="rounded-2xl border border-border bg-card">
+                  <CardHeader className="border-b border-border"><CardTitle className="text-base normal-case tracking-normal">{t('clinicDetails.information')}</CardTitle></CardHeader>
+                  <CardContent>
+                    {isEditing && editForm ? (
+                      <form className="grid gap-5" onSubmit={submitEdit}><div className="grid gap-5 sm:grid-cols-2"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[10px] text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2"><Button type="button" variant="outline" className="rounded-xl normal-case" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="rounded-xl normal-case" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicDetails.save')}</Button></div></form>
+                    ) : (
+                      <div className="grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-background/45 p-4"><small className="text-[9px] uppercase text-muted-foreground">{t('clinicForm.region')}</small><strong className="mt-1 block text-sm">{details.data.regionName}</strong></div><div className="rounded-xl bg-background/45 p-4"><small className="text-[9px] uppercase text-muted-foreground">{t('clinicForm.landmark')}</small><strong className="mt-1 block text-sm">{details.data.landmark || '—'}</strong></div><div className="rounded-xl bg-background/45 p-4"><small className="flex items-center gap-1 text-[9px] uppercase text-muted-foreground"><CircleDollarSign className="size-3" />{t('clinics.consultation')}</small><strong className="mt-1 block text-sm">{money.format(details.data.consultationFee)}</strong></div><div className="rounded-xl bg-background/45 p-4"><small className="flex items-center gap-1 text-[9px] uppercase text-muted-foreground"><WalletCards className="size-3" />{t('clinics.deposit')}</small><strong className="mt-1 block text-sm">{details.data.depositPercentage}%</strong></div></div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl border border-border bg-card"><CardHeader className="border-b border-border"><CardTitle className="flex items-center gap-2 text-base normal-case tracking-normal"><Camera className="size-4 text-primary" />{t('clinicDetails.gallery')}<Badge className="ms-auto text-muted-foreground">{details.data.images.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-4">{details.data.images.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{details.data.images.map((image, index) => <a href={image} target="_blank" rel="noreferrer" key={image}><img className="aspect-video size-full rounded-xl border border-border object-cover" src={image} alt={t('clinicDetails.imageAlt', { number: index + 1 })} /></a>)}</div> : <p className="text-xs text-muted-foreground">{t('clinicDetails.noImages')}</p>}{isOwner && details.data.images.length < 6 && <div className="grid gap-3"><Label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-primary/30 bg-primary/4 p-4" htmlFor="addClinicImages"><Input className="sr-only" id="addClinicImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={selectImages} /><ImagePlus className="size-5 text-primary" /><span className="grid"><strong className="text-xs">{newImages.length ? t('clinicForm.imagesSelected', { count: newImages.length }) : t('clinicDetails.addImages')}</strong><small className="text-[10px] text-muted-foreground">{t('clinicForm.imageRules')}</small></span></Label><Button className="w-fit rounded-xl normal-case" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>{addImages.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.uploadImages')}</Button></div>}<p className="text-[10px] text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
+
+                <Card className="rounded-2xl border border-border bg-card"><CardHeader className="border-b border-border"><CardTitle className="flex items-center gap-2 text-base normal-case tracking-normal"><UsersRound className="size-4 text-primary" />{t('clinicDetails.members')}<Badge className="ms-auto text-muted-foreground">{members.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{members.isLoading && <LoaderCircle className="animate-spin text-primary" />}{members.error && <Notice message={getErrorMessage(members.error)} />}{members.data?.map((member) => <div className="flex items-center gap-3 rounded-xl border border-border bg-background/35 p-3" key={member.id}><span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary/10 text-xs font-bold text-primary">{member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}</span><span className="grid min-w-0 flex-1"><strong className="truncate text-xs">{member.fullName}</strong><small className="truncate text-[10px] text-muted-foreground">{member.title ? `${member.title} · ` : ''}{member.medicalSpecialty}</small></span>{member.isOwner ? <Badge className="rounded-full bg-primary/10 px-2 py-1 text-primary"><BadgeCheck />{t('clinicDetails.owner')}</Badge> : isOwner && <Button variant="destructive" size="icon-sm" className="rounded-xl" aria-label={t('clinicDetails.removeMember')} disabled={removeMember.isPending} onClick={() => window.confirm(t('clinicDetails.removeMemberConfirm', { name: member.fullName })) && removeMember.mutate(member.id)}><UserMinus /></Button>}</div>)}</CardContent></Card>
+              </div>
+
+              <div className="grid gap-5">
+                <Card className="rounded-2xl border border-border bg-card"><CardHeader className="border-b border-border"><CardTitle className="flex items-center gap-2 text-base normal-case tracking-normal"><Phone className="size-4 text-primary" />{t('clinicDetails.phones')}<Badge className="ms-auto text-muted-foreground">{details.data.phoneNumbers.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => <a className="flex items-center gap-2 rounded-xl border border-border bg-background/35 p-3 text-xs font-semibold hover:border-primary/30" href={`tel:${phone}`} key={phone}><Phone className="size-3.5 text-primary" />{phone}</a>) : <p className="text-xs text-muted-foreground">{t('clinicDetails.noPhones')}</p>}{isOwner && details.data.phoneNumbers.length < 6 && <form className="grid gap-3" onSubmit={submitPhone}><FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required /><Button type="submit" className="rounded-xl normal-case" disabled={addPhone.isPending}>{addPhone.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.savePhone')}</Button></form>}<p className="text-[10px] text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
+
+                {currentMember && <Card className="rounded-2xl border border-destructive/20 bg-card"><CardHeader className="border-b border-destructive/15"><CardTitle className="text-base normal-case tracking-normal text-destructive">{t('clinicDetails.accessTitle')}</CardTitle></CardHeader><CardContent className="grid gap-3"><p className="text-xs leading-5 text-muted-foreground">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>{isOwner ? <Button variant="destructive" className="rounded-xl normal-case" disabled={deleteClinic.isPending} onClick={() => window.confirm(t('clinicDetails.deleteConfirm')) && deleteClinic.mutate()}><Trash2 />{t('clinicDetails.deleteClinic')}</Button> : <Button variant="destructive" className="rounded-xl normal-case" disabled={leaveClinic.isPending} onClick={() => window.confirm(t('clinicDetails.leaveConfirm')) && leaveClinic.mutate()}><ArrowLeft className="rtl:rotate-180" />{t('clinicDetails.leaveClinic')}</Button>}</CardContent></Card>}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </DoctorWorkspaceShell>
+  )
+}

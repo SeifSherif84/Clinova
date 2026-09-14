@@ -24,7 +24,7 @@ export default function AuthStatusPage() {
   const email = params.get('email') ?? ''
   const content = statusKeys[reason as keyof typeof statusKeys] ?? statusKeys['check-email']
   const Icon = content.icon
-  const resend = useMutation({ mutationFn: () => api.request<string>('/api/auth/resend-email-confirmation', { method: 'POST', body: JSON.stringify({ email }) }, { authenticated: false }) })
+  const resend = useMutation({ mutationFn: () => api.request<string>('/api/auth/resend-email-confirmation', { method: 'POST', body: JSON.stringify({ email }) }, { authenticated: false, notifyOnError: false }) })
   const canResend = ['unconfirmed', 'check-email', 'doctor-created'].includes(reason) && Boolean(email)
   const statusTone = reason === 'rejected' ? 'border-destructive/20 bg-destructive/10 text-destructive' : reason === 'pending' || reason === 'doctor-created' ? 'border-warm/20 bg-warm/10 text-warm' : 'border-primary/20 bg-primary/10 text-primary'
 

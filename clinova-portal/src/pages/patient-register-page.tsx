@@ -20,7 +20,7 @@ export default function PatientRegisterPage() {
   const navigate = useNavigate()
   const [formError, setFormError] = useState('')
   const register = useMutation({
-    mutationFn: (request: PatientRegistrationRequest) => api.request<RegistrationResponse>('/api/auth/patient-registration', { method: 'POST', body: JSON.stringify(request) }, { authenticated: false }),
+    mutationFn: (request: PatientRegistrationRequest) => api.request<RegistrationResponse>('/api/auth/patient-registration', { method: 'POST', body: JSON.stringify(request) }, { authenticated: false, notifyOnError: false }),
     onSuccess: (response) => navigate({ to: '/auth/status', search: { reason: 'check-email', email: response.email } }),
   })
 

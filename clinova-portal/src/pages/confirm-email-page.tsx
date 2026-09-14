@@ -14,7 +14,7 @@ export default function ConfirmEmailPage() {
   const token = params.get('token') ?? ''
   const confirmation = useQuery({
     queryKey: ['auth', 'confirm-email', email, token],
-    queryFn: () => api.request<string>(`/api/auth/confirm-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, {}, { authenticated: false }),
+    queryFn: () => api.request<string>(`/api/auth/confirm-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, {}, { authenticated: false, notifyOnError: false }),
     enabled: Boolean(email && token),
     retry: false,
   })

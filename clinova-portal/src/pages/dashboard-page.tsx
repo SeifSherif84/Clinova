@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LogOut, Search, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -26,9 +26,9 @@ export default function DashboardPage() {
         <nav className="mt-12 grid gap-1">
           <a className={`${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`} href="#overview"><Sparkles /> {t('dashboard.overview')}</a>
           <a className={navItem} href="#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>
-          {isDoctor && <a className={navItem} href="#clinics"><Building2 /> {t('dashboard.clinics')}</a>}
+          {isDoctor && <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>}
           {isDoctor && <a className={navItem} href="#schedule"><Clock3 /> {t('dashboard.workingHours')}</a>}
-          <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>
+          {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
         </nav>
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3"><ShieldCheck className="size-4 text-primary" /><span className="grid"><strong className="text-[11px]">{t('dashboard.secureSession')}</strong><small className="text-[9px] text-muted-foreground">{t('dashboard.protected')}</small></span></Card>
       </aside>
