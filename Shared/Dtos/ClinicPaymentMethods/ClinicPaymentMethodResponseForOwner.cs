@@ -10,7 +10,7 @@ namespace Shared.Dtos.ClinicPaymentMethods
     public class ClinicPaymentMethodResponseForOwner
     {
         public int Id { get; set; }
-        public PaymentMethodType Type { get; set; }
+        public string Type { get; set; } = null!;
         public bool IsActive { get; set; }
 
         public string? AccountIdentifier { get; set; }

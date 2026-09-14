@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Exceptions.Unauthorized
 {
-    public class FailedLoginException(string message) : BadRequestException(message)
+    public class FailedLoginException(string message) : UnauthorizedException(message)
     { 
     }
 }

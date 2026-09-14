@@ -38,6 +38,17 @@ namespace Presentation.Controllers.ClinicPaymentMethods
         }
 
 
+        [Authorize(Roles = "Doctor")]
+        [HttpDelete("{paymentMethodId}/clinics/{clinicId}")]
+        public async Task<IActionResult> DeleteClinicPaymentMethod([FromRoute] int clinicId,
+                                                           [FromRoute] int paymentMethodId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicPaymentMethodService.DeleteClinicPaymentMethodAsync(userId ?? string.Empty, clinicId, paymentMethodId);
+            return Ok(response);
+        }
+
+
         [Authorize(Roles = "Patient")]
         [HttpGet("clinics/{clinicId}")]
         public async Task<IActionResult> GetClinicPaymentMethodsForPatient([FromRoute] int clinicId)
@@ -79,16 +90,5 @@ namespace Presentation.Controllers.ClinicPaymentMethods
             return Ok(response);
         }
 
-
-
-        [Authorize(Roles = "Doctor")]
-        [HttpDelete("{paymentMethodId}/clinics/{clinicId}")]
-        public async Task<IActionResult> DeleteClinicPaymentMethod([FromRoute] int clinicId,
-                                                                   [FromRoute] int paymentMethodId)
-        {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicPaymentMethodService.DeleteClinicPaymentMethodAsync(userId ?? string.Empty, clinicId, paymentMethodId);
-            return Ok(response);
-        }
     }
 }

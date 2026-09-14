@@ -186,8 +186,10 @@ namespace Services.AppointmentSlots
             await GetDoctorClinicAccessAsync(doctorId, clinicId);
             
             var slotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
-            var specification = new AppointmentSlotSpecifications(clinicId,doctorId, from, to);
+            var specification = new AppointmentSlotSpecifications(clinicId, doctorId, from, to);
             var availableSlots = await slotRepo.GetAllAsync(specification);
+            if(!availableSlots.Any())
+                return Enumerable.Empty<AvailableAppointmentSlotResponse>();
 
             var now = DateTime.UtcNow;
             var futureAvailableSlots = availableSlots.Where(slot => slot.Date.ToDateTime(slot.StartTime, DateTimeKind.Utc) > now)
