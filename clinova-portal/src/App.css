@@ -153,6 +153,36 @@
   100% { transform: translateX(310%); }
 }
 
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.6;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 35%, transparent),
+                0 0 12px 0 color-mix(in oklch, var(--primary) 15%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in oklch, var(--primary) 18%, transparent),
+                0 0 24px 4px color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+}
+
+.animate-glow {
+  animation: glow 2.4s ease-in-out infinite;
+}
+
+
+
+
 html[dir="rtl"] [class*="route-progress"] {
   animation-direction: reverse;
 }

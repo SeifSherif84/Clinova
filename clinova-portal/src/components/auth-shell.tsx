@@ -25,9 +25,9 @@ export default function AuthShell({ eyebrow, title, description, children, wide 
       <header className="relative z-20 mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-24 sm:px-6 lg:px-8">
         <Brand />
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-2 text-[10px] tracking-wider text-primary lg:inline-flex">
-            <ShieldCheck className="size-3.5" /> {t('common.protectedAccess')}
-          </Badge>
+<Badge variant="secondary" className="hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2.5 text-xs font-bold tracking-wider text-primary lg:inline-flex">
+  <ShieldCheck className="size-4" /> {t('common.protectedAccess')}
+</Badge>
           <PreferencesControls />
         </div>
       </header>

@@ -14,7 +14,7 @@ export default function DoctorWorkspaceShell({ children, active }: { children: R
   const auth = useAuth()
   const navigate = useNavigate()
   const logout = useMutation({ mutationFn: auth.signOut, onSettled: () => navigate({ to: '/login', search: { redirect: undefined } }) })
-  const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
+  const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
   const activeItem = `${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`
 
   return (
@@ -28,7 +28,10 @@ export default function DoctorWorkspaceShell({ children, active }: { children: R
           <a className={navItem} href="/dashboard#schedule"><Clock3 />{t('dashboard.workingHours')}</a>
           <Link className={active === 'profile' ? activeItem : navItem} to="/doctor/profile"><Stethoscope />{t('dashboard.profile')}</Link>
         </nav>
-        <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3"><ShieldCheck className="size-4 text-primary" /><span className="grid"><strong className="text-[11px]">{t('dashboard.secureSession')}</strong><small className="text-[9px] text-muted-foreground">{t('dashboard.protected')}</small></span></Card>
+        <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 animate-glow">
+  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><ShieldCheck className="size-4" /></span>
+  <span className="grid"><strong className="text-xs">{t('dashboard.secureSession')}</strong><small className="text-[10px] text-muted-foreground">{t('dashboard.protected')}</small></span>
+</Card>
       </aside>
 
       <section className="min-w-0">
@@ -36,7 +39,7 @@ export default function DoctorWorkspaceShell({ children, active }: { children: R
           <div className="me-auto"><span className="lg:hidden"><Brand compact /></span><Link className="hidden text-xs font-semibold text-muted-foreground transition hover:text-foreground lg:inline" to="/dashboard">{t('clinicModule.backToDashboard')}</Link></div>
           <PreferencesControls compact />
           <Button variant="outline" size="icon" className="relative rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t('dashboard.notifications')}><Bell className="size-4" /></Button>
-          <div className="hidden max-w-44 text-end sm:grid"><strong className="truncate text-xs">{auth.user?.name}</strong><small className="truncate text-[9px] text-muted-foreground">{t('clinicModule.doctorWorkspace')}</small></div>
+          <div className="hidden max-w-56 text-end sm:grid"><strong className="truncate text-base font-bold text-foreground">{auth.user?.name}</strong><small className="truncate text-xs font-medium text-muted-foreground">{t('clinicModule.doctorWorkspace')}</small></div>
           <Button variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t('common.signOut')} onClick={() => logout.mutate()} disabled={logout.isPending}><LogOut className="size-4 rtl:rotate-180" /></Button>
         </header>
         {children}
