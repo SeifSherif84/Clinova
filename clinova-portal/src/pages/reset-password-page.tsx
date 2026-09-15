@@ -19,7 +19,7 @@ export default function ResetPasswordPage() {
   const params = new URLSearchParams(window.location.search)
   const email = params.get('email') ?? ''
   const token = params.get('token') ?? ''
-  const update = useMutation({ mutationFn: ({ newPassword, confirmPassword }: { newPassword: string; confirmPassword: string }) => api.request<string>(`/api/auth/update-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, { method: 'POST', body: JSON.stringify({ newPassword, confirmPassword }) }, { authenticated: false }) })
+  const update = useMutation({ mutationFn: ({ newPassword, confirmPassword }: { newPassword: string; confirmPassword: string }) => api.request<string>(`/api/auth/update-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, { method: 'POST', body: JSON.stringify({ newPassword, confirmPassword }) }, { authenticated: false, notifyOnError: false }) })
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

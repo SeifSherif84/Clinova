@@ -29,6 +29,14 @@ export class ApiError extends Error {
   }
 }
 
+export function normalizeApiError(error: unknown) {
+  if (error instanceof ApiError || (error instanceof DOMException && error.name === 'AbortError')) return error
+  if (error instanceof TypeError) {
+    return new ApiError(0, { title: i18n.t('errors.networkTitle'), message: i18n.t('errors.networkMessage') })
+  }
+  return error instanceof Error ? error : new ApiError(0, i18n.t('errors.unexpectedMessage'))
+}
+
 export function readStoredTokens(): SessionTokens | null {
   const accessToken = localStorage.getItem(STORAGE_KEYS.accessToken) ?? sessionStorage.getItem(STORAGE_KEYS.accessToken)
   const refreshToken = localStorage.getItem(STORAGE_KEYS.refreshToken) ?? sessionStorage.getItem(STORAGE_KEYS.refreshToken)
@@ -53,12 +61,15 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
   if (response.status === 204) return undefined as T
 
   const contentType = response.headers.get('content-type') ?? ''
-  const payload = contentType.includes('application/json')
-    ? await response.json()
-    : await response.text()
+  let payload: unknown
+  try {
+    payload = contentType.includes('application/json') ? await response.json() : await response.text()
+  } catch {
+    payload = undefined
+  }
 
   if (!response.ok) {
-    throw new ApiError(response.status, payload as ApiProblem | string)
+    throw new ApiError(response.status, payload as ApiProblem | string | undefined)
   }
 
   return payload as T

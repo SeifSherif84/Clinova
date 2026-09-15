@@ -1,17 +1,20 @@
-import { createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, Outlet, redirect } from '@tanstack/react-router'
+import { createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, redirect } from '@tanstack/react-router'
 import LoadingScreen from '@/components/loading-screen'
+import RootLayout from '@/components/root-layout'
 import type { AuthContextValue } from '@/providers/auth-context'
 import LandingPage from '@/pages/landing-page'
 import NotFoundPage from '@/pages/not-found-page'
+import RouteErrorPage from '@/pages/route-error-page'
 
 interface RouterContext {
   auth: AuthContextValue
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: () => <Outlet />,
+  component: RootLayout,
   notFoundComponent: NotFoundPage,
   pendingComponent: LoadingScreen,
+  errorComponent: RouteErrorPage,
 })
 
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: LandingPage })
@@ -64,6 +67,46 @@ const dashboardRoute = createRoute({
   },
   component: lazyRouteComponent(() => import('@/pages/dashboard-page')),
 })
+const doctorProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/profile',
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login', search: { redirect: '/doctor/profile' } })
+    }
+
+    if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
+  component: lazyRouteComponent(() => import('@/pages/doctor-profile-page')),
+})
+function requireDoctor(context: RouterContext) {
+  if (!context.auth.isAuthenticated) {
+    throw redirect({ to: '/login', search: { redirect: '/doctor/clinics' } })
+  }
+  if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')) {
+    throw redirect({ to: '/dashboard' })
+  }
+}
+const doctorClinicsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  component: lazyRouteComponent(() => import('@/pages/doctor-clinics-page')),
+})
+const addDoctorClinicRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/new',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  component: lazyRouteComponent(() => import('@/pages/add-clinic-page')),
+})
+const doctorClinicDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  component: lazyRouteComponent(() => import('@/pages/clinic-details-page')),
+})
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -76,12 +119,20 @@ const routeTree = rootRoute.addChildren([
   confirmEmailRoute,
   authStatusRoute,
   dashboardRoute,
+  doctorProfileRoute,
+  doctorClinicsRoute,
+  addDoctorClinicRoute,
+  doctorClinicDetailsRoute,
 ])
 
 export const router = createRouter({
   routeTree,
   context: { auth: undefined! },
   defaultPreload: 'intent',
+  defaultPendingComponent: LoadingScreen,
+  defaultErrorComponent: RouteErrorPage,
+  defaultPendingMs: 120,
+  defaultPendingMinMs: 300,
   scrollRestoration: true,
 })
 

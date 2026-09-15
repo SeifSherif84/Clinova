@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
-import { API_BASE_URL, parseApiResponse, persistTokens, readStoredTokens, STORAGE_KEYS } from '@/lib/api'
+import { API_BASE_URL, normalizeApiError, parseApiResponse, persistTokens, readStoredTokens, STORAGE_KEYS } from '@/lib/api'
 import { ApiContext, type ApiRequestConfig } from '@/providers/api-context'
+import { useErrorHandler } from '@/hooks/use-error-handler'
 import type { LoginResponse, SessionTokens } from '@/types/auth'
 
 function withHeaders(init: RequestInit, accessToken?: string | null) {
@@ -15,7 +16,9 @@ function withHeaders(init: RequestInit, accessToken?: string | null) {
 }
 
 export default function ApiProvider({ children }: { children: ReactNode }) {
+  const { reportError } = useErrorHandler()
   const [tokens, setTokens] = useState<SessionTokens | null>(() => readStoredTokens())
+  const [activeRequests, setActiveRequests] = useState(0)
   const refreshPromise = useRef<Promise<SessionTokens> | null>(null)
   const persistentSession = useRef(Boolean(localStorage.getItem(STORAGE_KEYS.accessToken)))
 
@@ -62,31 +65,40 @@ export default function ApiProvider({ children }: { children: ReactNode }) {
 
   const request = useCallback(
     async <T,>(path: string, init: RequestInit = {}, config: ApiRequestConfig = {}) => {
-      const authenticated = config.authenticated ?? true
-      const response = await fetch(`${API_BASE_URL}${path}`, {
-        ...init,
-        headers: withHeaders(init, authenticated ? tokens?.accessToken : null),
-      })
+      setActiveRequests((count) => count + 1)
+      try {
+        const authenticated = config.authenticated ?? true
+        const response = await fetch(`${API_BASE_URL}${path}`, {
+          ...init,
+          headers: withHeaders(init, authenticated ? tokens?.accessToken : null),
+        })
 
-      if (response.status !== 401 || !authenticated || !tokens?.refreshToken) {
-        if (response.status === 401 && authenticated) clearSession()
-        return parseApiResponse<T>(response)
+        if (response.status !== 401 || !authenticated || !tokens?.refreshToken) {
+          if (response.status === 401 && authenticated) clearSession()
+          return await parseApiResponse<T>(response)
+        }
+
+        const refreshed = await refreshSession()
+        const retryResponse = await fetch(`${API_BASE_URL}${path}`, {
+          ...init,
+          headers: withHeaders(init, refreshed.accessToken),
+        })
+
+        return await parseApiResponse<T>(retryResponse)
+      } catch (error) {
+        const normalizedError = normalizeApiError(error)
+        if (config.notifyOnError !== false || (normalizedError instanceof Error && 'status' in normalizedError && normalizedError.status === 401)) reportError(normalizedError)
+        throw normalizedError
+      } finally {
+        setActiveRequests((count) => Math.max(0, count - 1))
       }
-
-      const refreshed = await refreshSession()
-      const retryResponse = await fetch(`${API_BASE_URL}${path}`, {
-        ...init,
-        headers: withHeaders(init, refreshed.accessToken),
-      })
-
-      return parseApiResponse<T>(retryResponse)
     },
-    [clearSession, refreshSession, tokens],
+    [clearSession, refreshSession, reportError, tokens],
   )
 
   const value = useMemo(
-    () => ({ accessToken: tokens?.accessToken ?? null, request, setSession, clearSession }),
-    [clearSession, request, setSession, tokens],
+    () => ({ accessToken: tokens?.accessToken ?? null, isRequesting: activeRequests > 0, request, setSession, clearSession }),
+    [activeRequests, clearSession, request, setSession, tokens],
   )
 
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>

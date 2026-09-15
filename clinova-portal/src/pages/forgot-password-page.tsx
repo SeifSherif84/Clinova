@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
   const { t } = useTranslation()
   const api = useApi()
   const [email, setEmail] = useState('')
-  const reset = useMutation({ mutationFn: (address: string) => api.request<string>('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ email: address }) }, { authenticated: false }) })
+  const reset = useMutation({ mutationFn: (address: string) => api.request<string>('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ email: address }) }, { authenticated: false, notifyOnError: false }) })
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
