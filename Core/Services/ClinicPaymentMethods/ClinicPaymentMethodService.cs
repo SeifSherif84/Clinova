@@ -27,7 +27,7 @@ namespace Services.ClinicPaymentMethods
 
             ValidatePaymentMethodRequest(request);
 
-            var paymentMethodSpec = ClinicPaymentMethodSpecifications.ByClinicAndType(clinicId, request.Type);
+            var paymentMethodSpec = ClinicPaymentMethodSpecifications.ByClinicAndPaymentDetails(clinicId, request);
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicPaymentMethod, int>();
             var existingPaymentMethod = await paymentMethodRepo.GetByIdAsync(paymentMethodSpec);
             if (existingPaymentMethod is not null)

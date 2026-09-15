@@ -41,20 +41,20 @@ namespace Web
             // Add services to the container.
 
             builder.Services.AddControllers();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy(FrontendCorsPolicy, policy =>
                 {
-                    var frontendUrl = builder.Configuration["FrontendBaseURL"]
-                        ?? "http://localhost:5173";
+                    var frontendUrl = builder.Configuration["FrontendBaseURL"] ?? "http://localhost:5173";
 
-                    policy
-                        .WithOrigins(frontendUrl.TrimEnd('/'))
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                    policy.WithOrigins(frontendUrl.TrimEnd('/'))
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                 });
             });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -84,6 +84,7 @@ namespace Web
                 MapperConfig.AddProfile(new WorkingHourProfile());
                 MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicPaymentMethodProfile());
+                MapperConfig.AddProfile(new AppointmentSlotProfile());
                 MapperConfig.AddProfile(new AppointmentSlotProfile());
             });
 

@@ -15,11 +15,17 @@ namespace Persistence.Specifications
         {
             IQueryable<TEntity> Query = BaseQuery; 
 
-            if(specifications.Criteria != null)
-                Query = Query.Where(specifications.Criteria); 
+            if(specifications.Criteria is not null)
+                Query = Query.Where(specifications.Criteria);
 
-            if (specifications.OrderBy != null)
-                Query = Query.OrderBy(specifications.OrderBy);
+
+            if (specifications.OrderBy is not null)
+            {
+                Query = specifications.ThenBy is not null ? 
+                        Query.OrderBy(specifications.OrderBy).ThenBy(specifications.ThenBy) : 
+                        Query.OrderBy(specifications.OrderBy);
+            }
+
 
             if (specifications.OrderByDescending != null)
                 Query = Query.OrderByDescending(specifications.OrderByDescending);

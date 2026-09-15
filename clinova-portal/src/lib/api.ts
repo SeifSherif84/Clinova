@@ -2,7 +2,7 @@ import type { ApiProblem, SessionTokens } from '@/types/auth'
 import i18n from '@/i18n'
 
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5258'
+  import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7269'
 ).replace(/\/$/, '')
 
 export const STORAGE_KEYS = {

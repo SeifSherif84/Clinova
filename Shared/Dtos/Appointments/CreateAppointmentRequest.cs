@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities.Enums
+namespace Shared.Dtos.Appointments
 {
-    public enum SlotStatus
+    public class CreateAppointmentRequest
     {
-        Available = 1,
-        Booked,
-        Reserved,
-        Cancelled
+        public string? PatientNotes { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
+using Shared.Dtos.ClinicPaymentMethods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,33 @@ namespace Services.Specifications.ClinicPaymentMethods
         }
 
 
-        public static ClinicPaymentMethodSpecifications ByClinicAndType(int clinicId, PaymentMethodType type)
+        public static ClinicPaymentMethodSpecifications ByClinicAndPaymentDetails(int clinicId, AddClinicPaymentMethodRequest request)
         {
-            return new ClinicPaymentMethodSpecifications
+
+            if(request.Type == PaymentMethodType.VodafoneCash || request.Type == PaymentMethodType.InstaPay)
             {
-                Criteria = paymentMethod => paymentMethod.ClinicId == clinicId &&
-                                            paymentMethod.Type == type
-            };
+                return new ClinicPaymentMethodSpecifications
+                {
+
+                    Criteria = paymentMethod => paymentMethod.ClinicId == clinicId &&
+                                                paymentMethod.Type == request.Type &&
+                                                paymentMethod.AccountIdentifier == request.AccountIdentifier
+                };
+            }
+
+            if (request.Type == PaymentMethodType.OnlineGateway)
+            {
+                return new ClinicPaymentMethodSpecifications
+                {
+
+                    Criteria = paymentMethod => paymentMethod.ClinicId == clinicId &&
+                                                paymentMethod.Type == request.Type &&
+                                                paymentMethod.Provider == request.Provider &&
+                                                paymentMethod.ProviderAccountId == request.ProviderAccountId
+                };
+            }
+
+            return new ClinicPaymentMethodSpecifications();
         }
 
 

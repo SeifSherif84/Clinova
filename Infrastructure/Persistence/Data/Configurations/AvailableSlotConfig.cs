@@ -18,6 +18,18 @@ namespace Persistence.Data.Configurations
             builder.Property(availableSlot => availableSlot.Id).UseIdentityColumn(1, 1);
 
 
+            builder.HasOne(slot => slot.Doctor)
+                   .WithMany()
+                   .HasForeignKey(slot => slot.DoctorId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.HasOne(slot => slot.Clinic)
+                   .WithMany()
+                   .HasForeignKey(slot => slot.ClinicId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+
             builder.HasOne(availableSlot => availableSlot.Appointment)
                    .WithOne(Appointment => Appointment.AppointmentSlot)
                    .HasForeignKey<Appointment>(Appointment => Appointment.AppointmentSlotId)
