@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.Abstractions.Appointments;
 
 namespace Services.Abstractions
 {
@@ -28,5 +29,6 @@ namespace Services.Abstractions
         IAppointmentSlotService AppointmentSlotService { get; }
         IPatientService PatientService { get; }
         IClinicPaymentMethodService ClinicPaymentMethodService { get; }
+        IAppointmentService AppointmentService { get; }
     }
 }

@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.Abstractions.Appointments;
+using Services.Appointments;
 
 namespace Services
 {
@@ -55,5 +57,6 @@ namespace Services
         public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration, _mapper);
         public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
         public IClinicPaymentMethodService ClinicPaymentMethodService { get; } = new ClinicPaymentMethodService(_unitOfWork, _mapper);
+        public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _configuration);
     }
 }

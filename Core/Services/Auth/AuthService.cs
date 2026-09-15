@@ -336,6 +336,14 @@ namespace Services.Auth
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 throw new UnconfirmedEmailException("Please confirm your email address before logging in.");
 
+            //if (!await _userManager.IsEmailConfirmedAsync(user))
+            //{
+            //    var sendEmailConfirmationflag = await SendEmailConfirmationURL(user);
+            //    if (!sendEmailConfirmationflag)
+            //        throw new EmailConfirmationSendException("Your account still unconfirmed, but We couldn't send the email confirmation right now. Please try again later.");
+            //}
+
+
             if (await _userManager.IsInRoleAsync(user, "Doctor"))
             {
                 Doctor doctor = (Doctor)user;

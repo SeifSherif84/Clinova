@@ -15,10 +15,18 @@ namespace Domain.Entities.BusinessEntities
 
         // Appointment Status
         public AppointmentStatus Status { get; set; } = AppointmentStatus.PendingPayment;
+        public DateTime? ReservationExpiresAt { get; set; }
 
         // Appointment Notes
         public string? PatientNotes { get; set; }
         public string? DoctorNotes { get; set; }
+
+
+        // Financial Snapshot
+        public decimal ConsultationFee { get; set; }
+        public decimal DepositAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
+
 
         // Patient
         public string PatientId { get; set; } = null!;
@@ -28,13 +36,8 @@ namespace Domain.Entities.BusinessEntities
         public int AppointmentSlotId { get; set; }
         public AppointmentSlot AppointmentSlot { get; set; } = null!;
 
-        // Financial Snapshot
-        public decimal ConsultationFee { get; set; }
-        public decimal DepositAmount { get; set; }
-        public decimal RemainingAmount { get; set; }
-
         // Payment
-        public Payment? Payment { get; set; }
+        public Payment Payment { get; set; } = null!;
 
         // Appointment Related Data
         public Review? Review { get; set; }

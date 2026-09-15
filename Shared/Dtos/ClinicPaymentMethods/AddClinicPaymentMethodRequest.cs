@@ -23,7 +23,5 @@ namespace Shared.Dtos.ClinicPaymentMethods
 
         [MaxLength(200)]
         public string? ProviderAccountId { get; set; }
-
-
     }
 }

@@ -13,6 +13,7 @@ namespace Services.Specifications
         public List<Expression<Func<TEntity, object>>> Includes { get; set; }
         public Expression<Func<TEntity, bool>>? Criteria { get; set; }
         public Expression<Func<TEntity, object>>? OrderBy { get; set; }
+        public Expression<Func<TEntity, object>>? ThenBy { get; set; }
         public Expression<Func<TEntity, object>>? OrderByDescending { get; set; }
         public bool IsPaginationEnabled { get; set; }
         public int Skip { get; set; }

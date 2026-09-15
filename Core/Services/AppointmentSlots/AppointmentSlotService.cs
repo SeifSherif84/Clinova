@@ -220,7 +220,6 @@ namespace Services.AppointmentSlots
 
             var doctorClinicRepo = _unitOfWork.GetRepository<DoctorClinic>();
             var doctorClinic = await doctorClinicRepo.GetByCompositeKeyAsync(doctor.Id, clinic.Id);
-
             if (doctorClinic is null)
                 throw new ResourceAccessDeniedException("This doctor does not belong to this clinic.");
 

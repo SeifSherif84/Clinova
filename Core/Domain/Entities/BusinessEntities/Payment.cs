@@ -14,15 +14,17 @@ namespace Domain.Entities.BusinessEntities
         public decimal Amount { get; set; } 
 
         // Payment Information
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+        public DateTime? PaidAt { get; set; }
+        public string? PaymentProofUrl { get; set; }
 
         // Transaction Information
         public string? TransactionReference { get; set; }
 
         // Payment Method
-        public int ClinicPaymentMethodId { get; set; }
-        public ClinicPaymentMethod ClinicPaymentMethod { get; set; } = null!;
+        public int? ClinicPaymentMethodId { get; set; }
+        public ClinicPaymentMethod? ClinicPaymentMethod { get; set; } = null!;
 
         // Appointment
         public int AppointmentId { get; set; }
