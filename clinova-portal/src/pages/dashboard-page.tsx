@@ -51,7 +51,7 @@ export default function DashboardPage() {
             <div className="pointer-events-none absolute -end-28 size-80 rounded-full border border-primary/15 shadow-[inset_0_0_0_3rem_color-mix(in_oklab,var(--primary)_3%,transparent)]" />
             <CardContent className="relative z-10 flex items-center justify-between p-0">
               <div><Badge className="text-primary">{t('dashboard.greetingBadge')}</Badge><h1 className="mt-3 font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl rtl:tracking-normal">{t('dashboard.greeting', { name: firstName })}</h1><p className="mt-4 max-w-xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('dashboard.greetingDescription')}</p></div>
-              <svg className="relative z-10 hidden w-56 text-primary/35 md:block rtl:-scale-x-100" viewBox="0 0 260 150" aria-hidden="true"><path d="M18 108c33-59 50-70 77-41 24 27 41 5 60-26 20-33 49-17 85 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="5 8"/><circle className="fill-warm" cx="18" cy="108" r="8"/><circle className="fill-warm" cx="95" cy="67" r="8"/><circle className="fill-warm" cx="155" cy="41" r="8"/><circle className="fill-warm" cx="240" cy="91" r="8"/></svg>
+              <svg className="relative z-10 hidden w-56 text-primary/35 md:block rtl:-scale-x-100" viewBox="0 0 260 150" aria-hidden="true"><path d="M18 108c33-59 50-70 77-41 24 27 41 5 60-26 20-33 49-17 85 50" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="5 8" className="animate-[dash-flow_2.5s_linear_infinite] motion-reduce:animate-none" /><circle className="fill-warm" cx="18" cy="108" r="8"/><circle className="fill-warm" cx="95" cy="67" r="8"/><circle className="fill-warm" cx="155" cy="41" r="8"/><circle className="fill-warm" cx="240" cy="91" r="8"/></svg>
             </CardContent>
           </Card>
 
@@ -62,12 +62,12 @@ export default function DashboardPage() {
           </div>
 
           <Card className="mt-4 grid items-center gap-6 rounded-2xl border border-border bg-card/65 p-6 text-center sm:p-8 md:grid-cols-[10rem_1fr] md:text-start">
-          <div className="relative mx-auto grid size-36 place-items-center">
-            <span className="absolute size-28 rounded-full border border-primary/25 animate-[pulse-ring_2.5s_ease-in-out_infinite] motion-reduce:animate-none" />
-            <span className="absolute size-28 rounded-full border border-primary/25 animate-[pulse-ring_2.5s_ease-in-out_infinite_0.6s] motion-reduce:animate-none" />
-            <span className="absolute size-28 rounded-full border border-primary/25 animate-[pulse-ring_2.5s_ease-in-out_infinite_1.2s] motion-reduce:animate-none" />
-            <i className="size-7 rounded-full bg-primary" />
-          </div>
+<div className="relative mx-auto grid size-36 place-items-center">
+  <span className="absolute size-28 rounded-full border-2 border-primary/40 animate-[ripple_2s_ease-out_infinite] motion-reduce:animate-none" />
+  <span className="absolute size-28 rounded-full border-2 border-primary/40 animate-[ripple_2s_ease-out_infinite_0.66s] motion-reduce:animate-none" />
+  <span className="absolute size-28 rounded-full border-2 border-primary/40 animate-[ripple_2s_ease-out_infinite_1.33s] motion-reduce:animate-none" />
+  <i className="size-7 rounded-full bg-primary" />
+</div>
             <CardContent className="p-0"><Badge className="text-primary">{t('dashboard.freshStart')}</Badge><h2 className="mt-2 font-heading text-2xl font-bold sm:text-3xl">{t('dashboard.growTitle')}</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground">{t('dashboard.growDescription')}</p></CardContent>
           </Card>
         </div>

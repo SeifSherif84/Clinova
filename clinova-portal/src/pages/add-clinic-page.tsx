@@ -96,13 +96,13 @@ export default function AddClinicPage() {
         <Link className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics"><ArrowLeft className="size-4 rtl:rotate-180" />{t('clinicForm.back')}</Link>
         <div className="mt-5">  <Badge className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
   {t('clinicForm.eyebrow')}
-</Badge><h1 className="mt-2 font-heading text-3xl font-medium sm:text-4xl">{t('clinicForm.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinicForm.description')}</p></div>
+</Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinicForm.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinicForm.description')}</p></div>
 
         <form className="mt-6 grid gap-5" onSubmit={handleSubmit}>
           {(formError || createClinic.error) && <Notice message={formError || getErrorMessage(createClinic.error)} />}
 
           <Card className="rounded-2xl border border-border bg-card">
-            <CardHeader className="border-b border-border !pb-3"><CardTitle className="flex items-center gap-2 font-heading text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <Building2 className="size-7" />
 </span>{t('clinicForm.identityTitle')}</CardTitle></CardHeader>
             <CardContent className="grid gap-5 sm:grid-cols-2">
@@ -115,7 +115,7 @@ export default function AddClinicPage() {
           </Card>
 
           <Card className="rounded-2xl border border-border bg-card">
-            <CardHeader className="border-b border-border !pb-3"><CardTitle className="flex items-center gap-2 font-heading text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <MapPin className="size-7" />
 </span>{t('clinicForm.locationTitle')}</CardTitle></CardHeader>
             <CardContent className="grid gap-5 sm:grid-cols-2">
@@ -125,14 +125,14 @@ export default function AddClinicPage() {
           </Card>
 
           <Card className="rounded-2xl border border-border bg-card">
-            <CardHeader className="border-b border-border !pb-3"><CardTitle className="flex items-center gap-2 font-heading text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <CircleDollarSign className="size-7" />
 </span>{t('clinicForm.billingTitle')}</CardTitle></CardHeader>
             <CardContent className="grid gap-5 sm:grid-cols-2"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
           </Card>
 
           <Card className="rounded-2xl border border-border bg-card">
-            <CardHeader className="border-b border-border !pb-3"><CardTitle className="flex items-center gap-2 font-heading text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <Phone className="size-7" />
 </span>{t('clinicForm.phonesTitle')}</CardTitle><p className="text-xs text-muted-foreground">{t('clinicForm.phonesHint')}</p></CardHeader>
             <CardContent className="grid gap-3">
@@ -142,7 +142,7 @@ export default function AddClinicPage() {
           </Card>
 
           <Card className="rounded-2xl border border-border bg-card">
-            <CardHeader className="border-b border-border !pb-3"><CardTitle className="flex items-center gap-2 font-heading text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <FileImage className="size-7" />
 </span>{t('clinicForm.imagesTitle')}</CardTitle><p className="text-xs text-muted-foreground">{t('clinicForm.imagesHint')}</p></CardHeader>
             <CardContent><Label className="flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/4 p-5 text-center transition hover:bg-primary/8" htmlFor="clinicImages"><Input className="sr-only" id="clinicImages" name="Images" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={handleImages} /><Upload className="size-5 text-primary" /><strong className="text-xs">{images.length ? t('clinicForm.imagesSelected', { count: images.length }) : t('clinicForm.chooseImages')}</strong><small className="text-[10px] font-normal text-muted-foreground">{images.length ? images.map((image) => image.name).join(', ') : t('clinicForm.imageRules')}</small></Label></CardContent>
