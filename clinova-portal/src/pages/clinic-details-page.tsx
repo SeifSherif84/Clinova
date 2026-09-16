@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, LoaderCircle, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, ShieldAlert, Trash2, UserMinus, UsersRound, WalletCards } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, ShieldAlert, Trash2, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -45,6 +45,7 @@ export default function ClinicDetailsPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState<ClinicEditForm | null>(null)
   const [newPhone, setNewPhone] = useState('')
+  const [inviteEmail, setInviteEmail] = useState('')
   const [newImages, setNewImages] = useState<File[]>([])
   const [localError, setLocalError] = useState('')
   const [success, setSuccess] = useState('')
@@ -74,6 +75,14 @@ export default function ClinicDetailsPage() {
     mutationFn: (files: File[]) => { const body = new FormData(); files.forEach((file) => body.append('Images', file)); return api.request<string>(`/api/clinics/${numericClinicId}/images`, { method: 'POST', body }, { notifyOnError: false }) },
     onSuccess: async (message) => { setSuccess(message); setNewImages([]); await refreshClinic() },
   })
+  const sendInvitation = useMutation({
+    mutationFn: (email: string) => api.request<string>(`/api/invitations/send/clinic/${numericClinicId}`, { method: 'POST', body: JSON.stringify({ email }) }, { notifyOnError: false }),
+    onSuccess: async () => {
+      setSuccess(t('clinicDetails.inviteSuccess'))
+      setInviteEmail('')
+      await queryClient.invalidateQueries({ queryKey: ['doctor', 'invitations', 'sent'] })
+    },
+  })
   const removeMember = useMutation({
     mutationFn: (memberId: string) => api.request<string>(`/api/clinics/${numericClinicId}/members/${memberId}`, { method: 'DELETE' }, { notifyOnError: false }),
     onSuccess: async (message) => { setSuccess(message); await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'] }) },
@@ -87,7 +96,7 @@ export default function ClinicDetailsPage() {
     onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics'] }); navigate({ to: '/doctor/clinics' }) },
   })
 
-  const actionError = updateClinic.error || addPhone.error || addImages.error || removeMember.error || deleteClinic.error || leaveClinic.error
+  const actionError = updateClinic.error || addPhone.error || addImages.error || sendInvitation.error || removeMember.error || deleteClinic.error || leaveClinic.error
 
   function updateEditField<Key extends keyof ClinicEditForm>(key: Key, value: ClinicEditForm[Key]) {
     setEditForm((current) => current ? { ...current, [key]: value } : current)
@@ -125,6 +134,15 @@ export default function ClinicDetailsPage() {
     const phone = newPhone.trim()
     if (!phonePattern.test(phone)) return setLocalError(t('clinicForm.phoneError'))
     addPhone.mutate(phone)
+  }
+
+  function submitInvitation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLocalError('')
+    setSuccess('')
+    const email = inviteEmail.trim()
+    if (!email) return
+    sendInvitation.mutate(email)
   }
 
   if (!Number.isInteger(numericClinicId) || numericClinicId <= 0) {
@@ -171,6 +189,30 @@ export default function ClinicDetailsPage() {
               </div>
 
               <div className="grid gap-5">
+                {isOwner && (
+                  <Card className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/8 via-card to-warm/5">
+                    <CardHeader className="!pb-3 border-b border-border/40">
+                      <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
+                        <span className="grid size-10 place-items-center rounded-2xl bg-primary/10 text-primary">
+                          <MailPlus className="size-6" />
+                        </span>
+                        {t('clinicDetails.inviteTitle')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                      <p className="text-xs leading-5 text-muted-foreground">{t('clinicDetails.inviteDescription')}</p>
+                      <form className="grid gap-3" onSubmit={submitInvitation}>
+                        <FormField id="inviteDoctorEmail" label={t('clinicDetails.doctorEmail')} type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder={t('clinicDetails.doctorEmailPlaceholder')} required />
+                        <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={sendInvitation.isPending}>
+                          {sendInvitation.isPending ? <LoaderCircle className="animate-spin" /> : <MailPlus />}
+                          {t('clinicDetails.sendInvitation')}
+                        </Button>
+                      </form>
+                      <Link className="text-center text-xs font-semibold text-primary transition hover:text-primary/80" to="/doctor/invitations">{t('clinicDetails.viewInvitations')}</Link>
+                    </CardContent>
+                  </Card>
+                )}
+
                 <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40">
   <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Phone className="size-7" /></span>{t('clinicDetails.phones')}<Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.phoneNumbers.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => <a className="flex items-center gap-2 rounded-xl border border-border bg-background/35 p-3 text-xs font-semibold hover:border-primary/30" href={`tel:${phone}`} key={phone}><Phone className="size-3.5 text-primary" />{phone}</a>) : <p className="text-xs text-muted-foreground">{t('clinicDetails.noPhones')}</p>}{isOwner && details.data.phoneNumbers.length < 6 && <form className="grid gap-3" onSubmit={submitPhone}><FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required /><Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={addPhone.isPending}>{addPhone.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.savePhone')}</Button></form>}<p className="text-[10px] text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
 

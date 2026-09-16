@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Bell, BriefcaseMedical, Building2, CalendarDays, Camera, Clock3, FileBadge, FileText, LoaderCircle, LogOut, Mail, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Sparkles, Stethoscope, Upload, UserRound } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Bell, BriefcaseMedical, Building2, CalendarDays, Camera, Clock3, FileBadge, FileText, LoaderCircle, LogOut, Mail, MailOpen, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Sparkles, Stethoscope, Upload, UserRound } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -165,6 +165,7 @@ export default function DoctorProfilePage() {
           <Link className={navItem} to="/dashboard"><Sparkles /> {t('dashboard.overview')}</Link>
           <a className={navItem} href="/dashboard#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>
           <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>
+          <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>
           <a className={navItem} href="/dashboard#schedule"><Clock3 /> {t('dashboard.workingHours')}</a>
           <Link className={`${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link>
         </nav>
@@ -179,6 +180,7 @@ export default function DoctorProfilePage() {
           <div className="me-auto lg:hidden"><Brand compact /></div>
           <Link className="me-auto hidden items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground lg:flex" to="/dashboard"><ArrowLeft className="size-4 rtl:rotate-180" />{t('doctorProfile.back')}</Link>
           <PreferencesControls compact />
+          <Button variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground lg:hidden" aria-label={t('dashboard.invitations')} render={<Link to="/doctor/invitations" />}><MailOpen className="size-4" /></Button>
           <Button variant="outline" size="icon" className="relative rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t('dashboard.notifications')}><Bell className="size-4" /></Button>
           <div className="hidden max-w-56 text-end sm:grid"><strong className="truncate text-base font-bold text-foreground">{fullName || t('dashboard.member')}</strong><small className="truncate text-xs font-medium text-muted-foreground">{profile.data?.medicalSpecialtyName || t('dashboard.member')}</small></div>
           <Button variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t('common.signOut')} onClick={() => logout.mutate()} disabled={logout.isPending}><LogOut className="size-4 rtl:rotate-180" /></Button>
