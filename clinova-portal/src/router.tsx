@@ -81,6 +81,20 @@ const doctorProfileRoute = createRoute({
   },
   component: lazyRouteComponent(() => import('@/pages/doctor-profile-page')),
 })
+const doctorInvitationsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/invitations',
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login', search: { redirect: '/doctor/invitations' } })
+    }
+
+    if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
+  component: lazyRouteComponent(() => import('@/pages/doctor-invitations-page')),
+})
 function requireDoctor(context: RouterContext) {
   if (!context.auth.isAuthenticated) {
     throw redirect({ to: '/login', search: { redirect: '/doctor/clinics' } })
@@ -120,6 +134,7 @@ const routeTree = rootRoute.addChildren([
   authStatusRoute,
   dashboardRoute,
   doctorProfileRoute,
+  doctorInvitationsRoute,
   doctorClinicsRoute,
   addDoctorClinicRoute,
   doctorClinicDetailsRoute,

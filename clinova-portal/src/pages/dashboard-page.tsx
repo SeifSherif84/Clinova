@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LogOut, Search, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
+import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
 import PreferencesControls from '@/components/preferences-controls'
@@ -27,6 +27,7 @@ export default function DashboardPage() {
           <a className={`${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`} href="#overview"><Sparkles /> {t('dashboard.overview')}</a>
           <a className={navItem} href="#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>
           {isDoctor && <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>}
+          {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           {isDoctor && <a className={navItem} href="#schedule"><Clock3 /> {t('dashboard.workingHours')}</a>}
           {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
         </nav>
@@ -41,6 +42,7 @@ export default function DashboardPage() {
           <div className="me-auto lg:hidden"><Brand compact /></div>
           <div className="relative hidden w-full max-w-md lg:block"><Search className="absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="h-11 rounded-xl border border-input bg-card/40 ps-10 text-xs placeholder:text-muted-foreground/60 focus-visible:border-primary/50" placeholder={t('dashboard.search')} aria-label={t('dashboard.search')} /></div>
           <PreferencesControls compact />
+          {isDoctor && <Button variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden" aria-label={t('dashboard.invitations')} render={<Link to="/doctor/invitations" />}><MailOpen className="size-4" /></Button>}
           <Button variant="outline" size="icon" className="relative rounded-xl border-border bg-card/40 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label={t('dashboard.notifications')}><Bell className="size-4" /><i className="absolute top-2 end-2 size-1.5 rounded-full bg-warm" /></Button>
           <Button variant="ghost" className="ms-0 h-auto rounded-xl px-1.5 py-1.5 normal-case hover:bg-accent sm:px-2" type="button"><span className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/65 text-base font-bold text-primary-foreground">{firstName.charAt(0)}</span><div className="hidden max-w-48 text-start sm:grid"><strong className="truncate text-base font-bold text-foreground">{auth.user?.name}</strong><small className="truncate text-xs font-medium tracking-normal text-muted-foreground normal-case">{auth.user?.roles.join(' · ') || t('dashboard.member')}</small></div></Button>
           <Button variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label={t('common.signOut')} onClick={() => logout.mutate()} disabled={logout.isPending}><LogOut className="size-4 rtl:rotate-180" /></Button>
