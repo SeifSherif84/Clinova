@@ -67,6 +67,14 @@ const dashboardRoute = createRoute({
   },
   component: lazyRouteComponent(() => import('@/pages/dashboard-page')),
 })
+const notificationsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/notifications',
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: '/notifications' } })
+  },
+  component: lazyRouteComponent(() => import('@/pages/notifications-page')),
+})
 const doctorProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/doctor/profile',
@@ -133,6 +141,7 @@ const routeTree = rootRoute.addChildren([
   confirmEmailRoute,
   authStatusRoute,
   dashboardRoute,
+  notificationsRoute,
   doctorProfileRoute,
   doctorInvitationsRoute,
   doctorClinicsRoute,

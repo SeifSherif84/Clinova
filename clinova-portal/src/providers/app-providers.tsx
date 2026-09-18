@@ -6,6 +6,8 @@ import ErrorProvider from '@/providers/error-provider'
 import ThemeProvider from '@/providers/theme-provider'
 import GlobalApiLoader from '@/components/global-api-loader'
 import GlobalErrorBoundary from '@/components/global-error-boundary'
+import NotificationProvider from '@/providers/notification-provider'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -28,7 +30,12 @@ export default function AppProviders({ children }: { children: ReactNode }) {
         <ErrorProvider>
           <ApiProvider>
             <GlobalApiLoader />
-            <AuthProvider><GlobalErrorBoundary>{children}</GlobalErrorBoundary></AuthProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
+                <Toaster position="top-center" closeButton />
+              </NotificationProvider>
+            </AuthProvider>
           </ApiProvider>
         </ErrorProvider>
       </QueryClientProvider>

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, ShieldAlert, Trash2, UserMinus, UsersRound, WalletCards } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Trash2, TriangleAlert, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import FormField from '@/components/form-field'
 import Notice from '@/components/notice'
@@ -14,7 +15,6 @@ import { Label } from '@/components/ui/label'
 import { useApi } from '@/hooks/use-api'
 import { useAuth } from '@/hooks/use-auth'
 import { getErrorMessage } from '@/lib/api'
-import { TriangleAlert } from 'lucide-react'
 import type { ClinicDetails, ClinicMember, UpdateClinicRequest } from '@/types/clinic'
 
 const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -30,6 +30,11 @@ interface ClinicEditForm {
   consultationFee: string
   depositPercentage: string
 }
+
+type ClinicConfirmation =
+  | { type: 'remove-member'; memberId: string; memberName: string }
+  | { type: 'delete-clinic' }
+  | { type: 'leave-clinic' }
 
 function toEditForm(clinic: ClinicDetails): ClinicEditForm {
   return { name: clinic.name, streetName: clinic.streetName, buildingNumber: clinic.buildingNumber, landmark: clinic.landmark ?? '', googleMapsUrl: clinic.googleMapsUrl ?? '', consultationFee: String(clinic.consultationFee), depositPercentage: String(clinic.depositPercentage) }
@@ -50,6 +55,7 @@ export default function ClinicDetailsPage() {
   const [newImages, setNewImages] = useState<File[]>([])
   const [localError, setLocalError] = useState('')
   const [success, setSuccess] = useState('')
+  const [confirmation, setConfirmation] = useState<ClinicConfirmation | null>(null)
 
   const details = useQuery({ queryKey: ['doctor', 'clinics', numericClinicId], queryFn: () => api.request<ClinicDetails>(`/api/clinics/${numericClinicId}`, {}, { notifyOnError: false }), enabled: Number.isInteger(numericClinicId) && numericClinicId > 0 })
   const members = useQuery({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'], queryFn: () => api.request<ClinicMember[]>(`/api/clinics/${numericClinicId}/members`, {}, { notifyOnError: false }), enabled: Number.isInteger(numericClinicId) && numericClinicId > 0 })
@@ -86,7 +92,7 @@ export default function ClinicDetailsPage() {
   })
   const removeMember = useMutation({
     mutationFn: (memberId: string) => api.request<string>(`/api/clinics/${numericClinicId}/members/${memberId}`, { method: 'DELETE' }, { notifyOnError: false }),
-    onSuccess: async (message) => { setSuccess(message); await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'] }) },
+    onSuccess: async (message) => { setConfirmation(null); setSuccess(message); await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics', numericClinicId, 'members'] }) },
   })
   const deleteClinic = useMutation({
     mutationFn: () => api.request<string>(`/api/clinics/${numericClinicId}`, { method: 'DELETE' }, { notifyOnError: false }),
@@ -97,7 +103,32 @@ export default function ClinicDetailsPage() {
     onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['doctor', 'clinics'] }); navigate({ to: '/doctor/clinics' }) },
   })
 
-  const actionError = updateClinic.error || addPhone.error || addImages.error || sendInvitation.error || removeMember.error || deleteClinic.error || leaveClinic.error
+  const actionError = updateClinic.error || addPhone.error || addImages.error || sendInvitation.error
+  const confirmationMutation = confirmation?.type === 'remove-member'
+    ? removeMember
+    : confirmation?.type === 'delete-clinic'
+      ? deleteClinic
+      : leaveClinic
+  const confirmationCopy = confirmation?.type === 'remove-member'
+    ? {
+        title: t('clinicDetails.removeMemberConfirmTitle'),
+        description: t('clinicDetails.removeMemberConfirm', { name: confirmation.memberName }),
+        confirmLabel: t('clinicDetails.removeMember'),
+        cancelLabel: t('clinicDetails.keepMember'),
+      }
+    : confirmation?.type === 'delete-clinic'
+      ? {
+          title: t('clinicDetails.deleteConfirmTitle'),
+          description: t('clinicDetails.deleteConfirm'),
+          confirmLabel: t('clinicDetails.deleteClinic'),
+          cancelLabel: t('clinicDetails.notNow'),
+        }
+      : {
+          title: t('clinicDetails.leaveConfirmTitle'),
+          description: t('clinicDetails.leaveConfirm'),
+          confirmLabel: t('clinicDetails.leaveClinic'),
+          cancelLabel: t('clinicDetails.notNow'),
+        }
 
   function updateEditField<Key extends keyof ClinicEditForm>(key: Key, value: ClinicEditForm[Key]) {
     setEditForm((current) => current ? { ...current, [key]: value } : current)
@@ -144,6 +175,19 @@ export default function ClinicDetailsPage() {
     const email = inviteEmail.trim()
     if (!email) return
     sendInvitation.mutate(email)
+  }
+
+  function executeConfirmedAction() {
+    if (!confirmation) return
+    if (confirmation.type === 'remove-member') {
+      removeMember.mutate(confirmation.memberId)
+      return
+    }
+    if (confirmation.type === 'delete-clinic') {
+      deleteClinic.mutate()
+      return
+    }
+    leaveClinic.mutate()
   }
 
   if (!Number.isInteger(numericClinicId) || numericClinicId <= 0) {
@@ -219,7 +263,7 @@ export default function ClinicDetailsPage() {
   <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><UsersRound className="size-7" /></span>{t('clinicDetails.members')}<Badge className="ms-auto rounded-full px-3 py-1 text-sm font-semibold text-muted-foreground">{members.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{members.isLoading && <LoaderCircle className="animate-spin text-primary" />}{members.error && <Notice message={getErrorMessage(members.error)} />}{members.data?.map((member) => <div className="flex items-center gap-3 rounded-xl border border-border bg-background/35 p-3 transition hover:border-primary/30 hover:bg-primary/5" key={member.id}><span className="grid size-30 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary/10 text-xs font-bold text-primary">{member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}</span><span className="grid min-w-0 flex-1"><strong className="truncate text-sm">{member.fullName}</strong><small className="truncate text-xs font-bold text-muted-foreground">{member.title ? `${member.title} · ` : ''}{member.medicalSpecialty}</small></span>{member.isOwner ? <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase [&>svg]:size-4!">
   <BadgeCheck />
   {t('clinicDetails.owner')}
-</Badge> : isOwner && <Button variant="destructive" size="icon" className="rounded-full border border-destructive/20 bg-destructive/8 text-destructive shadow-sm transition hover:bg-destructive hover:text-white" aria-label={t('clinicDetails.removeMember')} disabled={removeMember.isPending} onClick={() => window.confirm(t('clinicDetails.removeMemberConfirm', { name: member.fullName })) && removeMember.mutate(member.id)}>{removeMember.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <UserMinus className="size-4" />}</Button>}</div>)}</CardContent></Card>
+</Badge> : isOwner && <Button variant="destructive" size="icon" className="rounded-xl border border-destructive/20 bg-destructive/10 text-destructive transition hover:bg-destructive/20" aria-label={t('clinicDetails.removeMember')} disabled={removeMember.isPending} onClick={() => { removeMember.reset(); setSuccess(''); setConfirmation({ type: 'remove-member', memberId: member.id, memberName: member.fullName }) }}>{removeMember.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <UserMinus className="size-4" />}</Button>}</div>)}</CardContent></Card>
               </div>
 
               <div className="grid gap-5">
@@ -251,14 +295,31 @@ export default function ClinicDetailsPage() {
   <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Phone className="size-7" /></span>{t('clinicDetails.phones')}<Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.phoneNumbers.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => <a className="flex items-center gap-3.5 rounded-2xl border border-border/60 bg-background/40 p-4 text-sm font-bold transition hover:border-primary/25 hover:bg-primary/5" href={`tel:${phone}`} key={phone}><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Phone className="size-4" /></span>{phone}</a>) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noPhones')}</p>}{isOwner && details.data.phoneNumbers.length < 6 && <form className="grid gap-3" onSubmit={submitPhone}><FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required /><Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={addPhone.isPending}>{addPhone.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.savePhone')}</Button></form>}<p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
 
                 {currentMember && <Card className="rounded-2xl border border-destructive/20 bg-destructive/5"><CardHeader className="!pb-3 border-b border-border/40">
-  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-red-40 text-red-600 dark:bg-red-950/15 dark:text-red-400">
+  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-destructive/10 text-destructive">
   <TriangleAlert className="size-7" />
-</span>{t('clinicDetails.accessTitle')}</CardTitle></CardHeader><CardContent className="grid gap-3"><p className="text-sm font-bold leading-5 text-muted-foreground">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>{isOwner ? <Button variant="destructive" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={deleteClinic.isPending} onClick={() => window.confirm(t('clinicDetails.deleteConfirm')) && deleteClinic.mutate()}><Trash2 />{t('clinicDetails.deleteClinic')}</Button> : <Button variant="destructive" className="rounded-xl normal-case" disabled={leaveClinic.isPending} onClick={() => window.confirm(t('clinicDetails.leaveConfirm')) && leaveClinic.mutate()}><ArrowLeft className="rtl:rotate-180" />{t('clinicDetails.leaveClinic')}</Button>}</CardContent></Card>}
+</span>{t('clinicDetails.accessTitle')}</CardTitle></CardHeader><CardContent className="grid gap-3"><p className="text-xs leading-6 text-muted-foreground sm:text-sm">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>{isOwner ? <Button variant="destructive" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={deleteClinic.isPending} onClick={() => { deleteClinic.reset(); setConfirmation({ type: 'delete-clinic' }) }}><Trash2 />{t('clinicDetails.deleteClinic')}</Button> : <Button variant="destructive" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={leaveClinic.isPending} onClick={() => { leaveClinic.reset(); setConfirmation({ type: 'leave-clinic' }) }}><ArrowLeft className="rtl:rotate-180" />{t('clinicDetails.leaveClinic')}</Button>}</CardContent></Card>}
               </div>
             </div>
           </div>
         )}
       </div>
+      <ConfirmationDialog
+        open={Boolean(confirmation)}
+        title={confirmationCopy.title}
+        description={confirmationCopy.description}
+        confirmLabel={confirmationCopy.confirmLabel}
+        cancelLabel={confirmationCopy.cancelLabel}
+        destructive
+        pending={confirmationMutation.isPending}
+        error={confirmationMutation.error ? getErrorMessage(confirmationMutation.error) : undefined}
+        onConfirm={executeConfirmedAction}
+        onOpenChange={(open) => {
+          if (!open && !confirmationMutation.isPending) {
+            setConfirmation(null)
+            confirmationMutation.reset()
+          }
+        }}
+      />
     </DoctorWorkspaceShell>
   )
 }

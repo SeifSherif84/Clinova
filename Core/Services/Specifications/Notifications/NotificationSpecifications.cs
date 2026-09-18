@@ -17,6 +17,8 @@ namespace Services.Specifications.Notifications
                 ApplyCriteriaToGetUnreadNotificationsForSpecificUser(userId);
             else
                 ApplyCriteriaToGetNotificationsForSpeceficUser(userId);
+
+            OrderByDescending = notification => notification.CreatedAt;
         }
 
         private void ApplyCriteriaToGetNotificationsForSpeceficUser(string userId)
