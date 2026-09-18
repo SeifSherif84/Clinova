@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Bell, BriefcaseMedical, Building2, CalendarDays, Camera, Clock3, FileBadge, FileText, LoaderCircle, LogOut, Mail, MailOpen, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Sparkles, Stethoscope, Upload, UserRound } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Bell, BriefcaseMedical, Building2, Cake, CalendarDays, Camera, Clock3, FileBadge, FileText, Hourglass, LoaderCircle, LogOut, Mail, MailOpen, MapPin, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Sparkles, Stethoscope, Upload, UserRound } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -45,11 +45,11 @@ function profileToForm(profile: DoctorProfile): ProfileFormState {
 
 function ReadOnlyField({ icon, label, value }: { icon: ReactNode; label: string; value?: string | null }) {
   return (
-    <div className="flex min-w-0 items-start gap-3 rounded-xl border border-border bg-background/35 p-3.5">
-      <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-primary">{icon}</span>
-      <span className="grid min-w-0 gap-0.5">
-        <small className="text-[9px] font-semibold tracking-wider text-muted-foreground uppercase">{label}</small>
-        <strong className="truncate text-xs font-semibold">{value || '—'}</strong>
+    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/40 p-4 transition hover:border-primary/25 hover:bg-primary/5">
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">{icon}</span>
+      <span className="grid min-w-0 gap-1">
+        <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{label}</small>
+        <strong className="truncate text-sm font-bold">{value || '—'}</strong>
       </span>
     </div>
   )
@@ -188,7 +188,10 @@ export default function DoctorProfilePage() {
 
         <div className="mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-10">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div><Badge className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">{t('doctorProfile.eyebrow')}</Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('doctorProfile.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('doctorProfile.description')}</p></div>
+            <div><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+  <UserRound className="size-3" />
+  {t('doctorProfile.eyebrow')}
+</Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('doctorProfile.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('doctorProfile.description')}</p></div>
             <Link className="inline-flex items-center gap-2 text-xs font-semibold text-primary lg:hidden" to="/dashboard"><ArrowLeft className="size-4 rtl:rotate-180" />{t('doctorProfile.back')}</Link>
           </div>
 
@@ -203,11 +206,10 @@ export default function DoctorProfilePage() {
                   <div className="min-w-0 text-center sm:text-start">
   <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
     <h2 className="truncate text-3xl font-bold tracking-tight sm:text-4xl">{fullName}</h2>
-    <Badge className={isApproved ? 'rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary' : 'rounded-full bg-warm/10 px-2.5 py-1 text-xs text-warm'}><BadgeCheck />{approvalStatus}</Badge>
+    <Badge className={`${isApproved ? 'rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-xs text-primary' : 'rounded-full border border-warm/15 bg-warm/10 px-2.5 py-1 text-xs text-warm'} [&>svg]:size-4!`}><BadgeCheck />{approvalStatus}</Badge>
   </div>
   <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5 sm:justify-start">
-    <Badge className="w-fit rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"><Stethoscope className="size-3" />{profile.data.medicalSpecialtyName}</Badge>
-    {profile.data.title && <span className="text-sm font-semibold text-primary">{profile.data.title}</span>}
+    <Badge className="w-fit rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><Stethoscope className="size-3" />{profile.data.medicalSpecialtyName}</Badge>
   </div>
 </div>
                   {!isEditing && <Button className="mx-auto h-11 rounded-xl text-sm font-bold normal-case sm:mx-0" onClick={startEditing}><PencilLine />{t('doctorProfile.edit')}</Button>}
@@ -218,18 +220,22 @@ export default function DoctorProfilePage() {
                 <Card className="self-start overflow-visible rounded-2xl border border-border bg-card">
                   <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <BriefcaseMedical className="size-7" />
-</span>{t('doctorProfile.professionalTitle')}</CardTitle><p className="text-xs leading-5 text-muted-foreground">{isEditing ? t('doctorProfile.editingHint') : t('doctorProfile.professionalDescription')}</p></CardHeader>
+</span>{t('doctorProfile.professionalTitle')}</CardTitle><p className="text-sm font-bold leading-5 text-muted-foreground">{isEditing ? t('doctorProfile.editingHint') : t('doctorProfile.professionalDescription')}</p></CardHeader>
                   <CardContent>
                     {(formError || updateProfile.error) && <Notice message={formError || getErrorMessage(updateProfile.error)} />}
                     {profileSuccess && <Notice tone="success" message={profileSuccess} />}
                     <form className="mt-5 grid gap-5" onSubmit={handleProfileSubmit}>
-                      <div className="grid gap-5 sm:grid-cols-2">
-                        <FormField id="doctorTitle" label={t('doctorProfile.clinicalTitle')} value={displayedForm.title} onChange={(event) => updateField('title', event.target.value)} maxLength={50} disabled={!isEditing} placeholder={t('doctorProfile.clinicalTitlePlaceholder')} />
-                        <FormField id="experienceYears" label={t('doctorProfile.experience')} type="number" min={0} max={100} step={1} value={displayedForm.experienceYears} onChange={(event) => updateField('experienceYears', event.target.value)} disabled={!isEditing} placeholder="0" />
-                        <FormField id="dateOfBirth" label={t('doctorProfile.dateOfBirth')} type="date" max={today} value={displayedForm.dateOfBirth} onChange={(event) => updateField('dateOfBirth', event.target.value)} disabled={!isEditing} />
-                        <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('doctorProfile.gender')}</Label><Select items={genders.data?.map((gender) => ({ value: String(gender.id), label: gender.name })) ?? []} value={displayedForm.gender} onValueChange={(value) => updateField('gender', value)} disabled={!isEditing || genders.isLoading || genders.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 text-foreground"><UserRound className="size-[18px] text-primary/70" /><SelectValue placeholder={genders.isLoading ? t('doctorProfile.loadingGenders') : t('doctorProfile.chooseGender')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{genders.data?.map((gender) => <SelectItem className="rounded-lg" key={gender.id} value={String(gender.id)}>{gender.name}</SelectItem>)}</SelectContent></Select>{genders.isError && <small className="text-[11px] text-destructive">{t('doctorProfile.gendersError')}</small>}</div>
-                      </div>
-                      <div className="grid gap-2"><Label htmlFor="doctorBio" className="text-xs font-semibold text-foreground/80">{t('doctorProfile.bio')}</Label><textarea id="doctorBio" className="min-h-48 resize-y rounded-xl border border-input bg-background/40 p-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-60" value={displayedForm.bio} onChange={(event) => updateField('bio', event.target.value)} maxLength={1000} disabled={!isEditing} placeholder={t('doctorProfile.bioPlaceholder')} /><small className="text-end text-[10px] text-muted-foreground">{displayedForm.bio.length}/1000</small></div>
+<div className="grid gap-5 sm:grid-cols-2">
+  <FormField id="doctorTitle" label={t('doctorProfile.clinicalTitle')} value={displayedForm.title} onChange={(event) => updateField('title', event.target.value)} maxLength={50} disabled={!isEditing} placeholder={t('doctorProfile.clinicalTitlePlaceholder')} />
+  <FormField id="experienceYears" label={t('doctorProfile.experience')} type="number" min={0} max={100} step={1} value={displayedForm.experienceYears} onChange={(event) => updateField('experienceYears', event.target.value)} disabled={!isEditing} placeholder="0" />
+  <FormField id="dateOfBirth" label={t('doctorProfile.dateOfBirth')} type="date" max={today} value={displayedForm.dateOfBirth} onChange={(event) => updateField('dateOfBirth', event.target.value)} disabled={!isEditing} />
+  <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('doctorProfile.gender')}</Label><Select items={genders.data?.map((gender) => ({ value: String(gender.id), label: gender.name })) ?? []} value={displayedForm.gender} onValueChange={(value) => updateField('gender', value)} disabled={!isEditing || genders.isLoading || genders.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 text-foreground"><UserRound className="size-[18px] text-primary/70" /><SelectValue placeholder={genders.isLoading ? t('doctorProfile.loadingGenders') : t('doctorProfile.chooseGender')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{genders.data?.map((gender) => <SelectItem className="rounded-lg" key={gender.id} value={String(gender.id)}>{gender.name}</SelectItem>)}</SelectContent></Select>{genders.isError && <small className="text-[11px] text-destructive">{t('doctorProfile.gendersError')}</small>}</div>
+</div>
+                      <div className="grid gap-2">
+  <Label htmlFor="doctorBio" className="text-xs font-semibold text-foreground/80">{t('doctorProfile.bio')}</Label>
+  <textarea id="doctorBio" className="min-h-48 resize-y rounded-xl border border-input bg-background/40 p-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-60" value={displayedForm.bio} onChange={(event) => updateField('bio', event.target.value)} maxLength={1000} disabled={!isEditing} placeholder={t('doctorProfile.bioPlaceholder')} />
+  <small className="text-end text-[10px] text-muted-foreground">{displayedForm.bio.length}/1000</small>
+</div>
                       {isEditing && <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="outline" className="rounded-xl normal-case" onClick={cancelEditing} disabled={updateProfile.isPending}>{t('doctorProfile.cancel')}</Button><Button type="submit" className="rounded-xl normal-case" disabled={updateProfile.isPending || genders.isError}>{updateProfile.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('doctorProfile.save')}</Button></div>}
                     </form>
                   </CardContent>
@@ -238,11 +244,19 @@ export default function DoctorProfilePage() {
                 <div className="grid content-start gap-5">
                   <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <Building2 className="size-7" />
-</span>{t('doctorProfile.clinicsTitle')}<Badge className="ms-auto px-2.5 py-1 text-sm font-semibold text-muted-foreground">{clinics.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{clinics.isLoading && <LoaderCircle className="animate-spin text-primary" />}{clinics.data?.slice(0, 3).map((clinic) => <Link className="flex items-center gap-3 rounded-xl border border-border bg-background/35 p-3 text-xs font-semibold transition hover:border-primary/30" key={clinic.id} to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Building2 className="size-4" /></span><span className="min-w-0 flex-1"><span className="block truncate text-sm">{clinic.name}</span><small className="block text-[10px] font-normal text-muted-foreground">{clinic.regionName}</small></span></Link>)}{clinics.data?.length === 0 && <p className="text-xs leading-5 text-muted-foreground">{t('doctorProfile.noClinics')}</p>}<Button className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/clinics" />}>{t('doctorProfile.manageClinics')}</Button></CardContent></Card>
+</span>{t('doctorProfile.clinicsTitle')}<Badge className="ms-auto px-2.5 py-1 text-sm font-semibold text-muted-foreground">{clinics.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{clinics.isLoading && <LoaderCircle className="animate-spin text-primary" />}{clinics.data?.slice(0, 3).map((clinic) => (
+  <Link className="group flex items-center gap-3 rounded-2xl border border-border bg-background/35 p-3.5 text-xs font-semibold transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm" key={clinic.id} to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }}>
+    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"><Building2 className="size-5" /></span>
+    <span className="min-w-0 flex-1">
+      <span className="block truncate text-sm font-bold">{clinic.name}</span>
+      <small className="mt-0.5 flex items-center gap-1 text-xs font-bold text-muted-foreground"><MapPin className="size-3 text-primary/70" />{clinic.regionName}</small>
+    </span>
+  </Link>
+))}{clinics.data?.length === 0 && <p className="text-xs leading-5 text-muted-foreground">{t('doctorProfile.noClinics')}</p>}<Button className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/clinics" />}>{t('doctorProfile.manageClinics')}</Button></CardContent></Card>
 
                   <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <UserRound className="size-7" />
-</span>{t('doctorProfile.accountTitle')}</CardTitle></CardHeader><CardContent className="grid gap-3"><ReadOnlyField icon={<Mail className="size-4" />} label={t('doctorProfile.email')} value={profile.data.email} /><ReadOnlyField icon={<Phone className="size-4" />} label={t('doctorProfile.phone')} value={profile.data.phoneNumber} /><ReadOnlyField icon={<Stethoscope className="size-4" />} label={t('doctorProfile.specialty')} value={profile.data.medicalSpecialtyName} /><ReadOnlyField icon={<FileBadge className="size-4" />} label={t('doctorProfile.syndicateNumber')} value={profile.data.syndicateNumber} /><p className="text-[10px] leading-4 text-muted-foreground">{t('doctorProfile.readOnlyHint')}</p></CardContent></Card>
+</span>{t('doctorProfile.accountTitle')}</CardTitle></CardHeader><CardContent className="grid gap-3"><ReadOnlyField icon={<Mail className="size-4" />} label={t('doctorProfile.email')} value={profile.data.email} /><ReadOnlyField icon={<Phone className="size-4" />} label={t('doctorProfile.phone')} value={profile.data.phoneNumber} /><ReadOnlyField icon={<Stethoscope className="size-4" />} label={t('doctorProfile.specialty')} value={profile.data.medicalSpecialtyName} /><ReadOnlyField icon={<FileBadge className="size-4" />} label={t('doctorProfile.syndicateNumber')} value={profile.data.syndicateNumber} /><p className="text-xs font-bold leading-4 text-muted-foreground">{t('doctorProfile.readOnlyHint')}</p></CardContent></Card>
 
                   <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <Camera className="size-7" />
@@ -250,7 +264,17 @@ export default function DoctorProfilePage() {
 
                   <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <ShieldCheck className="size-7" />
-</span>{t('doctorProfile.verificationTitle')}</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-3"><a className="grid min-h-24 place-items-center gap-2 rounded-xl border border-border bg-background/35 p-3 text-center text-xs font-semibold transition hover:border-primary/40" href={profile.data.syndicateCardImageUrl} target="_blank" rel="noreferrer"><FileText className="size-5 text-primary" />{t('doctorProfile.syndicateCard')}</a><a className="grid min-h-24 place-items-center gap-2 rounded-xl border border-border bg-background/35 p-3 text-center text-xs font-semibold transition hover:border-primary/40" href={profile.data.nationalIdImageUrl} target="_blank" rel="noreferrer"><FileText className="size-5 text-primary" />{t('doctorProfile.nationalId')}</a><p className="col-span-2 text-[10px] leading-4 text-muted-foreground">{t('doctorProfile.documentsHint')}</p></CardContent></Card>
+</span>{t('doctorProfile.verificationTitle')}</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-3">
+  <a className="group grid min-h-28 place-items-center gap-2.5 rounded-2xl border border-border bg-background/35 p-4 text-center transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm" href={profile.data.syndicateCardImageUrl} target="_blank" rel="noreferrer">
+    <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"><FileText className="size-5" /></span>
+    <span className="text-xs font-bold">{t('doctorProfile.syndicateCard')}</span>
+  </a>
+  <a className="group grid min-h-28 place-items-center gap-2.5 rounded-2xl border border-border bg-background/35 p-4 text-center transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm" href={profile.data.nationalIdImageUrl} target="_blank" rel="noreferrer">
+    <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"><FileText className="size-5" /></span>
+    <span className="text-xs font-bold">{t('doctorProfile.nationalId')}</span>
+  </a>
+  <p className="col-span-2 text-xs font-bold leading-4 text-muted-foreground">{t('doctorProfile.documentsHint')}</p>
+</CardContent></Card>
                 </div>
               </div>
             </div>
