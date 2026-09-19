@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useApi } from '@/hooks/use-api'
 import { getErrorMessage } from '@/lib/api'
 import type { InvitationAction, ReceivedInvitation, SentInvitation } from '@/types/invitation'
+import ConfirmationDialog from '@/components/confirmation-dialog'
 
 type InvitationView = 'received' | 'sent'
 
@@ -45,6 +46,7 @@ export default function DoctorInvitationsPage() {
   const queryClient = useQueryClient()
   const [view, setView] = useState<InvitationView>('received')
   const [success, setSuccess] = useState('')
+  const [confirmation, setConfirmation] = useState<{ invitationId: number; type: InvitationAction } | null>(null)
 
   const received = useQuery({
     queryKey: ['doctor', 'invitations', 'received'],
@@ -62,6 +64,7 @@ export default function DoctorInvitationsPage() {
       setSuccess('')
     },
     onSuccess: async (_message, variables) => {
+      setConfirmation(null)
       const messageKey = variables.type === 'accept'
         ? 'invitations.acceptSuccess'
         : variables.type === 'reject'
@@ -90,6 +93,11 @@ export default function DoctorInvitationsPage() {
     () => [...(activeQuery.data ?? [])].sort((a, b) => Date.parse(b.sentAt) - Date.parse(a.sentAt)),
     [activeQuery.data],
   )
+  const confirmationCopy = confirmation?.type === 'accept'
+    ? { title: t('invitations.acceptConfirmTitle'), description: t('invitations.acceptConfirm'), label: t('invitations.accept') }
+    : confirmation?.type === 'reject'
+      ? { title: t('invitations.rejectConfirmTitle'), description: t('invitations.rejectConfirm'), label: t('invitations.reject') }
+      : { title: t('invitations.cancelConfirmTitle'), description: t('invitations.cancelConfirm'), label: t('invitations.cancel') }
 
   function formatDate(value: string) {
     const date = new Date(value)
@@ -97,9 +105,9 @@ export default function DoctorInvitationsPage() {
   }
 
   function runAction(invitationId: number, type: InvitationAction) {
-    if (type === 'reject' && !window.confirm(t('invitations.rejectConfirm'))) return
-    if (type === 'cancel' && !window.confirm(t('invitations.cancelConfirm'))) return
-    action.mutate({ invitationId, type })
+    setSuccess('')
+    action.reset()
+    setConfirmation({ invitationId, type })
   }
 
   function isActingOn(invitationId: number, type: InvitationAction) {
@@ -120,7 +128,7 @@ export default function DoctorInvitationsPage() {
             <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('invitations.title')}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('invitations.description')}</p>
           </div>
-<div className="flex items-center gap-2 rounded-full border border-border bg-card/70 p-2 shadow-sm" role="group" aria-label={t('invitations.viewLabel')}>
+<div className="flex items-center gap-2 rounded-full border border-border bg-card/70 p-2" role="group" aria-label={t('invitations.viewLabel')}>
   <Button
     type="button"
     variant={view === 'received' ? 'default' : 'ghost'}
@@ -134,7 +142,7 @@ export default function DoctorInvitationsPage() {
   >
 <Inbox />
 {t('invitations.received')}
-<Badge className={view === 'received' ? 'rounded-full bg-white/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{received.data?.length ?? 0}</Badge>
+<Badge className={view === 'received' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{received.data?.length ?? 0}</Badge>
   </Button>
   <Button
     type="button"
@@ -149,7 +157,7 @@ export default function DoctorInvitationsPage() {
   >
 <Send />
 {t('invitations.sent')}
-<Badge className={view === 'sent' ? 'rounded-full bg-white/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{sent.data?.length ?? 0}</Badge>
+<Badge className={view === 'sent' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{sent.data?.length ?? 0}</Badge>
   </Button>
 </div>
         </div>
@@ -160,7 +168,7 @@ export default function DoctorInvitationsPage() {
 
           {activeQuery.isLoading && (
             <Card className="min-h-72 items-center justify-center rounded-3xl border border-border bg-card">
-              <LoaderCircle className="size-7 animate-spin text-primary" />
+              <LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" />
               <p className="text-xs text-muted-foreground">{t('invitations.loading')}</p>
             </Card>
           )}
@@ -170,8 +178,8 @@ export default function DoctorInvitationsPage() {
               <span className="grid size-14 place-items-center rounded-2xl bg-destructive/10 text-destructive">
                 <X className="size-6" />
               </span>
-              <p className="mt-4 text-sm font-semibold text-destructive">{getErrorMessage(activeQuery.error)}</p>
-              <Button className="mt-3 rounded-xl normal-case tracking-normal" variant="outline" onClick={() => activeQuery.refetch()}>
+              <p className="mt-4 text-sm font-bold text-destructive">{getErrorMessage(activeQuery.error)}</p>
+              <Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case tracking-normal" variant="outline" onClick={() => activeQuery.refetch()}>
                 <RefreshCw />
                 {t('invitations.retry')}
               </Button>
@@ -189,7 +197,7 @@ export default function DoctorInvitationsPage() {
     <h2 className="mt-6 font-heading text-2xl font-bold sm:text-3xl">
       {t(view === 'received' ? 'invitations.emptyReceivedTitle' : 'invitations.emptySentTitle')}
     </h2>
-    <p className="mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
+    <p className="mt-2 max-w-lg text-xs leading-6 text-muted-foreground sm:text-sm">
       {t(view === 'received' ? 'invitations.emptyReceivedDescription' : 'invitations.emptySentDescription')}
     </p>
   </Card>
@@ -203,7 +211,7 @@ export default function DoctorInvitationsPage() {
                   : (invitation as SentInvitation).receiverName
 
                 return (
-<Card key={invitation.id} className="self-start rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+<Card key={invitation.id} className="self-start rounded-2xl border border-border bg-card transition hover:border-primary/30 hover:bg-primary/5">
   <CardContent className="grid h-full gap-5">
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
@@ -211,7 +219,7 @@ export default function DoctorInvitationsPage() {
           {view === 'received' ? <Inbox className="size-6" /> : <Send className="size-6" />}
         </span>
         <div>
-          <small className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+          <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
             {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
           </small>
           <h2 className="flex items-center gap-1.5 font-sans text-lg font-bold leading-tight">
@@ -225,15 +233,15 @@ export default function DoctorInvitationsPage() {
 </Badge>
     </div>
 
-    <div className="rounded-xl bg-background/100 p-3">
-      <small className="flex items-center gap-1.5 text-[9px] font-semibold tracking-wider text-foreground/60 uppercase">
+    <div className="rounded-xl bg-background p-3">
+      <small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-muted-foreground uppercase">
         <Building2 className="size-4" />
         {t('invitations.clinic')}
       </small>
       <strong className="mt-1 block text-sm">{invitation.clinicName}</strong>
     </div>
 
-<div className="flex flex-wrap gap-2 text-[11px] font-semibold text-muted-foreground">
+<div className="flex flex-wrap gap-2 text-[11px] font-bold text-muted-foreground">
   <span className="inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-1">
     <Clock3 className="size-3 text-primary" />
     {t('invitations.sentAt', { date: formatDate(invitation.sentAt) })}
@@ -251,31 +259,31 @@ export default function DoctorInvitationsPage() {
         {view === 'received' ? (
           <>
             <Button
-              className="h-11 flex-1 rounded-full bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90"
+              className="h-11 flex-1 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90"
               disabled={action.isPending}
               onClick={() => runAction(invitation.id, 'accept')}
             >
-              {isActingOn(invitation.id, 'accept') ? <LoaderCircle className="animate-spin" /> : <Check />}
+              {isActingOn(invitation.id, 'accept') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Check />}
               {t('invitations.accept')}
             </Button>
             <Button
               variant="destructive"
-              className="h-11 flex-1 rounded-full text-sm font-bold normal-case"
+              className="h-11 flex-1 rounded-xl text-sm font-bold normal-case"
               disabled={action.isPending}
               onClick={() => runAction(invitation.id, 'reject')}
             >
-              {isActingOn(invitation.id, 'reject') ? <LoaderCircle className="animate-spin" /> : <X />}
+              {isActingOn(invitation.id, 'reject') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}
               {t('invitations.reject')}
             </Button>
           </>
         ) : (
           <Button
             variant="destructive"
-            className="h-11 w-full rounded-full text-sm font-bold normal-case"
+            className="h-11 w-full rounded-xl text-sm font-bold normal-case"
             disabled={action.isPending}
             onClick={() => runAction(invitation.id, 'cancel')}
           >
-            {isActingOn(invitation.id, 'cancel') ? <LoaderCircle className="animate-spin" /> : <X />}
+            {isActingOn(invitation.id, 'cancel') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}
             {t('invitations.cancel')}
           </Button>
         )}
@@ -289,6 +297,23 @@ export default function DoctorInvitationsPage() {
           )}
         </div>
       </div>
+      <ConfirmationDialog
+        open={Boolean(confirmation)}
+        title={confirmationCopy.title}
+        description={confirmationCopy.description}
+        confirmLabel={confirmationCopy.label}
+        cancelLabel={t('invitations.keepPending')}
+        destructive={confirmation?.type !== 'accept'}
+        pending={action.isPending}
+        error={action.error ? getErrorMessage(action.error) : undefined}
+        onConfirm={() => confirmation && action.mutate(confirmation)}
+        onOpenChange={(open) => {
+          if (!open && !action.isPending) {
+            setConfirmation(null)
+            action.reset()
+          }
+        }}
+      />
     </DoctorWorkspaceShell>
   )
 }
