@@ -20,7 +20,8 @@ export default function DoctorClinicsPage() {
     <DoctorWorkspaceShell active="clinics">
       <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div><Badge className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
+          <div><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+  <Building2 className="size-3" />
   {t('clinics.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinics.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinics.description')}</p></div>
           <Button className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
@@ -50,14 +51,14 @@ export default function DoctorClinicsPage() {
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Building2 className="size-6" /></span>
         <div>
           <h2 className="font-sans text-lg font-bold leading-tight">{clinic.name}</h2>
-          <Badge className="mt-1 rounded-full bg-primary/8 px-2 py-0.5 text-[10px] text-primary">{t('clinics.connected')}</Badge>
+          <Badge className="mt-1 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-bold tracking-wider text-primary uppercase">{t('clinics.connected')}</Badge>
         </div>
       </div>
     </div>
-    <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
+    <p className="flex items-start gap-2 text-xs leading-5 font-semibold text-muted-foreground"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
     <div className="grid grid-cols-2 gap-3">
-      <span className="grid gap-1.5 rounded-xl bg-background/45 p-3"><small className="flex items-center gap-1.5 text-[9px] font-semibold tracking-wider text-foreground/60 uppercase"><CircleDollarSign className="size-4" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
-      <span className="grid gap-1.5 rounded-xl bg-background/45 p-3"><small className="flex items-center gap-1.5 text-[9px] font-semibold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-4" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
+      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-foreground/60 uppercase"><CircleDollarSign className="size-4" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
+      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-4" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
     </div>
     <Button className="mt-auto w-full rounded-xl bg-primary normal-case font-bold text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
   </CardContent>

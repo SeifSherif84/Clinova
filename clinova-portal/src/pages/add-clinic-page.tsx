@@ -94,7 +94,8 @@ export default function AddClinicPage() {
     <DoctorWorkspaceShell active="clinics">
       <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-10">
         <Link className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics"><ArrowLeft className="size-4 rtl:rotate-180" />{t('clinicForm.back')}</Link>
-        <div className="mt-5">  <Badge className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
+        <div className="mt-5">  <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+  <Building2 className="size-3" />
   {t('clinicForm.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinicForm.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinicForm.description')}</p></div>
 
@@ -134,7 +135,7 @@ export default function AddClinicPage() {
           <Card className="rounded-2xl border border-border bg-card">
             <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <Phone className="size-7" />
-</span>{t('clinicForm.phonesTitle')}</CardTitle><p className="text-xs text-muted-foreground">{t('clinicForm.phonesHint')}</p></CardHeader>
+</span>{t('clinicForm.phonesTitle')}</CardTitle><p className="text-sm font-bold text-muted-foreground">{t('clinicForm.phonesHint')}</p></CardHeader>
             <CardContent className="grid gap-3">
               {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="outline" size="icon" className="mb-0.5 rounded-xl" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
               <Button type="button" variant="outline" className="h-11 w-fit rounded-xl text-sm font-bold normal-case" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus />{t('clinicForm.addPhone')}</Button>
@@ -144,7 +145,7 @@ export default function AddClinicPage() {
           <Card className="rounded-2xl border border-border bg-card">
             <CardHeader className="!pb-3 border-b border-border/40"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
   <FileImage className="size-7" />
-</span>{t('clinicForm.imagesTitle')}</CardTitle><p className="text-xs text-muted-foreground">{t('clinicForm.imagesHint')}</p></CardHeader>
+</span>{t('clinicForm.imagesTitle')}</CardTitle><p className="text-sm font-bold text-muted-foreground">{t('clinicForm.imagesHint')}</p></CardHeader>
             <CardContent><Label className="flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/4 p-5 text-center transition hover:bg-primary/8" htmlFor="clinicImages"><Input className="sr-only" id="clinicImages" name="Images" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={handleImages} /><Upload className="size-5 text-primary" /><strong className="text-xs">{images.length ? t('clinicForm.imagesSelected', { count: images.length }) : t('clinicForm.chooseImages')}</strong><small className="text-[10px] font-normal text-muted-foreground">{images.length ? images.map((image) => image.name).join(', ') : t('clinicForm.imageRules')}</small></Label></CardContent>
           </Card>
 
