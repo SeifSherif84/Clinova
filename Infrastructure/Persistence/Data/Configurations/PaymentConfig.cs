@@ -17,6 +17,10 @@ namespace Persistence.Data.Configurations
 
             builder.Property(payment => payment.Id).UseIdentityColumn(1, 1);
 
+            builder.Property(x => x.Amount)
+                   .HasPrecision(18, 2)
+                   .IsRequired();
+
             builder.HasOne(payment => payment.Appointment)
                    .WithOne(appointment => appointment.Payment)
                    .HasForeignKey<Payment>(payment => payment.AppointmentId)

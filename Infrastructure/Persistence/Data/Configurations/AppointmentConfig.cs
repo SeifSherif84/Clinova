@@ -24,7 +24,7 @@ namespace Persistence.Data.Configurations
             builder.Property(appointment => appointment.DepositAmount).HasColumnType("decimal(18,2)");
             builder.Property(appointment => appointment.RemainingAmount).HasColumnType("decimal(18,2)");
 
-            builder.HasIndex(a => a.AppointmentSlotId)
+            builder.HasIndex(appointment => appointment.AppointmentSlotId)
                    .IsUnique()
                    .HasFilter("[Status] IN (1, 2)");
         }

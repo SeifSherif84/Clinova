@@ -1,0 +1,14 @@
+﻿using Shared.Dtos.Paymob;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Services.Abstractions.Paymob
+{
+    public interface IPaymobService
+    {
+        Task<PaymobCreateIntentionResponse> CreatePaymentIntentionAsync(string secretKey, PaymobCreateIntentionRequest request);
+    }
+}

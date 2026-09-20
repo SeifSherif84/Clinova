@@ -37,7 +37,7 @@ namespace Services.Abstractions.Lookups
 
         public IEnumerable<LookupResponse> GetPaymentMethodsAsync()
         {
-            var paymentMethodsList = Enum.GetValues<PaymentMethodType>().ToList();
+            var paymentMethodsList = Enum.GetValues<ManualPaymentMethodType>().ToList();
             var result = paymentMethodsList.Select(paymentMethod => new LookupResponse()
             {
                 Id = (int)paymentMethod,

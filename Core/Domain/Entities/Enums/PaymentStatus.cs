@@ -14,6 +14,8 @@ namespace Domain.Entities.Enums
         Failed,
         Rejected,
         Refunded,
-        PartiallyRefunded
+        PartiallyRefunded,
+        Cancelled,
+        Expired
     }
 }

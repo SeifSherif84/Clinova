@@ -15,7 +15,7 @@ namespace Domain.Entities.BusinessEntities
 
         // Appointment Status
         public AppointmentStatus Status { get; set; } = AppointmentStatus.PendingPayment;
-        public DateTime? ReservationExpiresAt { get; set; }
+        public DateTime ReservationExpiresAt { get; set; }
 
         // Appointment Notes
         public string? PatientNotes { get; set; }

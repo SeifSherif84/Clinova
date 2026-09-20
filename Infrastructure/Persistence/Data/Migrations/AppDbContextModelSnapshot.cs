@@ -57,7 +57,7 @@ namespace Persistence.Data.Migrations
                     b.Property<decimal>("RemainingAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("ReservationExpiresAt")
+                    b.Property<DateTime>("ReservationExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -134,7 +134,8 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("DepositPercentage")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("GoogleMapsUrl")
                         .HasColumnType("nvarchar(max)");
@@ -167,7 +168,7 @@ namespace Persistence.Data.Migrations
                     b.ToTable("Clinics", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentMethod", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -176,7 +177,9 @@ namespace Persistence.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AccountIdentifier")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar");
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");
@@ -184,20 +187,84 @@ namespace Persistence.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Provider")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProviderAccountId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClinicId");
+                    b.HasIndex("ClinicId", "Type", "AccountIdentifier")
+                        .IsUnique();
 
-                    b.ToTable("ClinicPaymentMethods");
+                    b.ToTable("ClinicManualPaymentMethods");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HmacSecret")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MerchantId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PublicKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId", "Provider")
+                        .IsUnique();
+
+                    b.ToTable("ClinicOnlinePaymentAccount");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentIntegration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicOnlinePaymentAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IntegrationId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicOnlinePaymentAccountId", "PaymentMethod")
+                        .IsUnique();
+
+                    b.ToTable("ClinicPaymentIntegration");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPhoneNumbers", b =>
@@ -365,12 +432,16 @@ namespace Persistence.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ClinicPaymentMethodId")
+                    b.Property<int?>("ClinicManualPaymentMethodId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClinicOnlinePaymentAccountId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -380,6 +451,18 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PaymentProofUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderClientSecret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderOrderId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderPaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderTransactionId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -393,7 +476,9 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("AppointmentId")
                         .IsUnique();
 
-                    b.HasIndex("ClinicPaymentMethodId");
+                    b.HasIndex("ClinicManualPaymentMethodId");
+
+                    b.HasIndex("ClinicOnlinePaymentAccountId");
 
                     b.ToTable("Payments");
                 });
@@ -903,15 +988,37 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Region");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentMethod", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.Clinic", "Clinic")
-                        .WithMany("PaymentMethods")
+                        .WithMany("ManualPaymentMethods")
                         .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Clinic");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
+                {
+                    b.HasOne("Domain.Entities.BusinessEntities.Clinic", "Clinic")
+                        .WithMany("OnlinePaymentAccounts")
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Clinic");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentIntegration", b =>
+                {
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", "ClinicOnlinePaymentAccount")
+                        .WithMany("PaymentIntegrations")
+                        .HasForeignKey("ClinicOnlinePaymentAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClinicOnlinePaymentAccount");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPhoneNumbers", b =>
@@ -990,14 +1097,21 @@ namespace Persistence.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.BusinessEntities.ClinicPaymentMethod", "ClinicPaymentMethod")
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", "ClinicManualPaymentMethod")
                         .WithMany("Payments")
-                        .HasForeignKey("ClinicPaymentMethodId")
+                        .HasForeignKey("ClinicManualPaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", "ClinicOnlinePaymentAccount")
+                        .WithMany("Payments")
+                        .HasForeignKey("ClinicOnlinePaymentAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Appointment");
 
-                    b.Navigation("ClinicPaymentMethod");
+                    b.Navigation("ClinicManualPaymentMethod");
+
+                    b.Navigation("ClinicOnlinePaymentAccount");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Prescription", b =>
@@ -1171,15 +1285,24 @@ namespace Persistence.Data.Migrations
 
                     b.Navigation("Invitations");
 
-                    b.Navigation("PaymentMethods");
+                    b.Navigation("ManualPaymentMethods");
+
+                    b.Navigation("OnlinePaymentAccounts");
 
                     b.Navigation("PhoneNumbers");
 
                     b.Navigation("Secretaries");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentMethod", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", b =>
                 {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
+                {
+                    b.Navigation("PaymentIntegrations");
+
                     b.Navigation("Payments");
                 });
 

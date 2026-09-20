@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.BusinessEntities;
+using Domain.Entities.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,27 +10,87 @@ namespace Services.Specifications.Appointments
 {
     public class AppointmentSpecifications : BaseSpecifications<Appointment, int>
     {
-        public AppointmentSpecifications(string patientId) : base()
+        private AppointmentSpecifications() : base()
         {
-            Criteria = appointment => appointment.PatientId == patientId;
 
-            Includes.Add(appointment => appointment.AppointmentSlot);
-            Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
-            Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
-            Includes.Add(appointment => appointment.Payment);
-
-            OrderBy = appointment => appointment.AppointmentSlot.Date;
-            ThenBy = appointment => appointment.AppointmentSlot.StartTime;
         }
 
-        public AppointmentSpecifications(int appointmentId) : base()
+        public static AppointmentSpecifications ByPatientId(string patientId)
         {
-            Criteria = appointment => appointment.Id == appointmentId;
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.PatientId == patientId,
 
-            Includes.Add(appointment => appointment.AppointmentSlot);
-            Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
-            Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
-            Includes.Add(appointment => appointment.Payment);
+                OrderBy = appointment => appointment.AppointmentSlot.Date,
+                ThenBy = appointment => appointment.AppointmentSlot.StartTime
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
+            specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
+            specification.Includes.Add(appointment => appointment.Payment);
+
+            return specification;
         }
+
+        public static AppointmentSpecifications ByIdWithDetails(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
+            specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
+            specification.Includes.Add(appointment => appointment.Payment);
+
+            return specification;
+        }
+
+        public static AppointmentSpecifications ForCancellation(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.Payment);
+
+            return specification;
+        }
+
+
+
+        public static AppointmentSpecifications GetExpiredPendingPaymentAppointments(DateTime now)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Status == AppointmentStatus.PendingPayment &&
+                                          appointment.ReservationExpiresAt <= now
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.Payment);
+
+            return specification;
+        }
+
+
+
+        public static AppointmentSpecifications ById(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.Payment);
+
+            return specification;
+        }
+
     }
 }

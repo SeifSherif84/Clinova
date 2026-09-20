@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Services.Abstractions;
 using Services.Abstractions.AppointmentSlots;
 using Services.Abstractions.Auth;
-using Services.Abstractions.ClinicPaymentMethods;
+using Services.Abstractions.ClinicManualPaymentMethods;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
 using Services.Abstractions.Invitations;
@@ -25,8 +25,8 @@ using Services.MailKitFeature;
 using Services.Notifications;
 using Services.Patients;
 using Services.WorkingHours;
-using Services.ClinicPaymentMethods;
-using Store.G02.Shared;
+using Services.ClinicManualPaymentMethods;
+using Shared.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +34,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Services.Abstractions.Appointments;
 using Services.Appointments;
+using Services.Abstractions.ClinicOnlinePaymentAccounts;
+using Services.ClinicOnlinePaymentAccounts;
+using Services.Abstractions.ClinicPaymentIntegrations;
+using Services.ClinicPaymentIntegrations;
+using Services.Abstractions.Payments;
+using Services.Payments;
+using Services.Abstractions.Paymob;
+using Services.Abstractions.DataProtection;
 
 namespace Services
 {
@@ -45,7 +53,10 @@ namespace Services
                                 IUnitOfWork _unitOfWork,
                                 INotificationService _notificationService,
                                 INotificationPublisher _notificationPublisher,
-                                IAppointmentSlotService _appointmentSlotService) : IServiceManager
+                                IAppointmentSlotService _appointmentSlotService,
+                                IPaymobService _paymobService,
+                                IPaymobHmacService _paymobHmacService,
+                                IPaymentCredentialEncryptor _paymentCredentialEncryptor) : IServiceManager
     {
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions);
         public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
@@ -56,7 +67,10 @@ namespace Services
         public IWorkingHourService WorkingHourService { get; } = new WorkingHourService(_unitOfWork, _mapper, _appointmentSlotService);
         public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration, _mapper);
         public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
-        public IClinicPaymentMethodService ClinicPaymentMethodService { get; } = new ClinicPaymentMethodService(_unitOfWork, _mapper);
-        public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _configuration);
+        public IClinicManualPaymentMethodService ClinicManualPaymentMethodService { get; } = new ClinicManualPaymentMethodService(_unitOfWork, _mapper);
+        public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper);
+        public IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; } = new ClinicOnlinePaymentAccountService(_unitOfWork, _paymentCredentialEncryptor);
+        public IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; } = new ClinicPaymentIntegrationService(_unitOfWork);
+        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor);
     }
 }

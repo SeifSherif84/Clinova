@@ -41,6 +41,9 @@ namespace Persistence.Data.Configurations
                    .HasColumnType("decimal(18, 2)")
                    .IsRequired();
 
+            builder.Property(x => x.DepositPercentage)
+                   .HasPrecision(5, 2);
+
             builder.ToTable("Clinics");
 
         }

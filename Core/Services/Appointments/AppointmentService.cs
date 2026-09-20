@@ -14,7 +14,7 @@ using Services.Abstractions.AppointmentSlots;
 using Services.Commen;
 using Services.Specifications.Appointments;
 using Services.Specifications.AppointmentSlots;
-using Services.Specifications.ClinicPaymentMethods;
+using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.Appointments;
 using System;
 using System.Collections.Generic;
@@ -25,8 +25,7 @@ using System.Threading.Tasks;
 namespace Services.Appointments
 {
     public class AppointmentService(IUnitOfWork _unitOfWork,
-                                    IMapper _mapper,
-                                    IConfiguration _configuration) : IAppointmentService
+                                    IMapper _mapper) : IAppointmentService
     {
         public async Task<string> CreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request)
         {
@@ -49,8 +48,7 @@ namespace Services.Appointments
             var slotDateTime = slot.Date.ToDateTime(slot.StartTime);
             var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time"));
             if (slotDateTime <= nowInEgypt)
-                throw new BadRequestException(
-                    "You cannot book a past appointment slot.");
+                throw new BadRequestException("You cannot book a past appointment slot.");
 
 
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(slot.DoctorId, slot.ClinicId);
@@ -69,7 +67,7 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(15)
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30)
             };
 
             appointment.Payment = new Payment
@@ -93,7 +91,8 @@ namespace Services.Appointments
                     throw new InternalServerErrorException(
                         "We couldn't create your appointment right now. Please try again later.");
             }
-            catch (DbUpdateException ex) 
+            catch (DbUpdateException ex)
+            // B. Race Condition one of them accept exception from DB B. the index which I add it (here i catch this exception and return bad request)
             when (ex.InnerException is SqlException sqlException && (sqlException.Number == 2601 || sqlException.Number == 2627))
             {
                 throw new BadRequestException("The selected appointment slot is no longer available.");
@@ -114,7 +113,7 @@ namespace Services.Appointments
                 throw new NotFoundException("We couldn't find your account.");
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = new AppointmentSpecifications(userId);
+            var appointmentSpec = AppointmentSpecifications.ByPatientId(userId);
             var appointments = await appointmentRepo.GetAllAsync(appointmentSpec);
             if (!appointments.Any())
                 return Enumerable.Empty<PatientAppointmentResponse>();
@@ -134,21 +133,94 @@ namespace Services.Appointments
                 throw new NotFoundException("We couldn't find your account.");
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = new AppointmentSpecifications(appointmentId);
+            var appointmentSpec = AppointmentSpecifications.ByIdWithDetails(appointmentId);
             var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
             if (appointment is null)
-                throw new BadRequestException("");
+                throw new NotFoundException("The appointment was not found.");
 
             if (appointment.PatientId != userId)
-                throw new ResourceAccessDeniedException("");
+                throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
 
             return _mapper.Map<PatientAppointmentDetailsResponse>(appointment);
         }
 
 
 
+        public async Task<string> CancelAppointmentAsync(string userId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ForCancellation(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.PatientId != userId)
+                throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
 
 
+            if (appointment.Status == AppointmentStatus.Cancelled)
+                throw new BadRequestException("This appointment has already been cancelled.");
+
+            if (appointment.Status == AppointmentStatus.Completed)
+                throw new BadRequestException("A completed appointment cannot be cancelled.");
+
+            if (appointment.Status == AppointmentStatus.NoShow)
+                throw new BadRequestException("A no-show appointment cannot be cancelled.");
+
+            if (appointment.Status == AppointmentStatus.Expired)
+                throw new BadRequestException("This appointment has already expired.");
+
+            // TODO: Replace with refund logic when refund support is implemented.
+            if (appointment.Payment.Status == PaymentStatus.Paid)
+                throw new BadRequestException("A paid appointment cannot be cancelled at this time.");
+
+
+            appointment.Status = AppointmentStatus.Cancelled;
+            appointment.Payment.Status = PaymentStatus.Cancelled;
+
+            if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
+                appointment.AppointmentSlot.Status = SlotStatus.Available;
+
+            var result = await _unitOfWork.SaveChangesAsync();
+
+            if (result == 0)
+                throw new InternalServerErrorException("We couldn't cancel your appointment right now. Please try again later.");
+
+            return "Your appointment has been cancelled successfully.";
+        }
+
+
+
+        public async Task ExpirePendingAppointmentsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var specification = AppointmentSpecifications.GetExpiredPendingPaymentAppointments(now);
+            var appointments = await appointmentRepo.GetAllAsync(specification);
+
+            if (!appointments.Any())
+                return;
+
+            foreach (var appointment in appointments)
+            {
+                appointment.Status = AppointmentStatus.Expired;
+
+                if (appointment.Payment.Status is PaymentStatus.Pending or PaymentStatus.Failed)
+                    appointment.Payment.Status = PaymentStatus.Expired;
+
+                if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
+                    appointment.AppointmentSlot.Status = SlotStatus.Available;
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+        }
 
 
 
@@ -187,5 +259,7 @@ namespace Services.Appointments
                 IsOwner = doctorClinic.IsOwner
             };
         }
+
+
     }
 }
