@@ -17,7 +17,6 @@ using Services.Abstractions.Auth;
 using Services.FileStorage;
 using Services.MailKitFeature;
 using Shared.Dtos.Auth;
-using Store.G02.Shared;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

@@ -6,14 +6,18 @@ using Services.Abstractions.Invitations;
 using Services.Abstractions.Lookups;
 using Services.Abstractions.Notifications;
 using Services.Abstractions.Patients;
-using Services.Abstractions.ClinicPaymentMethods;
+using Services.Abstractions.ClinicManualPaymentMethods;
 using Services.Abstractions.WorkingHours;
+using Services.Abstractions.Appointments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Services.Abstractions.Appointments;
+using Services.Abstractions.ClinicOnlinePaymentAccounts;
+using Services.Abstractions.ClinicPaymentIntegrations;
+using Services.Abstractions.Payments;
+
 
 namespace Services.Abstractions
 {
@@ -28,7 +32,10 @@ namespace Services.Abstractions
         IWorkingHourService WorkingHourService { get; }
         IAppointmentSlotService AppointmentSlotService { get; }
         IPatientService PatientService { get; }
-        IClinicPaymentMethodService ClinicPaymentMethodService { get; }
+        IClinicManualPaymentMethodService ClinicManualPaymentMethodService { get; }
         IAppointmentService AppointmentService { get; }
+        IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; }
+        IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; }
+        IPaymentService PaymentService { get; }
     }
 }

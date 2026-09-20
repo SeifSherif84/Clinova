@@ -3,31 +3,44 @@ using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Data.Contexts;
 using Persistence.Data.DataSeeding;
 using Persistence.UnitOfWork;
 using Services;
 using Services.Abstractions;
+using Services.Abstractions.Appointments;
 using Services.Abstractions.AppointmentSlots;
+using Services.Abstractions.DataProtection;
+using Services.DataProtection;
 using Services.Abstractions.Notifications;
+using Services.Appointments;
 using Services.AppointmentSlots;
+using Services.AutoMapping.Appointments;
 using Services.AutoMapping.AppointmentSlots;
 using Services.AutoMapping.Auth;
-using Services.AutoMapping.ClinicPaymentMethods;
+using Services.AutoMapping.ClinicManualPaymentMethods;
 using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
 using Services.AutoMapping.Invitations;
 using Services.AutoMapping.Notifications;
 using Services.AutoMapping.Patients;
 using Services.AutoMapping.WorkingHours;
+using Services.Background;
 using Services.MailKitFeature;
 using Services.Notifications;
-using Store.G02.Shared;
+using Services.Paymob;
+using Shared.Dtos.Paymob;
+using Shared.Dtos.Auth;
 using System.Text;
 using Web.Hubs;
 using Web.Middleware;
 using Web.SignalR;
+using Domain.Entities.BusinessEntities;
+using Services.AutoMapping.ClinicOnlinePaymentAccounts;
+using Microsoft.Extensions.DependencyInjection;
+using Services.Abstractions.Paymob;
 
 namespace Web
 {
@@ -83,10 +96,13 @@ namespace Web
                 MapperConfig.AddProfile(new NotificationProfile());
                 MapperConfig.AddProfile(new WorkingHourProfile());
                 MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
-                MapperConfig.AddProfile(new ClinicPaymentMethodProfile());
+                MapperConfig.AddProfile(new ClinicManualPaymentMethodProfile());
                 MapperConfig.AddProfile(new AppointmentSlotProfile());
-                MapperConfig.AddProfile(new AppointmentSlotProfile());
+                MapperConfig.AddProfile(new AppointmentProfile());
             });
+
+
+
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IMailService, MailService>();    
@@ -125,9 +141,29 @@ namespace Web
             builder.Services.AddScoped<INotificationPublisher, NotificationPublisher>();    
             builder.Services.AddScoped<IAppointmentSlotService, AppointmentSlotService>();
 
+            // For Background Service
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddHostedService<AppointmentExpirationService>();
 
             builder.Services.AddSignalR();
 
+
+            // For Paymob Integration Service
+            builder.Services.Configure<PaymobSettings>(builder.Configuration.GetSection("PaymobSettings"));
+            builder.Services.AddHttpClient<IPaymobService, PaymobService>();
+
+            builder.Services.AddHttpClient<PaymobClient>((serviceProvider, client) =>
+            {
+                var settings = serviceProvider.GetRequiredService<IOptions<PaymobSettings>>().Value;
+                client.BaseAddress = new Uri(settings.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+
+
+            builder.Services.AddScoped<IPaymentCredentialEncryptor, PaymentCredentialEncryptor>();
+            builder.Services.AddScoped<IPaymobService, PaymobService>();
+            builder.Services.AddScoped<IPaymobHmacService, PaymobHmacService>();
 
             // UserDefined Services End
 

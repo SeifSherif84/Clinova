@@ -21,6 +21,6 @@ namespace Shared.Dtos.Appointments
         public string AppointmentStatus { get; set; } = null!;
         public string PaymentStatus { get; set; } = null!;
 
-        public DateTime? ReservationExpiresAt { get; set; }
+        public DateTime ReservationExpiresAt { get; set; }
     }
 }
