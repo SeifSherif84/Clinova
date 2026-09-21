@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, Camera, CircleDollarSign, ExternalLink, ImagePlus, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Trash2, TriangleAlert, UserMinus, UsersRound, WalletCards } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, CircleDollarSign, ExternalLink, ImagePlus, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Trash2, TriangleAlert, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -33,6 +33,8 @@ interface ClinicEditForm {
 
 type ClinicConfirmation =
   | { type: 'remove-member'; memberId: string; memberName: string }
+  | { type: 'delete-image'; imageId: number; imageNumber: number }
+  | { type: 'delete-phone'; phoneNumberId: number; phoneNumber: string }
   | { type: 'delete-clinic' }
   | { type: 'leave-clinic' }
 
@@ -82,6 +84,14 @@ export default function ClinicDetailsPage() {
     mutationFn: (files: File[]) => { const body = new FormData(); files.forEach((file) => body.append('Images', file)); return api.request<string>(`/api/clinics/${numericClinicId}/images`, { method: 'POST', body }, { notifyOnError: false }) },
     onSuccess: async (message) => { setSuccess(message); setNewImages([]); await refreshClinic() },
   })
+  const deleteImage = useMutation({
+    mutationFn: (imageId: number) => api.request<string>('/api/clinics/' + numericClinicId + '/images/' + imageId, { method: 'DELETE' }, { notifyOnError: false }),
+    onSuccess: async (message) => { setConfirmation(null); setSuccess(message); setNewImages([]); await refreshClinic() },
+  })
+  const deletePhone = useMutation({
+    mutationFn: (phoneNumberId: number) => api.request<string>('/api/clinics/' + numericClinicId + '/phone-numbers/' + phoneNumberId, { method: 'DELETE' }, { notifyOnError: false }),
+    onSuccess: async (message) => { setConfirmation(null); setSuccess(message); await refreshClinic() },
+  })
   const sendInvitation = useMutation({
     mutationFn: (email: string) => api.request<string>(`/api/invitations/send/clinic/${numericClinicId}`, { method: 'POST', body: JSON.stringify({ email }) }, { notifyOnError: false }),
     onSuccess: async () => {
@@ -106,9 +116,13 @@ export default function ClinicDetailsPage() {
   const actionError = updateClinic.error || addPhone.error || addImages.error || sendInvitation.error
   const confirmationMutation = confirmation?.type === 'remove-member'
     ? removeMember
-    : confirmation?.type === 'delete-clinic'
-      ? deleteClinic
-      : leaveClinic
+    : confirmation?.type === 'delete-image'
+      ? deleteImage
+      : confirmation?.type === 'delete-phone'
+        ? deletePhone
+        : confirmation?.type === 'delete-clinic'
+          ? deleteClinic
+          : leaveClinic
   const confirmationCopy = confirmation?.type === 'remove-member'
     ? {
         title: t('clinicDetails.removeMemberConfirmTitle'),
@@ -116,19 +130,33 @@ export default function ClinicDetailsPage() {
         confirmLabel: t('clinicDetails.removeMember'),
         cancelLabel: t('clinicDetails.keepMember'),
       }
-    : confirmation?.type === 'delete-clinic'
+    : confirmation?.type === 'delete-image'
       ? {
-          title: t('clinicDetails.deleteConfirmTitle'),
-          description: t('clinicDetails.deleteConfirm'),
-          confirmLabel: t('clinicDetails.deleteClinic'),
+          title: t('clinicDetails.deleteImageConfirmTitle'),
+          description: t('clinicDetails.deleteImageConfirm', { number: confirmation.imageNumber }),
+          confirmLabel: t('clinicDetails.deleteImage'),
           cancelLabel: t('clinicDetails.notNow'),
         }
-      : {
-          title: t('clinicDetails.leaveConfirmTitle'),
-          description: t('clinicDetails.leaveConfirm'),
-          confirmLabel: t('clinicDetails.leaveClinic'),
-          cancelLabel: t('clinicDetails.notNow'),
-        }
+      : confirmation?.type === 'delete-phone'
+        ? {
+            title: t('clinicDetails.deletePhoneConfirmTitle'),
+            description: t('clinicDetails.deletePhoneConfirm', { phone: confirmation.phoneNumber }),
+            confirmLabel: t('clinicDetails.deletePhone'),
+            cancelLabel: t('clinicDetails.notNow'),
+          }
+        : confirmation?.type === 'delete-clinic'
+          ? {
+              title: t('clinicDetails.deleteConfirmTitle'),
+              description: t('clinicDetails.deleteConfirm'),
+              confirmLabel: t('clinicDetails.deleteClinic'),
+              cancelLabel: t('clinicDetails.notNow'),
+            }
+          : {
+              title: t('clinicDetails.leaveConfirmTitle'),
+              description: t('clinicDetails.leaveConfirm'),
+              confirmLabel: t('clinicDetails.leaveClinic'),
+              cancelLabel: t('clinicDetails.notNow'),
+            }
 
   function updateEditField<Key extends keyof ClinicEditForm>(key: Key, value: ClinicEditForm[Key]) {
     setEditForm((current) => current ? { ...current, [key]: value } : current)
@@ -165,6 +193,7 @@ export default function ClinicDetailsPage() {
     setSuccess('')
     const phone = newPhone.trim()
     if (!phonePattern.test(phone)) return setLocalError(t('clinicForm.phoneError'))
+    if (details.data?.phoneNumbers.some((item) => item.phoneNumber === phone)) return setLocalError(t('clinicForm.phoneDuplicate'))
     addPhone.mutate(phone)
   }
 
@@ -183,6 +212,14 @@ export default function ClinicDetailsPage() {
       removeMember.mutate(confirmation.memberId)
       return
     }
+    if (confirmation.type === 'delete-image') {
+      deleteImage.mutate(confirmation.imageId)
+      return
+    }
+    if (confirmation.type === 'delete-phone') {
+      deletePhone.mutate(confirmation.phoneNumberId)
+      return
+    }
     if (confirmation.type === 'delete-clinic') {
       deleteClinic.mutate()
       return
@@ -196,14 +233,14 @@ export default function ClinicDetailsPage() {
 
   return (
     <DoctorWorkspaceShell active="clinics">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto min-w-0 w-full max-w-7xl p-4 sm:p-6 lg:p-10">
         <Link className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics"><ArrowLeft className="size-4 rtl:rotate-180" />{t('clinicDetails.back')}</Link>
         {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
         {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="outline" className="rounded-xl normal-case" onClick={() => details.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
 
         {details.data && (
-          <div className="mt-5 grid gap-5">
-<Card className="relative min-h-60 justify-end overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-6 sm:p-8">
+          <div className="mt-5 min-w-0 grid gap-5">
+<Card className="relative min-h-60 min-w-0 justify-end overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-6 sm:p-8">
   <div className="pointer-events-none absolute inset-0">
     <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
     <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
@@ -216,25 +253,25 @@ export default function ClinicDetailsPage() {
       <rect width="100%" height="100%" fill="url(#clinicGrid)" />
     </svg>
   </div>
-              <div className="relative z-10 flex flex-wrap items-end justify-between gap-5"><div><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+              <div className="relative z-10 flex min-w-0 flex-wrap items-end justify-between gap-5"><div className="min-w-0 flex-1"><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
   <Building2 className="size-3" />
   {isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}
-</Badge><h1 className="mt-3 font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1><p className="mt-3 flex items-start gap-2 text-xs font-bold text-muted-foreground"><MapPin className="size-4 shrink-0 text-primary" />{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</p></div><div className="flex flex-wrap gap-2">{details.data.googleMapsUrl && <Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('clinicDetails.openMap')}<ExternalLink className="size-3.5" /></Button>}{isOwner && !isEditing && <Button className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" onClick={startEditing}><PencilLine />{t('clinicDetails.edit')}</Button>}</div></div>
+</Badge><h1 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1><p className="mt-3 flex min-w-0 items-start gap-2 break-words text-xs font-bold text-muted-foreground"><MapPin className="size-4 shrink-0 text-primary" />{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}><CalendarClock />{t('dashboard.workingHours')}</Button>{details.data.googleMapsUrl && <Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('clinicDetails.openMap')}<ExternalLink className="size-3.5" /></Button>}{isOwner && !isEditing && <Button className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" onClick={startEditing}><PencilLine />{t('clinicDetails.edit')}</Button>}</div></div>
             </Card>
 
             {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
             {success && <Notice tone="success" message={success} />}
 
-            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">
-              <div className="grid gap-5">
+            <div className="min-w-0 grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">
+              <div className="min-w-0 grid gap-5">
                 <Card className="rounded-2xl border border-border bg-card">
 <CardHeader className="!pb-3 border-b border-border/40">
   <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Building2 className="size-7" /></span>{t('clinicDetails.information')}</CardTitle></CardHeader>
                   <CardContent>
                     {isEditing && editForm ? (
-                      <form className="grid gap-5" onSubmit={submitEdit}><div className="grid gap-5 sm:grid-cols-2"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[10px] text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2"><Button type="button" variant="outline" className="rounded-xl normal-case" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="rounded-xl normal-case" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicDetails.save')}</Button></div></form>
+                      <form className="grid gap-5" onSubmit={submitEdit}><div className="grid min-w-0 gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[10px] text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2"><Button type="button" variant="outline" className="rounded-xl normal-case" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="rounded-xl normal-case" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicDetails.save')}</Button></div></form>
                     ) : (
-                      <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
   <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:border-primary/30 hover:bg-primary/5">
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><MapPin className="size-4.5" /></span>
     <span className="grid gap-0.5"><small className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{t('clinicForm.region')}</small><strong className="text-sm">{details.data.regionName}</strong></span>
@@ -257,16 +294,66 @@ export default function ClinicDetailsPage() {
                 </Card>
 
                 <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40">
-  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Camera className="size-7" /></span>{t('clinicDetails.gallery')}<Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.images.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-4">{details.data.images.length ? <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{details.data.images.map((image, index) => <a href={image} target="_blank" rel="noreferrer" key={image}><img className="aspect-video size-full rounded-xl border border-border object-cover" src={image} alt={t('clinicDetails.imageAlt', { number: index + 1 })} /></a>)}</div> : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noImages')}</p>}{isOwner && details.data.images.length < 6 && <div className="grid gap-3"><Label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-primary/30 bg-primary/4 p-4" htmlFor="addClinicImages"><Input className="sr-only" id="addClinicImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={selectImages} /><ImagePlus className="size-5 text-primary" /><span className="grid"><strong className="text-xs">{newImages.length ? t('clinicForm.imagesSelected', { count: newImages.length }) : t('clinicDetails.addImages')}</strong><small className="text-[10px] text-muted-foreground">{t('clinicForm.imageRules')}</small></span></Label><Button className="h-11 w-fit rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>{addImages.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.uploadImages')}</Button></div>}<p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
+  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
+    <span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Camera className="size-7" /></span>
+    {t('clinicDetails.gallery')}
+    <Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.images.length}/6</Badge>
+  </CardTitle>
+</CardHeader>
+<CardContent className="grid gap-4">
+  {details.data.images.length ? (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {details.data.images.map((image, index) => (
+        <div className="grid gap-2 rounded-2xl border border-border/60 bg-background/40 p-2" key={image.id}>
+          <a href={image.url} target="_blank" rel="noreferrer">
+            <img className="aspect-video size-full rounded-xl object-cover" src={image.url} alt={t('clinicDetails.imageAlt', { number: index + 1 })} />
+          </a>
+          {isOwner && (
+            <Button
+              type="button"
+              variant="destructive"
+              className="h-10 rounded-xl text-sm font-bold normal-case"
+              disabled={deleteImage.isPending}
+              onClick={() => {
+                deleteImage.reset()
+                setSuccess('')
+                setConfirmation({ type: 'delete-image', imageId: image.id, imageNumber: index + 1 })
+              }}
+            >
+              <Trash2 className="size-4" />
+              {t('clinicDetails.deleteImage')}
+            </Button>
+          )}
+        </div>
+      ))}
+    </div>
+  ) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noImages')}</p>}
+  {isOwner && details.data.images.length < 6 && (
+    <div className="grid gap-3">
+      <Label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-primary/30 bg-primary/4 p-4" htmlFor="addClinicImages">
+        <Input className="sr-only" id="addClinicImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={selectImages} />
+        <ImagePlus className="size-5 text-primary" />
+        <span className="grid">
+          <strong className="text-xs">{newImages.length ? t('clinicForm.imagesSelected', { count: newImages.length }) : t('clinicDetails.addImages')}</strong>
+          <small className="text-[10px] text-muted-foreground">{t('clinicForm.imageRules')}</small>
+        </span>
+      </Label>
+      <Button className="h-11 w-fit rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>
+        {addImages.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Plus />}
+        {t('clinicDetails.uploadImages')}
+      </Button>
+    </div>
+  )}
+</CardContent></Card>
 
                 <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40">
-  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><UsersRound className="size-7" /></span>{t('clinicDetails.members')}<Badge className="ms-auto rounded-full px-3 py-1 text-sm font-semibold text-muted-foreground">{members.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{members.isLoading && <LoaderCircle className="animate-spin text-primary" />}{members.error && <Notice message={getErrorMessage(members.error)} />}{members.data?.map((member) => <div className="flex items-center gap-3 rounded-xl border border-border bg-background/35 p-3 transition hover:border-primary/30 hover:bg-primary/5" key={member.id}><span className="grid size-30 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary/10 text-xs font-bold text-primary">{member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}</span><span className="grid min-w-0 flex-1"><strong className="truncate text-sm">{member.fullName}</strong><small className="truncate text-xs font-bold text-muted-foreground">{member.title ? `${member.title} · ` : ''}{member.medicalSpecialty}</small></span>{member.isOwner ? <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase [&>svg]:size-4!">
+  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><UsersRound className="size-7" /></span>{t('clinicDetails.members')}<Badge className="ms-auto rounded-full px-3 py-1 text-sm font-semibold text-muted-foreground">{members.data?.length ?? 0}</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{members.isLoading && <LoaderCircle className="animate-spin text-primary" />}{members.error && <Notice message={getErrorMessage(members.error)} />}{members.data?.map((member) => <div className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-background/35 p-3 transition hover:border-primary/30 hover:bg-primary/5" key={member.id}><span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary/10 text-xs font-bold text-primary">{member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}</span><span className="grid min-w-0 flex-1"><strong className="truncate text-sm">{member.fullName}</strong><small className="truncate text-xs font-bold text-muted-foreground">{member.title ? `${member.title} · ` : ''}{member.medicalSpecialty}</small></span>{member.isOwner ? <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase [&>svg]:size-4!">
   <BadgeCheck />
   {t('clinicDetails.owner')}
 </Badge> : isOwner && <Button variant="destructive" size="icon" className="rounded-xl border border-destructive/20 bg-destructive/10 text-destructive transition hover:bg-destructive/20" aria-label={t('clinicDetails.removeMember')} disabled={removeMember.isPending} onClick={() => { removeMember.reset(); setSuccess(''); setConfirmation({ type: 'remove-member', memberId: member.id, memberName: member.fullName }) }}>{removeMember.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <UserMinus className="size-4" />}</Button>}</div>)}</CardContent></Card>
               </div>
 
-              <div className="grid gap-5">
+              <div className="min-w-0 grid gap-5">
                 {isOwner && (
                   <Card className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/8 via-card to-warm/5">
                     <CardHeader className="!pb-3 border-b border-border/40">
@@ -292,7 +379,47 @@ export default function ClinicDetailsPage() {
                 )}
 
                 <Card className="rounded-2xl border border-border bg-card"><CardHeader className="!pb-3 border-b border-border/40">
-  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Phone className="size-7" /></span>{t('clinicDetails.phones')}<Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.phoneNumbers.length}/6</Badge></CardTitle></CardHeader><CardContent className="grid gap-3">{details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => <a className="flex items-center gap-3.5 rounded-2xl border border-border/60 bg-background/40 p-4 text-sm font-bold transition hover:border-primary/25 hover:bg-primary/5" href={`tel:${phone}`} key={phone}><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Phone className="size-4" /></span>{phone}</a>) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noPhones')}</p>}{isOwner && details.data.phoneNumbers.length < 6 && <form className="grid gap-3" onSubmit={submitPhone}><FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required /><Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={addPhone.isPending}>{addPhone.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}{t('clinicDetails.savePhone')}</Button></form>}<p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.deleteIdGap')}</p></CardContent></Card>
+  <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
+    <span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Phone className="size-7" /></span>
+    {t('clinicDetails.phones')}
+    <Badge className="ms-auto text-sm font-semibold text-muted-foreground">{details.data.phoneNumbers.length}/6</Badge>
+  </CardTitle>
+</CardHeader>
+<CardContent className="grid gap-3">
+  {details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => (
+    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border/60 bg-background/40 p-2 transition hover:border-primary/25 hover:bg-primary/5" key={phone.id}>
+      <a className="flex min-w-0 flex-1 items-center gap-3.5 rounded-xl px-2 py-2 text-sm font-bold" href={'tel:' + phone.phoneNumber}>
+        <span className="hidden size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:grid"><Phone className="size-4" /></span>
+        <span className="truncate">{phone.phoneNumber}</span>
+      </a>
+      {isOwner && (
+        <Button
+          type="button"
+          variant="destructive"
+          className="h-10 max-w-[45%] shrink-0 overflow-hidden rounded-xl px-3 text-sm font-bold normal-case"
+          disabled={deletePhone.isPending}
+          onClick={() => {
+            deletePhone.reset()
+            setSuccess('')
+            setConfirmation({ type: 'delete-phone', phoneNumberId: phone.id, phoneNumber: phone.phoneNumber })
+          }}
+        >
+          <Trash2 className="size-4" />
+          <span className="truncate">{t('clinicDetails.deletePhone')}</span>
+        </Button>
+      )}
+    </div>
+  )) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noPhones')}</p>}
+  {isOwner && details.data.phoneNumbers.length < 6 && (
+    <form className="grid gap-3" onSubmit={submitPhone}>
+      <FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required />
+      <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={addPhone.isPending}>
+        {addPhone.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Plus />}
+        {t('clinicDetails.savePhone')}
+      </Button>
+    </form>
+  )}
+</CardContent></Card>
 
                 {currentMember && <Card className="rounded-2xl border border-destructive/20 bg-destructive/5"><CardHeader className="!pb-3 border-b border-border/40">
   <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 place-items-center rounded-2xl bg-destructive/10 text-destructive">

@@ -12,8 +12,18 @@ export interface ClinicSummary {
 
 export interface ClinicDetails extends ClinicSummary {
   regionId: number
-  phoneNumbers: string[]
-  images: string[]
+  phoneNumbers: ClinicPhoneNumber[]
+  images: ClinicImage[]
+}
+
+export interface ClinicPhoneNumber {
+  id: number
+  phoneNumber: string
+}
+
+export interface ClinicImage {
+  id: number
+  url: string
 }
 
 export interface ClinicMember {

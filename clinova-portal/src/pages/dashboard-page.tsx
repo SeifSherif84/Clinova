@@ -33,7 +33,7 @@ export default function DashboardPage() {
           {isDoctor && <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>}
           {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           <Link className={navItem} to="/notifications"><Bell /> {t('dashboard.notifications')}</Link>
-          {isDoctor && <a className={navItem} href="#schedule"><Clock3 /> {t('dashboard.workingHours')}</a>}
+          {isDoctor && <Link className={navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 /> {t('dashboard.workingHours')}</Link>}
           {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
         </nav>
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">

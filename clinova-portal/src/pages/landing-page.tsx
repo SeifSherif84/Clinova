@@ -1,16 +1,18 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, CalendarDays, HeartPulse, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
+import { ArrowRight, CalendarDays, HeartPulse, LayoutDashboard, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
 import MedicalIllustration from '@/components/medical-illustration'
 import PreferencesControls from '@/components/preferences-controls'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { useAuth } from '@/hooks/use-auth'
 
 const Arrow = () => <ArrowRight className="size-4 rtl:rotate-180" />
 
 export default function LandingPage() {
   const { t } = useTranslation()
+  const auth = useAuth()
 
   return (
     <main className="relative min-h-svh overflow-hidden bg-background text-foreground selection:bg-primary/25">
@@ -21,8 +23,15 @@ export default function LandingPage() {
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="me-1 hidden items-center gap-2 text-sm font-bold text-muted-foreground xl:inline-flex"><ShieldCheck className="size-4" /> {t('common.securePlatform')}</Badge>
           <PreferencesControls compact />
-<Link to="/login" search={{ redirect: undefined }} className="hidden rounded-full px-5 py-3.5 text-base font-bold text-foreground/75 transition-colors hover:bg-accent hover:text-foreground md:inline-flex">{t('common.signIn')}</Link>
-<Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:bg-primary/90 sm:px-7">{t('landing.getStarted')} <Arrow /></Link>
+          {auth.isAuthenticated ? (
+            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:bg-primary/90 sm:px-7 sm:text-base">
+              <LayoutDashboard className="size-4" />
+              {t('landing.dashboardButton')}
+            </Link>
+          ) : <>
+            <Link to="/login" search={{ redirect: undefined }} className="hidden rounded-full px-5 py-3.5 text-base font-bold text-foreground/75 transition-colors hover:bg-accent hover:text-foreground md:inline-flex">{t('common.signIn')}</Link>
+            <Link to="/register" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:bg-primary/90 sm:px-7">{t('landing.getStarted')} <Arrow /></Link>
+          </>}
         </div>
       </nav>
 

@@ -15,7 +15,7 @@ export default function PreferencesControls({ compact = false }: { compact?: boo
   }
 
   return (
-    <div className="flex items-center gap-2" dir="ltr">
+    <div className={`flex shrink-0 items-center ${compact ? 'gap-1 sm:gap-2' : 'gap-2'}`} dir="ltr">
       <Button
         type="button"
         variant="outline"
