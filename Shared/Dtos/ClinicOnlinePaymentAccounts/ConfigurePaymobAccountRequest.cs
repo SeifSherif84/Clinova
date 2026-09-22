@@ -10,12 +10,15 @@ namespace Shared.Dtos.ClinicOnlinePaymentAccounts
     public class ConfigurePaymobAccountRequest
     {
         [Required]
-        public string MerchantId { get; set; } = null!;
+        public string PublicKey { get; set; } = null!;
 
         [Required]
         public string SecretKey { get; set; } = null!;
 
         [Required]
         public string HmacSecret { get; set; } = null!;
+
+        [Required]
+        public string ApiKey { get; set; } = null!;
     }
 }

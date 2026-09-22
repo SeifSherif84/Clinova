@@ -66,7 +66,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to add the Paymob payment integration.");
 
-            return $"A {request.PaymentMethod} payment integration is already configured for this Paymob account.";
+            return $"A {request.PaymentMethod} payment integration is configured for this Paymob account.";
         }
 
 

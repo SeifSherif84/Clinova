@@ -15,7 +15,6 @@ namespace Services.Specifications.Payments
         }
 
 
-
         public static PaymentSpecifications ByProviderOrderId(string providerOrderId)
         {
             var specifications = new PaymentSpecifications()
@@ -27,6 +26,21 @@ namespace Services.Specifications.Payments
             specifications.Includes.Add(payment => payment.Appointment.AppointmentSlot);
             specifications.Includes.Add(payment => payment.ClinicOnlinePaymentAccount);
             specifications.Includes.Add(payment => payment.ClinicOnlinePaymentAccount!.PaymentIntegrations);
+
+            return specifications;
+        }
+
+
+        public static PaymentSpecifications ForRefund(int paymentId)
+        {
+            var specifications = new PaymentSpecifications()
+            {
+                Criteria = payment => payment.Id == paymentId,
+            };
+
+            specifications.Includes.Add(payment => payment.Refund);
+            specifications.Includes.Add(payment => payment.Appointment);
+            specifications.Includes.Add(payment => payment.Appointment.AppointmentSlot);
 
             return specifications;
         }

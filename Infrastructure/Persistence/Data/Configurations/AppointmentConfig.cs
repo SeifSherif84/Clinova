@@ -27,6 +27,10 @@ namespace Persistence.Data.Configurations
             builder.HasIndex(appointment => appointment.AppointmentSlotId)
                    .IsUnique()
                    .HasFilter("[Status] IN (1, 2)");
+
+            builder.Property(appointment => appointment.RowVersion)
+                   .IsRowVersion()
+                   .IsConcurrencyToken();
         }
     }
 }

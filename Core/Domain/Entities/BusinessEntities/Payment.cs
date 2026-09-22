@@ -53,5 +53,11 @@ namespace Domain.Entities.BusinessEntities
         // Appointment
         public int AppointmentId { get; set; }
         public Appointment Appointment { get; set; } = null!;
+
+
+        public PaymentRefund? Refund { get; set; }
+
+
+        public byte[] RowVersion { get; set; } = null!;
     }
 }

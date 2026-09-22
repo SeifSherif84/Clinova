@@ -41,6 +41,8 @@ using Domain.Entities.BusinessEntities;
 using Services.AutoMapping.ClinicOnlinePaymentAccounts;
 using Microsoft.Extensions.DependencyInjection;
 using Services.Abstractions.Paymob;
+using Shared.Dtos.ClinovaSettings;
+
 
 namespace Web
 {
@@ -178,6 +180,15 @@ namespace Web
             builder.Services.AddScoped<IPaymentCredentialEncryptor, PaymentCredentialEncryptor>();
             builder.Services.AddScoped<IPaymobService, PaymobService>();
             builder.Services.AddScoped<IPaymobHmacService, PaymobHmacService>();
+            builder.Services.AddScoped<IRefundService, RefundService>();
+
+
+            builder.Services.AddOptions<CancellationPolicySettings>().Bind(builder.Configuration.GetSection("CancellationPolicy"))
+                                                                     .Validate(policy =>
+                                                                               policy.FullRefundCancellationWindowMinutes > 0 &&
+                                                                               policy.BookingCancellationGracePeriodMinutes > 0,
+                                                                  "Cancellation policy values must be greater than zero.")
+                                                                     .ValidateOnStart();
 
             // UserDefined Services End
 

@@ -22,8 +22,7 @@ namespace Persistence.Data.Configurations
 
             builder.Property(onlinePaymentAccount => onlinePaymentAccount.MerchantId)
                    .HasColumnType("varchar")
-                   .HasMaxLength(200)
-                   .IsRequired();
+                   .HasMaxLength(200);
 
 
             builder.HasOne(onlinePaymentAccount => onlinePaymentAccount.Clinic)

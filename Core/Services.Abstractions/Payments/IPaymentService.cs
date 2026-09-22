@@ -12,6 +12,8 @@ namespace Services.Abstractions.Payments
     {
         Task<object> CreatePaymobPaymentIntentionAsync(string userId, int appointmentId, CreatePaymobPaymentIntentionRequest request);
 
+        Task<PaymentConfigurationStatusResponse> GetPaymentConfigurationStatusAsync(string userId, int clinicId);
+
         Task HandlePaymobTransactionCallbackAsync(PaymobTransactionCallbackRequest request, string hmac);
     }
 }
