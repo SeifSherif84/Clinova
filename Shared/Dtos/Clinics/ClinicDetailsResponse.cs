@@ -18,7 +18,7 @@ namespace Shared.Dtos.Clinics
         public decimal DepositPercentage { get; set; }
         public int RegionId { get; set; }
         public string RegionName { get; set; } = null!;
-        public List<string> PhoneNumbers { get; set; } = new();
-        public List<string> Images { get; set; } = new();
+        public List<ClinicPhoneNumberResponse> PhoneNumbers { get; set; } = new();
+        public List<ClinicImageResponse> Images { get; set; } = new();
     }
 }

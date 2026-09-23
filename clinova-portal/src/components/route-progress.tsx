@@ -6,8 +6,6 @@ export default function RouteProgress() {
   const isPending = useRouterState({ select: (state) => state.status === 'pending' })
 
   return (
-    <div className={`pointer-events-none fixed inset-x-0 top-0 z-[240] h-1 overflow-hidden bg-primary/10 transition-opacity ${isPending ? 'opacity-100' : 'opacity-0'}`} role="status" aria-label={t('common.routeLoading')} aria-hidden={!isPending}>
-      <span className="block h-full w-1/3 animate-[route-progress_1s_ease-in-out_infinite] rounded-full bg-primary" />
-    </div>
+    <div className={`route-progress-track pointer-events-none fixed inset-x-0 top-0 z-[240] h-1 max-w-full overflow-clip bg-primary/10 transition-opacity ${isPending ? 'opacity-100' : 'opacity-0'}`} role="status" aria-label={t('common.routeLoading')} aria-hidden={!isPending} />
   )
 }

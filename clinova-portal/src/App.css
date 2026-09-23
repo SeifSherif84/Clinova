@@ -127,11 +127,25 @@
 
   html {
     @apply bg-background font-sans;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   body {
-    @apply min-w-80 bg-background text-foreground antialiased transition-colors duration-300;
+    @apply bg-background text-foreground antialiased transition-colors duration-300;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
     margin: 0;
+  }
+
+  #root {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   html[dir="rtl"] body {
@@ -148,9 +162,17 @@
 }
 
 @keyframes route-progress {
-  0% { transform: translateX(-110%); }
-  50% { transform: translateX(100%); }
-  100% { transform: translateX(310%); }
+  0% { background-position: -50% 0; }
+  50% { background-position: 50% 0; }
+  100% { background-position: 150% 0; }
+}
+
+.route-progress-track {
+  background-image: linear-gradient(var(--primary), var(--primary));
+  background-repeat: no-repeat;
+  background-size: 33.333% 100%;
+  animation: route-progress 1s ease-in-out infinite;
+  contain: paint;
 }
 
 
@@ -203,6 +225,13 @@
 
 
 
-html[dir="rtl"] [class*="route-progress"] {
+html[dir="rtl"] .route-progress-track {
   animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-progress-track {
+    animation: none;
+    background-position: center;
+  }
 }

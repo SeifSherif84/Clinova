@@ -24,7 +24,7 @@ export default function NotificationBell() {
       <Bell className="size-4" />
       {state.unreadCount > 0 && <span className="absolute -end-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full border border-warm/20 bg-warm/10 px-1 text-[10px] font-bold leading-5 text-warm">{state.unreadCount > 99 ? '99+' : state.unreadCount}</span>}
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" sideOffset={8} className="w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-card p-0 text-foreground shadow-md" aria-label={t('notifications.title')}>
+    <DropdownMenuContent align="end" sideOffset={8} className="w-[min(24rem,calc(100dvw-2rem))] overflow-hidden rounded-2xl border border-border bg-card p-0 text-foreground shadow-md" aria-label={t('notifications.title')}>
       <DropdownMenuGroup>
         <DropdownMenuLabel className="flex items-center justify-between gap-3 border-b border-border p-4 normal-case tracking-normal">
           <span><strong className="block text-sm text-foreground">{t('notifications.title')}</strong><span className="block text-[11px] font-normal text-muted-foreground">{t('notifications.unreadCount', { count: state.unreadCount })}</span></span>

@@ -22,12 +22,12 @@ export default function MobileNavigationMenu() {
   const itemClass = 'rounded-xl px-3 py-3 text-sm font-bold normal-case tracking-normal text-muted-foreground focus:bg-sidebar-accent focus:text-sidebar-foreground [&>svg]:size-4'
   const activeClass = `${itemClass} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`
 
-  return <div className="lg:hidden">
+  return <div className="shrink-0 lg:hidden">
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger render={<Button type="button" variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t(open ? 'dashboard.closeMenu' : 'dashboard.mobileMenu')} />}>
         {open ? <X className="size-4" /> : <Menu className="size-4" />}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-2xl border border-border bg-card p-2 text-foreground shadow-md ring-1 ring-foreground/5" aria-label={t('dashboard.navigation')}>
+      <DropdownMenuContent align="end" sideOffset={8} className="w-72 max-w-[calc(100dvw-2rem)] rounded-2xl border border-border bg-card p-2 text-foreground shadow-md ring-1 ring-foreground/5" aria-label={t('dashboard.navigation')}>
         <DropdownMenuItem className={pathname === '/dashboard' ? activeClass : itemClass} render={<Link to="/dashboard" />}><Sparkles />{t('dashboard.overview')}</DropdownMenuItem>
         <DropdownMenuItem className={itemClass} render={<a href="/dashboard#appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>
         {isDoctor && <DropdownMenuItem className={pathname.startsWith('/doctor/clinics') ? activeClass : itemClass} render={<Link to="/doctor/clinics" />}><Building2 />{t('dashboard.clinics')}</DropdownMenuItem>}
@@ -36,7 +36,7 @@ export default function MobileNavigationMenu() {
           <Bell />{t('dashboard.notifications')}
           {notifications.unreadCount > 0 && <span className="ms-auto rounded-full border border-warm/20 bg-warm/10 px-2 py-0.5 text-[10px] font-bold text-warm">{notifications.unreadCount > 99 ? '99+' : notifications.unreadCount}</span>}
         </DropdownMenuItem>
-        {isDoctor && <DropdownMenuItem className={itemClass} render={<a href="/dashboard#schedule" />}><Clock3 />{t('dashboard.workingHours')}</DropdownMenuItem>}
+        {isDoctor && <DropdownMenuItem className={pathname === '/doctor/working-hours' ? activeClass : itemClass} render={<Link to="/doctor/working-hours" search={{ clinicId: undefined }} />}><Clock3 />{t('dashboard.workingHours')}</DropdownMenuItem>}
         {isDoctor
           ? <DropdownMenuItem className={pathname === '/doctor/profile' ? activeClass : itemClass} render={<Link to="/doctor/profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>
           : <DropdownMenuItem className={itemClass} render={<a href="/dashboard#profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>}
