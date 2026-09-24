@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useSearch } from '@tanstack/react-router'
-import { Building2, CalendarClock, Clock3, Filter, LoaderCircle, MousePointerClick, PencilLine, Plus, Power, PowerOff, RefreshCw, Save, Timer, Trash2, X } from 'lucide-react'
+import { Building2, CalendarClock, Clock3, Filter, LoaderCircle, MousePointerClick, PencilLine, Plus, PowerOff, RefreshCw, Save, Timer, Trash2, X } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -9,7 +9,7 @@ import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useApi } from '@/hooks/use-api'
@@ -231,11 +231,26 @@ export default function WorkingHoursPage() {
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loadingClinics')}</p></Card>}
         {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
         {clinics.data?.length === 0 && (
-          <Card className="mt-6 items-center rounded-3xl border border-dashed border-primary/25 bg-gradient-to-br from-primary/5 via-card to-warm/5 p-10 text-center sm:p-16">
-            <span className="relative grid size-20 place-items-center rounded-3xl bg-primary/10 text-primary shadow-inner"><span className="absolute inset-0 rounded-3xl bg-primary/10 motion-safe:animate-ping" /><Building2 className="relative size-9" /></span>
-            <h2 className="mt-6 font-heading text-2xl font-bold sm:text-3xl">{t('workingHours.noClinicsTitle')}</h2><p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">{t('workingHours.noClinicsDescription')}</p>
-            <Button className="mt-5 h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('workingHours.createClinic')}</Button>
-          </Card>
+          <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
+              <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
+            </div>
+
+            <div className="relative">
+              <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
+              <span className="relative grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
+                <Building2 className="size-10" />
+              </span>
+              <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
+              <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
+              <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
+            </div>
+
+            <h2 className="mt-10 font-heading text-3xl font-bold sm:text-5xl">{t('workingHours.noClinicsTitle')}</h2>
+            <span className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('workingHours.noClinicsDescription')}</p>
+            <Button className="mt-8 h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('workingHours.createClinic')}</Button>
+          </section>
         )}
 
         {clinics.data && clinics.data.length > 0 && (

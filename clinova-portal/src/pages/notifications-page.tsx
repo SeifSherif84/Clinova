@@ -71,16 +71,25 @@ function NotificationContent() {
         )}
 
         {!state.isLoading && !state.isError && state.notifications.length === 0 && (
-          <Card className="items-center rounded-3xl border border-dashed border-primary/25 bg-gradient-to-br from-primary/5 via-card to-warm/5 p-10 text-center sm:p-16">
-            <div className="relative grid place-items-center">
-              <span className="absolute size-24 animate-ping rounded-full bg-primary/10 motion-reduce:animate-none" />
-              <span className="relative grid size-20 place-items-center rounded-3xl bg-primary/10 text-primary shadow-inner">
-                <Bell className="size-9" />
-              </span>
+          <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
+              <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
             </div>
-            <h2 className="mt-6 font-heading text-2xl font-bold sm:text-3xl">{t('notifications.emptyTitle')}</h2>
-            <p className="mt-2 max-w-lg text-xs leading-6 text-muted-foreground sm:text-sm">{t('notifications.emptyDescription')}</p>
-          </Card>
+
+            <div className="relative">
+              <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
+              <span className="relative grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
+                <Bell className="size-10" />
+              </span>
+              <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
+              <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
+              <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
+            </div>
+
+            <h2 className="mt-10 font-heading text-3xl font-bold sm:text-5xl">{t('notifications.emptyTitle')}</h2>
+            <span className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('notifications.emptyDescription')}</p>
+          </section>
         )}
 
         {state.notifications.map((item) => (

@@ -455,19 +455,13 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                 )}
               </div>
 
-              {(pictureError || updatePicture.error || pictureSuccess) && (
-                <div className="relative z-10 mt-5 grid gap-3 border-t border-primary/10 pt-5">
-                  {(pictureError || updatePicture.error) && (
-                    <Notice
-                      message={
-                        pictureError || getErrorMessage(updatePicture.error)
-                      }
-                    />
-                  )}
-                  {pictureSuccess && (
-                    <Notice tone="success" message={pictureSuccess} />
-                  )}
-                </div>
+              {(pictureError || updatePicture.error) && (
+                <Notice
+                  message={pictureError || getErrorMessage(updatePicture.error)}
+                />
+              )}
+              {pictureSuccess && (
+                <Notice tone="success" message={pictureSuccess} />
               )}
             </Card>
 
