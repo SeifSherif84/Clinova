@@ -28,7 +28,11 @@ namespace Services.AutoMapping.Clinics
             CreateMap<Clinic, ClinicDetailsResponse>()
                 .ForMember(D => D.RegionName, config => config.MapFrom(S => S.Region.Name))
                 .ForMember(D => D.Images, config => config.MapFrom(new ClinicImagesUrlResolver(_configuration)))
-                .ForMember(D => D.PhoneNumbers, config => config.MapFrom(S => S.PhoneNumbers.Select(item => item.PhoneNumber)));
+                .ForMember(D => D.PhoneNumbers, config => config.MapFrom(S => S.PhoneNumbers.Select(item => new ClinicPhoneNumberResponse
+                {
+                    Id = item.Id,
+                    PhoneNumber = item.PhoneNumber
+                })));
         }
     }
 }

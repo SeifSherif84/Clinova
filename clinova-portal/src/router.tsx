@@ -111,6 +111,16 @@ function requireDoctor(context: RouterContext) {
     throw redirect({ to: '/dashboard' })
   }
 }
+const doctorWorkingHoursRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/working-hours',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  validateSearch: (search: Record<string, unknown>) => {
+    const clinicId = Number(search.clinicId)
+    return { clinicId: Number.isInteger(clinicId) && clinicId > 0 ? clinicId : undefined }
+  },
+  component: lazyRouteComponent(() => import('@/pages/working-hours-page')),
+})
 const doctorClinicsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/doctor/clinics',
@@ -144,6 +154,7 @@ const routeTree = rootRoute.addChildren([
   notificationsRoute,
   doctorProfileRoute,
   doctorInvitationsRoute,
+  doctorWorkingHoursRoute,
   doctorClinicsRoute,
   addDoctorClinicRoute,
   doctorClinicDetailsRoute,

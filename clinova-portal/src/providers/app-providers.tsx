@@ -33,7 +33,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
             <AuthProvider>
               <NotificationProvider>
                 <GlobalErrorBoundary>{children}</GlobalErrorBoundary>
-                <Toaster position="top-center" closeButton />
+                <Toaster position="top-center" />
               </NotificationProvider>
             </AuthProvider>
           </ApiProvider>
