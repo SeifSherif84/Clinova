@@ -5,7 +5,6 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
-import FormField from '@/components/form-field'
 import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -132,6 +131,7 @@ export default function WorkingHoursPage() {
   const calendarHours = Array.from({ length: viewRange.endHour - viewRange.startHour }, (_, index) => viewRange.startHour + index)
   const calendarHeight = calendarHours.length * calendarHourHeight
   const viewStartMinutes = viewRange.startHour * 60
+  const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
 
   function dayLabel(dayName: string) { return t(`workingHours.days.${dayName.toLowerCase()}`, { defaultValue: dayName }) }
   function availableClinics(dayName: string) { return (clinics.data ?? []).filter((clinic) => !configuredKeys.has(`${clinic.id}:${dayName.toLowerCase()}`)) }
@@ -243,17 +243,52 @@ export default function WorkingHoursPage() {
             {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
             {success && <Notice tone="success" message={success} />}
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <Card className="rounded-2xl border border-border bg-card p-3 sm:p-4"><small className="text-[9px] leading-4 font-bold tracking-wider text-muted-foreground uppercase sm:text-[10px]">{t('workingHours.weeklyHours')}</small><strong className="mt-2 block text-xl font-bold sm:text-2xl">{t('workingHours.hoursValue', { count: Math.round((weeklyMinutes / 60) * 10) / 10 })}</strong></Card>
-              <Card className="rounded-2xl border border-border bg-card p-3 sm:p-4"><small className="text-[9px] leading-4 font-bold tracking-wider text-muted-foreground uppercase sm:text-[10px]">{t('workingHours.activeSchedules')}</small><strong className="mt-2 block text-xl font-bold text-primary sm:text-2xl">{activeCount}</strong></Card>
-              <Card className="rounded-2xl border border-border bg-card p-3 sm:p-4"><small className="text-[9px] leading-4 font-bold tracking-wider text-muted-foreground uppercase sm:text-[10px]">{t('workingHours.connectedClinics')}</small><strong className="mt-2 block text-xl font-bold text-warm sm:text-2xl">{clinics.data.length}</strong></Card>
+              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><Clock3 className="size-5 sm:size-6" /></span>
+                <div className="min-w-0">
+                  <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.weeklyHours')}</small>
+                  <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{t('workingHours.hoursValue', { count: Math.round((weeklyMinutes / 60) * 10) / 10 })}</strong>
+                </div>
+              </Card>
+              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><CalendarClock className="size-5 sm:size-6" /></span>
+                <div className="min-w-0">
+                  <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.activeSchedules')}</small>
+                  <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{activeCount}</strong>
+                </div>
+              </Card>
+              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><Building2 className="size-5 sm:size-6" /></span>
+                <div className="min-w-0">
+                  <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.connectedClinics')}</small>
+                  <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{clinics.data.length}</strong>
+                </div>
+              </Card>
             </div>
 
             <div className="grid min-w-0 gap-5">
               <Card className="min-w-0 rounded-2xl border border-border bg-card">
                 <CardHeader className="!pb-3 border-b border-border/40">
                   <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="min-w-0"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CalendarClock className="size-7" /></span>{t('workingHours.calendarTitle')}</CardTitle><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('workingHours.scheduleDescription')}</p></div>
-                    <div className="grid min-w-52 gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('workingHours.clinicFilter')}</Label><Select items={[{ value: 'all', label: t('workingHours.allClinics') }, ...clinics.data.map((clinic) => ({ value: String(clinic.id), label: clinic.name }))]} value={validClinicFilter} onValueChange={(value) => value && setClinicFilter(value)}><SelectTrigger className="h-11 w-full rounded-xl border border-input bg-background/40 px-3"><Filter className="size-4 text-primary/70" /><SelectValue /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover"><SelectItem className="rounded-lg" value="all">{t('workingHours.allClinics')}</SelectItem>{clinics.data.map((clinic) => <SelectItem className="rounded-lg" key={clinic.id} value={String(clinic.id)}>{clinic.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="min-w-0"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CalendarClock className="size-7" /></span>{t('workingHours.calendarTitle')}</CardTitle><p className="mt-3 max-w-2xl rounded-lg bg-primary/[0.04] px-3 py-2 text-xs leading-5 font-medium text-foreground/70 sm:text-[13px]">{t('workingHours.scheduleDescription')}</p></div>
+                    <div className="grid min-w-60 gap-1.5">
+  <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.clinicFilter')}</Label>
+  <Select
+    items={[{ value: 'all', label: t('workingHours.allClinics') }, ...clinics.data.map((clinic) => ({ value: String(clinic.id), label: clinic.name }))]}
+    value={validClinicFilter}
+    onValueChange={(value) => value && setClinicFilter(value)}
+  >
+    <SelectTrigger className="h-12 w-full gap-2.5 rounded-xl border border-border bg-card px-3.5 text-sm shadow-sm transition-all hover:border-primary/40 hover:bg-primary/[0.03] focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20 data-[popup-open]:border-primary/50 data-[popup-open]:ring-2 data-[popup-open]:ring-primary/20">
+      <Filter className="size-4 text-primary/70" />
+      <span className="h-5 w-px shrink-0 bg-border" />
+      <SelectValue className="truncate font-bold text-foreground" />
+    </SelectTrigger>
+    <SelectContent className="rounded-xl border border-border bg-popover p-1 shadow-lg">
+      <SelectItem className="rounded-lg py-2 font-medium" value="all">{t('workingHours.allClinics')}</SelectItem>
+      {clinics.data.map((clinic) => <SelectItem className="rounded-lg py-2 font-medium" key={clinic.id} value={String(clinic.id)}>{clinic.name}</SelectItem>)}
+    </SelectContent>
+  </Select>
+</div>
                   </div>
                 </CardHeader>
                 <CardContent className="min-w-0 p-0">
@@ -261,42 +296,62 @@ export default function WorkingHoursPage() {
                   {queryError && <div className="grid justify-items-start gap-3 p-6"><Notice message={getErrorMessage(queryError)} /><Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" onClick={() => { clinics.refetch(); days.refetch(); hourQueries.forEach((query) => query.refetch()) }}><RefreshCw />{t('workingHours.retry')}</Button></div>}
                   {hoursReady && !queryError && (
                     <>
-                      <div className="hidden max-h-[46rem] max-w-full overflow-auto lg:block" dir="ltr">
+                      <div className="hidden max-h-[46rem] max-w-full overflow-auto [scrollbar-width:thin] lg:block" dir="ltr">
                         <div className="min-w-[70rem]">
-                          <div className="sticky top-0 z-20 grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] border-b border-border bg-card/95 backdrop-blur-xl">
-                            <div className="grid min-h-20 place-items-center border-e border-border/60 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.time')}</div>
-                            {orderedDays.map((day) => (
-                              <div className="flex min-w-0 items-center justify-between gap-2 border-e border-border/60 px-3 py-3 last:border-e-0" key={day.id}>
-                                <div className="min-w-0" dir="auto"><strong className="block truncate text-sm font-bold">{dayLabel(day.name)}</strong><small className="text-[10px] text-muted-foreground">{visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase()).length} {t('workingHours.schedules')}</small></div>
-                                <Button type="button" variant="outline" size="icon" className="size-9 shrink-0 rounded-xl" aria-label={t('workingHours.addForDay', { day: dayLabel(day.name) })} onClick={() => startCreating(day)}><Plus className="size-4" /></Button>
-                              </div>
-                            ))}
+                          <div className="sticky top-0 z-20 grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] border-b border-border bg-card">
+                            <div className="grid min-h-20 place-items-center border-e border-border/60 bg-muted/40 text-primary"><Clock3 className="size-5" /></div>
+                            {orderedDays.map((day) => {
+                              const isToday = day.name.toLowerCase() === todayName
+                              const count = visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase()).length
+                              return (
+                                <div className={`flex min-w-0 items-center justify-between gap-2 border-e border-border/60 px-3 py-3 last:border-e-0 ${isToday ? 'bg-primary/10' : 'bg-muted/40'}`} key={day.id}>
+                                  <div className="min-w-0" dir="auto">
+                                    <strong className={`block truncate text-sm font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>{dayLabel(day.name)}</strong>
+                                    <small className="mt-0.5 block text-[10px] font-medium text-muted-foreground">{count} {t('workingHours.schedules')}</small>
+                                  </div>
+                                  <Button type="button" variant="outline" size="icon" className="size-8 shrink-0 rounded-lg border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground" aria-label={t('workingHours.addForDay', { day: dayLabel(day.name) })} onClick={() => startCreating(day)}><Plus className="size-4" /></Button>
+                                </div>
+                              )
+                            })}
                           </div>
                           <div className="relative grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))]" style={{ height: calendarHeight }}>
-                            <div className="relative border-e border-border/60">
-                              {calendarHours.map((hour, index) => <span className="absolute inset-x-0 translate-y-2 pe-3 text-end text-[10px] font-bold text-muted-foreground" key={hour} style={{ top: index * calendarHourHeight }}>{String(hour).padStart(2, '0')}:00</span>)}
+                            <div className="relative border-e border-border/60 bg-muted/40">
+                              {calendarHours.map((hour, index) => <span className="absolute inset-x-0 translate-y-2 pe-3 text-end text-[11px] font-semibold tabular-nums text-muted-foreground" key={hour} style={{ top: index * calendarHourHeight }}>{String(hour).padStart(2, '0')}:00</span>)}
                             </div>
                             {orderedDays.map((day) => {
                               const dayEntries = visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase())
                               const positionedEntries = positionEntries(dayEntries, viewStartMinutes)
+                              const isToday = day.name.toLowerCase() === todayName
                               return (
-                                <div className="relative border-e border-border/60 last:border-e-0" key={day.id}>
+                                <div className={`relative border-e border-border/60 last:border-e-0 ${isToday ? 'bg-primary/[0.04]' : ''}`} key={day.id}>
                                   {calendarHours.map((hour, index) => (
-                                    <button type="button" className="group absolute inset-x-0 border-t border-border/50 text-primary transition hover:bg-primary/5 focus-visible:z-10 focus-visible:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/30" style={{ top: index * calendarHourHeight, height: calendarHourHeight }} key={hour} aria-label={t('workingHours.addAtTime', { day: dayLabel(day.name), time: `${String(hour).padStart(2, '0')}:00` })} onClick={() => startCreating(day, hour)}><Plus className="mx-auto size-4 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100" /></button>
+                                    <button type="button" className="group absolute inset-x-0 border-t border-border/60 text-primary transition hover:bg-primary/5 focus-visible:z-10 focus-visible:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/30" style={{ top: index * calendarHourHeight, height: calendarHourHeight }} key={hour} aria-label={t('workingHours.addAtTime', { day: dayLabel(day.name), time: `${String(hour).padStart(2, '0')}:00` })} onClick={() => startCreating(day, hour)}>
+                                      <span className="pointer-events-none absolute inset-x-0 top-1/2 border-t border-dashed border-border/30" />
+                                      <Plus className="mx-auto size-4 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100" />
+                                    </button>
                                   ))}
                                   {positionedEntries.map((entry) => (
-                                    <button
-                                      type="button"
-                                      className={`absolute z-10 overflow-hidden rounded-xl border p-2 text-start transition hover:z-20 hover:shadow-lg focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${entry.workingHour.isActive ? 'border-primary/25 bg-primary/15 text-foreground hover:bg-primary/20' : 'border-warm/25 bg-warm/10 text-foreground hover:bg-warm/15'}`}
-                                      style={{ top: entry.top + 2, height: entry.height, left: `calc(${entry.left}% + 2px)`, width: `calc(${entry.width}% - 4px)` }}
-                                      key={`${entry.clinic.id}:${entry.workingHour.id}`}
-                                      aria-label={`${t('workingHours.edit')}: ${eventLabel(entry)}`}
-                                      onClick={() => startEditing(entry)}
-                                    >
-                                      <strong className="block truncate text-xs font-bold" dir="auto">{entry.clinic.name}</strong>
-                                      <span className="mt-0.5 block truncate text-[10px] font-bold" dir="ltr">{toInputTime(entry.workingHour.startTime)} - {toInputTime(entry.workingHour.endTime)}</span>
-                                      {entry.height >= 68 && <span className="mt-1 flex items-center gap-1 truncate text-[9px] text-muted-foreground"><Timer className="size-3 shrink-0" />{t('workingHours.slotDuration', { count: entry.workingHour.slotDurationMinutes })}</span>}
-                                    </button>
+<button
+  type="button"
+  className={`group/event absolute z-10 flex flex-col gap-1.5 overflow-hidden rounded-xl border px-2.5 py-2 text-start shadow-sm backdrop-blur-sm transition-all duration-200 hover:z-20 hover:-translate-y-0.5 hover:shadow-lg focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${entry.workingHour.isActive ? 'border-primary/25 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/[0.03] hover:border-primary/50' : 'border-dashed border-warm/40 bg-gradient-to-br from-warm/15 via-warm/10 to-warm/[0.03] hover:border-warm/60'}`}
+  style={{ top: entry.top + 2, height: entry.height, left: `calc(${entry.left}% + 2px)`, width: `calc(${entry.width}% - 4px)` }}
+  key={`${entry.clinic.id}:${entry.workingHour.id}`}
+  aria-label={`${t('workingHours.edit')}: ${eventLabel(entry)}`}
+  onClick={() => startEditing(entry)}
+>
+  <span className="flex min-w-0 items-center gap-2">
+    <span className={`size-2 shrink-0 rounded-full ${entry.workingHour.isActive ? 'bg-primary shadow-[0_0_0_3px] shadow-primary/20' : 'bg-warm shadow-[0_0_0_3px] shadow-warm/20'}`} />
+    <strong className="min-w-0 flex-1 truncate text-xs font-bold text-foreground" dir="auto">{entry.clinic.name}</strong>
+    {!entry.workingHour.isActive && <PowerOff className="size-3 shrink-0 text-warm" />}
+  </span>
+  {entry.height >= 56 && (
+    <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-md bg-background/70 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-foreground/80 shadow-sm" dir="ltr">
+      <Clock3 className="size-3 shrink-0 text-primary" />
+      <span className="truncate">{toInputTime(entry.workingHour.startTime)} - {toInputTime(entry.workingHour.endTime)}</span>
+    </span>
+  )}
+  {entry.height >= 80 && <span className="mt-auto flex items-center gap-1 truncate text-[10px] font-medium text-muted-foreground"><Timer className="size-3 shrink-0" />{t('workingHours.slotDuration', { count: entry.workingHour.slotDurationMinutes })}</span>}
+</button>
                                   ))}
                                 </div>
                               )
@@ -346,62 +401,166 @@ export default function WorkingHoursPage() {
           toggleWorkingHour.reset()
         }
       }}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-lg sm:max-w-2xl">
-          {editor && (
-            <>
-              <DialogHeader className="border-b border-border/60 p-6 pe-16 text-start">
-                <div className="flex items-start gap-3">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><Clock3 className="size-7" /></span>
-                  <div className="min-w-0">
-                    <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t(editor.mode === 'create' ? 'workingHours.newAvailability' : 'workingHours.editAvailability')}</DialogTitle>
-                    <DialogDescription className="mt-1 text-start text-xs leading-6 sm:text-sm">{t('workingHours.editorDescription')}</DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
+<DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-2xl sm:max-w-2xl">
+  {editor && (
+    <>
+      <DialogHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/15 via-primary/[0.06] to-transparent p-6 pe-16 text-start">
+        <span className="pointer-events-none absolute -end-10 -top-10 size-40 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative flex items-start gap-4">
+          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-7" /></span>
+          <div className="min-w-0 flex-1">
+            <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal sm:text-2xl">{t(editor.mode === 'create' ? 'workingHours.newAvailability' : 'workingHours.editAvailability')}</DialogTitle>
+            <DialogDescription className="mt-1 text-start text-xs leading-6 sm:text-sm">{t('workingHours.editorDescription')}</DialogDescription>
+          </div>
 
-              <div className="grid gap-5 p-6">
-                {(localError || saveWorkingHour.error || toggleWorkingHour.error) && <Notice message={localError || getErrorMessage(saveWorkingHour.error || toggleWorkingHour.error)} />}
-                <form className="grid min-w-0 gap-5" onSubmit={submitEditor}>
-                  <div className="grid min-w-0 gap-5 sm:grid-cols-2">
-                    <div className="grid min-w-0 gap-2 sm:col-span-2">
-                      <Label className="text-xs font-semibold text-foreground/80">{t('workingHours.day')}</Label>
-                      {editor.mode === 'create' ? (
-                        <Select items={orderedDays.map((day) => ({ value: String(day.id), label: dayLabel(day.name) }))} value={editor.dayId} onValueChange={updateEditorDay}>
-                          <SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3"><CalendarClock className="size-4 text-primary/70" /><SelectValue /></SelectTrigger>
-                          <SelectContent className="rounded-xl border border-border bg-popover">{orderedDays.map((day) => <SelectItem className="rounded-lg" disabled={!availableClinics(day.name).length} key={day.id} value={String(day.id)}>{dayLabel(day.name)}</SelectItem>)}</SelectContent>
-                        </Select>
-                      ) : <div className="flex h-12 items-center rounded-xl border border-border bg-background/45 px-3 text-sm font-bold">{dayLabel(editor.dayName)}</div>}
-                    </div>
-                    <FormField id="workingHourStart" label={t('workingHours.startTime')} type="time" step={60} value={editor.startTime} onChange={(event) => updateEditor('startTime', event.target.value)} required />
-                    <FormField id="workingHourEnd" label={t('workingHours.endTime')} type="time" step={60} value={editor.endTime} onChange={(event) => updateEditor('endTime', event.target.value)} required />
-                    <FormField id="workingHourDuration" label={t('workingHours.slotMinutes')} type="number" min={1} max={1440} step={1} value={editor.slotDurationMinutes} onChange={(event) => updateEditor('slotDurationMinutes', event.target.value)} hint={t('workingHours.slotHint')} required />
-                    <div className="grid min-w-0 content-start gap-2">
-                      <Label className="text-xs font-semibold text-foreground/80">{t('workingHours.clinicLabel')}</Label>
-                      {editor.mode === 'create' ? (
-                        <Select items={editorClinicOptions.map((clinic) => ({ value: String(clinic.id), label: clinic.name }))} value={editor.clinicId || null} onValueChange={(value) => value && updateEditor('clinicId', value)}>
-                          <SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3"><Building2 className="size-4 text-primary/70" /><SelectValue placeholder={t('workingHours.chooseClinic')} /></SelectTrigger>
-                          <SelectContent className="rounded-xl border border-border bg-popover">{editorClinicOptions.map((clinic) => <SelectItem className="rounded-lg" key={clinic.id} value={String(clinic.id)}>{clinic.name}</SelectItem>)}</SelectContent>
-                        </Select>
-                      ) : <div className="flex min-h-12 items-center gap-2 rounded-xl border border-border bg-background/45 px-3 text-sm font-bold"><Building2 className="size-4 shrink-0 text-primary" /><span className="truncate">{selectedEntry?.clinic.name}</span></div>}
-                    </div>
-                  </div>
+        </div>
+      </DialogHeader>
 
-                  <DialogFooter className="border-t border-border/60 pt-5">
-                    <Button type="button" variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={saveWorkingHour.isPending} onClick={() => { setEditor(null); setLocalError(''); saveWorkingHour.reset() }}><X />{t('workingHours.cancel')}</Button>
-                    <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={saveWorkingHour.isPending || !editor.clinicId}>{saveWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}{t(editor.mode === 'create' ? 'workingHours.create' : 'workingHours.save')}</Button>
-                  </DialogFooter>
-                </form>
-
-                {selectedEntry && (
-                  <div className="grid gap-2 border-t border-border/60 pt-5 sm:grid-cols-2">
-                    <Button type="button" variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={toggleWorkingHour.isPending || deleteWorkingHour.isPending} onClick={() => toggleWorkingHour.mutate({ entry: selectedEntry })}>{toggleWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : selectedEntry.workingHour.isActive ? <PowerOff /> : <Power />}{t(selectedEntry.workingHour.isActive ? 'workingHours.deactivate' : 'workingHours.activate')}</Button>
-                    <Button type="button" variant="destructive" className="h-11 rounded-xl text-sm font-bold normal-case" disabled={toggleWorkingHour.isPending || deleteWorkingHour.isPending} onClick={() => { deleteWorkingHour.reset(); setSuccess(''); setEditor(null); setDeleteTarget(selectedEntry) }}><Trash2 />{t('workingHours.delete')}</Button>
-                  </div>
-                )}
+      <div className="grid gap-6 p-6">
+        {(localError || saveWorkingHour.error || toggleWorkingHour.error) && <Notice message={localError || getErrorMessage(saveWorkingHour.error || toggleWorkingHour.error)} />}
+        <form className="grid min-w-0 gap-6" onSubmit={submitEditor}>
+          <div className="grid gap-2.5">
+            <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.day')}</Label>
+            {editor.mode === 'create' ? (
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                {orderedDays.map((day) => {
+                  const selected = String(day.id) === editor.dayId
+                  const unavailable = !availableClinics(day.name).length
+                  return (
+                    <button
+                      type="button"
+                      key={day.id}
+                      disabled={unavailable}
+                      aria-pressed={selected}
+                      onClick={() => updateEditorDay(String(day.id))}
+                      className={`h-11 cursor-pointer truncate rounded-xl border px-1 text-xs font-bold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${selected ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25' : 'border-border bg-background/40 text-foreground/80 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5'}`}
+                    >
+                      {dayLabel(day.name)}
+                    </button>
+                  )
+                })}
               </div>
-            </>
+            ) : (
+              <div className="flex h-12 items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-3.5 text-sm font-bold"><CalendarClock className="size-4 text-primary" />{dayLabel(editor.dayName)}</div>
+            )}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2.5">
+              <Label htmlFor="workingHourStart" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.startTime')}</Label>
+              <input id="workingHourStart" type="time" step={60} required value={editor.startTime} onChange={(event) => updateEditor('startTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+            </div>
+            <div className="grid gap-2.5">
+              <Label htmlFor="workingHourEnd" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.endTime')}</Label>
+              <input id="workingHourEnd" type="time" step={60} required value={editor.endTime} onChange={(event) => updateEditor('endTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+            </div>
+          </div>
+
+          <div className="grid gap-2.5">
+            <Label htmlFor="workingHourDuration" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.slotMinutes')}</Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <input id="workingHourDuration" type="number" min={1} max={1440} step={1} required value={editor.slotDurationMinutes} onChange={(event) => updateEditor('slotDurationMinutes', event.target.value)} className="h-12 w-28 rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+              {[15, 30, 45, 60].map((minutes) => (
+                <button
+                  type="button"
+                  key={minutes}
+                  aria-pressed={editor.slotDurationMinutes === String(minutes)}
+                  onClick={() => updateEditor('slotDurationMinutes', String(minutes))}
+                  className={`h-10 min-w-12 cursor-pointer rounded-full border px-3.5 text-xs font-bold tabular-nums transition-all ${editor.slotDurationMinutes === String(minutes) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background/40 text-muted-foreground hover:border-primary/40 hover:text-primary'}`}
+                >
+                  {minutes}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={`grid gap-4 ${selectedEntry ? 'sm:grid-cols-2' : ''}`}>
+            <div className="grid min-w-0 content-start gap-2.5">
+              <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.clinicLabel')}</Label>
+              {editor.mode === 'create' ? (
+                <Select items={editorClinicOptions.map((clinic) => ({ value: String(clinic.id), label: clinic.name }))} value={editor.clinicId || null} onValueChange={(value) => value && updateEditor('clinicId', value)}>
+                  <SelectTrigger className="h-12 w-full cursor-pointer gap-2.5 rounded-xl border border-border bg-background/40 px-3.5 text-sm shadow-sm transition-all hover:border-primary/40 hover:bg-primary/[0.03] focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20 data-[popup-open]:border-primary/50 data-[popup-open]:ring-2 data-[popup-open]:ring-primary/20">
+                    <Building2 className="size-4 text-primary/70" />
+                    <span className="h-5 w-px shrink-0 bg-border" />
+                    <SelectValue className="truncate font-bold text-foreground" placeholder={t('workingHours.chooseClinic')} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border border-border bg-popover p-1 shadow-lg">{editorClinicOptions.map((clinic) => <SelectItem className="cursor-pointer rounded-lg py-2 font-medium" key={clinic.id} value={String(clinic.id)}>{clinic.name}</SelectItem>)}</SelectContent>
+                </Select>
+              ) : (
+                <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold"><Building2 className="size-4 shrink-0 text-primary" /><span className="truncate">{selectedEntry?.clinic.name}</span></div>
+              )}
+            </div>
+
+            {selectedEntry && (
+              <div className="grid min-w-0 content-start gap-2.5">
+                <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.status', { defaultValue: 'Status' })}</Label>
+                <div
+                  title={selectedEntry.workingHour.isActive ? t('workingHours.statusActiveHint', { defaultValue: 'This schedule is accepting appointments.' }) : t('workingHours.statusInactiveHint', { defaultValue: 'This schedule is paused and not accepting appointments.' })}
+                  className={`flex h-12 items-center justify-between gap-3 rounded-xl border px-3.5 transition-colors ${selectedEntry.workingHour.isActive ? 'border-primary/20 bg-primary/5' : 'border-warm/30 bg-warm/10'}`}
+                >
+                  <span className="flex min-w-0 items-center gap-2.5 text-sm font-bold">
+                    <span className={`size-2 shrink-0 rounded-full ${selectedEntry.workingHour.isActive ? 'bg-primary shadow-[0_0_0_3px] shadow-primary/20' : 'bg-warm shadow-[0_0_0_3px] shadow-warm/20'}`} />
+                    <span className="truncate">{selectedEntry.workingHour.isActive ? t('workingHours.statusActive', { defaultValue: 'Active' }) : t('workingHours.statusInactive', { defaultValue: 'Inactive' })}</span>
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={selectedEntry.workingHour.isActive}
+                    aria-label={t(selectedEntry.workingHour.isActive ? 'workingHours.deactivate' : 'workingHours.activate')}
+                    disabled={toggleWorkingHour.isPending || deleteWorkingHour.isPending || saveWorkingHour.isPending}
+                    onClick={() => toggleWorkingHour.mutate({ entry: selectedEntry })}
+                    className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 ${selectedEntry.workingHour.isActive ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                  >
+                    <span className={`absolute top-0.5 grid size-6 place-items-center rounded-full bg-white shadow-md transition-all duration-200 ${selectedEntry.workingHour.isActive ? 'start-[1.375rem]' : 'start-0.5'}`}>
+                      {toggleWorkingHour.isPending && <LoaderCircle className="size-3.5 animate-spin text-primary motion-reduce:animate-none" />}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {editor.startTime && editor.endTime && editor.endTime > editor.startTime && Number(editor.slotDurationMinutes) > 0 && (
+            <div className="grid grid-cols-3 divide-x divide-primary/15 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/[0.04] to-transparent">
+              <div className="grid min-w-0 content-between gap-2 px-3 py-3 sm:px-4">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"><Clock3 className="size-3.5 shrink-0 text-primary" /><span className="truncate">{t('workingHours.summaryHours', { defaultValue: 'Working hours' })}</span></span>
+                <strong className="truncate text-sm font-bold tabular-nums sm:text-base" dir="ltr">{editor.startTime} - {editor.endTime}</strong>
+              </div>
+              <div className="grid min-w-0 content-between gap-2 px-3 py-3 sm:px-4">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"><Timer className="size-3.5 shrink-0 text-primary" /><span className="truncate">{t('workingHours.summaryDuration', { defaultValue: 'Per appointment' })}</span></span>
+                <strong className="truncate text-sm font-bold tabular-nums sm:text-base">{t('workingHours.minutesShort', { count: Number(editor.slotDurationMinutes), defaultValue: '{{count}} min' })}</strong>
+              </div>
+              <div className="grid min-w-0 content-between gap-2 bg-primary/[0.06] px-3 py-3 sm:px-4">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"><CalendarClock className="size-3.5 shrink-0 text-primary" /><span className="truncate">{t('workingHours.summarySlots', { defaultValue: 'Appointments' })}</span></span>
+                <strong className="text-2xl leading-none font-bold tabular-nums text-primary">{Math.floor((timeToMinutes(editor.endTime) - timeToMinutes(editor.startTime)) / Number(editor.slotDurationMinutes))}</strong>
+              </div>
+            </div>
           )}
-        </DialogContent>
+
+          <div className="flex flex-col-reverse gap-3 border-t border-border/60 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            {selectedEntry ? (
+              <button
+                type="button"
+                title={t('workingHours.delete')}
+                aria-label={t('workingHours.delete')}
+                disabled={toggleWorkingHour.isPending || deleteWorkingHour.isPending || saveWorkingHour.isPending}
+                onClick={() => { deleteWorkingHour.reset(); setSuccess(''); setEditor(null); setDeleteTarget(selectedEntry) }}
+                className="group/delete flex h-11 cursor-pointer items-center self-start overflow-hidden rounded-xl border border-destructive/20 bg-destructive/5 px-3.5 text-destructive transition-all duration-300 hover:border-destructive hover:bg-destructive hover:text-white hover:shadow-md hover:shadow-destructive/25 focus-visible:border-destructive focus-visible:bg-destructive focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/30 disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
+              >
+                <Trash2 className="size-[18px] shrink-0 transition-transform duration-300 group-hover/delete:-rotate-12 group-hover/delete:scale-110 group-focus-visible/delete:-rotate-12" />
+                <span className="ms-2 max-w-40 overflow-hidden text-sm font-bold whitespace-nowrap opacity-100 transition-all duration-300 sm:ms-0 sm:max-w-0 sm:opacity-0 sm:group-hover/delete:ms-2 sm:group-hover/delete:max-w-40 sm:group-hover/delete:opacity-100 sm:group-focus-visible/delete:ms-2 sm:group-focus-visible/delete:max-w-40 sm:group-focus-visible/delete:opacity-100">{t('workingHours.delete')}</span>
+              </button>
+            ) : <span />}
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+              <Button type="button" variant="outline" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending} onClick={() => { setEditor(null); setLocalError(''); saveWorkingHour.reset() }}><X />{t('workingHours.cancel')}</Button>
+              <Button type="submit" className="h-11 cursor-pointer rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending || !editor.clinicId}>{saveWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}{t(editor.mode === 'create' ? 'workingHours.create' : 'workingHours.save')}</Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </>
+  )}
+</DialogContent>
       </Dialog>
 
       <ConfirmationDialog

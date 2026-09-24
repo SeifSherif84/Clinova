@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Bell, CheckCheck, Inbox, LoaderCircle, MailOpen, RefreshCw } from 'lucide-react'
+import { Bell, CheckCheck, LoaderCircle, MailOpen, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import { Badge } from '@/components/ui/badge'
@@ -75,7 +75,7 @@ function NotificationContent() {
             <div className="relative grid place-items-center">
               <span className="absolute size-24 animate-ping rounded-full bg-primary/10 motion-reduce:animate-none" />
               <span className="relative grid size-20 place-items-center rounded-3xl bg-primary/10 text-primary shadow-inner">
-                <Inbox className="size-9" />
+                <Bell className="size-9" />
               </span>
             </div>
             <h2 className="mt-6 font-heading text-2xl font-bold sm:text-3xl">{t('notifications.emptyTitle')}</h2>
@@ -100,21 +100,21 @@ function NotificationRow({ item, language }: { item: NotificationItem; language?
   const isMarking = state.markingId === item.id
 
   return (
-    <Card className={`grid gap-4 rounded-2xl border p-5 sm:grid-cols-[auto_1fr_auto] sm:items-start ${item.isRead ? 'border-border bg-card' : 'border-warm/20 bg-warm/5'}`}>
-      <span className={`grid size-11 place-items-center rounded-xl ${item.isRead ? 'bg-muted text-muted-foreground' : 'bg-warm/10 text-warm'}`}>
+    <Card className={`grid gap-4 rounded-2xl border p-5 transition hover:border-primary/30 hover:bg-primary/[0.06] sm:grid-cols-[auto_1fr_auto] sm:items-start ${item.isRead ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'}`}>
+      <span className={`grid size-11 place-items-center rounded-xl ${item.isRead ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
         <Bell className="size-5" />
       </span>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-sans text-lg font-bold leading-tight">{item.title}</h2>
           {!item.isRead && (
-            <Badge className="rounded-full border border-warm/20 bg-warm/10 px-2.5 py-1 text-[10px] font-bold text-warm">
+            <Badge className="rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
               {t('notifications.new')}
             </Badge>
           )}
         </div>
-        <p className="mt-1 text-xs leading-6 text-muted-foreground sm:text-sm">{item.message}</p>
-        <small className="mt-2 block text-[11px] text-muted-foreground">{new Date(item.createdAt).toLocaleString(language)}</small>
+        <p className="mt-1 text-xs font-bold leading-6 text-muted-foreground sm:text-sm">{item.message}</p>
+        <small className="mt-2 block text-[11px] font-bold text-muted-foreground">{new Date(item.createdAt).toLocaleString(language)}</small>
       </div>
       <div className="flex flex-wrap gap-2 sm:justify-end">
         {isInvitation && (

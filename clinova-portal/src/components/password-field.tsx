@@ -32,7 +32,7 @@ export default function PasswordField({ label, hint, error, id, ...props }: Pass
           {visible ? <EyeOff size={18} /> : <Eye size={18} />}
         </Button>
       </div>
-      {(hint || error) && <small className={`min-w-0 break-words text-[11px] leading-4 ${error ? 'text-destructive' : 'text-muted-foreground'}`}>{error ?? hint}</small>}
+      {(hint || error) && <small className={`min-w-0 break-words text-[11px] leading-4 font-bold ${error ? 'text-destructive' : 'text-muted-foreground'}`}>{error ?? hint}</small>}
     </div>
   )
 }

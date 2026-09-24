@@ -2,6 +2,7 @@ import { HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/s
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { toast } from 'sonner'
+import { Bell, MailOpen, X } from 'lucide-react'
 import { useApi } from '@/hooks/use-api'
 import { useAuth } from '@/hooks/use-auth'
 import { API_BASE_URL } from '@/lib/api'
@@ -14,12 +15,9 @@ const notificationQueryKey = ['notifications'] as const
 const invitationsUrl = '/doctor/invitations'
 
 function showLiveNotificationToast(notification: NotificationItem) {
-  if (!notification.type.startsWith('Invitation')) {
-    toast(notification.title, { description: notification.message, duration: 7000 })
-    return
-  }
-
+  const isInvitation = notification.type.startsWith('Invitation')
   const toastReference: { id?: string | number } = {}
+
   const navigateToInvitations = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
 
@@ -28,16 +26,47 @@ function showLiveNotificationToast(notification: NotificationItem) {
     void router.navigate({ to: invitationsUrl })
   }
 
+  const dismiss = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (toastReference.id !== undefined) toast.dismiss(toastReference.id)
+  }
+
+  const CardContent = (
+    <div className="relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-primary/25 bg-card p-4 pe-11 shadow-xl">
+      <span className="pointer-events-none absolute inset-0 bg-primary/[0.05]" />
+      <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm">
+        {isInvitation ? <MailOpen className="size-5" strokeWidth={2.25} /> : <Bell className="size-5" strokeWidth={2.25} />}
+      </span>
+      <div className="relative min-w-0 flex-1">
+        <strong className="block text-base font-bold leading-tight text-foreground">{notification.title}</strong>
+        <span className="mt-1 block text-sm font-bold leading-5 text-muted-foreground">{notification.message}</span>
+      </div>
+      <button
+        type="button"
+        onClick={dismiss}
+        className="absolute end-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground/60 outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
+        aria-label="Dismiss"
+      >
+        <X className="size-4" />
+      </button>
+    </div>
+  )
+
+  if (!isInvitation) {
+    toastReference.id = toast(CardContent, { duration: 7000, unstyled: true, closeButton: false })
+    return
+  }
+
   toastReference.id = toast(
     <a
       href={invitationsUrl}
-      className="block w-full rounded-md text-start outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      className="block w-full text-start outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:rounded-2xl"
       onClick={navigateToInvitations}
     >
-      <strong className="block text-sm text-foreground">{notification.title}</strong>
-      <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">{notification.message}</span>
+      {CardContent}
     </a>,
-    { duration: 7000, className: 'cursor-pointer' },
+    { duration: 7000, unstyled: true, closeButton: false, className: 'cursor-pointer' },
   )
 }
 

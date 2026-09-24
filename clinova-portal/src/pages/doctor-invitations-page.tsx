@@ -36,7 +36,7 @@ function statusClass(status: string) {
     case 'rejected':
       return 'border-destructive/20 bg-destructive/10 text-destructive'
     default:
-      return 'border-warm/20 bg-warm/10 text-warm'
+      return 'border-border bg-muted text-muted-foreground'
   }
 }
 
@@ -132,7 +132,7 @@ export default function DoctorInvitationsPage() {
   <Button
     type="button"
     variant={view === 'received' ? 'default' : 'ghost'}
-    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal"
+    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
     aria-pressed={view === 'received'}
     onClick={() => {
       setView('received')
@@ -147,7 +147,7 @@ export default function DoctorInvitationsPage() {
   <Button
     type="button"
     variant={view === 'sent' ? 'default' : 'ghost'}
-    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal"
+    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
     aria-pressed={view === 'sent'}
     onClick={() => {
       setView('sent')
@@ -179,7 +179,7 @@ export default function DoctorInvitationsPage() {
                 <X className="size-6" />
               </span>
               <p className="mt-4 text-sm font-bold text-destructive">{getErrorMessage(activeQuery.error)}</p>
-              <Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case tracking-normal" variant="outline" onClick={() => activeQuery.refetch()}>
+              <Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case tracking-normal cursor-pointer" variant="outline" onClick={() => activeQuery.refetch()}>
                 <RefreshCw />
                 {t('invitations.retry')}
               </Button>
@@ -211,84 +211,83 @@ export default function DoctorInvitationsPage() {
                   : (invitation as SentInvitation).receiverName
 
                 return (
-<Card key={invitation.id} className="self-start rounded-2xl border border-border bg-card transition hover:border-primary/30 hover:bg-primary/5">
-  <CardContent className="grid h-full gap-5">
+<Card key={invitation.id} className="h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+  <CardContent className="flex h-full flex-col gap-4">
     <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-          {view === 'received' ? <Inbox className="size-6" /> : <Send className="size-6" />}
+          <UserRound className="size-6" />
         </span>
-        <div>
-          <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+        <div className="min-w-0">
+          <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
             {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
           </small>
-          <h2 className="flex items-center gap-1.5 font-sans text-lg font-bold leading-tight">
-            <UserRound className="size-4 shrink-0 text-primary" />
-            {personName}
-          </h2>
+          <h2 className="truncate font-sans text-lg font-bold leading-tight">{personName}</h2>
         </div>
       </div>
-<Badge className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>
-  {t(statusKey(invitation.status))}
-</Badge>
+      <Badge className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>
+        {t(statusKey(invitation.status))}
+      </Badge>
     </div>
 
-    <div className="rounded-xl bg-background p-3">
-      <small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-muted-foreground uppercase">
-        <Building2 className="size-4" />
-        {t('invitations.clinic')}
-      </small>
-      <strong className="mt-1 block text-sm">{invitation.clinicName}</strong>
+    <div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-muted/30">
+      <div className="flex items-center gap-3 px-3 py-2.5">
+        <Building2 className="size-4 shrink-0 text-primary" />
+        <div className="min-w-0 flex-1">
+          <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('invitations.clinic')}</small>
+          <strong className="block truncate text-sm font-bold">{invitation.clinicName}</strong>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 px-3 py-2.5">
+        <Clock3 className="size-4 shrink-0 text-primary" />
+        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-muted-foreground">
+          {t('invitations.sentAt', { date: formatDate(invitation.sentAt) })}
+        </span>
+      </div>
     </div>
 
-<div className="flex flex-wrap gap-2 text-[11px] font-bold text-muted-foreground">
-  <span className="inline-flex items-center gap-1.5 rounded-full bg-background/60 px-2.5 py-1">
-    <Clock3 className="size-3 text-primary" />
-    {t('invitations.sentAt', { date: formatDate(invitation.sentAt) })}
-  </span>
-  {invitation.respondedAt && (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-1 text-primary">
-      <Check className="size-3" />
-      {t('invitations.respondedAt', { date: formatDate(invitation.respondedAt) })}
-    </span>
-  )}
-</div>
-
-    {isPending(invitation.status) && (
-      <div className="mt-auto flex flex-wrap gap-2">
-        {view === 'received' ? (
-          <>
-            <Button
-              className="h-11 flex-1 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90"
-              disabled={action.isPending}
-              onClick={() => runAction(invitation.id, 'accept')}
-            >
-              {isActingOn(invitation.id, 'accept') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Check />}
-              {t('invitations.accept')}
-            </Button>
+    <div className="mt-auto">
+      {isPending(invitation.status) ? (
+        <div className="flex flex-wrap gap-2">
+          {view === 'received' ? (
+            <>
+              <Button
+                className="h-10 flex-1 gap-1.5 rounded-xl bg-primary text-sm font-semibold normal-case tracking-normal text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-[0.98] cursor-pointer"
+                disabled={action.isPending}
+                onClick={() => runAction(invitation.id, 'accept')}
+              >
+                {isActingOn(invitation.id, 'accept') ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Check className="size-4" />}
+                {t('invitations.accept')}
+              </Button>
+              <Button
+                variant="destructive"
+                className="h-10 flex-1 gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-semibold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98] cursor-pointer"
+                disabled={action.isPending}
+                onClick={() => runAction(invitation.id, 'reject')}
+              >
+                {isActingOn(invitation.id, 'reject') ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <X className="size-4" />}
+                {t('invitations.reject')}
+              </Button>
+            </>
+          ) : (
             <Button
               variant="destructive"
-              className="h-11 flex-1 rounded-xl text-sm font-bold normal-case"
+              className="h-10 w-full gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-semibold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98] cursor-pointer"
               disabled={action.isPending}
-              onClick={() => runAction(invitation.id, 'reject')}
+              onClick={() => runAction(invitation.id, 'cancel')}
             >
-              {isActingOn(invitation.id, 'reject') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}
-              {t('invitations.reject')}
+              {isActingOn(invitation.id, 'cancel') ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <X className="size-4" />}
+              {t('invitations.cancel')}
             </Button>
-          </>
-        ) : (
-          <Button
-            variant="destructive"
-            className="h-11 w-full rounded-xl text-sm font-bold normal-case"
-            disabled={action.isPending}
-            onClick={() => runAction(invitation.id, 'cancel')}
-          >
-            {isActingOn(invitation.id, 'cancel') ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}
-            {t('invitations.cancel')}
-          </Button>
-        )}
-      </div>
-    )}
+          )}
+        </div>
+      ) : invitation.respondedAt && (
+        <div className={`flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-xs font-semibold ${invitation.status.toLowerCase() === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
+          {invitation.status.toLowerCase() === 'rejected' ? <X className="size-4 shrink-0" /> : <Check className="size-4 shrink-0" />}
+          <span className="truncate">{t('invitations.respondedAt', { date: formatDate(invitation.respondedAt) })}</span>
+        </div>
+      )}
+    </div>
   </CardContent>
 </Card>
                 )
