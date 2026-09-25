@@ -143,6 +143,7 @@ namespace Services.Payments
             // 9. Get Clinic
             // --------------------------------------------------
 
+            // check clinic doctor , member
             var clinicId = appointment.AppointmentSlot.ClinicId;
 
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();

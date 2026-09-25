@@ -50,10 +50,20 @@ namespace Presentation.Controllers.Appointments
 
         [Authorize(Roles = "Patient")]
         [HttpPatch("{appointmentId}/cancel")]
-        public async Task<IActionResult> CancelAppointment([FromRoute] int appointmentId)
+        public async Task<IActionResult> CancelAppointmentByPatient([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.CancelAppointmentAsync(userId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.CancelAppointmentByPatientAsync(userId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{appointmentId}/doctor-cancel")]
+        public async Task<IActionResult> CancelAppointmentByDoctor([FromRoute] int appointmentId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.CancelAppointmentByDoctorAsync(userId ?? string.Empty, appointmentId);
             return Ok(response);
         }
 

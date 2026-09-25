@@ -74,6 +74,6 @@ namespace Services
         public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _cancellationPolicy, _refundService);
         public IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; } = new ClinicOnlinePaymentAccountService(_unitOfWork, _paymentCredentialEncryptor);
         public IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; } = new ClinicPaymentIntegrationService(_unitOfWork);
-        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService);
+        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService, _refundService);
     }
 }

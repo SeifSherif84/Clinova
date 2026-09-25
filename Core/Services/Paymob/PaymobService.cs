@@ -120,7 +120,7 @@ namespace Services.Paymob
 
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                "/api/acceptance/void_refund/refund");
+                $"{_paymobSettings.BaseUrl}/api/acceptance/void_refund/refund");
 
             httpRequest.Headers.Authorization =
                 new AuthenticationHeaderValue("Token", secretKey);
@@ -243,8 +243,14 @@ namespace Services.Paymob
             // Refund confirmed
             // ---------------------------------------------------------
 
-            if (refundResponse.IsRefunded &&
-                refundedAmount >= amountCents)
+            var refundConfirmed =
+    refundResponse.Success &&
+    !refundResponse.Pending &&
+    refundResponse.IsRefund &&
+    refundResponse.AmountCents == amountCents &&
+    refundResponse.ParentTransaction == transactionId;
+
+            if (refundConfirmed)
             {
                 return new RefundResult
                 {
@@ -514,8 +520,7 @@ namespace Services.Paymob
             }
 
             var token =
-                result.Token ??
-                result.AuthToken;
+                result.Token;
 
             if (string.IsNullOrWhiteSpace(token))
             {

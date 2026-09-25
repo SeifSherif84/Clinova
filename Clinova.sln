@@ -30,7 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{0C0C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Paymob test", "Paymob test", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
-		paymob-test.html = paymob-test.html
+		PaymobTest.html = PaymobTest.html
 	EndProjectSection
 EndProject
 Global

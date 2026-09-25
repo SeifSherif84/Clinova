@@ -77,7 +77,7 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(2),
                 FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
                 BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };
@@ -154,14 +154,14 @@ namespace Services.Appointments
                 throw new NotFoundException("The appointment was not found.");
 
             if (appointment.PatientId != userId)
-                throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
+                throw new ResourceAccessDeniedException("You are not authorized to get this appointment.");
 
             return _mapper.Map<PatientAppointmentDetailsResponse>(appointment);
         }
 
 
 
-        public async Task<CancelAppointmentResponse> CancelAppointmentAsync(string userId, int appointmentId)
+        public async Task<CancelAppointmentResponse> CancelAppointmentByPatientAsync(string userId, int appointmentId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -366,13 +366,6 @@ namespace Services.Appointments
         }
 
 
-        private static DateTime GetAppointmentStartUtc(Appointment appointment)
-        {
-            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
-            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-        }
-
 
         private static bool IsFullRefundEligible(Appointment appointment)
         {
@@ -385,6 +378,18 @@ namespace Services.Appointments
             var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes);
             return nowUtc <= fullRefundDeadlineUtc;
         }
+
+        private static DateTime GetAppointmentStartUtc(Appointment appointment)
+        {
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
+            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+        }
+
+
+
+
+
 
 
 
@@ -414,7 +419,6 @@ namespace Services.Appointments
             return response;
         }
 
-
         private static string FormatDuration(int minutes)
         {
             if (minutes < 60)
@@ -432,6 +436,7 @@ namespace Services.Appointments
                    $"1 hour and {remainingMinutes} minutes" : 
                    $"{hours} hours and {remainingMinutes} minutes";
         }
+
 
 
 
@@ -458,6 +463,235 @@ namespace Services.Appointments
 
             await _unitOfWork.SaveChangesAsync();
         }
+
+
+
+        public async Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(
+    string doctorId,
+    int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(doctorId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var doctor = await _unitOfWork
+                .GetRepository<Doctor, string>()
+                .GetByIdAsync(doctorId);
+
+            if (doctor is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            var appointmentRepo =
+                _unitOfWork.GetRepository<Appointment, int>();
+
+            var appointmentSpec =
+                AppointmentSpecifications.ForCancellation(appointmentId);
+
+            var appointment =
+                await appointmentRepo.GetByIdAsync(appointmentSpec);
+
+
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+
+            // ---------------------------------------------------------
+            // Verify that this appointment belongs to this doctor
+            // ---------------------------------------------------------
+
+            if (appointment.AppointmentSlot.DoctorId != doctorId)
+                throw new ResourceAccessDeniedException(
+                    "You are not authorized to cancel this appointment.");
+
+
+            var clinicId = appointment.AppointmentSlot.ClinicId;
+
+            var doctorClinicRepo = _unitOfWork.GetRepository<DoctorClinic>();
+
+            var doctorClinic = await doctorClinicRepo
+                .GetByCompositeKeyAsync(doctorId, clinicId);
+
+            if (doctorClinic is null)
+            {
+                throw new ForbiddenException(
+                    "You are no longer a member of this clinic and are not authorized to cancel this appointment.");
+            }
+
+
+
+            // ---------------------------------------------------------
+            // Doctor can only cancel a confirmed appointment.
+            //
+            // PendingPayment appointments are intentionally ignored.
+            // They are not real confirmed bookings yet.
+            // ---------------------------------------------------------
+
+            if (appointment.Status != AppointmentStatus.Confirmed)
+                throw new BadRequestException(
+                    "Only confirmed appointments can be cancelled by the doctor.");
+
+
+            // ---------------------------------------------------------
+            // Payment must actually be completed.
+            // ---------------------------------------------------------
+
+            var payment = appointment.Payment;
+
+            if (payment is null)
+                throw new InternalServerErrorException(
+                    "The payment associated with this appointment could not be found.");
+
+
+            if (payment.Status != PaymentStatus.Paid)
+                throw new BadRequestException(
+                    "Only appointments with a completed payment can be cancelled by the doctor.");
+
+
+            // ---------------------------------------------------------
+            // Slot must be booked.
+            // ---------------------------------------------------------
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
+                throw new BadRequestException(
+                    "The appointment slot is not currently booked.");
+
+
+            // ---------------------------------------------------------
+            // Cancel Appointment
+            // ---------------------------------------------------------
+
+            appointment.Status = AppointmentStatus.Cancelled;
+
+
+            // ---------------------------------------------------------
+            // Release booked slot
+            // ---------------------------------------------------------
+
+            appointment.AppointmentSlot.Status =
+                SlotStatus.Available;
+
+
+            // ---------------------------------------------------------
+            // Save cancellation first.
+            //
+            // Payment remains Paid at this point.
+            // RefundService will change it to Refunded only
+            // after Paymob confirms the refund.
+            // ---------------------------------------------------------
+
+            try
+            {
+                var result =
+                    await _unitOfWork.SaveChangesAsync();
+
+                if (result == 0)
+                {
+                    throw new InternalServerErrorException(
+                        "We couldn't cancel the appointment right now. Please try again later.");
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new BadRequestException(
+                    "This appointment was modified by another operation. Please refresh and try again.");
+            }
+
+
+            // ---------------------------------------------------------
+            // Clinic cancellation always gets a full refund.
+            //
+            // Unlike patient cancellation, we do NOT check:
+            // - 10-minute booking grace period
+            // - 2-hour cancellation window
+            //
+            // Clinic/Doctor cancellation = full deposit refund.
+            // ---------------------------------------------------------
+
+            var refundResult =
+                await _refundService.RefundPaymentAsync(
+                    payment.Id,
+                    RefundReason.ClinicCancellation);
+
+
+            // ---------------------------------------------------------
+            // Refund successfully processed
+            // ---------------------------------------------------------
+
+            if (refundResult.Succeeded)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+
+                    RefundEligible = true,
+                    RefundEligibility =
+                        RefundEligibilityStatus.Eligible.ToString(),
+
+                    RefundStatus =
+                        RefundStatus.Succeeded.ToString(),
+
+                    RefundAmount =
+                        appointment.DepositAmount,
+
+                    Message =
+                        "The appointment has been cancelled and the patient's deposit refund has been processed successfully."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Refund result is uncertain.
+            // ---------------------------------------------------------
+
+            if (refundResult.PendingVerification)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+
+                    RefundEligible = true,
+                    RefundEligibility =
+                        RefundEligibilityStatus.Eligible.ToString(),
+
+                    RefundStatus =
+                        RefundStatus.PendingVerification.ToString(),
+
+                    RefundAmount =
+                        appointment.DepositAmount,
+
+                    Message =
+                        "The appointment has been cancelled. The patient's refund is being processed and will be confirmed shortly."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Paymob definitely rejected the refund.
+            // ---------------------------------------------------------
+
+            return new CancelAppointmentResponse
+            {
+                AppointmentId = appointment.Id,
+                AppointmentStatus = appointment.Status.ToString(),
+
+                RefundEligible = true,
+                RefundEligibility =
+                    RefundEligibilityStatus.Eligible.ToString(),
+
+                RefundStatus =
+                    RefundStatus.Failed.ToString(),
+
+                RefundAmount =
+                    appointment.DepositAmount,
+
+                Message =
+                    "The appointment has been cancelled, but we could not process the patient's refund at this time. The refund will be retried after verification."
+            };
+        }
+
+
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string doctorId, int clinicId)
         {
