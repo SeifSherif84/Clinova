@@ -9,13 +9,16 @@ using Domain.Exceptions.NotFound;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Services.Abstractions.Appointments;
 using Services.Abstractions.AppointmentSlots;
+using Services.Abstractions.Paymob;
 using Services.Commen;
 using Services.Specifications.Appointments;
 using Services.Specifications.AppointmentSlots;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.Appointments;
+using Shared.Dtos.ClinovaSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +28,15 @@ using System.Threading.Tasks;
 namespace Services.Appointments
 {
     public class AppointmentService(IUnitOfWork _unitOfWork,
-                                    IMapper _mapper) : IAppointmentService
+                                    IMapper _mapper,
+                                    IOptions<CancellationPolicySettings> _cancellationPolicyOptions,
+                                    IRefundService _refundService) : IAppointmentService
     {
+        private readonly CancellationPolicySettings _cancellationPolicy = _cancellationPolicyOptions.Value;
+
+
+
+
         public async Task<string> CreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -67,7 +77,9 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30)
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
+                BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };
 
             appointment.Payment = new Payment
@@ -103,6 +115,8 @@ namespace Services.Appointments
 
 
 
+
+
         public async Task<IEnumerable<PatientAppointmentResponse>> GetPatientAppointmentsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -120,6 +134,7 @@ namespace Services.Appointments
 
             return _mapper.Map<IEnumerable<PatientAppointmentResponse>>(appointments);
         }
+
 
 
 
@@ -146,7 +161,7 @@ namespace Services.Appointments
 
 
 
-        public async Task<string> CancelAppointmentAsync(string userId, int appointmentId)
+        public async Task<CancelAppointmentResponse> CancelAppointmentAsync(string userId, int appointmentId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -157,13 +172,13 @@ namespace Services.Appointments
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
             var appointmentSpec = AppointmentSpecifications.ForCancellation(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+            var appointment =  await appointmentRepo.GetByIdAsync(appointmentSpec);
+
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
-
 
             if (appointment.Status == AppointmentStatus.Cancelled)
                 throw new BadRequestException("This appointment has already been cancelled.");
@@ -177,23 +192,245 @@ namespace Services.Appointments
             if (appointment.Status == AppointmentStatus.Expired)
                 throw new BadRequestException("This appointment has already expired.");
 
-            // TODO: Replace with refund logic when refund support is implemented.
-            if (appointment.Payment.Status == PaymentStatus.Paid)
-                throw new BadRequestException("A paid appointment cannot be cancelled at this time.");
+            if (appointment.Status != AppointmentStatus.PendingPayment && appointment.Status != AppointmentStatus.Confirmed)
+                throw new BadRequestException("This appointment cannot be cancelled at its current status.");
 
+
+            // ---------------------------------------------------------
+            // Determine payment and refund eligibility
+            // ---------------------------------------------------------
+
+            var payment = appointment.Payment;
+
+            if (payment is null)
+                throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
+
+            var isPaymentPaid = payment.Status == PaymentStatus.Paid;
+            var isFullRefundEligible = isPaymentPaid && IsFullRefundEligible(appointment);
+
+
+            // ---------------------------------------------------------
+            // Cancel Appointment
+            // ---------------------------------------------------------
 
             appointment.Status = AppointmentStatus.Cancelled;
-            appointment.Payment.Status = PaymentStatus.Cancelled;
 
-            if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
+
+            // ---------------------------------------------------------
+            // Cancel unpaid payment
+            //
+            // Paid payment must remain Paid until the actual refund
+            // is successfully processed by Paymob.
+            // ---------------------------------------------------------
+
+            if (!isPaymentPaid)
+                payment.Status = PaymentStatus.Cancelled;
+
+
+
+            // ---------------------------------------------------------
+            // Release appointment slot
+            // ---------------------------------------------------------
+
+            if (appointment.AppointmentSlot.Status == SlotStatus.Reserved || appointment.AppointmentSlot.Status == SlotStatus.Booked)
                 appointment.AppointmentSlot.Status = SlotStatus.Available;
 
-            var result = await _unitOfWork.SaveChangesAsync();
 
-            if (result == 0)
-                throw new InternalServerErrorException("We couldn't cancel your appointment right now. Please try again later.");
+            // ---------------------------------------------------------
+            // Save cancellation first
+            // ---------------------------------------------------------
 
-            return "Your appointment has been cancelled successfully.";
+            try
+            {
+                var result = await _unitOfWork.SaveChangesAsync();
+
+                if (result == 0)
+                {
+                    throw new InternalServerErrorException(
+                        "We couldn't cancel your appointment right now. Please try again later.");
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new BadRequestException(
+                    "This appointment was modified by another operation. Please refresh and try again.");
+            }
+
+
+            // ---------------------------------------------------------
+            // Payment was never completed
+            // ---------------------------------------------------------
+
+            if (!isPaymentPaid)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+                    RefundEligible = false,
+                    RefundEligibility = RefundEligibilityStatus.NotApplicable.ToString(),
+                    RefundStatus = null,
+                    RefundAmount = 0,
+                    Message = "Your appointment has been cancelled successfully."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Payment was completed but cancellation is not
+            // eligible for refund.
+            // ---------------------------------------------------------
+
+            if (!isFullRefundEligible)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+                    RefundEligible = false,
+                    RefundEligibility = RefundEligibilityStatus.NotEligible.ToString(),
+                    RefundStatus = null,
+                    RefundAmount = 0,
+                    Message = "Your appointment has been cancelled. According to Clinova's cancellation policy, this payment is not eligible for a refund."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Payment was completed and patient is eligible for refund.
+            //
+            // Do NOT mark Payment as Refunded here.
+            // RefundService will call Paymob and update the payment
+            // only after the refund is confirmed.
+            // ---------------------------------------------------------
+
+            var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.PatientCancellation);
+
+
+            // ---------------------------------------------------------
+            // Refund successfully processed
+            // ---------------------------------------------------------
+
+            if (refundResult.Succeeded)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+                    RefundEligible = true,
+                    RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                    RefundStatus = RefundStatus.Succeeded.ToString(),
+                    RefundAmount = appointment.DepositAmount,
+                    Message = "Your appointment has been cancelled and your deposit refund has been processed successfully."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Paymob result could not be safely confirmed.
+            //
+            // IMPORTANT:
+            // Do not retry the refund immediately.
+            // RefundService will keep it in PendingVerification.
+            // ---------------------------------------------------------
+
+            if (refundResult.PendingVerification)
+            {
+                return new CancelAppointmentResponse
+                {
+                    AppointmentId = appointment.Id,
+                    AppointmentStatus = appointment.Status.ToString(),
+                    RefundEligible = true,
+                    RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                    RefundStatus = RefundStatus.PendingVerification.ToString(),
+                    RefundAmount = appointment.DepositAmount,
+                    Message = "Your appointment has been cancelled. Your refund is being processed and will be confirmed shortly."
+                };
+            }
+
+
+            // ---------------------------------------------------------
+            // Paymob definitely rejected the refund request.
+            // ---------------------------------------------------------
+
+            return new CancelAppointmentResponse
+            {
+                AppointmentId = appointment.Id,
+                AppointmentStatus = appointment.Status.ToString(),
+                RefundEligible = true,
+                RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                RefundStatus = RefundStatus.Failed.ToString(),
+                RefundAmount = appointment.DepositAmount,
+                Message = "Your appointment has been cancelled, but we could not process the refund at this time. The refund will be retried after verification."
+            };
+        }
+
+
+        private static DateTime GetAppointmentStartUtc(Appointment appointment)
+        {
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
+            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+        }
+
+
+        private static bool IsFullRefundEligible(Appointment appointment)
+        {
+            var nowUtc = DateTime.UtcNow;
+            var bookingGracePeriodEndsAtUtc = appointment.BookingDate.AddMinutes(appointment.BookingCancellationGracePeriodMinutes);
+            if (nowUtc <= bookingGracePeriodEndsAtUtc)
+                return true;
+
+            var appointmentStartUtc = GetAppointmentStartUtc(appointment);
+            var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes);
+            return nowUtc <= fullRefundDeadlineUtc;
+        }
+
+
+
+        public CancellationPolicyResponse GetCancellationPolicyAsync()
+        {
+            var cancellationWindow = FormatDuration(_cancellationPolicy.FullRefundCancellationWindowMinutes);
+
+            var gracePeriod = FormatDuration(_cancellationPolicy.BookingCancellationGracePeriodMinutes);
+
+            var response = new CancellationPolicyResponse
+            {
+                FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
+                BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes,
+
+                FullRefundCancellationDescription = $"You will receive a full refund if you cancel your appointment at least " +
+                                                    $"{cancellationWindow} before the appointment.",
+
+                BookingGracePeriodDescription = $"You will receive a full refund if you cancel within " +
+                                                $"{gracePeriod} of booking.",
+
+                NoRefundDescription = $"Cancellations made less than {cancellationWindow} before the appointment " +
+                                      $"after the booking grace period are not eligible for a refund.",
+
+                ClinicCancellationDescription = "If the clinic cancels your confirmed appointment, your deposit will be fully refunded."
+            };
+
+            return response;
+        }
+
+
+        private static string FormatDuration(int minutes)
+        {
+            if (minutes < 60)
+                return $"{minutes} minutes";
+
+            var hours = minutes / 60;
+            var remainingMinutes = minutes % 60;
+
+            if (remainingMinutes == 0)
+                return hours == 1 ?
+                       "1 hour" :
+                       $"{hours} hours";
+
+            return hours == 1 ? 
+                   $"1 hour and {remainingMinutes} minutes" : 
+                   $"{hours} hours and {remainingMinutes} minutes";
         }
 
 
@@ -221,8 +458,6 @@ namespace Services.Appointments
 
             await _unitOfWork.SaveChangesAsync();
         }
-
-
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string doctorId, int clinicId)
         {

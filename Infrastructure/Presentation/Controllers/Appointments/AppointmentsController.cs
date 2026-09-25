@@ -58,5 +58,14 @@ namespace Presentation.Controllers.Appointments
         }
 
 
+        [Authorize(Roles = "Patient")]
+        [HttpGet("cancellation-policy")]
+        public IActionResult GetCancellationPolicy()
+        {
+            var response = _serviceManager.AppointmentService.GetCancellationPolicyAsync();
+            return Ok(response);
+        }
+
+
     }
 }

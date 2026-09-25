@@ -33,5 +33,10 @@ namespace Shared.Dtos.Appointments
         public string PaymentStatus { get; set; } = null!;
 
         public DateTime ReservationExpiresAt { get; set; }
+
+
+        // Cancellation & Refund Policy Snapshot
+        public int FullRefundCancellationWindowMinutes { get; set; }
+        public int BookingCancellationGracePeriodMinutes { get; set; }
     }
 }

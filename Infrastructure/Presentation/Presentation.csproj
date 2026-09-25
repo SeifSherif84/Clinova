@@ -14,4 +14,8 @@
     <ProjectReference Include="..\..\Core\Services.Abstractions\Services.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\PaymobWebhook\" />
+  </ItemGroup>
+
 </Project>

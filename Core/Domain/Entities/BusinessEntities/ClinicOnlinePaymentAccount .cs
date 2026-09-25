@@ -14,18 +14,20 @@ namespace Domain.Entities.BusinessEntities
 
 
         // Paymob Merchant ID (MID)
-        public string MerchantId { get; set; } = null!;
+        public string? MerchantId { get; set; }
 
         public OnlinePaymentAccountStatus Status { get; set; } = OnlinePaymentAccountStatus.NotConfigured;
-
+        public PaymentConfigurationIssueCode? LastConfigurationIssueCode { get; set; }
+        public DateTime? LastConfigurationIssueAt { get; set; }
 
         // Paymob Credentials
-        public string? PublicKey { get; set; }
+        public string PublicKey { get; set; } = null!;
 
         // IMPORTANT:
-        // SecretKey and HmacSecret should be encrypted at rest.
+        // SecretKey, HmacSecret and ApiKey should be encrypted at rest.
         public string SecretKey { get; set; } = null!;
         public string HmacSecret { get; set; } = null!;
+        public string ApiKey { get; set; } = null!;
 
 
         // Supported Paymob Integrations

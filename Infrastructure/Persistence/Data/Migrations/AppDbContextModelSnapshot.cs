@@ -214,7 +214,6 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MerchantId")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar");
 
@@ -236,7 +235,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId", "Provider")
                         .IsUnique();
 
-                    b.ToTable("ClinicOnlinePaymentAccount");
+                    b.ToTable("ClinicOnlinePaymentAccounts");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentIntegration", b =>
@@ -264,7 +263,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicOnlinePaymentAccountId", "PaymentMethod")
                         .IsUnique();
 
-                    b.ToTable("ClinicPaymentIntegration");
+                    b.ToTable("ClinicPaymentIntegrations");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPhoneNumbers", b =>

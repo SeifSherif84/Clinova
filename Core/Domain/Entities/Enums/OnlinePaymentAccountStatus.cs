@@ -12,6 +12,7 @@ namespace Domain.Entities.Enums
         PendingVerification,
         Ready,
         Restricted,
-        Disabled
+        Disabled,
+        NeedsAttention
     }
 }

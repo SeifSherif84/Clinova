@@ -373,6 +373,8 @@ namespace Services.Abstractions.Clinics
             return doctorClinicAccess;
         }
 
+
+
         public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId)
         {
             if (string.IsNullOrWhiteSpace(userId))

@@ -40,9 +40,10 @@ namespace Services.ClinicOnlinePaymentAccounts
             var onlinePaymentAccount = new ClinicOnlinePaymentAccount()
             {
                 Provider = OnlinePaymentProvider.Paymob,
-                MerchantId = request.MerchantId.Trim(),
+                PublicKey = request.PublicKey.Trim(),
                 SecretKey = _credentialProtector.Encrypt(request.SecretKey.Trim()),
                 HmacSecret = _credentialProtector.Encrypt(request.HmacSecret.Trim()),
+                ApiKey = _credentialProtector.Encrypt(request.ApiKey.Trim()),
                 ClinicId = clinicId,
                 Status = OnlinePaymentAccountStatus.PendingVerification
             };
@@ -60,9 +61,10 @@ namespace Services.ClinicOnlinePaymentAccounts
 
         public async Task<string> UpdatePaymobAccountAsync(string userId, int accountId, int clinicId, UpdatePaymobAccountRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.MerchantId) &&
+            if (string.IsNullOrWhiteSpace(request.PublicKey) &&
                 string.IsNullOrWhiteSpace(request.SecretKey) &&
-                string.IsNullOrWhiteSpace(request.HmacSecret))
+                string.IsNullOrWhiteSpace(request.HmacSecret) &&
+                string.IsNullOrWhiteSpace(request.ApiKey))
             {
                 throw new BadRequestException(
                     "Please provide at least one field to update.");
@@ -83,8 +85,8 @@ namespace Services.ClinicOnlinePaymentAccounts
                 throw new BadRequestException("The specified account is not a Paymob account.");
 
 
-            if (!string.IsNullOrWhiteSpace(request.MerchantId))
-                existingOnlinePaymentAccount.MerchantId = request.MerchantId.Trim();
+            if (!string.IsNullOrWhiteSpace(request.PublicKey))
+                existingOnlinePaymentAccount.PublicKey = request.PublicKey.Trim();
 
 
             if (!string.IsNullOrWhiteSpace(request.SecretKey))
@@ -93,6 +95,9 @@ namespace Services.ClinicOnlinePaymentAccounts
 
             if (!string.IsNullOrWhiteSpace(request.HmacSecret))
                 existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.HmacSecret.Trim());
+
+            if (!string.IsNullOrWhiteSpace(request.ApiKey))
+                existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.ApiKey.Trim());
 
 
             // Any credential change requires verification again.
@@ -121,7 +126,7 @@ namespace Services.ClinicOnlinePaymentAccounts
             {
                 Id = account.Id,
                 Provider = account.Provider.ToString(),
-                MerchantId = account.MerchantId,
+                //MerchantId = account.MerchantId,
                 Status = account.Status.ToString(),
                 IsReady = account.Status == OnlinePaymentAccountStatus.Ready,
                 Integrations = account.PaymentIntegrations.Select(integration => new ClinicPaymentIntegrationResponse()

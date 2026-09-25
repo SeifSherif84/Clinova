@@ -25,6 +25,10 @@ namespace Persistence.Data.Configurations
                    .WithOne(appointment => appointment.Payment)
                    .HasForeignKey<Payment>(payment => payment.AppointmentId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(payment => payment.RowVersion)
+                   .IsRowVersion()
+                   .IsConcurrencyToken();   
         }
     }
 }

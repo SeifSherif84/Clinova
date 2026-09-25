@@ -42,6 +42,7 @@ using Services.Abstractions.Payments;
 using Services.Payments;
 using Services.Abstractions.Paymob;
 using Services.Abstractions.DataProtection;
+using Shared.Dtos.ClinovaSettings;
 
 namespace Services
 {
@@ -56,7 +57,9 @@ namespace Services
                                 IAppointmentSlotService _appointmentSlotService,
                                 IPaymobService _paymobService,
                                 IPaymobHmacService _paymobHmacService,
-                                IPaymentCredentialEncryptor _paymentCredentialEncryptor) : IServiceManager
+                                IPaymentCredentialEncryptor _paymentCredentialEncryptor,
+                                IRefundService _refundService,
+                                IOptions<CancellationPolicySettings> _cancellationPolicy) : IServiceManager
     {
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions);
         public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
@@ -68,9 +71,9 @@ namespace Services
         public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration, _mapper);
         public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
         public IClinicManualPaymentMethodService ClinicManualPaymentMethodService { get; } = new ClinicManualPaymentMethodService(_unitOfWork, _mapper);
-        public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper);
+        public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _cancellationPolicy, _refundService);
         public IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; } = new ClinicOnlinePaymentAccountService(_unitOfWork, _paymentCredentialEncryptor);
         public IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; } = new ClinicPaymentIntegrationService(_unitOfWork);
-        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor);
+        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService);
     }
 }

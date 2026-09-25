@@ -21,7 +21,6 @@ namespace Services.Paymob
 
             var concatenatedValues = string.Concat(
                 transaction.AmountCents,
-                // Must be checked in feature 
                 transaction.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss.ffffff"),
                 transaction.Currency ?? string.Empty,
                 transaction.ErrorOccurred.ToString().ToLowerInvariant(),
@@ -35,7 +34,7 @@ namespace Services.Paymob
                 transaction.IsStandalonePayment.ToString().ToLowerInvariant(),
                 transaction.IsVoided.ToString().ToLowerInvariant(),
                 transaction.Order.Id,
-                transaction.ProfileId,
+                transaction.Owner,
                 transaction.Pending.ToString().ToLowerInvariant(),
                 transaction.SourceData?.Pan ?? string.Empty,
                 transaction.SourceData?.SubType ?? string.Empty,
