@@ -13,7 +13,8 @@ namespace Services.Abstractions.Appointments
         Task<string> CreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request);
         Task<IEnumerable<PatientAppointmentResponse>> GetPatientAppointmentsAsync(string userId);
         Task<PatientAppointmentDetailsResponse> GetPatientAppointmentDetailsAsync(string userId, int appointmentId);
-        Task<CancelAppointmentResponse> CancelAppointmentAsync(string userId, int appointmentId);
+        Task<CancelAppointmentResponse> CancelAppointmentByPatientAsync(string userId, int appointmentId);
+        Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(string userId, int appointmentId);
         CancellationPolicyResponse GetCancellationPolicyAsync();
         Task ExpirePendingAppointmentsAsync();
     }

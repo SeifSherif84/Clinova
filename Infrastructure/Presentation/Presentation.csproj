@@ -7,15 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\PaymobWebhook\**" />
+    <EmbeddedResource Remove="Controllers\PaymobWebhook\**" />
+    <None Remove="Controllers\PaymobWebhook\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.12" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Services.Abstractions\Services.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\PaymobWebhook\" />
   </ItemGroup>
 
 </Project>

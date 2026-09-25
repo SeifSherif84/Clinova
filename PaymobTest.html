@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Clinova - Paymob Checkout Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            button:hover {
+                background: #1d4ed8;
+            }
+
+        #error {
+            margin-top: 15px;
+            color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Clinova Paymob Test</h1>
+
+        <label for="publicKey">
+            Paymob Public Key
+        </label>
+
+        <input id="publicKey"
+               type="text"
+               placeholder="Paste Paymob Public Key" />
+
+        <label for="clientSecret">
+            Client Secret
+        </label>
+
+        <input id="clientSecret"
+               type="text"
+               placeholder="Paste Client Secret" />
+
+        <button onclick="openCheckout()">
+            Open Paymob Checkout
+        </button>
+
+        <div id="error"></div>
+
+    </div>
+
+
+    <script>
+
+        function openCheckout() {
+
+            const publicKey =
+                document.getElementById("publicKey").value.trim();
+
+            const clientSecret =
+                document.getElementById("clientSecret").value.trim();
+
+            const errorElement =
+                document.getElementById("error");
+
+            errorElement.textContent = "";
+
+            if (!publicKey) {
+                errorElement.textContent =
+                    "Please enter the Paymob Public Key.";
+
+                return;
+            }
+
+            if (!clientSecret) {
+                errorElement.textContent =
+                    "Please enter the Client Secret.";
+
+                return;
+            }
+
+            /*
+             * Paymob Unified Checkout
+             *
+             * Public Key:
+             * Used by the frontend to initialize Checkout.
+             *
+             * Client Secret:
+             * Returned by our backend after creating the Payment Intention.
+             *
+             * Secret Key:
+             * NEVER put it here.
+             */
+
+            const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${encodeURIComponent(publicKey)}&clientSecret=${encodeURIComponent(clientSecret)}`;
+
+            window.location.href = checkoutUrl;
+        }
+
+    </script>
+
+</body>
+</html>
