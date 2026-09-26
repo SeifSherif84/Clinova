@@ -1,9 +1,11 @@
+import { manualPaymentsEn, manualPaymentsAr } from '@/locales/manual-payments'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
 const resources = {
   en: {
     translation: {
+      manualPayments: manualPaymentsEn,
       common: {
         appTitle: 'Clinova | Connected healthcare',
         brandTagline: 'Care, beautifully connected',
@@ -584,6 +586,7 @@ const resources = {
   },
   ar: {
     translation: {
+      manualPayments: manualPaymentsAr,
       common: {
         appTitle: 'كلينوفا | رعاية صحية مترابطة',
         brandTagline: 'رعاية مترابطة بأناقة',
