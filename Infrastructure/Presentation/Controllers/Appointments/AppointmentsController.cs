@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Domain.Entities.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
+using Services.Abstractions.Paymob;
 using Shared.Dtos.Appointments;
 using System;
 using System.Collections.Generic;
@@ -14,7 +16,8 @@ namespace Presentation.Controllers.Appointments
 {
     [ApiController]
     [Route("api/appointments")]
-    public class AppointmentsController(IServiceManager _serviceManager) : ControllerBase
+    public class AppointmentsController(IServiceManager _serviceManager,
+        IPaymobRefundService _refundService) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
         [HttpPost("slots/{appointmentSlotId}")]
@@ -74,6 +77,18 @@ namespace Presentation.Controllers.Appointments
         {
             var response = _serviceManager.AppointmentService.GetCancellationPolicyAsync();
             return Ok(response);
+        }
+
+
+
+        [HttpPost("test/refund/{paymentId}")]
+        public async Task<IActionResult> TestRefund([FromRoute] int paymentId)
+        {
+            var result = await _refundService.RefundPaymentAsync(
+                paymentId,
+                RefundReason.PatientCancellation);
+
+            return Ok(result);
         }
 
 

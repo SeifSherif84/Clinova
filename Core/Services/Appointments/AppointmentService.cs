@@ -30,7 +30,7 @@ namespace Services.Appointments
     public class AppointmentService(IUnitOfWork _unitOfWork,
                                     IMapper _mapper,
                                     IOptions<CancellationPolicySettings> _cancellationPolicyOptions,
-                                    IRefundService _refundService) : IAppointmentService
+                                    IPaymobRefundService _refundService) : IAppointmentService
     {
         private readonly CancellationPolicySettings _cancellationPolicy = _cancellationPolicyOptions.Value;
 
@@ -77,7 +77,7 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(2),
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(4),
                 FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
                 BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };

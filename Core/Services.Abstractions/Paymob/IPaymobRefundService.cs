@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace Services.Abstractions.Paymob
 {
-    public interface IRefundService
+    public interface IPaymobRefundService
     {
         Task<RefundResult> RefundPaymentAsync(int paymentId, RefundReason reason);
+        Task VerifyPendingRefundsAsync();
     }
 }
