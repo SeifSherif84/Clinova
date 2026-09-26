@@ -140,6 +140,13 @@ const doctorClinicDetailsRoute = createRoute({
   component: lazyRouteComponent(() => import('@/pages/clinic-details-page')),
 })
 
+const manualPaymentMethodsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payment-methods',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  component: lazyRouteComponent(() => import('@/pages/manual-payment-methods-page')),
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -158,6 +165,7 @@ const routeTree = rootRoute.addChildren([
   doctorClinicsRoute,
   addDoctorClinicRoute,
   doctorClinicDetailsRoute,
+  manualPaymentMethodsRoute,
 ])
 
 export const router = createRouter({

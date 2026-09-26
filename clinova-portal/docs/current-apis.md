@@ -1,6 +1,6 @@
 # Clinova API — Summary
 
-A condensed reference to the Clinova backend API, covering all modules: Auth, Clinics, Doctors, Invitations, Lookups, Notifications, and Working Hours.
+A condensed reference to the Clinova backend API, covering all modules: Auth, Clinics, Doctors, Invitations, Lookups, Notifications, Working Hours, and Manual Payment Methods.
 
 All endpoints use `Content-Type: application/json` unless noted otherwise (file uploads use `multipart/form-data`). Authenticated endpoints require `Authorization: Bearer <accessToken>`.
 
@@ -152,6 +152,36 @@ Defines a doctor's availability at a clinic per day of week; drives automatic ap
 
 ---
 
+## 8. Manual Payment Methods Module — `/api/manual-payment-methods`
+
+A "manual payment method" is a clinic-configured way to receive payment outside of an automated gateway (e.g. a Vodafone Cash number or an InstaPay handle) that patients can pay to manually.
+
+**Auth & access:** All endpoints require authentication. Management endpoints (add, update, delete, activate, deactivate, owner listing) require role **Doctor** + **Owner** access on the clinic (regular members are blocked, same as Clinics module). The patient-facing listing requires role **Patient** and has no ownership requirement — any patient can view a clinic's active methods.
+
+**`ManualPaymentMethodType` enum:** `1 = VodafoneCash`, `2 = InstaPay` — sent as numeric value on create, returned as string name (`type`) in responses.
+
+**`accountIdentifier`:** free-text, max 100 chars, no format validation server-side (e.g. phone number for Vodafone Cash, handle/IPA for InstaPay) — frontend should apply its own input hints/formatting per type.
+
+| Endpoint | Method | Access | Notes |
+|---|---|---|---|
+| `/clinics/{clinicId}` | POST | Doctor, Owner | Adds a payment method; created **active** by default; `type` + `accountIdentifier` in body |
+| `/{paymentMethodId}/clinics/{clinicId}` | PATCH | Doctor, Owner | Updates `accountIdentifier` only — `type` is immutable |
+| `/{paymentMethodId}/clinics/{clinicId}` | DELETE | Doctor, Owner | Permanently removes; blocked (400) if it has payment history — deactivate instead |
+| `/clinics/{clinicId}` | GET | Patient | Lists only **active** methods for a clinic (no `isActive` field — all implicitly active); no membership requirement |
+| `/clinics/{clinicId}/management` | GET | Doctor, Owner | Lists **all** methods (active + inactive) with `isActive` field, for owner management |
+| `/{paymentMethodId}/clinics/{clinicId}/activate` | PATCH | Doctor, Owner | Makes an inactive method visible to patients again |
+| `/{paymentMethodId}/clinics/{clinicId}/deactivate` | PATCH | Doctor, Owner | Hides a method from patients while preserving payment history |
+
+**Key rules:**
+- Duplicate guard: the same `type` + `accountIdentifier` combination can't be added twice to the same clinic (400, "This payment method has already been added to the clinic.")
+- Delete is permanent and only allowed if the method has never been used in a payment; otherwise 400 ("...cannot be deleted because it has existing payments. Please deactivate it instead.") — frontend can attempt Delete first and fall back to suggesting Deactivate on that error
+- **⚠ Non-idempotent toggles:** unlike Working Hours' activate/deactivate (which return a friendly 200 on repeat calls), Activate/Deactivate here return a real 400 if the method is already in that state ("This payment method is already active/inactive."). Check current `isActive` (from the owner/management listing) before calling, or handle the 400 gracefully in the UI
+- To change a method's `type`: delete the old one (if no payment history) and add a new one, or deactivate the old one and add a new one alongside it
+
+**Error responses common across endpoints:** `404` clinic not found; `403` (inferred) caller not a member of the clinic, or a member but not the owner ("Only the clinic owner can make this action."); `404` `paymentMethodId` doesn't exist; `403` (inferred) `paymentMethodId` belongs to a different clinic; `500` on save failure; `400` standard model validation failures.
+
+---
+
 # Frontend Pages Needed
 
 Based on the endpoints above, here's the page/screen breakdown by user flow:
@@ -195,6 +225,16 @@ Based on the endpoints above, here's the page/screen breakdown by user flow:
 - **Add Working Hours** — day picker (from Lookups), start/end time, slot duration
 - **Edit Working Hours**
 - **Activate/Deactivate toggle** — inline action on the list
+
+## Doctor — Manual Payment Methods
+- **Manage Payment Methods (owner view)** — `GET /manual-payment-methods/clinics/{clinicId}/management`, shows active + inactive, likely inline on Clinic Details page
+- **Add Payment Method** — type selector (Vodafone Cash / InstaPay) + account identifier input, with per-type formatting hint
+- **Edit Payment Method** — account identifier only (type shown read-only)
+- **Activate/Deactivate toggle** — inline action on the list; handle non-idempotent 400 on repeat clicks
+- **Delete confirmation** — attempt delete, fall back to "deactivate instead" messaging on the has-payments 400
+
+## Patient — Payment Methods
+- **Clinic Payment Methods (view)** — `GET /manual-payme nt-methods/clinics/{clinicId}`, read-only list shown during booking/checkout at a clinic
 
 ## Supporting / Cross-cutting
 - **Global error/toast handling** — standard error shape, 401 → force logout, 403 → access-denied messaging
