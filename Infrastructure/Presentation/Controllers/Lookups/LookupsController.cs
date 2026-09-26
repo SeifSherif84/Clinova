@@ -34,10 +34,10 @@ namespace Presentation.Controllers.Enums
 
 
         [Authorize]
-        [HttpGet("payment-methods")]
-        public IActionResult GetPaymentMethods()
+        [HttpGet("manual-payment-methods")]
+        public IActionResult GetManualPaymentMethods()
         {
-            var response = _serviceManager.LookupsService.GetPaymentMethodsAsync();
+            var response = _serviceManager.LookupsService.GetManualPaymentMethodsAsync();
             return Ok(response);
         }
 
