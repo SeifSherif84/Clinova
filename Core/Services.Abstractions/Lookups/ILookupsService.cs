@@ -13,7 +13,7 @@ namespace Services.Abstractions.Lookups
     {
         IEnumerable<LookupResponse> GetGendersAsync();
         IEnumerable<LookupResponse> GetDaysOfWeekAsync();
-        IEnumerable<LookupResponse> GetPaymentMethodsAsync();
+        IEnumerable<LookupResponse> GetManualPaymentMethodsAsync();
         Task<IEnumerable<LookupResponse>> GetMedicalSpecialtiesAsync();
         Task<IEnumerable<LookupResponse>> GetGovernoratesAsync();
         Task<IEnumerable<LookupResponse>> GetRegionsAsync(int governorateId);
