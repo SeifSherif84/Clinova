@@ -180,7 +180,9 @@ namespace Web
             builder.Services.AddScoped<IPaymentCredentialEncryptor, PaymentCredentialEncryptor>();
             builder.Services.AddScoped<IPaymobService, PaymobService>();
             builder.Services.AddScoped<IPaymobHmacService, PaymobHmacService>();
-            builder.Services.AddScoped<IRefundService, RefundService>();
+            builder.Services.AddScoped<IPaymobRefundService, PaymobRefundService>();
+
+            builder.Services.AddHostedService<RefundVerificationService>();
 
 
             builder.Services.AddOptions<CancellationPolicySettings>().Bind(builder.Configuration.GetSection("CancellationPolicy"))

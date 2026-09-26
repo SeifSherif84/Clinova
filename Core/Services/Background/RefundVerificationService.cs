@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Services.Abstractions.Appointments;
+using Services.Abstractions.Paymob;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +9,29 @@ using System.Threading.Tasks;
 
 namespace Services.Background
 {
-    public class AppointmentExpirationService(IServiceScopeFactory _serviceScopeFactory) : BackgroundService
+    public class RefundVerificationService(
+        IServiceScopeFactory serviceScopeFactory)
+        : BackgroundService
     {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(
+            CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    using var scope = _serviceScopeFactory.CreateScope();
-                    var appointmentService = scope.ServiceProvider.GetRequiredService<IAppointmentService>();
-                    await appointmentService.ExpirePendingAppointmentsAsync();
+                    using var scope = serviceScopeFactory.CreateScope();
+
+                    var refundService =
+                        scope.ServiceProvider.GetRequiredService<IPaymobRefundService>();
+
+                    await refundService.VerifyPendingRefundsAsync();
                 }
                 catch
                 {
                     // Ignore errors for now.
                 }
+
                 try
                 {
                     await Task.Delay(

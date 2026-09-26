@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Abstractions.DataProtection;
 using Services.Abstractions.Paymob;
 using Services.Specifications.ClinicOnlinePaymentAccounts;
+using Services.Specifications.PaymentRefunds;
 using Services.Specifications.Payments;
 using Shared.Dtos.Paymob;
 using System;
@@ -18,11 +19,11 @@ using System.Threading.Tasks;
 
 namespace Services.Paymob
 {
-    public class RefundService(
+    public class PaymobRefundService(
         IUnitOfWork _unitOfWork,
         IPaymobService _paymobService,
         IPaymentCredentialEncryptor _credentialProtector)
-        : IRefundService
+        : IPaymobRefundService
     {
         public async Task<RefundResult> RefundPaymentAsync(
             int paymentId,
@@ -261,7 +262,8 @@ namespace Services.Paymob
                             existingRefund,
                             transactionId,
                             amountCents,
-                            apiKey);
+                            apiKey,
+                            secretKey);
 
                     if (verificationResult is not null)
                     {
@@ -547,18 +549,16 @@ namespace Services.Paymob
             PaymentRefund refund,
             long transactionId,
             long expectedAmountCents,
-            string apiKey)
+            string apiKey,
+            string secretKey)
         {
             var inquiryResult =
                 await _paymobService.GetTransactionAsync(
                     apiKey,
                     transactionId);
 
-
-            // ---------------------------------------------------------
-            // Inquiry itself could not determine the state.
-            // ---------------------------------------------------------
-
+            // Paymob inquiry itself could not be completed.
+            // We still don't know whether the refund happened.
             if (!inquiryResult.Succeeded)
             {
                 return new RefundResult
@@ -575,10 +575,7 @@ namespace Services.Paymob
                 };
             }
 
-
-            var transaction =
-                inquiryResult.Transaction;
-
+            var transaction = inquiryResult.Transaction;
 
             if (transaction is null)
             {
@@ -586,6 +583,8 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
                     ErrorMessage =
                         "Paymob did not return transaction details.",
                     ProviderResponse =
@@ -593,17 +592,14 @@ namespace Services.Paymob
                 };
             }
 
-
-            // ---------------------------------------------------------
-            // Transaction identity
-            // ---------------------------------------------------------
-
             if (transaction.Id != transactionId)
             {
                 return new RefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
                     ErrorMessage =
                         "Paymob returned a different transaction during verification.",
                     ProviderResponse =
@@ -611,17 +607,14 @@ namespace Services.Paymob
                 };
             }
 
-
-            // ---------------------------------------------------------
-            // Transaction amount
-            // ---------------------------------------------------------
-
             if (!transaction.Success)
             {
                 return new RefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
                     ErrorMessage =
                         "The Paymob transaction is not marked as successful.",
                     ProviderResponse =
@@ -629,13 +622,14 @@ namespace Services.Paymob
                 };
             }
 
-
             if (transaction.AmountCents != expectedAmountCents)
             {
                 return new RefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
                     ErrorMessage =
                         "The Paymob transaction amount does not match the payment amount.",
                     ProviderResponse =
@@ -643,16 +637,15 @@ namespace Services.Paymob
                 };
             }
 
-
-            // ---------------------------------------------------------
-            // Refund status
-            // ---------------------------------------------------------
-
             var refundedAmount =
                 transaction.RefundedAmountCentsInt
                 ?? transaction.RefundedAmountCents
                 ?? 0;
 
+            // ---------------------------------------------------------
+            // CASE 1:
+            // Paymob confirms that the refund already happened.
+            // ---------------------------------------------------------
 
             if (transaction.IsRefunded &&
                 refundedAmount >= expectedAmountCents)
@@ -660,9 +653,14 @@ namespace Services.Paymob
                 refund.Status =
                     RefundStatus.Succeeded;
 
+                // IMPORTANT:
+                // transaction.Id is the ORIGINAL payment transaction ID.
+                // Do NOT store it as ProviderRefundTransactionId.
+                //
+                // If ProviderRefundTransactionId was already known from
+                // the original refund response, keep it.
                 refund.ProviderRefundTransactionId =
-                    refund.ProviderRefundTransactionId ??
-                    transaction.Id.ToString();
+                    refund.ProviderRefundTransactionId;
 
                 refund.ProcessedAt =
                     DateTime.UtcNow;
@@ -678,7 +676,6 @@ namespace Services.Paymob
 
                 await _unitOfWork.SaveChangesAsync();
 
-
                 return new RefundResult
                 {
                     Succeeded = true,
@@ -690,35 +687,185 @@ namespace Services.Paymob
                 };
             }
 
-
             // ---------------------------------------------------------
-            // Paymob transaction is known, but refund is not confirmed.
+            // CASE 2:
+            // Paymob confirms that the refund has NOT happened.
             //
-            // DO NOT send another refund request here.
+            // We now retry the refund.
             // ---------------------------------------------------------
 
             refund.Status =
-                RefundStatus.PendingVerification;
+                RefundStatus.Processing;
 
             refund.FailureReason =
-                "Paymob has not confirmed the refund.";
+                null;
 
             refund.ProviderResponse =
                 inquiryResult.ProviderResponse;
 
+            refund.ProcessedAt =
+                null;
+
             await _unitOfWork.SaveChangesAsync();
 
+            RefundResult retryResult;
+
+            try
+            {
+                retryResult =
+                    await _paymobService.RefundAsync(
+                        secretKey,
+                        transactionId,
+                        expectedAmountCents);
+            }
+            catch (HttpRequestException ex)
+            {
+                refund.Status =
+                    RefundStatus.PendingVerification;
+
+                refund.FailureReason =
+                    ex.Message;
+
+                refund.ProviderResponse =
+                    null;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return new RefundResult
+                {
+                    Succeeded = false,
+                    PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
+                    ErrorMessage =
+                        "The refund request could not be confirmed with Paymob.",
+                    ProviderResponse =
+                        null
+                };
+            }
+            catch (TaskCanceledException ex)
+            {
+                refund.Status =
+                    RefundStatus.PendingVerification;
+
+                refund.FailureReason =
+                    ex.Message;
+
+                refund.ProviderResponse =
+                    null;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return new RefundResult
+                {
+                    Succeeded = false,
+                    PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
+                    ErrorMessage =
+                        "The refund request timed out and could not be confirmed.",
+                    ProviderResponse =
+                        null
+                };
+            }
+
+            // ---------------------------------------------------------
+            // Retry succeeded.
+            // ---------------------------------------------------------
+
+            if (retryResult.Succeeded)
+            {
+                refund.Status =
+                    RefundStatus.Succeeded;
+
+                refund.ProviderRefundTransactionId =
+                    retryResult.ProviderRefundTransactionId;
+
+                refund.ProcessedAt =
+                    DateTime.UtcNow;
+
+                refund.FailureReason =
+                    null;
+
+                refund.ProviderResponse =
+                    retryResult.ProviderResponse;
+
+                payment.Status =
+                    PaymentStatus.Refunded;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return new RefundResult
+                {
+                    Succeeded = true,
+                    PendingVerification = false,
+                    ProviderRefundTransactionId =
+                        refund.ProviderRefundTransactionId,
+                    ProviderResponse =
+                        retryResult.ProviderResponse
+                };
+            }
+
+            // ---------------------------------------------------------
+            // Retry result is uncertain.
+            // We still don't know whether Paymob processed it.
+            // ---------------------------------------------------------
+
+            if (retryResult.PendingVerification)
+            {
+                refund.Status =
+                    RefundStatus.PendingVerification;
+
+                refund.FailureReason =
+                    retryResult.ErrorMessage ??
+                    "The retry refund result could not be confirmed.";
+
+                refund.ProviderResponse =
+                    retryResult.ProviderResponse;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return new RefundResult
+                {
+                    Succeeded = false,
+                    PendingVerification = true,
+                    ProviderRefundTransactionId =
+                        retryResult.ProviderRefundTransactionId,
+                    ErrorMessage =
+                        retryResult.ErrorMessage ??
+                        "The retry refund result could not be confirmed.",
+                    ProviderResponse =
+                        retryResult.ProviderResponse
+                };
+            }
+
+            // ---------------------------------------------------------
+            // Retry failed definitively.
+            // ---------------------------------------------------------
+
+            refund.Status =
+                RefundStatus.Failed;
+
+            refund.FailureReason =
+                retryResult.ErrorMessage ??
+                "The refund retry failed.";
+
+            refund.ProviderResponse =
+                retryResult.ProviderResponse;
+
+            await _unitOfWork.SaveChangesAsync();
 
             return new RefundResult
             {
                 Succeeded = false,
-                PendingVerification = true,
+                PendingVerification = false,
                 ProviderRefundTransactionId =
-                    refund.ProviderRefundTransactionId,
+                    retryResult.ProviderRefundTransactionId,
                 ErrorMessage =
-                    "Paymob has not confirmed the refund yet.",
+                    retryResult.ErrorMessage ??
+                    "The refund retry failed.",
                 ProviderResponse =
-                    inquiryResult.ProviderResponse
+                    retryResult.ProviderResponse
             };
         }
 
@@ -782,5 +929,36 @@ namespace Services.Paymob
                         "The refund has an invalid status.")
             };
         }
+
+
+
+
+
+
+        public async Task VerifyPendingRefundsAsync()
+        {
+            var refundRepository =
+                _unitOfWork.GetRepository<PaymentRefund, int>();
+
+            var pendingRefunds =
+                await refundRepository.GetAllAsync(
+                    PaymentRefundSpecifications.PendingVerification());
+
+            foreach (var refund in pendingRefunds)
+            {
+                try
+                {
+                    await RefundPaymentAsync(
+                        refund.PaymentId,
+                        refund.Reason);
+                }
+                catch
+                {
+                    // Ignore this refund and continue processing the others.
+                }
+            }
+        }
+
+
     }
 }

@@ -98,6 +98,22 @@ namespace Services.Paymob
     long transactionId,
     long amountCents)
         {
+
+
+
+
+            //// TEST ONLY
+            //return new RefundResult
+            //{
+            //    Succeeded = false,
+            //    PendingVerification = true,
+            //    ProviderRefundTransactionId = null,
+            //    ErrorMessage = "TEST: Refund request was not sent to Paymob.",
+            //    ProviderResponse = null
+            //};
+
+
+
             if (string.IsNullOrWhiteSpace(secretKey))
                 throw new BadRequestException(
                     "Paymob secret key is not configured.");
@@ -265,6 +281,21 @@ namespace Services.Paymob
                 };
             }
 
+
+            //if (refundConfirmed)
+            //{
+            //    // TEST ONLY:
+            //    // Paymob has actually processed the refund,
+            //    // but Clinova intentionally treats the response as unknown.
+            //    return new RefundResult
+            //    {
+            //        Succeeded = false,
+            //        PendingVerification = true,
+            //        ProviderRefundTransactionId = null,
+            //        ErrorMessage = "The refund result could not be confirmed.",
+            //        ProviderResponse = responseBody
+            //    };
+            //}
 
             // ---------------------------------------------------------
             // Provider accepted the request but final state is unclear

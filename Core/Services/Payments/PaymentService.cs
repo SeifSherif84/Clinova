@@ -34,7 +34,7 @@ namespace Services.Payments
                                IPaymobHmacService _paymobHmacService,
                                IPaymentCredentialEncryptor _credentialProtector,
                                INotificationService _notificationService,
-                               IRefundService _refundService) : IPaymentService
+                               IPaymobRefundService _refundService) : IPaymentService
     {
         public async Task<object> CreatePaymobPaymentIntentionAsync(string userId, int appointmentId, CreatePaymobPaymentIntentionRequest request)
         {
