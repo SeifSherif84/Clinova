@@ -10,8 +10,8 @@ export default function Brand({ compact = false }: { compact?: boolean }) {
       <img className="size-12 drop-shadow-sm sm:size-14" src={logoUrl} alt="" aria-hidden="true" />
       {!compact && (
         <span className="grid gap-1">
-          <strong className="text-xl leading-none font-bold tracking-tight text-foreground sm:text-2xl">Clinova</strong>
-          <small className="hidden text-[10px] font-medium tracking-[.16em] text-primary uppercase sm:block">{t('common.brandTagline')}</small>
+          <strong className="font-serif text-xl leading-none font-bold tracking-tight text-foreground italic sm:text-2xl">Clinova</strong>
+          <small className="hidden text-[10px] font-bold tracking-[.16em] text-primary uppercase sm:block">{t('common.brandTagline')}</small>
         </span>
       )}
     </Link>

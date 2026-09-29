@@ -545,7 +545,7 @@ export default function ClinicDetailsPage() {
     </div>
   </div>
   <CardContent className="grid gap-4 p-5">
-    <p className="text-xs leading-6 font-medium text-muted-foreground sm:text-sm">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>
+    <p className="text-xs leading-6 font-semibold text-muted-foreground sm:text-sm">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>
     {isOwner ? (
       <Button
         type="button"
@@ -560,8 +560,8 @@ export default function ClinicDetailsPage() {
     ) : (
       <Button
         type="button"
-        variant="outline"
-        className="h-11 cursor-pointer rounded-xl border-destructive bg-destructive text-sm font-bold normal-case text-white shadow-md shadow-destructive/25 transition-all hover:bg-destructive/90 hover:text-white hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:border-destructive/40 dark:bg-transparent dark:text-destructive dark:shadow-none dark:hover:border-destructive dark:hover:bg-destructive dark:hover:text-white dark:hover:shadow-md dark:hover:shadow-destructive/25"
+        variant="destructive"
+        className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
         disabled={leaveClinic.isPending}
         onClick={() => { leaveClinic.reset(); setConfirmation({ type: 'leave-clinic' }) }}
       >

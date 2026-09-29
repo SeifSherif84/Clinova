@@ -21,7 +21,7 @@ export default function LandingPage() {
       <nav className="relative z-20 mx-auto flex min-h-20 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-24 sm:px-6 lg:px-8">
         <Brand />
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="me-1 hidden items-center gap-2 text-sm font-bold text-muted-foreground xl:inline-flex"><ShieldCheck className="size-4" /> {t('common.securePlatform')}</Badge>
+                    <Badge variant="secondary" className="me-1 hidden items-center gap-2 text-sm font-bold text-muted-foreground xl:inline-flex [&>svg]:size-4!"><ShieldCheck /> {t('common.securePlatform')}</Badge>
           <PreferencesControls compact />
           {auth.isAuthenticated ? (
             <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:bg-primary/90 sm:px-7 sm:text-base">
@@ -37,17 +37,24 @@ export default function LandingPage() {
 
       <section className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pt-10 pb-14 sm:px-6 sm:pt-16 lg:min-h-[42rem] lg:grid-cols-2 lg:gap-12 lg:px-8 lg:pt-8">
         <div className="text-center lg:text-start">
-          <Badge className="rounded-full border border-primary/15 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary"><Sparkles className="size-4" /> {t('landing.badge')}</Badge>
-          <h1 className="mx-auto mt-6 max-w-3xl font-heading text-5xl leading-[.95] font-medium tracking-[-.055em] text-foreground sm:text-6xl md:text-7xl lg:mx-0 lg:text-[5.4rem] rtl:tracking-normal xl:text-[6.2rem]">{t('landing.titleStart')} <em className="font-medium text-warm">{t('landing.titleAccent')}</em> {t('landing.titleEnd')}</h1>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base lg:mx-0 lg:text-lg">{t('landing.description')}</p>
+          <span className="inline-flex items-center justify-center gap-1.5 text-sm font-bold tracking-[.1em] text-primary uppercase lg:justify-start"><Sparkles className="size-4 text-primary" /> {t('landing.badge')}</span>
+          <h1 className="mx-auto mt-3 max-w-3xl font-heading text-5xl leading-[.95] font-medium tracking-[-.055em] text-foreground sm:text-6xl md:text-7xl lg:mx-0 lg:text-[5.4rem] rtl:tracking-normal xl:text-[6.2rem]">{t('landing.titleStart')} <em className="font-medium text-warm">{t('landing.titleAccent')}</em> {t('landing.titleEnd')}</h1>
+          <p className="mx-auto mt-8 max-w-md text-sm leading-7 text-muted-foreground sm:text-base lg:mx-0 lg:text-lg">{t('landing.description')}</p>
 <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-  <Link to="/register/patient" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-bold text-primary-foreground shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:bg-primary/90">{t('landing.joinPatient')} <Arrow /></Link>
-  <Link to="/register/doctor" className="inline-flex min-h-14 items-center justify-center rounded-full border border-border bg-card/55 px-8 py-4 text-base font-bold text-foreground transition hover:-translate-y-0.5 hover:bg-accent">{t('landing.joinDoctor')}</Link>
+  <Link to="/register/patient" className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-primary py-2 pe-2 ps-7 text-base font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/25">
+    {t('landing.joinPatient')}
+    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-foreground/15 transition group-hover:bg-primary-foreground/25">
+      <ArrowRight className="size-4 rtl:rotate-180" />
+    </span>
+  </Link>
+  <Link to="/register/doctor" className="inline-flex min-h-14 items-center justify-center rounded-full border border-border bg-card/55 px-8 py-4 text-base font-bold text-foreground transition hover:-translate-y-0.5 hover:bg-accent">
+    {t('landing.joinDoctor')}
+  </Link>
 </div>
 <div className="mt-10 grid grid-cols-3 gap-3 border-t border-border pt-6 text-start sm:max-w-xl lg:mt-12">
-  <div className="group grid gap-1 transition hover:-translate-y-0.5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.accessValue')}</strong><span className="text-[10px] text-muted-foreground sm:text-xs">{t('landing.accessLabel')}</span></div>
-  <div className="group grid gap-1 border-x border-border px-3 transition hover:-translate-y-0.5 sm:px-5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.placeValue')}</strong><span className="text-[10px] text-muted-foreground sm:text-xs">{t('landing.placeLabel')}</span></div>
-  <div className="group grid gap-1 transition hover:-translate-y-0.5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.verifiedValue')}</strong><span className="text-[10px] text-muted-foreground sm:text-xs">{t('landing.verifiedLabel')}</span></div>
+  <div className="group grid gap-1 transition hover:-translate-y-0.5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.accessValue')}</strong><span className="text-[10px] font-semibold text-muted-foreground sm:text-xs">{t('landing.accessLabel')}</span></div>
+  <div className="group grid gap-1 border-x border-border px-3 transition hover:-translate-y-0.5 sm:px-5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.placeValue')}</strong><span className="text-[10px] font-semibold text-muted-foreground sm:text-xs">{t('landing.placeLabel')}</span></div>
+  <div className="group grid gap-1 transition hover:-translate-y-0.5"><strong className="font-heading text-lg transition group-hover:text-primary sm:text-xl">{t('landing.verifiedValue')}</strong><span className="text-[10px] font-semibold text-muted-foreground sm:text-xs">{t('landing.verifiedLabel')}</span></div>
 </div>
         </div>
 
@@ -55,8 +62,8 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute size-[82%] rounded-full border border-primary/10" />
           <div className="pointer-events-none absolute size-[64%] animate-[spin_30s_linear_infinite] rounded-full border border-dashed border-primary/15 motion-reduce:animate-none" />
           <MedicalIllustration />
-          <Card className="absolute top-[12%] start-0 hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-start-4"><HeartPulse className="size-5 text-warm" /><span className="grid"><strong className="text-xs">{t('landing.connectedCare')}</strong><small className="text-[10px] text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
-          <Card className="absolute end-0 bottom-[12%] hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-end-4"><CalendarDays className="size-5 text-warm" /><span className="grid"><strong className="text-xs">{t('landing.schedule')}</strong><small className="text-[10px] text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
+          <Card className="absolute top-[12%] start-0 hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-start-4"><HeartPulse className="size-5 text-warm" /><span className="grid"><strong className="text-sm">{t('landing.connectedCare')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
+          <Card className="absolute end-0 bottom-[12%] hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-end-4"><CalendarDays className="size-5 text-warm" /><span className="grid"><strong className="text-sm">{t('landing.schedule')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
         </div>
       </section>
 

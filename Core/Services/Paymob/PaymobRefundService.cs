@@ -19,31 +19,18 @@ using System.Threading.Tasks;
 
 namespace Services.Paymob
 {
-    public class PaymobRefundService(
-        IUnitOfWork _unitOfWork,
-        IPaymobService _paymobService,
-        IPaymentCredentialEncryptor _credentialProtector)
-        : IPaymobRefundService
+    public class PaymobRefundService(IUnitOfWork _unitOfWork,
+                                     IPaymobService _paymobService,
+                                     IPaymentCredentialEncryptor _credentialProtector) : IPaymobRefundService
     {
-        public async Task<RefundResult> RefundPaymentAsync(
-            int paymentId,
-            RefundReason reason)
+        public async Task<RefundResult> RefundPaymentAsync(int paymentId, RefundReason reason)
         {
-            var paymentRepo =
-                _unitOfWork.GetRepository<Payment, int>();
-
-            var paymentSpec =
-                PaymentSpecifications.ForRefund(paymentId);
-
-            var payment =
-                await paymentRepo.GetByIdAsync(paymentSpec);
-
+            var paymentRepo = _unitOfWork.GetRepository<Payment, int>();
+            var paymentSpec = PaymentSpecifications.ForRefund(paymentId);
+            var payment = await paymentRepo.GetByIdAsync(paymentSpec);
 
             if (payment is null)
-            {
-                throw new NotFoundException(
-                    "The payment was not found.");
-            }
+                throw new NotFoundException("The payment was not found.");
 
 
             // ---------------------------------------------------------
@@ -53,19 +40,15 @@ namespace Services.Paymob
             if (payment.Status == PaymentStatus.Refunded)
             {
                 if (payment.Refund is null)
-                {
-                    throw new InternalServerErrorException(
-                        "The payment is marked as refunded, but its refund record could not be found.");
-                }
+                    throw new InternalServerErrorException("The payment is marked as refunded, but its refund record could not be found.");
+
 
                 return new RefundResult
                 {
                     Succeeded = true,
                     PendingVerification = false,
-                    ProviderRefundTransactionId =
-                        payment.Refund.ProviderRefundTransactionId,
-                    ProviderResponse =
-                        payment.Refund.ProviderResponse
+                    ProviderRefundTransactionId = payment.Refund.ProviderRefundTransactionId,
+                    ProviderResponse = payment.Refund.ProviderResponse
                 };
             }
 
@@ -75,144 +58,82 @@ namespace Services.Paymob
             // ---------------------------------------------------------
 
             if (payment.Status != PaymentStatus.Paid)
-            {
-                throw new BadRequestException(
-                    "Only successful payments can be refunded.");
-            }
+                throw new BadRequestException("Only successful payments can be refunded.");
 
 
             // ---------------------------------------------------------
             // Transaction ID validation
             // ---------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(
-                    payment.ProviderTransactionId))
-            {
-                throw new BadRequestException(
-                    "The payment does not have a valid Paymob transaction ID.");
-            }
+            if (string.IsNullOrWhiteSpace(payment.ProviderTransactionId))
+                throw new BadRequestException("The payment does not have a valid Paymob transaction ID.");
 
 
-            if (!long.TryParse(
-                    payment.ProviderTransactionId,
-                    out var transactionId) ||
-                transactionId <= 0)
-            {
-                throw new BadRequestException(
-                    "The payment does not have a valid Paymob transaction ID.");
-            }
+            if (!long.TryParse(payment.ProviderTransactionId, out var transactionId) || transactionId <= 0)
+                throw new BadRequestException( "The payment does not have a valid Paymob transaction ID.");
 
 
             // ---------------------------------------------------------
             // Refund amount
             // ---------------------------------------------------------
 
-            var refundAmount =
-                payment.Amount;
-
+            var refundAmount = payment.Amount;
             if (refundAmount <= 0)
-            {
-                throw new BadRequestException(
-                    "The refund amount must be greater than zero.");
-            }
+                throw new BadRequestException("The refund amount must be greater than zero.");
 
 
-            var amountCents =
-                checked(
-                    (long)Math.Round(
-                        refundAmount * 100m,
-                        0,
-                        MidpointRounding.AwayFromZero));
-
-
+            var amountCents = checked((long)Math.Round(refundAmount * 100m, 0, MidpointRounding.AwayFromZero));
             if (amountCents <= 0)
-            {
-                throw new BadRequestException(
-                    "The refund amount is invalid.");
-            }
+                throw new BadRequestException("The refund amount is invalid.");
 
 
             // ---------------------------------------------------------
             // Appointment validation
             // ---------------------------------------------------------
 
-            var appointment =
-                payment.Appointment;
-
+            var appointment = payment.Appointment;
             if (appointment is null)
-            {
-                throw new BadRequestException(
-                    "The payment is not associated with an appointment.");
-            }
+                throw new BadRequestException("The payment is not associated with an appointment.");
 
 
             if (appointment.AppointmentSlot is null)
-            {
-                throw new BadRequestException(
-                    "The appointment slot associated with this payment could not be found.");
-            }
+                throw new BadRequestException("The appointment slot associated with this payment could not be found.");
 
 
-            var clinicId =
-                appointment.AppointmentSlot.ClinicId;
-
+            var clinicId = appointment.AppointmentSlot.ClinicId;
 
             // ---------------------------------------------------------
             // Clinic Paymob account
             // ---------------------------------------------------------
 
-            var accountRepo =
-                _unitOfWork
-                    .GetRepository<
-                        ClinicOnlinePaymentAccount,
-                        int>();
+            var accountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount,int>();
+            var accountSpec = ClinicOnlinePaymentAccountSpecifications.ByClinic(clinicId);
 
-            var accountSpec =
-                ClinicOnlinePaymentAccountSpecifications
-                    .ByClinic(clinicId);
-
-            var account =
-                await accountRepo.GetByIdAsync(accountSpec);
-
-
+            var account = await accountRepo.GetByIdAsync(accountSpec);
             if (account is null)
-            {
-                throw new BadRequestException(
-                    "The clinic's online payment account was not found.");
-            }
+                throw new BadRequestException("The clinic's online payment account was not found.");
 
 
             if (account.Provider != OnlinePaymentProvider.Paymob)
-            {
-                throw new BadRequestException(
-                    "The clinic is not configured to use Paymob.");
-            }
+                throw new BadRequestException("The clinic is not configured to use Paymob.");
+
 
 
             // ---------------------------------------------------------
             // Decrypt Paymob credentials
             // ---------------------------------------------------------
 
-            var secretKey =
-                _credentialProtector.Decrypt(
-                    account.SecretKey);
+            var secretKey = _credentialProtector.Decrypt(account.SecretKey);
 
             if (string.IsNullOrWhiteSpace(secretKey))
-            {
-                throw new BadRequestException(
-                    "The clinic's Paymob secret key is not available.");
-            }
+                throw new BadRequestException("The clinic's Paymob secret key is not available.");
 
 
-            var apiKey =
-                _credentialProtector.Decrypt(
-                    account.ApiKey);
+
+            var apiKey = _credentialProtector.Decrypt(account.ApiKey);
 
             if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                throw new BadRequestException(
-                    "The clinic's Paymob API key is not available.");
-            }
+                throw new BadRequestException("The clinic's Paymob API key is not available.");
 
 
             // =========================================================
@@ -221,25 +142,21 @@ namespace Services.Paymob
 
             if (payment.Refund is not null)
             {
-                var existingRefund =
-                    payment.Refund;
+                var existingRefund = payment.Refund;
 
 
                 // -----------------------------------------------------
                 // Already succeeded
                 // -----------------------------------------------------
 
-                if (existingRefund.Status ==
-                    RefundStatus.Succeeded)
+                if (existingRefund.Status == RefundStatus.Succeeded)
                 {
                     return new RefundResult
                     {
                         Succeeded = true,
                         PendingVerification = false,
-                        ProviderRefundTransactionId =
-                            existingRefund.ProviderRefundTransactionId,
-                        ProviderResponse =
-                            existingRefund.ProviderResponse
+                        ProviderRefundTransactionId = existingRefund.ProviderRefundTransactionId,
+                        ProviderResponse = existingRefund.ProviderResponse
                     };
                 }
 
@@ -252,23 +169,17 @@ namespace Services.Paymob
                 // First verify Paymob's actual state.
                 // -----------------------------------------------------
 
-                if (existingRefund.Status is
-                    RefundStatus.Processing or
-                    RefundStatus.PendingVerification)
+                if (existingRefund.Status is RefundStatus.Processing or RefundStatus.PendingVerification)
                 {
-                    var verificationResult =
-                        await VerifyExistingRefundAsync(
-                            payment,
-                            existingRefund,
-                            transactionId,
-                            amountCents,
-                            apiKey,
-                            secretKey);
+                    var verificationResult = await VerifyExistingRefundAsync(payment,
+                                                                             existingRefund,
+                                                                             transactionId,
+                                                                             amountCents,
+                                                                             apiKey,
+                                                                             secretKey);
 
                     if (verificationResult is not null)
-                    {
                         return verificationResult;
-                    }
                 }
 
 
@@ -279,35 +190,17 @@ namespace Services.Paymob
                 // A fresh refund attempt is allowed.
                 // -----------------------------------------------------
 
-                if (existingRefund.Status ==
-                    RefundStatus.Failed)
+                if (existingRefund.Status == RefundStatus.Failed)
                 {
-                    existingRefund.Status =
-                        RefundStatus.Processing;
-
-                    existingRefund.Reason =
-                        reason;
-
-                    existingRefund.Amount =
-                        refundAmount;
-
-                    existingRefund.OriginalTransactionId =
-                        payment.ProviderTransactionId;
-
-                    existingRefund.RequestedAt =
-                        DateTime.UtcNow;
-
-                    existingRefund.ProcessedAt =
-                        null;
-
-                    existingRefund.FailureReason =
-                        null;
-
-                    existingRefund.ProviderRefundTransactionId =
-                        null;
-
-                    existingRefund.ProviderResponse =
-                        null;
+                    existingRefund.Status = RefundStatus.Processing;
+                    existingRefund.Reason = reason;
+                    existingRefund.Amount = refundAmount;
+                    existingRefund.OriginalTransactionId = payment.ProviderTransactionId;
+                    existingRefund.RequestedAt = DateTime.UtcNow;
+                    existingRefund.ProcessedAt = null;
+                    existingRefund.FailureReason = null;
+                    existingRefund.ProviderRefundTransactionId = null;
+                    existingRefund.ProviderResponse = null;
                 }
             }
 
@@ -322,38 +215,18 @@ namespace Services.Paymob
             {
                 refund = new PaymentRefund
                 {
-                    PaymentId =
-                        payment.Id,
-
-                    IdempotencyKey =
-                        $"refund-payment-{payment.Id}",
-
-                    Reason =
-                        reason,
-
-                    Status =
-                        RefundStatus.Processing,
-
-                    Amount =
-                        refundAmount,
-
-                    OriginalTransactionId =
-                        payment.ProviderTransactionId,
-
-                    RequestedAt =
-                        DateTime.UtcNow
+                    PaymentId = payment.Id,
+                    IdempotencyKey = $"refund-payment-{payment.Id}",
+                    Reason = reason,
+                    Status = RefundStatus.Processing,
+                    Amount = refundAmount,
+                    OriginalTransactionId = payment.ProviderTransactionId,
+                    RequestedAt = DateTime.UtcNow
                 };
-
-
-                await _unitOfWork
-                    .GetRepository<PaymentRefund, int>()
-                    .AddAsync(refund);
+                await _unitOfWork.GetRepository<PaymentRefund, int>().AddAsync(refund);
             }
             else
-            {
-                refund =
-                    payment.Refund;
-            }
+                refund = payment.Refund;
 
 
             // ---------------------------------------------------------
@@ -366,32 +239,21 @@ namespace Services.Paymob
             }
             catch (DbUpdateConcurrencyException)
             {
-                var latestPayment =
-                    await paymentRepo.GetByIdAsync(
-                        paymentSpec);
+                var latestPayment =await paymentRepo.GetByIdAsync(paymentSpec);
 
                 if (latestPayment?.Refund is null)
-                {
-                    throw new InternalServerErrorException(
-                        "The refund state could not be verified.");
-                }
+                    throw new InternalServerErrorException("The refund state could not be verified.");
 
-                return BuildResultFromExistingRefund(
-                    latestPayment.Refund);
+                return BuildResultFromExistingRefund(latestPayment.Refund);
             }
             catch (DbUpdateException)
             {
-                var existingPayment =
-                    await paymentRepo.GetByIdAsync(
-                        paymentSpec);
+                var existingPayment = await paymentRepo.GetByIdAsync(paymentSpec);
 
                 if (existingPayment?.Refund is null)
-                {
                     throw;
-                }
 
-                return BuildResultFromExistingRefund(
-                    existingPayment.Refund);
+                return BuildResultFromExistingRefund(existingPayment.Refund);
             }
 
 
@@ -403,11 +265,7 @@ namespace Services.Paymob
 
             try
             {
-                providerResult =
-                    await _paymobService.RefundAsync(
-                        secretKey,
-                        transactionId,
-                        amountCents);
+                providerResult = await _paymobService.RefundAsync(secretKey, transactionId, amountCents);
             }
             catch (HttpRequestException)
             {
@@ -417,11 +275,9 @@ namespace Services.Paymob
                  * Therefore we MUST NOT mark the refund as Failed.
                  */
 
-                refund.Status =
-                    RefundStatus.PendingVerification;
+                refund.Status = RefundStatus.PendingVerification;
 
-                refund.FailureReason =
-                    "The refund request could not be confirmed.";
+                refund.FailureReason = "The refund request could not be confirmed.";
 
                 try
                 {
@@ -436,17 +292,14 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "The refund request could not be confirmed."
+                    ErrorMessage = "The refund request could not be confirmed."
                 };
             }
             catch (TaskCanceledException)
             {
-                refund.Status =
-                    RefundStatus.PendingVerification;
+                refund.Status = RefundStatus.PendingVerification;
 
-                refund.FailureReason =
-                    "The refund request timed out before its result could be confirmed.";
+                refund.FailureReason = "The refund request timed out before its result could be confirmed.";
 
                 try
                 {
@@ -461,8 +314,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "The refund request timed out before its result could be confirmed."
+                    ErrorMessage = "The refund request timed out before its result could be confirmed."
                 };
             }
 
@@ -473,23 +325,12 @@ namespace Services.Paymob
 
             if (providerResult.Succeeded)
             {
-                refund.Status =
-                    RefundStatus.Succeeded;
-
-                refund.ProviderRefundTransactionId =
-                    providerResult.ProviderRefundTransactionId;
-
-                refund.ProcessedAt =
-                    DateTime.UtcNow;
-
-                refund.ProviderResponse =
-                    providerResult.ProviderResponse;
-
-                payment.Status =
-                    PaymentStatus.Refunded;
-
+                refund.Status = RefundStatus.Succeeded;
+                refund.ProviderRefundTransactionId = providerResult.ProviderRefundTransactionId;
+                refund.ProcessedAt = DateTime.UtcNow;
+                refund.ProviderResponse = providerResult.ProviderResponse;
+                payment.Status = PaymentStatus.Refunded;
                 await _unitOfWork.SaveChangesAsync();
-
                 return providerResult;
             }
 
@@ -500,20 +341,11 @@ namespace Services.Paymob
 
             if (providerResult.PendingVerification)
             {
-                refund.Status =
-                    RefundStatus.PendingVerification;
-
-                refund.FailureReason =
-                    providerResult.ErrorMessage;
-
-                refund.ProviderRefundTransactionId =
-                    providerResult.ProviderRefundTransactionId;
-
-                refund.ProviderResponse =
-                    providerResult.ProviderResponse;
-
+                refund.Status = RefundStatus.PendingVerification;
+                refund.FailureReason = providerResult.ErrorMessage;
+                refund.ProviderRefundTransactionId = providerResult.ProviderRefundTransactionId;
+                refund.ProviderResponse = providerResult.ProviderResponse;
                 await _unitOfWork.SaveChangesAsync();
-
                 return providerResult;
             }
 
@@ -522,20 +354,11 @@ namespace Services.Paymob
             // Paymob definitely rejected the refund
             // =========================================================
 
-            refund.Status =
-                RefundStatus.Failed;
-
-            refund.FailureReason =
-                providerResult.ErrorMessage;
-
-            refund.ProviderRefundTransactionId =
-                providerResult.ProviderRefundTransactionId;
-
-            refund.ProviderResponse =
-                providerResult.ProviderResponse;
-
+            refund.Status = RefundStatus.Failed;
+            refund.FailureReason = providerResult.ErrorMessage;
+            refund.ProviderRefundTransactionId = providerResult.ProviderRefundTransactionId;
+            refund.ProviderResponse = providerResult.ProviderResponse;
             await _unitOfWork.SaveChangesAsync();
-
             return providerResult;
         }
 

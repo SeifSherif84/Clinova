@@ -220,23 +220,21 @@ export default function DoctorInvitationsPage() {
                   : (invitation as SentInvitation).receiverName
 
                 return (
-<Card key={invitation.id} className="h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+<Card key={invitation.id} className="relative h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+  <Badge className={`absolute end-4 top-4 z-10 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>
+    {t(statusKey(invitation.status))}
+  </Badge>
   <CardContent className="flex h-full flex-col gap-4">
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-          <UserRound className="size-6" />
-        </span>
-        <div className="min-w-0">
-          <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-            {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
-          </small>
-          <h2 className="truncate font-sans text-lg font-bold leading-tight">{personName}</h2>
-        </div>
+    <div className="flex items-start gap-3 pe-20">
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+        <UserRound className="size-6" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+          {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
+        </small>
+        <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{personName}</h2>
       </div>
-      <Badge className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>
-        {t(statusKey(invitation.status))}
-      </Badge>
     </div>
 
     <div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-muted/30">

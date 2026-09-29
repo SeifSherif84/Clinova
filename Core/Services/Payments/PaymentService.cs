@@ -331,9 +331,7 @@ namespace Services.Payments
         }
 
 
-        public async Task HandlePaymobTransactionCallbackAsync(
-    PaymobTransactionCallbackRequest request,
-    string hmac)
+        public async Task HandlePaymobTransactionCallbackAsync(PaymobTransactionCallbackRequest request, string hmac)
         {
             // --------------------------------------------------
             // 1. Validate Callback Payload

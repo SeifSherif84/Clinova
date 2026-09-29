@@ -771,7 +771,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </Link>
                     ))}
                     {clinics.data?.length === 0 && (
-                      <p className="text-xs leading-5 text-muted-foreground">
+                      <p className="text-sm leading-6 font-medium text-muted-foreground">
                         {t("doctorProfile.noClinics")}
                       </p>
                     )}
