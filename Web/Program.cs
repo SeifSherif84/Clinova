@@ -23,7 +23,7 @@ using Services.AutoMapping.Auth;
 using Services.AutoMapping.ClinicManualPaymentMethods;
 using Services.AutoMapping.Clinics;
 using Services.AutoMapping.Doctors;
-using Services.AutoMapping.Invitations;
+using Services.AutoMapping.DoctorInvitations;
 using Services.AutoMapping.Notifications;
 using Services.AutoMapping.Patients;
 using Services.AutoMapping.WorkingHours;
@@ -38,10 +38,10 @@ using Web.Hubs;
 using Web.Middleware;
 using Web.SignalR;
 using Domain.Entities.BusinessEntities;
-using Services.AutoMapping.ClinicOnlinePaymentAccounts;
 using Microsoft.Extensions.DependencyInjection;
 using Services.Abstractions.Paymob;
 using Shared.Dtos.ClinovaSettings;
+using Services.AutoMapping.SecretaryInvitations;
 
 
 namespace Web
@@ -94,13 +94,14 @@ namespace Web
                 MapperConfig.AddProfile(new AuthProfile());
                 MapperConfig.AddProfile(new DoctorProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicProfile(builder.Configuration));
-                MapperConfig.AddProfile(new InvitationProfile());
+                MapperConfig.AddProfile(new DoctorInvitationProfile());
                 MapperConfig.AddProfile(new NotificationProfile());
                 MapperConfig.AddProfile(new WorkingHourProfile());
                 MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicManualPaymentMethodProfile());
                 MapperConfig.AddProfile(new AppointmentSlotProfile());
                 MapperConfig.AddProfile(new AppointmentProfile());
+                MapperConfig.AddProfile(new SecretaryInvitationProfile());
             });
 
 

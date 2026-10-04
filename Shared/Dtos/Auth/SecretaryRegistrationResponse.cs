@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Dtos.Invitations
+namespace Shared.Dtos.Auth
 {
-    public class SendInvitationRequest
+    public class SecretaryRegistrationResponse
     {
-        [Required]
-        [EmailAddress]
-        [MaxLength(256)]
+        public string Message { get; set; } = null!;
         public string Email { get; set; } = null!;
     }
 }

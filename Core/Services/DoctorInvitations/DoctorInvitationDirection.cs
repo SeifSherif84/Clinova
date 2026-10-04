@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Invitations
+namespace Services.DoctorInvitations
 {
-    public enum InvitationDirection
+    public enum DoctorInvitationDirection
     {
         Sent = 1,
         Received

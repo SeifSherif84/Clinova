@@ -10,10 +10,8 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Doctors
 {
-    public class ProfilePictureUrlResolver<TDestination>(IConfiguration _configuration)
-        : IValueResolver<Doctor, TDestination, string?>
+    public class ProfilePictureUrlResolver<TDestination>(IConfiguration _configuration) : IValueResolver<Doctor, TDestination, string?>
     {
-
         public string? Resolve(Doctor source, TDestination destination, string? destMember, ResolutionContext context)
         {
             if (string.IsNullOrEmpty(source.ProfilePicture))

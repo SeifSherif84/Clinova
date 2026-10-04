@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Dtos.Invitations
+namespace Shared.Dtos.DoctorInvitations
 {
-    public class ReceivedInvitationResponse
+    public class SentDoctorInvitationResponse
     {
         public int Id { get; set; }
-        public string SenderName { get; set; } = null!;
+        public string ReceiverName { get; set; } = null!;
         public string ClinicName { get; set; } = null!;
         public string Status { get; set; } = null!;
         public DateTime SentAt { get; set; }

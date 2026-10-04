@@ -15,10 +15,13 @@ namespace Services.AutoMapping.Auth
         public AuthProfile()
         {
             CreateMap<DoctorRegistrationRequest, Doctor>()
-                .ForMember(D => D.UserName, config => config.MapFrom(S => S.Email));
+                .ForMember(dest => dest.UserName, config => config.MapFrom(src => src.Email));
 
             CreateMap<PatientRegistrationRequest, Patient>()
-                .ForMember(D => D.UserName, config => config.MapFrom(S => S.Email));
+                .ForMember(dest => dest.UserName, config => config.MapFrom(src => src.Email));
+
+            CreateMap<SecretaryRegistrationRequest, Secretary>()
+                .ForMember(dest => dest.UserName, config => config.MapFrom(src => src.Email));
         }
     }
 }

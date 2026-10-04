@@ -10,7 +10,7 @@ using Services.Abstractions.ClinicManualPaymentMethods;
 using Services.Commen;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.ClinicManualPaymentMethods;
-using Shared.Dtos.Invitations;
+using Shared.Dtos.DoctorInvitations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

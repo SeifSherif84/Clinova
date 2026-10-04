@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Contracts;
 using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
 using Domain.Entities.Identity;
@@ -16,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Services.Abstractions.Auth;
 using Services.FileStorage;
 using Services.MailKitFeature;
+using Services.Specifications.SecretaryInvitations;
 using Shared.Dtos.Auth;
 using System;
 using System.Collections.Generic;
@@ -34,7 +36,8 @@ namespace Services.Auth
                              IMapper _mapper,
                              IConfiguration _configuration,
                              IMailService _mailService,
-                             IOptions<JWTOptions> _jwtOptions) : IAuthService
+                             IOptions<JWTOptions> _jwtOptions,
+                             IUnitOfWork _unitOfWork) : IAuthService
     {
         public async Task<DoctorRegistrationResponse> DoctorRegistrationAsync(DoctorRegistrationRequest request)
         {
@@ -334,14 +337,6 @@ namespace Services.Auth
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 throw new UnconfirmedEmailException("Please confirm your email address before logging in.");
-
-            //if (!await _userManager.IsEmailConfirmedAsync(user))
-            //{
-            //    var sendEmailConfirmationflag = await SendEmailConfirmationURL(user);
-            //    if (!sendEmailConfirmationflag)
-            //        throw new EmailConfirmationSendException("Your account still unconfirmed, but We couldn't send the email confirmation right now. Please try again later.");
-            //}
-
 
             if (await _userManager.IsInRoleAsync(user, "Doctor"))
             {
@@ -798,6 +793,52 @@ namespace Services.Auth
         }
 
 
+        public async Task<SecretaryRegistrationResponse> SecretaryRegistrationAsync(SecretaryRegistrationRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is not null)
+                throw new EmailAlreadyExistsException("An account with this email address already exists.");
+
+            var secretary = _mapper.Map<Secretary>(request);
+            var result = await _userManager.CreateAsync(secretary, request.Password);
+            if (!result.Succeeded)
+                throw new SecretaryRegistrationException(result.Errors.Select(error => error.Description).ToList());
+
+            var roleFlag = await _userManager.AddToRoleAsync(secretary, "Secretary");
+            if (!roleFlag.Succeeded)
+                throw new RoleAssignmentException(roleFlag.Errors.Select(error => error.Description).ToList());
+
+            var secretaryInvitationspec = SecretaryInvitationSpecifications.PendingUnlinkedSecretaryInvitationByEmail(secretary.Email!);
+            var secretaryInvitations = await _unitOfWork.GetRepository<SecretaryInvitation, int>().GetAllAsync(secretaryInvitationspec);
+            // if there is no pending invitations this is not error because the secretary can register without invitation, but if there is a pending invitation we need to handle it
+
+            if (secretaryInvitations.Any())
+            {
+                foreach (var invitation in secretaryInvitations)
+                {
+                    invitation.SecretaryReceiverId = secretary.Id;
+                }
+
+                // if linking the pending invitations fails due to a database or server-side error we can make feature mechanism to link the pending invitations later, but for now we will throw an error to let the user know that the linking failed and they can try again later
+                var linkingresult = await _unitOfWork.SaveChangesAsync();
+                if (linkingresult == 0)
+                    throw new InternalServerErrorException(
+                        "Your account was created successfully, but we couldn't link your pending invitations right now. Please try again later.");
+            }
+
+
+            var sendEmailConfirmationflag = await SendEmailConfirmationURL(secretary);
+            if (!sendEmailConfirmationflag)
+                throw new EmailConfirmationSendException("Your account was created successfully, but We couldn't send the email confirmation right now. Please try again later.");
+
+            return new SecretaryRegistrationResponse()
+            {
+                Message = "Registration successful. Please check your email to confirm your account.",
+                Email = request.Email,
+            };
+        }
+
+
 
         public async Task<string> DeleteAccountAsync(string userId)
         {
@@ -820,5 +861,6 @@ namespace Services.Auth
 
             return "Your account has been successfully deleted.";
         }
+
     }
 }

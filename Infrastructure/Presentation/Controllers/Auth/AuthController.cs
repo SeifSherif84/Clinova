@@ -109,6 +109,14 @@ namespace Presentation.Controllers.Auth
         }
 
 
+        [HttpPost("secretary-registration")] // Post api/auth/secretary-registration
+        public async Task<IActionResult> SecretaryRegistration([FromBody] SecretaryRegistrationRequest request)
+        {
+            var response = await _serviceManager.AuthService.SecretaryRegistrationAsync(request);
+            return Ok(response);
+        }
+
+
         [Authorize]
         [HttpDelete("account")] // Delete api/auth/account
         public async Task<IActionResult> DeleteAccount()

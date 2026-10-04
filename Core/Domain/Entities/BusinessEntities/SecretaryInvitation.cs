@@ -8,20 +8,23 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.BusinessEntities
 {
-    public class Invitation : BaseEntity<int>
+    public class SecretaryInvitation : BaseEntity<int>
     {
         public InvitationStatus Status { get; set; } = InvitationStatus.Pending;
+
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
+
         public DateTime? RespondedAt { get; set; }
+
+        public string? SecretaryReceiverId { get; set; }
+        public Secretary? SecretaryReceiver { get; set; }
+
+        public string SecretaryReceiverEmail { get; set; } = null!;
 
         public string DoctorSenderId { get; set; } = null!;
         public Doctor DoctorSender { get; set; } = null!;
 
-        public string DoctorReceiverId { get; set; } = null!;
-        public Doctor DoctorReceiver { get; set; } = null!;
-
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = null!;
-
     }
 }

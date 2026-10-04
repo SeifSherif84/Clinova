@@ -9,13 +9,13 @@ using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
 using Microsoft.AspNetCore.Identity;
 using Services.Abstractions.Clinics;
-using Services.Abstractions.Invitations;
+using Services.Abstractions.DoctorInvitations;
 using Services.Abstractions.Notifications;
 using Services.Clinics;
 using Services.Commen;
 using Services.Specifications.Clinics;
-using Services.Specifications.Invitations;
-using Shared.Dtos.Invitations;
+using Services.Specifications.DoctorInvitations;
+using Shared.Dtos.DoctorInvitations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,15 +23,15 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Invitations
+namespace Services.DoctorInvitations
 {
-    public class InvitationService(UserManager<UserApp> _userManager,
-                                   IUnitOfWork _unitOfWork,
-                                   IMapper _mapper,
-                                   INotificationService _notificationService) : IInvitationService
+    public class DoctorInvitationService(UserManager<UserApp> _userManager,
+                                         IUnitOfWork _unitOfWork,
+                                         IMapper _mapper,
+                                         INotificationService _notificationService) : IDoctorInvitationService
     {
 
-        public async Task<string> SendInvitationAsync(string userId, int clinicId, SendInvitationRequest request)
+        public async Task<string> SendDoctorInvitationAsync(string userId, int clinicId, SendDoctorInvitationRequest request)
         {
             var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
             
@@ -47,12 +47,12 @@ namespace Services.Invitations
             if (receiverDoctorClinic is not null)
                 throw new BadRequestException("This doctor is already a member of this clinic.");
 
-            var invitationSpec = new InvitationSpecifications(doctorOwnedClinicAccess.Doctor.Id, receiverDoctor.Id, clinicId, InvitationStatus.Pending);
-            var existingInvitation = await _unitOfWork.GetRepository<Invitation, int>().GetByIdAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(doctorOwnedClinicAccess.Doctor.Id, receiverDoctor.Id, clinicId, InvitationStatus.Pending);
+            var existingInvitation = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetByIdAsync(invitationSpec);
             if (existingInvitation is not null)
                 throw new BadRequestException("An invitation has already been sent to this user and is still pending.");
 
-            var newInvitation = new Invitation()
+            var newInvitation = new DoctorInvitation()
             {
                 DoctorSender = doctorOwnedClinicAccess.Doctor,
                 DoctorReceiver = receiverDoctor,
@@ -61,7 +61,7 @@ namespace Services.Invitations
                 SentAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.GetRepository<Invitation, int>().AddAsync(newInvitation);
+            await _unitOfWork.GetRepository<DoctorInvitation, int>().AddAsync(newInvitation);
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
                 throw new InternalServerErrorException("We couldn't send the invitation right now. Please try again later.");
@@ -78,7 +78,7 @@ namespace Services.Invitations
 
 
 
-        public async Task<IEnumerable<SentInvitationResponse>> GetSentInvitationsAsync(string userId)
+        public async Task<IEnumerable<SentDoctorInvitationResponse>> GetSentDoctorInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -88,17 +88,17 @@ namespace Services.Invitations
                 throw new NotFoundException("We couldn't find your account.");
 
 
-            var invitationSpec = new InvitationSpecifications(userId, InvitationDirection.Sent, includeReceiver: true, includeClinic: true);
-            var invitations = await _unitOfWork.GetRepository<Invitation, int>().GetAllAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(userId, DoctorInvitationDirection.Sent, includeReceiver: true, includeClinic: true);
+            var invitations = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetAllAsync(invitationSpec);
             if (!invitations.Any())
-                return Enumerable.Empty<SentInvitationResponse>();
+                return Enumerable.Empty<SentDoctorInvitationResponse>();
 
-            return _mapper.Map<List<SentInvitationResponse>>(invitations);
+            return _mapper.Map<List<SentDoctorInvitationResponse>>(invitations);
         }
 
 
 
-        public async Task<IEnumerable<ReceivedInvitationResponse>> GetReceivedInvitationsAsync(string userId)
+        public async Task<IEnumerable<ReceivedDoctorInvitationResponse>> GetReceivedDoctorInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -109,17 +109,17 @@ namespace Services.Invitations
                 throw new NotFoundException("We couldn't find your account.");
 
 
-            var invitationSpec = new InvitationSpecifications(userId, InvitationDirection.Received, includeSender: true, includeClinic: true);
-            var invitations = await _unitOfWork.GetRepository<Invitation, int>().GetAllAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(userId, DoctorInvitationDirection.Received, includeSender: true, includeClinic: true);
+            var invitations = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetAllAsync(invitationSpec);
             if (!invitations.Any())
-                return Enumerable.Empty<ReceivedInvitationResponse>();
+                return Enumerable.Empty<ReceivedDoctorInvitationResponse>();
 
-            return _mapper.Map<List<ReceivedInvitationResponse>>(invitations);
+            return _mapper.Map<List<ReceivedDoctorInvitationResponse>>(invitations);
         }
 
 
 
-        public async Task<string> AcceptInvitationAsync(string userId, int invitationId)
+        public async Task<string> AcceptDoctorInvitationAsync(string userId, int doctorInvitationId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -129,8 +129,9 @@ namespace Services.Invitations
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-            var invitationSpec = new InvitationSpecifications(invitationId, includeClinic: true);
-            var invitation = await _unitOfWork.GetRepository<Invitation, int>().GetByIdAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(doctorInvitationId, includeClinic: true);
+            var invitation = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetByIdAsync(invitationSpec);
+
             if (invitation is null)
                 throw new NotFoundException("The invitation you are trying to accept does not exist.");
 
@@ -158,7 +159,7 @@ namespace Services.Invitations
             await _unitOfWork.GetRepository<DoctorClinic>().AddAsync(doctorClinic);
             var result = await _unitOfWork.SaveChangesAsync();
             if(result == 0)
-                throw new InternalServerErrorException("We couldn't accept the invitation right now. Please try again later.");
+                throw new InternalServerErrorException("You couldn't accept the invitation right now. Please try again later.");
 
 
             await _notificationService.CreateAndSendAsync(
@@ -173,7 +174,7 @@ namespace Services.Invitations
 
 
 
-        public async Task<string> RejectInvitationAsync(string userId, int invitationId)
+        public async Task<string> RejectDoctorInvitationAsync(string userId, int doctorInvitationId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -182,8 +183,8 @@ namespace Services.Invitations
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-            var invitationSpec = new InvitationSpecifications(invitationId, includeClinic: true);
-            var invitation = await _unitOfWork.GetRepository<Invitation, int>().GetByIdAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(doctorInvitationId, includeClinic: true);
+            var invitation = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetByIdAsync(invitationSpec);
 
             if (invitation is null)
                 throw new NotFoundException("The invitation you are trying to reject does not exist.");
@@ -199,7 +200,7 @@ namespace Services.Invitations
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new InternalServerErrorException("We couldn't reject the invitation right now. Please try again later.");
+                throw new InternalServerErrorException("You couldn't reject the invitation right now. Please try again later.");
 
             await _notificationService.CreateAndSendAsync(
                 invitation.DoctorSenderId,
@@ -212,7 +213,7 @@ namespace Services.Invitations
 
 
 
-        public async Task<string> CancelInvitationAsync(string userId, int invitationId)
+        public async Task<string> CancelDoctorInvitationAsync(string userId, int doctorInvitationId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -221,8 +222,8 @@ namespace Services.Invitations
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-            var invitationSpec = new InvitationSpecifications(invitationId, includeClinic: true);
-            var invitation = await _unitOfWork.GetRepository<Invitation, int>().GetByIdAsync(invitationSpec);
+            var invitationSpec = new DoctorInvitationSpecifications(doctorInvitationId, includeClinic: true);
+            var invitation = await _unitOfWork.GetRepository<DoctorInvitation, int>().GetByIdAsync(invitationSpec);
 
             if (invitation is null)
                 throw new NotFoundException("The invitation you are trying to cancel does not exist.");
@@ -233,10 +234,10 @@ namespace Services.Invitations
             if (invitation.Status is not InvitationStatus.Pending)
                 throw new BadRequestException("This invitation is no longer pending.");
 
-            _unitOfWork.GetRepository<Invitation, int>().Delete(invitation);
+            _unitOfWork.GetRepository<DoctorInvitation, int>().Delete(invitation);
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-                throw new InternalServerErrorException("We couldn't cancel the invitation right now. Please try again later.");
+                throw new InternalServerErrorException("You couldn't cancel the invitation right now. Please try again later.");
 
 
             await _notificationService.CreateAndSendAsync(
