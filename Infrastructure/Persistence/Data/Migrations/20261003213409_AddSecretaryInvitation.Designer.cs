@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Data.Contexts;
 
@@ -11,9 +12,11 @@ using Persistence.Data.Contexts;
 namespace Persistence.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261003213409_AddSecretaryInvitation")]
+    partial class AddSecretaryInvitation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -332,7 +335,25 @@ namespace Persistence.Data.Migrations
                     b.ToTable("DoctorClinics");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorInvitation", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.Governorate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Governorates");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.Invitation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -368,25 +389,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("DoctorSenderId");
 
-                    b.ToTable("DoctorInvitations");
-                });
-
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.Governorate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Governorates");
+                    b.ToTable("Invitations");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.MedicalSpecialty", b =>
@@ -688,12 +691,12 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime?>("RespondedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SecretaryReceiverEmail")
+                    b.Property<string>("SecretaryEmail")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar");
 
-                    b.Property<string>("SecretaryReceiverId")
+                    b.Property<string>("SecretaryId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("SentAt")
@@ -708,7 +711,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("DoctorSenderId");
 
-                    b.HasIndex("SecretaryReceiverId");
+                    b.HasIndex("SecretaryId");
 
                     b.ToTable("SecretaryInvitations");
                 });
@@ -1189,22 +1192,22 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Doctor");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorInvitation", b =>
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.Invitation", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.Clinic", "Clinic")
-                        .WithMany("DoctorInvitations")
+                        .WithMany("Invitations")
                         .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.BusinessEntities.Doctor", "DoctorReceiver")
-                        .WithMany("DoctorInvitationsReceived")
+                        .WithMany("InvitationsReceived")
                         .HasForeignKey("DoctorReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.BusinessEntities.Doctor", "DoctorSender")
-                        .WithMany("DoctorInvitationsSent")
+                        .WithMany("InvitationsSent")
                         .HasForeignKey("DoctorSenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1310,16 +1313,16 @@ namespace Persistence.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.BusinessEntities.Secretary", "SecretaryReceiver")
-                        .WithMany("SecretaryInvitationsReceived")
-                        .HasForeignKey("SecretaryReceiverId")
+                    b.HasOne("Domain.Entities.BusinessEntities.Secretary", "Secretary")
+                        .WithMany("InvitationsReceived")
+                        .HasForeignKey("SecretaryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Clinic");
 
                     b.Navigation("DoctorSender");
 
-                    b.Navigation("SecretaryReceiver");
+                    b.Navigation("Secretary");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
@@ -1456,9 +1459,9 @@ namespace Persistence.Data.Migrations
                 {
                     b.Navigation("DoctorClinics");
 
-                    b.Navigation("DoctorInvitations");
-
                     b.Navigation("Images");
+
+                    b.Navigation("Invitations");
 
                     b.Navigation("ManualPaymentMethods");
 
@@ -1522,9 +1525,9 @@ namespace Persistence.Data.Migrations
                 {
                     b.Navigation("DoctorClinics");
 
-                    b.Navigation("DoctorInvitationsReceived");
+                    b.Navigation("InvitationsReceived");
 
-                    b.Navigation("DoctorInvitationsSent");
+                    b.Navigation("InvitationsSent");
 
                     b.Navigation("SecretaryInvitationsSent");
                 });
@@ -1536,7 +1539,7 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Secretary", b =>
                 {
-                    b.Navigation("SecretaryInvitationsReceived");
+                    b.Navigation("InvitationsReceived");
                 });
 #pragma warning restore 612, 618
         }

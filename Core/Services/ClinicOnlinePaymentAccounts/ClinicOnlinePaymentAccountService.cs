@@ -88,16 +88,14 @@ namespace Services.ClinicOnlinePaymentAccounts
             if (!string.IsNullOrWhiteSpace(request.PublicKey))
                 existingOnlinePaymentAccount.PublicKey = request.PublicKey.Trim();
 
-
             if (!string.IsNullOrWhiteSpace(request.SecretKey))
                 existingOnlinePaymentAccount.SecretKey = _credentialProtector.Encrypt(request.SecretKey.Trim());
-
 
             if (!string.IsNullOrWhiteSpace(request.HmacSecret))
                 existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.HmacSecret.Trim());
 
             if (!string.IsNullOrWhiteSpace(request.ApiKey))
-                existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.ApiKey.Trim());
+                existingOnlinePaymentAccount.ApiKey = _credentialProtector.Encrypt(request.ApiKey.Trim());
 
 
             // Any credential change requires verification again.

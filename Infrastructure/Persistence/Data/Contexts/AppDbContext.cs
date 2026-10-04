@@ -84,7 +84,8 @@ namespace Persistence.Data.Contexts
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentRefund> PaymentRefunds { get; set; }
 
-        public DbSet<Invitation> Invitations { get; set; }
+        public DbSet<DoctorInvitation> DoctorInvitations { get; set; }
+        public DbSet<SecretaryInvitation> SecretaryInvitations { get; set; }
         public DbSet<Notification> Notifications { get; set; }
     }
 }

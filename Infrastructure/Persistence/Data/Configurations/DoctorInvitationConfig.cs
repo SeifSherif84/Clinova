@@ -9,26 +9,26 @@ using System.Threading.Tasks;
 
 namespace Persistence.Data.Configurations
 {
-    public class InvitationConfig : IEntityTypeConfiguration<Invitation>
+    public class DoctorInvitationConfig : IEntityTypeConfiguration<DoctorInvitation>
     {
-        public void Configure(EntityTypeBuilder<Invitation> builder)
+        public void Configure(EntityTypeBuilder<DoctorInvitation> builder)
         {
             builder.HasKey(invitation => invitation.Id);
 
             builder.Property(invitation => invitation.Id).UseIdentityColumn(1, 1);
 
             builder.HasOne(invitation => invitation.DoctorSender)
-                   .WithMany(D => D.InvitationsSent)
+                   .WithMany(doctor => doctor.DoctorInvitationsSent)
                    .HasForeignKey(invitation => invitation.DoctorSenderId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(invitation => invitation.DoctorReceiver)
-                   .WithMany(D => D.InvitationsReceived)
+                   .WithMany(doctor => doctor.DoctorInvitationsReceived)
                    .HasForeignKey(invitation => invitation.DoctorReceiverId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(invitation => invitation.Clinic)
-                   .WithMany(C => C.Invitations)
+                   .WithMany(clinic => clinic.DoctorInvitations)
                    .HasForeignKey(invitation => invitation.ClinicId)
                    .OnDelete(DeleteBehavior.Cascade);
 

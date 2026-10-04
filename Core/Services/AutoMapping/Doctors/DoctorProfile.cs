@@ -22,6 +22,7 @@ namespace Services.AutoMapping.Doctors
                 .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<DoctorProfileResponse>(_configuration)))
                 .ForMember(dest => dest.ApprovalStatusName, config => config.MapFrom(src => (src.ApprovalStatus).ToString()));
 
+
             CreateMap<UpdateDoctorProfileRequest, Doctor>()
                     .ForAllMembers(config => config.Condition((S, D, srcMember) => srcMember != null));
 

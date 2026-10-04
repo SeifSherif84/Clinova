@@ -27,7 +27,8 @@ namespace Domain.Entities.BusinessEntities
         public ICollection<ClinicPhoneNumbers> PhoneNumbers { get; set; } = new List<ClinicPhoneNumbers>();
         public ICollection<ClinicImages> Images { get; set; } = new List<ClinicImages>();
         public ICollection<Secretary> Secretaries { get; set; } = new List<Secretary>();
-        public ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
+        public ICollection<DoctorInvitation> DoctorInvitations { get; set; } = new List<DoctorInvitation>();
+        public ICollection<SecretaryInvitation> SecretaryInvitations { get; set; } = new List<SecretaryInvitation>();
 
         public int RegionId { get; set; }
         public Region Region { get; set; } = null!;

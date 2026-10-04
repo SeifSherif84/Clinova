@@ -18,6 +18,6 @@ namespace Domain.Entities.Enums
         MemberRemoved,
         MemberLeft,
         ReviewSubmitted,
-        PaymentConfigurationIssue
+        PaymentConfigurationIssue,
     }
 }

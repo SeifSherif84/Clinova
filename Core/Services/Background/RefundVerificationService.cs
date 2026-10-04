@@ -9,22 +9,16 @@ using System.Threading.Tasks;
 
 namespace Services.Background
 {
-    public class RefundVerificationService(
-        IServiceScopeFactory serviceScopeFactory)
-        : BackgroundService
+    public class RefundVerificationService(IServiceScopeFactory serviceScopeFactory) : BackgroundService
     {
-        protected override async Task ExecuteAsync(
-            CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
                     using var scope = serviceScopeFactory.CreateScope();
-
-                    var refundService =
-                        scope.ServiceProvider.GetRequiredService<IPaymobRefundService>();
-
+                    var refundService = scope.ServiceProvider.GetRequiredService<IPaymobRefundService>();
                     await refundService.VerifyPendingRefundsAsync();
                 }
                 catch
@@ -34,9 +28,7 @@ namespace Services.Background
 
                 try
                 {
-                    await Task.Delay(
-                        TimeSpan.FromMinutes(1),
-                        stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {

@@ -26,11 +26,10 @@ namespace Services.Background
                 {
                     // Ignore errors for now.
                 }
+
                 try
                 {
-                    await Task.Delay(
-                        TimeSpan.FromMinutes(1),
-                        stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {

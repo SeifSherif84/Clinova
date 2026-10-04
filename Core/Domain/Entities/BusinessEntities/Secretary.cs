@@ -14,5 +14,7 @@ namespace Domain.Entities.BusinessEntities
 
         public int? ClinicId { get; set; }
         public Clinic? Clinic { get; set; }
+
+        public ICollection<SecretaryInvitation> SecretaryInvitationsReceived { get; set; } = new List<SecretaryInvitation>();
     }
 }

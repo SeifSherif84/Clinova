@@ -23,11 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.TestClient", "SignalR.TestClient\SignalR.TestClient.csproj", "{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{0C0CA6C6-3637-4712-8092-9D3457D55616}"
-	ProjectSection(SolutionItems) = preProject
-		copilot-instructions.md = copilot-instructions.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Paymob test", "Paymob test", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		PaymobTest.html = PaymobTest.html

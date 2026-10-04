@@ -20,5 +20,6 @@ namespace Services.Abstractions.Auth
         Task<string> ChangePasswordAsync(string userId, ChangePasswordRequest request);
         Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest request);
         Task<string> DeleteAccountAsync(string userId);
+        Task<SecretaryRegistrationResponse> SecretaryRegistrationAsync(SecretaryRegistrationRequest request);
     }
 }

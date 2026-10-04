@@ -2,7 +2,7 @@
 using Services.Abstractions.Auth;
 using Services.Abstractions.Clinics;
 using Services.Abstractions.Doctors;
-using Services.Abstractions.Invitations;
+using Services.Abstractions.DoctorInvitations;
 using Services.Abstractions.Lookups;
 using Services.Abstractions.Notifications;
 using Services.Abstractions.Patients;
@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Services.Abstractions.ClinicOnlinePaymentAccounts;
 using Services.Abstractions.ClinicPaymentIntegrations;
 using Services.Abstractions.Payments;
+using Services.Abstractions.SecretaryInvitations;
 
 
 namespace Services.Abstractions
@@ -27,7 +28,7 @@ namespace Services.Abstractions
         IDoctorService DoctorService { get; }
         ILookupsService LookupsService { get; }
         IClinicService ClinicService { get; }
-        IInvitationService InvitationService { get; }
+        IDoctorInvitationService InvitationService { get; }
         INotificationService NotificationService { get; }
         IWorkingHourService WorkingHourService { get; }
         IAppointmentSlotService AppointmentSlotService { get; }
@@ -37,5 +38,6 @@ namespace Services.Abstractions
         IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; }
         IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; }
         IPaymentService PaymentService { get; }
+        ISecretaryInvitationService SecretaryInvitationService { get; }
     }
 }

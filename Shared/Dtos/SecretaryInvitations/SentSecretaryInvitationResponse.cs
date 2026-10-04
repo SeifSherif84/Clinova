@@ -1,13 +1,12 @@
-﻿using Domain.Entities.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Dtos.Invitations
+namespace Shared.Dtos.SecretaryInvitations
 {
-    public class SentInvitationResponse
+    public class SentSecretaryInvitationResponse
     {
         public int Id { get; set; }
         public string ReceiverName { get; set; } = null!;

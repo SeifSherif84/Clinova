@@ -1,21 +1,21 @@
 ﻿using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
-using Services.Invitations;
+using Services.DoctorInvitations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Specifications.Invitations
+namespace Services.Specifications.DoctorInvitations
 {
-    public class InvitationSpecifications : BaseSpecifications<Invitation, int>
+    public class DoctorInvitationSpecifications : BaseSpecifications<DoctorInvitation, int>
     {
         // Constructor to get invitation with specific senderId, receiverId, clinicId, and pending status
-        public InvitationSpecifications(string senderId,
-                                        string receiverId,
-                                        int clinicId,
-                                        InvitationStatus pendingStatus) : base()
+        public DoctorInvitationSpecifications(string senderId,
+                                              string receiverId,
+                                              int clinicId,
+                                              InvitationStatus pendingStatus) : base()
         {
             ApplyCriteriaToGetInvitationWithSpecificData(senderId, receiverId, clinicId, pendingStatus);
         }
@@ -35,23 +35,23 @@ namespace Services.Specifications.Invitations
 
 
         // Constructor to get invitations for a specific doctor based on the direction (sent or received) and optional includes
-        public InvitationSpecifications(string doctorId,
-                                        InvitationDirection direction,
-                                        bool includeSender = false,
-                                        bool includeReceiver = false,
-                                        bool includeClinic = false) : base()
+        public DoctorInvitationSpecifications(string doctorId,
+                                              DoctorInvitationDirection direction,
+                                              bool includeSender = false,
+                                              bool includeReceiver = false,
+                                              bool includeClinic = false) : base()
         {
             ApplyCriteriaToGetSentOrReceivedInvitationsForSpecificDoctor(doctorId, direction);
             ApplyIncludes(includeSender, includeReceiver, includeClinic);
         }
 
         private void ApplyCriteriaToGetSentOrReceivedInvitationsForSpecificDoctor(string doctorId, 
-                                                                                  InvitationDirection direction)
+                                                                                  DoctorInvitationDirection direction)
         {
             Criteria = direction switch
             {
-                InvitationDirection.Sent => invitation => invitation.DoctorSenderId == doctorId,
-                InvitationDirection.Received => invitation => invitation.DoctorReceiverId == doctorId,
+                DoctorInvitationDirection.Sent => invitation => invitation.DoctorSenderId == doctorId,
+                DoctorInvitationDirection.Received => invitation => invitation.DoctorReceiverId == doctorId,
                 _ => throw new ArgumentException("Invalid invitation direction", nameof(direction))
             };
         }
@@ -60,10 +60,10 @@ namespace Services.Specifications.Invitations
 
 
         // Constructor to get invitation with specific invitationId and optional includes
-        public InvitationSpecifications(int invitationId,
-                                        bool includeSender = false,
-                                        bool includeReceiver = false,
-                                        bool includeClinic = false) : base()
+        public DoctorInvitationSpecifications(int invitationId,
+                                              bool includeSender = false,
+                                              bool includeReceiver = false,
+                                              bool includeClinic = false) : base()
         {
             ApplyCriteriaToGetInvitationWithSpecificId(invitationId);
             ApplyIncludes(includeSender, includeReceiver, includeClinic);
@@ -76,21 +76,6 @@ namespace Services.Specifications.Invitations
 
 
 
-
-
-
-
-
-
-        private void ApplyCriteriaToGetInvitationsForSpecificClinic(int clinicId)
-        {
-            Criteria = invitation => invitation.ClinicId == clinicId;
-        }
-
-        private void ApplyCriteriaToGetInvitationsWithSpecificStatus(InvitationStatus status)
-        {
-            Criteria = invitation => invitation.Status == status;
-        }
 
 
         private void ApplyIncludes(bool includeSender,
