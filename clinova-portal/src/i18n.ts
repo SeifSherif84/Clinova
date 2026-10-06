@@ -1,3 +1,6 @@
+import { paymobUxEn, paymobUxAr } from '@/locales/paymob-ux'
+import { paymobExperienceEn, paymobExperienceAr } from '@/locales/paymob-experience'
+import { paymobEn, paymobAr } from '@/locales/paymob'
 import { manualPaymentsEn, manualPaymentsAr } from '@/locales/manual-payments'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
@@ -6,6 +9,7 @@ const resources = {
   en: {
     translation: {
       manualPayments: manualPaymentsEn,
+      paymob: { ...paymobEn, ...paymobExperienceEn, ux: paymobUxEn },
       common: {
         appTitle: 'Clinova | Connected healthcare',
         brandTagline: 'Care, beautifully connected',
@@ -587,6 +591,7 @@ const resources = {
   ar: {
     translation: {
       manualPayments: manualPaymentsAr,
+      paymob: { ...paymobAr, ...paymobExperienceAr, ux: paymobUxAr },
       common: {
         appTitle: 'كلينوفا | رعاية صحية مترابطة',
         brandTagline: 'رعاية مترابطة بأناقة',
