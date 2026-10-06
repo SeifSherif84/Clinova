@@ -58,7 +58,7 @@ namespace Persistence.Repositories
             return await ApplySpecifications(specifications).ToListAsync();
         }
 
-        public async Task<int>? CountAsync(IBaseSpecifications<TEntity, TKey> specifications)
+        public async Task<int> CountAsync(IBaseSpecifications<TEntity, TKey> specifications)
         {
             return await ApplySpecifications(specifications).CountAsync();
         }

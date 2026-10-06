@@ -42,6 +42,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Services.Abstractions.Paymob;
 using Shared.Dtos.ClinovaSettings;
 using Services.AutoMapping.SecretaryInvitations;
+using Services.AutoMapping.Secretaries;
 
 
 namespace Web
@@ -102,6 +103,7 @@ namespace Web
                 MapperConfig.AddProfile(new AppointmentSlotProfile());
                 MapperConfig.AddProfile(new AppointmentProfile());
                 MapperConfig.AddProfile(new SecretaryInvitationProfile());
+                MapperConfig.AddProfile(new SecretaryProfile(builder.Configuration));
             });
 
 
@@ -145,7 +147,6 @@ namespace Web
                         {
                             context.Token = accessToken;
                         }
-
                         return Task.CompletedTask;
                     }
                 };

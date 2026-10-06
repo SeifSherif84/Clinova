@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Paymob test", "Paymob test"
 		PaymobTest.html = PaymobTest.html
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignalR test", "SignalR test", "{38597A92-08F8-400E-B050-3A678E8B29ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,7 @@ Global
 		{761075D2-90AF-4C60-94AA-7692C839D157} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8C8E83DD-5F8B-4C3D-8D6C-6F6417875919} = {098070AF-E6C8-4C32-8D92-92680C21A6C9}
 		{86AD9583-DFA5-468F-A96A-6903C37FBEEA} = {098070AF-E6C8-4C32-8D92-92680C21A6C9}
+		{FFE2AF6D-3942-44DE-8E7B-B29C9B97F3A2} = {38597A92-08F8-400E-B050-3A678E8B29ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7D841122-3613-450F-82F3-6853C7B6DBF9}

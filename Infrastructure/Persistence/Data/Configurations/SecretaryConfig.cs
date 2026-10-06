@@ -18,11 +18,6 @@ namespace Persistence.Data.Configurations
                    .HasForeignKey(secretary => secretary.ClinicId)
                    .OnDelete(DeleteBehavior.SetNull);
 
-            builder.Property(secretary => secretary.NationalId)
-                   .HasColumnType("varchar")
-                   .HasMaxLength(14)
-                   .IsRequired();
-
             builder.ToTable("Secretaries");
         }
     }

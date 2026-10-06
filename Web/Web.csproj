@@ -21,6 +21,8 @@
     <Folder Include="wwwroot\files\images\doctors\profilePictures\" />
     <Folder Include="wwwroot\files\images\doctors\syndicateCards\" />
     <Folder Include="wwwroot\files\images\patients\profilePictures\" />
+    <Folder Include="wwwroot\files\images\secretaries\nationalIds\" />
+    <Folder Include="wwwroot\files\images\secretaries\profilePictures\" />
   </ItemGroup>
 
   <ItemGroup>

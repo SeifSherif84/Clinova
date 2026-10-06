@@ -110,7 +110,7 @@ namespace Presentation.Controllers.Auth
 
 
         [HttpPost("secretary-registration")] // Post api/auth/secretary-registration
-        public async Task<IActionResult> SecretaryRegistration([FromBody] SecretaryRegistrationRequest request)
+        public async Task<IActionResult> SecretaryRegistration([FromForm] SecretaryRegistrationRequest request)
         {
             var response = await _serviceManager.AuthService.SecretaryRegistrationAsync(request);
             return Ok(response);

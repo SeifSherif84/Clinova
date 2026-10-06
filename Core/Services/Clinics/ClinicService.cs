@@ -17,6 +17,7 @@ using Services.Commen;
 using Services.FileStorage;
 using Services.Specifications.Clinics;
 using Services.Specifications.Doctors;
+using Services.Specifications.Secretaries;
 using Shared.Dtos.Clinics;
 using System;
 using System.Collections.Generic;
@@ -242,7 +243,7 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<string> RemoveMemberAsync(string userId, int clinicId, string memberId)
+        public async Task<string> DoctorRemoveMemberAsync(string userId, int clinicId, string memberId)
         {
             var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
@@ -272,7 +273,7 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<string> LeaveClinicAsync(string userId, int clinicId)
+        public async Task<string> MemberLeaveClinicAsync(string userId, int clinicId)
         {
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId);
 
@@ -317,12 +318,133 @@ namespace Services.Abstractions.Clinics
 
 
 
+        public async Task<string> DoctorRemoveSecretaryAsync(string userId, int clinicId, string secretaryId)
+        {
+            var doctorOwnedClinicAccess = await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("The secretary you're trying to remove could not be found.");
+
+            if (secretary.ClinicId != clinicId || secretary.ClinicId is null)
+                throw new BadRequestException("The secretary you're trying to remove could not be found in this clinic.");
+
+            secretary.ClinicId = null;
+
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException(
+                    "You couldn't remove this secretary from the clinic right now. Please try again.");
+
+
+            await _notificationService.CreateAndSendAsync(
+                secretary.Id,
+                "Removed from Clinic",
+                $"Dr. {doctorOwnedClinicAccess.Doctor.FirstName} {doctorOwnedClinicAccess.Doctor.LastName} removed you from {doctorOwnedClinicAccess.Clinic.Name}.",
+                NotificationType.SecretaryRemoved);
+
+
+            return "The secretary has been removed from the clinic successfully.";
+        }
+
+
+
+        public async Task<string> SecretaryLeaveClinicAsync(string userId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId != clinicId || secretary.ClinicId is null)
+                throw new NotFoundException("You are not a secretary of this clinic.");
+
+
+            var ownerDoctorSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.Owner);
+            var owner = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(ownerDoctorSpec);
+            if (owner is null)
+                throw new InternalServerErrorException(
+                    "We couldn't process your request to leave the clinic right now. Please try again.");
+
+            var clinicSpec = new ClinicSpecifications(clinicId);
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicSpec);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
+
+            secretary.ClinicId = null;
+
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException(
+                    "We couldn't process your request to leave the clinic right now. Please try again.");
+
+
+            await _notificationService.CreateAndSendAsync(
+                owner.Id,
+                "Secretary Left Clinic",
+                $"{secretary.FirstName} {secretary.LastName} left {clinic.Name}.",
+                NotificationType.MemberLeft);
+
+            return "You have successfully left the clinic.";
+        }
+
+
+
+        public async Task<IEnumerable<ClinicSecretaryResponse>> GetClinicSecretariesAsync(string userId, int clinicId)
+        {
+            await GetDoctorClinicAccessAsync(userId, clinicId);
+            var clinicSecretariesSpec = SecretarySpecifications.GetSecretariesByClinicId(clinicId);
+            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(clinicSecretariesSpec);
+
+            if (!secretaries.Any())
+                return Enumerable.Empty<ClinicSecretaryResponse>();
+
+            var clinicSecretariesResponse = _mapper.Map<IEnumerable<ClinicSecretaryResponse>>(secretaries);
+            return clinicSecretariesResponse;
+        }
+
+
+
+        public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patientRepo = _unitOfWork.GetRepository<Patient, string>();
+            var patient = await patientRepo.GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicId);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
+
+
+            var depositAmount = clinic.ConsultationFee * (clinic.DepositPercentage / 100m);
+            var remainingAmount = clinic.ConsultationFee - depositAmount;
+
+            return new ClinicBookingInfoResponse()
+            {
+                ConsultationFee = clinic.ConsultationFee,
+                DepositPercentage = clinic.DepositPercentage,
+                DepositAmount = depositAmount,
+                RemainingAmount = remainingAmount
+            };
+        }
+
+
+
+
+
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string userId,
-                                                                           int clinicId,
-                                                                           bool includeClinicImages = false,
-                                                                           bool includeClinicPhoneNumbers = false,
-                                                                           bool includeClinicRegion = false)
+                                                                   int clinicId,
+                                                                   bool includeClinicImages = false,
+                                                                   bool includeClinicPhoneNumbers = false,
+                                                                   bool includeClinicRegion = false)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -355,11 +477,11 @@ namespace Services.Abstractions.Clinics
 
 
 
-        private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync( string userId,
-                                                                                 int clinicId,
-                                                                                 bool includeClinicImages = false,
-                                                                                 bool includeClinicPhoneNumbers = false,
-                                                                                 bool includeClinicRegion = false)
+        private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync(string userId,
+                                                                                int clinicId,
+                                                                                bool includeClinicImages = false,
+                                                                                bool includeClinicPhoneNumbers = false,
+                                                                                bool includeClinicRegion = false)
         {
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId,
                                                                       clinicId,
@@ -371,36 +493,6 @@ namespace Services.Abstractions.Clinics
                 throw new ResourceAccessDeniedException("Only the clinic owner can perform this action.");
 
             return doctorClinicAccess;
-        }
-
-
-
-        public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var patientRepo = _unitOfWork.GetRepository<Patient, string>();
-            var patient = await patientRepo.GetByIdAsync(userId);
-            if (patient is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-
-            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicId);
-            if (clinic is null)
-                throw new NotFoundException("The clinic you're trying to access could not be found.");
-
-
-            var depositAmount = clinic.ConsultationFee * (clinic.DepositPercentage / 100m);
-            var remainingAmount = clinic.ConsultationFee - depositAmount;
-
-            return new ClinicBookingInfoResponse()
-            {
-                ConsultationFee = clinic.ConsultationFee,
-                DepositPercentage = clinic.DepositPercentage,
-                DepositAmount = depositAmount,
-                RemainingAmount = remainingAmount
-            };
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Services.SecretaryInvitations
                 if (secretary.ClinicId == clinicId)
                     throw new BadRequestException("This secretary is already working in this clinic.");
 
-                if (secretary.ClinicId.HasValue)
+                if (secretary.ClinicId.HasValue && secretary.ClinicId != clinicId)
                     throw new BadRequestException("This secretary is already assigned to another clinic.");
 
 

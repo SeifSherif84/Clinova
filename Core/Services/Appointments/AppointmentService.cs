@@ -19,6 +19,7 @@ using Services.Specifications.AppointmentSlots;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.Appointments;
 using Shared.Dtos.ClinovaSettings;
+using Shared.Dtos.Secretaries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +36,7 @@ namespace Services.Appointments
         private readonly CancellationPolicySettings _cancellationPolicy = _cancellationPolicyOptions.Value;
 
 
-
-
-        public async Task<string> CreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request)
+        public async Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -77,7 +76,7 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(4),
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30),
                 FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
                 BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };
@@ -115,8 +114,6 @@ namespace Services.Appointments
 
 
 
-
-
         public async Task<IEnumerable<PatientAppointmentResponse>> GetPatientAppointmentsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -134,7 +131,6 @@ namespace Services.Appointments
 
             return _mapper.Map<IEnumerable<PatientAppointmentResponse>>(appointments);
         }
-
 
 
 
@@ -379,16 +375,13 @@ namespace Services.Appointments
             return nowUtc <= fullRefundDeadlineUtc;
         }
 
+
         private static DateTime GetAppointmentStartUtc(Appointment appointment)
         {
             var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
             var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
             return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
         }
-
-
-
-
 
 
 
@@ -466,31 +459,19 @@ namespace Services.Appointments
 
 
 
-        public async Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(
-    string doctorId,
-    int appointmentId)
+        public async Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(string doctorId, int appointmentId)
         {
             if (string.IsNullOrWhiteSpace(doctorId))
                 throw new BadRequestException("We couldn't identify your account.");
 
-            var doctor = await _unitOfWork
-                .GetRepository<Doctor, string>()
-                .GetByIdAsync(doctorId);
-
+            var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorId);
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
 
 
-            var appointmentRepo =
-                _unitOfWork.GetRepository<Appointment, int>();
-
-            var appointmentSpec =
-                AppointmentSpecifications.ForCancellation(appointmentId);
-
-            var appointment =
-                await appointmentRepo.GetByIdAsync(appointmentSpec);
-
-
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec =AppointmentSpecifications.ForCancellation(appointmentId);
+            var appointment =await appointmentRepo.GetByIdAsync(appointmentSpec);
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
@@ -505,12 +486,8 @@ namespace Services.Appointments
 
 
             var clinicId = appointment.AppointmentSlot.ClinicId;
-
             var doctorClinicRepo = _unitOfWork.GetRepository<DoctorClinic>();
-
-            var doctorClinic = await doctorClinicRepo
-                .GetByCompositeKeyAsync(doctorId, clinicId);
-
+            var doctorClinic = await doctorClinicRepo.GetByCompositeKeyAsync(doctorId, clinicId);
             if (doctorClinic is null)
             {
                 throw new ForbiddenException(
@@ -538,13 +515,11 @@ namespace Services.Appointments
             var payment = appointment.Payment;
 
             if (payment is null)
-                throw new InternalServerErrorException(
-                    "The payment associated with this appointment could not be found.");
+                throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
 
             if (payment.Status != PaymentStatus.Paid)
-                throw new BadRequestException(
-                    "Only appointments with a completed payment can be cancelled by the doctor.");
+                throw new BadRequestException("Only appointments with a completed payment can be cancelled by the doctor.");
 
 
             // ---------------------------------------------------------
@@ -552,8 +527,7 @@ namespace Services.Appointments
             // ---------------------------------------------------------
 
             if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
-                throw new BadRequestException(
-                    "The appointment slot is not currently booked.");
+                throw new BadRequestException("The appointment slot is not currently booked.");
 
 
             // ---------------------------------------------------------
@@ -567,8 +541,7 @@ namespace Services.Appointments
             // Release booked slot
             // ---------------------------------------------------------
 
-            appointment.AppointmentSlot.Status =
-                SlotStatus.Available;
+            appointment.AppointmentSlot.Status = SlotStatus.Available;
 
 
             // ---------------------------------------------------------
@@ -581,8 +554,7 @@ namespace Services.Appointments
 
             try
             {
-                var result =
-                    await _unitOfWork.SaveChangesAsync();
+                var result = await _unitOfWork.SaveChangesAsync();
 
                 if (result == 0)
                 {
@@ -607,10 +579,7 @@ namespace Services.Appointments
             // Clinic/Doctor cancellation = full deposit refund.
             // ---------------------------------------------------------
 
-            var refundResult =
-                await _refundService.RefundPaymentAsync(
-                    payment.Id,
-                    RefundReason.ClinicCancellation);
+            var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.ClinicCancellation);
 
 
             // ---------------------------------------------------------
@@ -623,19 +592,11 @@ namespace Services.Appointments
                 {
                     AppointmentId = appointment.Id,
                     AppointmentStatus = appointment.Status.ToString(),
-
                     RefundEligible = true,
-                    RefundEligibility =
-                        RefundEligibilityStatus.Eligible.ToString(),
-
-                    RefundStatus =
-                        RefundStatus.Succeeded.ToString(),
-
-                    RefundAmount =
-                        appointment.DepositAmount,
-
-                    Message =
-                        "The appointment has been cancelled and the patient's deposit refund has been processed successfully."
+                    RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                    RefundStatus = RefundStatus.Succeeded.ToString(),
+                    RefundAmount = appointment.DepositAmount,
+                    Message = "The appointment has been cancelled and the patient's deposit refund has been processed successfully."
                 };
             }
 
@@ -650,19 +611,11 @@ namespace Services.Appointments
                 {
                     AppointmentId = appointment.Id,
                     AppointmentStatus = appointment.Status.ToString(),
-
                     RefundEligible = true,
-                    RefundEligibility =
-                        RefundEligibilityStatus.Eligible.ToString(),
-
-                    RefundStatus =
-                        RefundStatus.PendingVerification.ToString(),
-
-                    RefundAmount =
-                        appointment.DepositAmount,
-
-                    Message =
-                        "The appointment has been cancelled. The patient's refund is being processed and will be confirmed shortly."
+                    RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                    RefundStatus = RefundStatus.PendingVerification.ToString(),
+                    RefundAmount = appointment.DepositAmount,
+                    Message = "The appointment has been cancelled. The patient's refund is being processed and will be confirmed shortly."
                 };
             }
 
@@ -675,21 +628,172 @@ namespace Services.Appointments
             {
                 AppointmentId = appointment.Id,
                 AppointmentStatus = appointment.Status.ToString(),
-
                 RefundEligible = true,
-                RefundEligibility =
-                    RefundEligibilityStatus.Eligible.ToString(),
-
-                RefundStatus =
-                    RefundStatus.Failed.ToString(),
-
-                RefundAmount =
-                    appointment.DepositAmount,
-
-                Message =
-                    "The appointment has been cancelled, but we could not process the patient's refund at this time. The refund will be retried after verification."
+                RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+                RefundStatus = RefundStatus.Failed.ToString(),
+                RefundAmount = appointment.DepositAmount,
+                Message = "The appointment has been cancelled, but we could not process the patient's refund at this time. The refund will be retried after verification."
             };
         }
+
+
+
+
+
+        public async Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, int clinicId, SecretaryAppointmentQuery query)
+        {
+            // ---------------------------------------------------------
+            // 1. Validate authenticated user
+            // ---------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+
+            // ---------------------------------------------------------
+            // 2. Validate request
+            // ---------------------------------------------------------
+
+            if (query is null)
+                throw new BadRequestException("Invalid appointment search parameters.");
+
+
+            // ---------------------------------------------------------
+            // 3. Get Secretary
+            // ---------------------------------------------------------
+
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+
+            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            // ---------------------------------------------------------
+            // 4. Security:
+            // Secretary can only access appointments
+            // of the clinic she currently belongs to.
+            // ---------------------------------------------------------
+
+            if (secretary.ClinicId != clinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to access this clinic's appointments.");
+
+
+            // ---------------------------------------------------------
+            // 5. Normalize pagination
+            // ---------------------------------------------------------
+
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100); // 1
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); // 10
+
+
+            // ---------------------------------------------------------
+            // 6. Normalize doctor name
+            // ---------------------------------------------------------
+
+            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); // Ahmed
+
+
+            // ---------------------------------------------------------
+            // 7. Build count specification
+            //
+            // Important:
+            // No pagination and no unnecessary Includes are applied
+            // for the count query.
+            // ---------------------------------------------------------
+
+            var countSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
+                                                                                  doctorName,
+                                                                                  query.SlotDate,
+                                                                                  query.AppointmentStatus,
+                                                                                  query.PaymentStatus,
+                                                                                  pageIndex,
+                                                                                  pageSize,
+                                                                                  applyPagination: false);
+
+
+            var appointmentRepository = _unitOfWork.GetRepository<Appointment, int>();
+
+            var totalCount = await appointmentRepository.CountAsync(countSpecification);
+
+
+            // ---------------------------------------------------------
+            // 8. Build paginated data specification
+            // ---------------------------------------------------------
+
+            var dataSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
+                                                                                 doctorName,
+                                                                                 query.SlotDate,
+                                                                                 query.AppointmentStatus,
+                                                                                 query.PaymentStatus,
+                                                                                 pageIndex,
+                                                                                 pageSize,
+                                                                                 applyPagination: true);
+
+
+            // ---------------------------------------------------------
+            // 9. Get current page
+            // ---------------------------------------------------------
+
+            var appointments = await appointmentRepository.GetAllAsync(dataSpecification);
+
+
+            // ---------------------------------------------------------
+            // 10. Map entities to response DTO
+            // ---------------------------------------------------------
+
+            var items = appointments.Select(appointment => new SecretaryAppointmentResponse
+                {
+                    Id = appointment.Id,
+
+
+                    // Appointment Slot
+                    SlotDate = appointment.AppointmentSlot.Date,
+                    StartTime = appointment.AppointmentSlot.StartTime,
+                    EndTime = appointment.AppointmentSlot.EndTime,
+                      
+
+                    // Appointment
+                    AppointmentStatus = appointment.Status.ToString(),
+                     
+
+                    // Doctor
+                    DoctorId = appointment.AppointmentSlot.DoctorId,
+                    DoctorName = $"{appointment.AppointmentSlot.Doctor.FirstName} {appointment.AppointmentSlot.Doctor.LastName}",
+
+
+                    // Patient
+                    PatientId = appointment.PatientId,
+                    PatientName = $"{appointment.Patient.FirstName} {appointment.Patient.LastName}",
+                    PatientPhoneNumber = appointment.Patient.PhoneNumber,
+
+
+                // Payment
+                PaymentStatus = appointment.Payment.Status.ToString(),
+                    PaymentType = appointment.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString(),
+                    ManualPaymentMethod = appointment.Payment.ClinicManualPaymentMethod?.Type,
+                    PaymentAmount = appointment.Payment.Amount,
+                    RemainingAmount = appointment.RemainingAmount,
+                    PaymentProofUrl = appointment.Payment.PaymentProofUrl,
+                    TransactionReference = appointment.Payment.TransactionReference
+                })
+                .ToList();
+
+
+            // ---------------------------------------------------------
+            // 11. Return paginated result
+            // ---------------------------------------------------------
+
+            return new PaginatedResult<SecretaryAppointmentResponse>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = items
+            };
+        }
+
+
 
 
 

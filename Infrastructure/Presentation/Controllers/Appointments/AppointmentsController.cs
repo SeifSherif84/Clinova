@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Services.Abstractions.Paymob;
 using Shared.Dtos.Appointments;
+using Shared.Dtos.Secretaries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +17,16 @@ namespace Presentation.Controllers.Appointments
 {
     [ApiController]
     [Route("api/appointments")]
-    public class AppointmentsController(IServiceManager _serviceManager,
-        IPaymobRefundService _refundService) : ControllerBase
+    public class AppointmentsController(IServiceManager _serviceManager
+                                        /*IPaymobRefundService _refundService*/) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
         [HttpPost("slots/{appointmentSlotId}")]
-        public async Task<IActionResult> CreateAppointment([FromRoute] int appointmentSlotId,
+        public async Task<IActionResult> PatientCreateAppointment([FromRoute] int appointmentSlotId,
                                                            [FromBody] CreateAppointmentRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.CreateAppointmentAsync(userId ?? string.Empty, appointmentSlotId, request);
+            var response = await _serviceManager.AppointmentService.PatientCreateAppointmentAsync(userId ?? string.Empty, appointmentSlotId, request);
             return Ok(response);
         }
 
@@ -81,13 +82,25 @@ namespace Presentation.Controllers.Appointments
 
 
 
-        [HttpPost("test/refund/{paymentId}")]
-        public async Task<IActionResult> TestRefund([FromRoute] int paymentId)
-        {
-            var result = await _refundService.RefundPaymentAsync(
-                paymentId,
-                RefundReason.PatientCancellation);
+        //[HttpPost("test/refund/{paymentId}")]
+        //public async Task<IActionResult> TestRefund([FromRoute] int paymentId)
+        //{
+        //    var result = await _refundService.RefundPaymentAsync(
+        //        paymentId,
+        //        RefundReason.PatientCancellation);
 
+        //    return Ok(result);
+        //}
+
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("clinics/{clinicId}")] // Get api/appointments/clinics/{clinicId}?pageNumber=1&pageSize=10&DoctorName=Seif&AppointmentStatus=Paid
+        public async Task<ActionResult<PaginatedResult<SecretaryAppointmentResponse>>> GetClinicAppointmentsForSecretary([FromRoute] int clinicId,
+                                                                                                                         [FromQuery] SecretaryAppointmentQuery query)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.AppointmentService.GetClinicAppointmentsForSecretaryAsync(userId ?? string.Empty, clinicId, query);
             return Ok(result);
         }
 

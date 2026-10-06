@@ -1,4 +1,5 @@
-﻿using Shared.Attributes;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -33,8 +34,8 @@ namespace Shared.Dtos.Auth
 
 
         [Required]
-        [MaxLength(14)]
-        public string NationalId { get; set; } = null!;
+        [AllowedImage]
+        public IFormFile NationalId { get; set; } = null!;
 
 
         [Required]

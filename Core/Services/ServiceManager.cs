@@ -45,6 +45,8 @@ using Services.Abstractions.DataProtection;
 using Shared.Dtos.ClinovaSettings;
 using Services.Abstractions.SecretaryInvitations;
 using Services.SecretaryInvitations;
+using Services.Abstractions.Secretaries;
+using Services.Secretaries;
 
 namespace Services
 {
@@ -78,5 +80,6 @@ namespace Services
         public IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; } = new ClinicPaymentIntegrationService(_unitOfWork);
         public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService, _paymobRefundService);
         public ISecretaryInvitationService SecretaryInvitationService { get; } = new SecretaryInvitationService(_unitOfWork, _userManager, _configuration, _mailService, _notificationService, _mapper);
+        public ISecretaryService SecretaryService { get; } = new SecretaryService(_unitOfWork, _mapper);
     }
 }

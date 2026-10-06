@@ -27,13 +27,15 @@ namespace Persistence.Specifications
             }
 
 
-            if (specifications.OrderByDescending != null)
+            if (specifications.OrderByDescending is not null)
                 Query = Query.OrderByDescending(specifications.OrderByDescending);
+
+
+            Query = specifications.Includes.Aggregate((Query), (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
+
 
             if (specifications.IsPaginationEnabled)
                 Query = Query.Skip(specifications.Skip).Take(specifications.Take);
-
-            Query = specifications.Includes.Aggregate((Query), (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
 
             return Query;
         }
