@@ -9,7 +9,7 @@ import FormField from '@/components/form-field'
 import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent} from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useApi } from '@/hooks/use-api'
@@ -259,7 +259,7 @@ export default function ClinicDetailsPage() {
 
         {details.data && (
           <div className="mt-5 min-w-0 grid gap-5">
-<Card className="relative min-h-60 min-w-0 justify-end overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-6 sm:p-8">
+<Card className="relative min-h-60 min-w-0 gap-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-0">
   <div className="pointer-events-none absolute inset-0">
     <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
     <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
@@ -272,11 +272,43 @@ export default function ClinicDetailsPage() {
       <rect width="100%" height="100%" fill="url(#clinicGrid)" />
     </svg>
   </div>
-              <div className="relative z-10 flex min-w-0 flex-wrap items-end justify-between gap-5"><div className="min-w-0 flex-1"><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
-  <Building2 className="size-3" />
-  {isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}
-</Badge><h1 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1><p className="mt-3 flex min-w-0 items-start gap-2 break-words text-xs font-bold text-muted-foreground"><MapPin className="size-4 shrink-0 text-primary" />{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}><CalendarClock />{t('dashboard.workingHours')}</Button>{isOwner && <Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}><WalletCards />{t('manualPayments.navigation')}</Button>}{details.data.googleMapsUrl && <Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('clinicDetails.openMap')}<ExternalLink className="size-3.5" /></Button>}{isOwner && !isEditing && <Button className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 cursor-pointer" onClick={startEditing}><PencilLine />{t('clinicDetails.edit')}</Button>}</div></div>
-            </Card>
+              <CardContent className="relative z-10 flex-1 p-6 sm:p-8">
+    <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+      <Building2 className="size-3" />
+      {isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}
+    </Badge>
+    <h1 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1>
+    <p className="mt-3 flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
+      <MapPin className="size-4 shrink-0 text-primary" />
+      <span className="min-w-0 break-words">{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</span>
+    </p>
+  </CardContent>
+  <CardFooter className="relative z-10 mt-auto flex-wrap gap-2 border-t border-primary/10 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
+    <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
+      <CalendarClock />{t('dashboard.workingHours')}
+    </Button>
+    {isOwner && (
+      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}>
+        <WalletCards />{t('manualPayments.navigation')}
+      </Button>
+    )}
+    {isOwner && (
+      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
+        <WalletCards />{t('paymob.settingsTitle')}
+      </Button>
+    )}
+    {details.data.googleMapsUrl && (
+      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}>
+        <MapPin />{t('clinicDetails.openMap')}<ExternalLink className="size-3.5" />
+      </Button>
+    )}
+    {isOwner && !isEditing && (
+      <Button className="h-auto min-h-11 w-full cursor-pointer whitespace-normal rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
+        <PencilLine />{t('clinicDetails.edit')}
+      </Button>
+    )}
+  </CardFooter>
+</Card>
 
             {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
             {success && <Notice tone="success" message={success} />}

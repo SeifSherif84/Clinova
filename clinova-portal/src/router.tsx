@@ -147,6 +147,65 @@ const manualPaymentMethodsRoute = createRoute({
   component: lazyRouteComponent(() => import('@/pages/manual-payment-methods-page')),
 })
 
+const connectPaymobRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments/paymob/connect',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/connect-paymob-page')),
+})
+
+const paymobCredentialsGuideRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments/paymob/guide',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/paymob-credentials-guide-page')),
+})
+
+const onlinePaymentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/online-payments-page')),
+})
+
+const managePaymobRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments/paymob/manage',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/manage-paymob-page')),
+})
+
+const paymobHelpRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments/paymob/help',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/paymob-help-page')),
+})
+const paymobTutorialRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/payments/paymob/help/$topic',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/paymob-tutorial-page')),
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -166,6 +225,12 @@ const routeTree = rootRoute.addChildren([
   addDoctorClinicRoute,
   doctorClinicDetailsRoute,
   manualPaymentMethodsRoute,
+  connectPaymobRoute,
+  paymobCredentialsGuideRoute,
+  onlinePaymentsRoute,
+  managePaymobRoute,
+  paymobHelpRoute,
+  paymobTutorialRoute,
 ])
 
 export const router = createRouter({
