@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Contracts;
 using Domain.Entities.BusinessEntities;
+using Domain.Entities.Enums;
 using Domain.Exceptions.BadRequest;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
@@ -40,6 +41,27 @@ namespace Services.Patients
             if (patient is null)
                 throw new NotFoundException("We couldn't find your account.");
 
+            if (request.DateOfBirth is not null && request.DateOfBirth > DateOnly.FromDateTime(DateTime.Now))
+                throw new BadRequestException("Date of birth cannot be in the future.");
+
+            if (request.BloodType is not null && !Enum.IsDefined(typeof(BloodTypes), request.BloodType))
+                throw new BadRequestException("Invalid blood type.");
+
+            if (request.Gender is not null && !Enum.IsDefined(typeof(Gender), request.Gender))
+                throw new BadRequestException("Invalid gender.");
+
+            if (request.FirstName is not null && string.IsNullOrWhiteSpace(request.FirstName))
+                throw new BadRequestException("First name cannot be empty.");
+
+            if (request.LastName is not null && string.IsNullOrWhiteSpace(request.LastName))
+                throw new BadRequestException("First name cannot be empty.");
+
+            if (request.FirstName is not null)
+                request.FirstName = request.FirstName.Trim();
+
+            if (request.LastName is not null)
+                request.LastName = request.LastName.Trim();
+
             _mapper.Map(request, patient);
             int result = await _unitOfWork.SaveChangesAsync();
 
@@ -59,19 +81,17 @@ namespace Services.Patients
             if (patient is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-            if (request.ProfilePicture is not null)
-            {
-                if (patient.ProfilePicture is not null)
-                    FileStorageHandler.Delete(patient.ProfilePicture, @"patients\profilePictures");
+            var oldProfilePicture = patient.ProfilePicture;
 
-                patient.ProfilePicture = await FileStorageHandler.UploadAsync(request.ProfilePicture, @"patients\profilePictures");
-            }
+            patient.ProfilePicture = await FileStorageHandler.UploadAsync(request.ProfilePicture, @"patients\profilePictures");
 
             int result = await _unitOfWork.SaveChangesAsync();
-
             if (result == 0)
                 throw new InternalServerErrorException(
                     "An error occurred while updating your profile picture. Please try again later.");
+
+            if (oldProfilePicture is not null)
+                FileStorageHandler.Delete(oldProfilePicture, @"patients\profilePictures");
 
             return "Your profile picture has been updated successfully.";
         }

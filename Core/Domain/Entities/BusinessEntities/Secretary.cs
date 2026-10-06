@@ -10,7 +10,7 @@ namespace Domain.Entities.BusinessEntities
 {
     public class Secretary : UserApp
     {
-        public string NationalId { get; set; } = null!;
+        public string NationalIdImageUrl { get; set; } = null!;
 
         public int? ClinicId { get; set; }
         public Clinic? Clinic { get; set; }

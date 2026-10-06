@@ -18,7 +18,7 @@ namespace Presentation.Controllers.DoctorInvitations
     {
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("send/clinic/{clinicId}")] // Post api/invitations/send/clinic/{clinicId}
+        [HttpPost("send/clinic/{clinicId}")] // Post api/doctor-invitations/send/clinic/{clinicId}
         public async Task<IActionResult> SendDoctorInvitation([FromRoute] int clinicId, [FromBody] SendDoctorInvitationRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -28,7 +28,7 @@ namespace Presentation.Controllers.DoctorInvitations
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("sent")] // Get api/invitations/sent
+        [HttpGet("sent")] // Get api/doctor-invitations/sent
         public async Task<IActionResult> GetSentDoctorInvitations()
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -38,7 +38,7 @@ namespace Presentation.Controllers.DoctorInvitations
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("received")] // Get api/invitations/received
+        [HttpGet("received")] // Get api/doctor-invitations/received
         public async Task<IActionResult> GetReceivedDoctorInvitations()
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers.DoctorInvitations
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("accept/{doctorInvitationId}")] // Post api/invitations/accept/{doctorInvitationId}
+        [HttpPost("accept/{doctorInvitationId}")] // Post api/doctor-invitations/accept/{doctorInvitationId}
         public async Task<IActionResult> AcceptDoctorInvitation([FromRoute] int doctorInvitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -58,7 +58,7 @@ namespace Presentation.Controllers.DoctorInvitations
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("reject/{doctorInvitationId}")] // Post api/invitations/reject/{doctorInvitationId}
+        [HttpPost("reject/{doctorInvitationId}")] // Post api/doctor-invitations/reject/{doctorInvitationId}
         public async Task<IActionResult> RejectDoctorInvitation([FromRoute] int doctorInvitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -68,7 +68,7 @@ namespace Presentation.Controllers.DoctorInvitations
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpPost("cancel/{doctorInvitationId}")] // Post api/invitations/cancel/{doctorInvitationId}
+        [HttpPost("cancel/{doctorInvitationId}")] // Post api/doctor-invitations/cancel/{doctorInvitationId}
         public async Task<IActionResult> CancelDoctorInvitation([FromRoute] int doctorInvitationId)
         {
             var userId = HttpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);

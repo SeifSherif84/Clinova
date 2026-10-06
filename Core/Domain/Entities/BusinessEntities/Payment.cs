@@ -18,7 +18,6 @@ namespace Domain.Entities.BusinessEntities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
         public DateTime? PaidAt { get; set; }
-        public string? PaymentProofUrl { get; set; }
 
 
         // Transaction Information
@@ -43,6 +42,7 @@ namespace Domain.Entities.BusinessEntities
         // Manual Payment Method
         public int? ClinicManualPaymentMethodId { get; set; }
         public ClinicManualPaymentMethod? ClinicManualPaymentMethod { get; set; }
+        public string? PaymentProofUrl { get; set; }
 
 
         // Online Payment Account

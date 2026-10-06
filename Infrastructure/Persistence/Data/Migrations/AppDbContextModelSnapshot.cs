@@ -1060,10 +1060,9 @@ namespace Persistence.Data.Migrations
                     b.Property<int?>("ClinicId")
                         .HasColumnType("int");
 
-                    b.Property<string>("NationalId")
+                    b.Property<string>("NationalIdImageUrl")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .HasColumnType("varchar");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasIndex("ClinicId");
 

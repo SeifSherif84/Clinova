@@ -14,8 +14,7 @@ namespace Domain.Entities.BusinessEntities
         public int? ExperienceYears { get; set; }
         public string? Bio { get; set; }
 
-        public DoctorApprovalStatus ApprovalStatus { get; set; }
-            = DoctorApprovalStatus.Pending;
+        public DoctorApprovalStatus ApprovalStatus { get; set; } = DoctorApprovalStatus.Pending;
 
         public string SyndicateNumber { get; set; } = null!;
         public string SyndicateCardImageUrl { get; set; } = null!;

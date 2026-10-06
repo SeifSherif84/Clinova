@@ -11,9 +11,11 @@ namespace Shared.Dtos.Patients
     public class UpdatePatientProfileRequest
     {
         [MaxLength(50)]
+        [MinLength(1)]
         public string? FirstName { get; set; }
 
         [MaxLength(50)]
+        [MinLength(1)]
         public string? LastName { get; set; }
 
         public DateOnly? DateOfBirth { get; set; }

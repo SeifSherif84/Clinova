@@ -17,6 +17,8 @@ namespace Domain.Entities.Enums
         InvitationCancelled,
         MemberRemoved,
         MemberLeft,
+        SecretaryRemoved,
+        SecretaryLeft,
         ReviewSubmitted,
         PaymentConfigurationIssue,
     }

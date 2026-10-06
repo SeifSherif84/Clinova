@@ -800,6 +800,8 @@ namespace Services.Auth
                 throw new EmailAlreadyExistsException("An account with this email address already exists.");
 
             var secretary = _mapper.Map<Secretary>(request);
+            secretary.NationalIdImageUrl = await FileStorageHandler.UploadAsync(request.NationalId, @"secretaries\nationalIds");
+
             var result = await _userManager.CreateAsync(secretary, request.Password);
             if (!result.Succeeded)
                 throw new SecretaryRegistrationException(result.Errors.Select(error => error.Description).ToList());
@@ -807,6 +809,7 @@ namespace Services.Auth
             var roleFlag = await _userManager.AddToRoleAsync(secretary, "Secretary");
             if (!roleFlag.Succeeded)
                 throw new RoleAssignmentException(roleFlag.Errors.Select(error => error.Description).ToList());
+
 
             var secretaryInvitationspec = SecretaryInvitationSpecifications.PendingUnlinkedSecretaryInvitationByEmail(secretary.Email!);
             var secretaryInvitations = await _unitOfWork.GetRepository<SecretaryInvitation, int>().GetAllAsync(secretaryInvitationspec);
