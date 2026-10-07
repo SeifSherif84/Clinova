@@ -11,7 +11,7 @@ import { usePaymobStatus } from '@/hooks/use-paymob-configuration'
 export default function OnlinePaymentsPage() {
   const { clinicId } = useParams({ from: '/doctor/clinics/$clinicId/payments' })
   const { t } = useTranslation()
-  return <PaymobPageFrame clinicId={clinicId} back="clinic" title={t('paymob.settingsTitle')} description={t('paymob.settingsDescription')}>{() => <PaymentSettings key={clinicId} clinicId={clinicId} />}</PaymobPageFrame>
+  return <PaymobPageFrame clinicId={clinicId} back="clinic" title={t('paymob.settingsPageTitle')} description={t('paymob.settingsDescription')}>{() => <PaymentSettings key={clinicId} clinicId={clinicId} />}</PaymobPageFrame>
 }
 function PaymentSettings({ clinicId }: { clinicId: string }) {
   const { t } = useTranslation()
@@ -23,8 +23,8 @@ function PaymentSettings({ clinicId }: { clinicId: string }) {
       <div className="flex flex-wrap gap-2"><Button variant="outline" className={paymobButtonClass} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button></div>
     </div> : <PaymobSettingsRow clinicId={clinicId} configuration={configuration.data} />}
     <div className="mt-5 flex flex-wrap gap-2">
-      <Button role="link" variant="ghost" className={paymobButtonClass + ' px-0 text-muted-foreground'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen />{t('paymob.helpTitle')}</Button>
-      {!configuration.isError && <Button variant="ghost" className={paymobButtonClass + ' text-muted-foreground'} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('paymob.refreshSettings')}</Button>}
+      <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen />{t('paymob.helpTitle')}</Button>
+      {!configuration.isError && <Button variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('paymob.refreshSettings')}</Button>}
     </div>
   </>
 }

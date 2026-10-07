@@ -26,6 +26,36 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
   const issue = attention ? issueCode : undefined
   const issueHash = issue === 'HmacVerificationFailed' ? 'paymob-hmacSecret-section' : issue === 'InvalidIntegration' ? 'paymob-cardIntegrationId-section' : undefined
 
+  if (notConfigured) {
+    return <section aria-label="Paymob" className="border-y border-border py-6">
+      <div className="relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[1.2fr_auto]">
+          <div>
+            <h2 className="font-sans text-3xl leading-tight font-bold sm:text-4xl">{t('paymob.heroTitle')}</h2>
+            <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{t('paymob.heroDescription')}</p>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Button role="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-5'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
+              <Button role="link" variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-3'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
+            </div>
+            <p className="mt-6 flex items-center gap-2.5 text-xs font-bold text-primary/70">
+              <span className="h-px w-9 bg-primary/25" />
+              <span className="inline-flex items-center gap-1.5">{t('paymob.heroHint')}<Link2 className="size-3.5 shrink-0 rtl:rotate-180" /></span>
+            </p>
+          </div>
+          <div className="group grid w-56 shrink-0 justify-self-center rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:justify-self-end">
+            <span aria-hidden="true" className="flex h-14 w-24 shrink-0 items-center justify-center justify-self-center overflow-hidden rounded-xl border border-border/40 bg-white shadow-sm">
+              <img src="/payment-providers/paymob2.png" alt="" className="h-11 w-auto" />
+            </span>
+            <strong className="mt-4 block text-sm font-bold">Paymob</strong>
+            <span className="mt-1 block text-xs leading-5 text-muted-foreground">Online account</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
   return <section aria-label="Paymob" className="border-y border-border py-6">
     <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
       <div className="min-w-0">
@@ -34,20 +64,18 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
           <span className={'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ' + color}><span aria-hidden="true" className="size-1.5 rounded-full bg-current" />{t('paymob.' + label)}</span>
         </div>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('paymob.' + description)}</p>
-        {!notConfigured && <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-xs">
+        <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-xs">
           {[['paymentMethod', t('paymob.card')]].map(([key, value]) => <div key={key}><dt className="text-muted-foreground">{t('paymob.' + key)}</dt><dd className="mt-1 font-bold">{value}</dd></div>)}
           {lastUpdatedAt && <div><dt className="text-muted-foreground">{t('paymob.lastUpdated')}</dt><dd className="mt-1 font-bold"><time dateTime={lastUpdatedAt}>{new Intl.DateTimeFormat(i18n.resolvedLanguage, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lastUpdatedAt))}</time></dd></div>}
-        </dl>}
+        </dl>
       </div>
       <div className="flex shrink-0 flex-wrap items-start gap-2 xl:max-w-sm xl:justify-end">
-        {notConfigured ? <Button role="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-4'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
-          : status === 'Disabled' ? <UnavailableAction enable />
+        {status === 'Disabled' ? <UnavailableAction enable />
           : <Button role="link" variant={attention ? 'default' : 'outline'} className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-4'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/manage" params={{ clinicId }} />}><PencilLine />{t(attention ? 'paymob.reviewSettings' : 'paymob.manage')}</Button>}
-        <Button role="link" variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-3'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t(notConfigured ? 'paymob.howItWorks' : attention ? 'paymob.viewSetupGuide' : 'paymob.setupGuide')}</Button>
+        <Button role="link" variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-3'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t(attention ? 'paymob.viewSetupGuide' : 'paymob.setupGuide')}</Button>
         {connected && <UnavailableAction />}
       </div>
     </div>
-    {notConfigured && <p className="mt-4 flex items-start gap-2 text-xs leading-6 text-muted-foreground"><Info className="mt-1 size-4 shrink-0" />{t('paymob.ux.setupAvailability')}</p>}
     {(connected || status === 'Disabled') && <p className="mt-4 text-xs leading-6 text-muted-foreground">{t('paymob.ux.unavailableControls')}</p>}
     {connected && <p className="mt-4 text-xs leading-6 text-muted-foreground">{t('paymob.savedMeaning')}</p>}
     {issue && <Alert role="note" className="mt-5 rounded-xl border-warm/20 bg-warm/5">

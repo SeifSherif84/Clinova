@@ -223,13 +223,11 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
           <span className="relative z-10 grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
             <Landmark className="size-8" />
           </span>
-          <div className="absolute start-0 top-0 grid justify-items-center gap-1.5">
+          <div className="absolute start-0 top-0">
             <ProviderLogo type={providerTypes[0]} className="shadow-md" />
-            <span className="text-[11px] font-bold">{t(`manualPayments.${providerTypes[0]}`)}</span>
           </div>
-          <div className="absolute end-0 top-0 grid justify-items-center gap-1.5">
+          <div className="absolute end-0 top-0">
             <ProviderLogo type={providerTypes[1]} className="shadow-md" />
-            <span className="text-[11px] font-bold">{t(`manualPayments.${providerTypes[1]}`)}</span>
           </div>
         </div>
       </div>
@@ -242,7 +240,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
           <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><WalletCards className="size-5" /></span>
           <div>
             <h2 id="receiving-accounts" className="font-sans text-xl font-bold">{t('manualPayments.accounts')}</h2>
-            <p className="mt-0.5 text-xs leading-6 font-medium text-muted-foreground">{t('manualPayments.accountsDescription')}</p>
+            <p className="mt-0.5 text-sm leading-6 font-medium text-muted-foreground">{t('manualPayments.accountsDescription')}</p>
           </div>
         </div>
         <Button
@@ -310,7 +308,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
       })}</ul> : accounts.length === 0 ? <div className="mt-5 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-muted/40 to-transparent">
         <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div>
-            <h3 className="max-w-sm font-heading text-3xl leading-[1.15] font-bold sm:text-4xl">{t('manualPayments.emptyTitle')}</h3>
+            <h3 className="max-w-sm font-sans text-3xl leading-[1.15] font-bold sm:text-4xl">{t('manualPayments.emptyTitle')}</h3>
             <p className="mt-4 max-w-sm text-sm leading-7 text-muted-foreground">{t('manualPayments.emptyDescription')}</p>
             <p className="mt-6 hidden items-center gap-2.5 text-xs font-bold text-primary/70 lg:flex">
               <span className="h-px w-9 bg-primary/25" />

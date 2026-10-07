@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/use-auth'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
 
-export default function DoctorWorkspaceShell({ children, active }: { children: ReactNode; active: 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' }) {
+export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile'; topBackLink?: ReactNode }) {
   const { t } = useTranslation()
   const auth = useAuth()
   const navigate = useNavigate()
@@ -64,6 +64,11 @@ export default function DoctorWorkspaceShell({ children, active }: { children: R
             {logout.isPending ? <LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" /> : <LogOut className="size-5 rtl:rotate-180" />}
           </Button>
         </header>
+        {topBackLink && (
+          <div className="flex min-w-0 max-w-full items-center bg-background/60 px-3 py-3 sm:px-6 lg:px-10">
+            {topBackLink}
+          </div>
+        )}
         {children}
       </section>
     </main>

@@ -78,7 +78,13 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
       </SetupSection>
       <SetupSection id="paymob-connect" icon={Link2} title={t('paymob.connectTitle')} description={t('paymob.connectDescription')}>
         <PaymobConnectionForm unavailableNoticeId="paymob-unavailable" />
-        <div className="mt-6 border-t pt-5"><Button role="link" variant="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-0'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen />{t('paymob.helpTitle')}</Button><p className="text-xs leading-6 text-muted-foreground">{t('paymob.helpDescription')}</p></div>
+        <div className="mt-6 border-t pt-5">
+  <Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} className="group inline-flex w-fit items-center gap-2 rounded-full text-sm font-bold whitespace-nowrap text-foreground" style={{ padding: '0.625rem 1.25rem' }}>
+    <span className="pointer-events-none absolute inset-0 -z-10 rounded-full transition-colors group-hover:bg-muted" />
+    <BookOpen className="size-4 shrink-0" />{t('paymob.helpTitle')}
+  </Link>
+  <p className="mt-1 text-xs leading-6 text-muted-foreground">{t('paymob.helpDescription')}</p>
+</div>
       </SetupSection>
     </div>
   </>
