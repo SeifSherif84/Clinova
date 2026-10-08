@@ -88,7 +88,7 @@ const cellClasses = [
         <SetupScreenshot section={t('paymob.paymentIntegrations')} src="/paymob-screenshot/paymobPaymentIntegrations.png" />
       </SetupSection>
       <PaymobEnvironmentNote />
-      <p className="mt-5 flex items-start gap-2.5 text-xs leading-6 font-medium text-foreground/70">
+      <p className="mt-5 flex items-start gap-2.5 text-xs leading-6 font-semibold text-foreground/70">
   <LockKeyhole className="mt-0.5 size-4 shrink-0 text-primary" />
   {t('paymob.secureEntry')}
 </p>
@@ -99,7 +99,7 @@ const cellClasses = [
 export function PaymobCredentialsGuideDialog({ label }: { label?: string }) {
   const { t } = useTranslation()
   return <Dialog>
-    <DialogTrigger render={<Button type="button" variant="outline" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal'} />}><BookOpen />{label ?? t('paymob.openGuide')}</DialogTrigger>
+    <DialogTrigger render={<Button type="button" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal bg-primary text-primary-foreground hover:bg-primary/90'} />}><BookOpen />{label ?? t('paymob.openGuide')}</DialogTrigger>
     <DialogContent showCloseButton={false} className="flex max-h-[90svh] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-3xl motion-reduce:animate-none">
       <DialogHeader className="shrink-0 border-b p-4 sm:p-6">
         <div className="flex items-start justify-between gap-3">

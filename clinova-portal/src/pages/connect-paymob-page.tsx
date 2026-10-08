@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from '@tanstack/react-router'
-import { ArrowRight, Building2, BookOpen, ExternalLink, Info, KeyRound, Link2, ShieldCheck } from 'lucide-react'
+import { ArrowRight, UserPlus, BookOpen, ExternalLink, KeyRound, Link2, Lock} from 'lucide-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaymobConnectionForm } from '@/components/paymob/connection-form'
@@ -7,7 +7,6 @@ import { PaymobCredentialsGuideDialog } from '@/components/paymob/credentials-gu
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
 import { SetupSection, paymobButtonClass } from '@/components/paymob/setup-section'
 import { PaymobEnvironmentNote } from '@/components/paymob/environment-note'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
 const sectionIds = ['paymob-account', 'paymob-credentials', 'paymob-connect']
@@ -34,31 +33,55 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
   }, [hash])
 
   return <>
-    <Alert role="note" className="rounded-xl border-primary/15 bg-primary/5">
-      <Info /><AlertTitle className="font-bold">{t('paymob.ux.beforeStart')}</AlertTitle>
-      <AlertDescription id="paymob-unavailable" className="leading-6">{t('paymob.unavailable')}</AlertDescription>
-    </Alert>
-    <div className="mt-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="max-w-xl text-sm leading-6 text-muted-foreground">{t('paymob.ux.overview')}</p>
-      <Button variant="outline" className={paymobButtonClass + ' h-auto min-h-11 shrink-0 whitespace-normal'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rtl:rotate-180" />{t('paymob.ux.ready')}</Button>
+    <div className="mt-5 overflow-hidden rounded-3xl border border-border/70 bg-muted/40 shadow-sm">
+      <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <p className="max-w-xl text-sm leading-6 text-muted-foreground">{t('paymob.ux.overview')}</p>
+        <Button className={paymobButtonClass + ' h-auto min-h-11 shrink-0 whitespace-normal bg-primary text-primary-foreground hover:bg-primary/90'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rotate-90" />{t('paymob.ux.ready')}</Button>
+      </div>
+      <nav aria-label={t('paymob.stepsLabel')} className="border-t border-border/70 bg-muted/30 px-5 py-6 sm:px-8">
+        <ol className="flex items-start justify-between gap-2">
+          {(['account', 'credentials', 'connect'] as const).map((step, index, arr) => (
+            <li key={step} className="flex flex-1 items-start last:flex-none">
+              <button
+                type="button"
+                onClick={() => goToSection(sectionIds[index])}
+                className="group flex min-w-0 flex-col items-center gap-2.5 text-center"
+              >
+                <span className="relative z-10 grid size-10 shrink-0 cursor-pointer place-items-center rounded-full border-2 border-primary/25 bg-card text-sm font-bold text-primary transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                  {index + 1}
+                </span>
+                <span className="max-w-24 text-xs leading-5 font-bold text-foreground/80 transition-colors duration-200 group-hover:text-primary sm:max-w-none sm:text-sm">{t('paymob.steps.' + step)}</span>
+              </button>
+              {index < arr.length - 1 && <span aria-hidden="true" className="mx-1 mt-5 h-px flex-1 shrink bg-primary/20 sm:mt-5" />}
+            </li>
+          ))}
+        </ol>
+      </nav>
     </div>
-    <nav aria-label={t('paymob.stepsLabel')} className="mt-5 border-y border-border py-3">
-      <ol className="grid gap-2 sm:grid-cols-3">
-        {(['account', 'credentials', 'connect'] as const).map((step, index) => <li key={step}>
-          <Button variant="ghost" onClick={() => goToSection(sectionIds[index])} className={paymobButtonClass + ' h-auto min-h-12 w-full justify-start whitespace-normal px-2 py-2 text-start'}>
-            <span className="grid size-7 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/5 text-xs text-primary">{index + 1}</span>{t('paymob.steps.' + step)}
-          </Button>
-        </li>)}
-      </ol>
-    </nav>
     <div>
-      <SetupSection id="paymob-account" icon={Building2} title={t('paymob.accountTitle')} description={t('paymob.accountDescription')}>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button role="link" variant="outline" className={paymobButtonClass} render={<a href="https://paymob.com/" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.openPaymob')}</Button>
-          <span className="text-xs text-muted-foreground">{t('paymob.existingAccount')}</span>
-          <Button variant="ghost" onClick={() => goToSection('paymob-credentials')} className={paymobButtonClass + ' text-primary'}><ArrowRight className="rtl:rotate-180" />{t('paymob.skip')}</Button>
+      <SetupSection id="paymob-account" icon={UserPlus} title={t('paymob.accountTitle')} description={t('paymob.accountDescription')}>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Button role="link" className={paymobButtonClass} render={<a href="https://paymob.com/" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.openPaymob')}</Button>
+          <div className="flex min-w-0 flex-wrap items-center gap-5">
+            <span className="truncate text-sm font-semibold text-muted-foreground">{t('paymob.existingAccount')}</span>
+            <button
+              type="button"
+              onClick={() => goToSection('paymob-credentials')}
+              className="group inline-flex shrink-0 items-center gap-2 text-xs font-bold text-muted-foreground"
+            >
+              {t('paymob.skip')}
+              <span className="relative grid size-5 shrink-0 place-items-center rounded-full border border-muted-foreground/40 transition-all duration-200 group-hover:border-primary group-hover:bg-primary">
+                <ArrowRight className="size-3 shrink-0 rotate-90 text-muted-foreground transition-all duration-200 group-hover:translate-y-0.5 group-hover:text-primary-foreground" />
+              </span>
+            </button>
+          </div>
         </div>
-        <p className="mt-3 flex items-start gap-2 text-xs leading-6 text-muted-foreground"><ShieldCheck className="mt-1 size-4 shrink-0 text-primary" />{t('paymob.noPassword')}</p>
+        <p className="mt-4 flex items-center gap-2.5 text-xs leading-6 font-semibold text-muted-foreground">
+          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+            <Lock className="size-3.5" />
+          </span>
+          {t('paymob.noPassword')}
+        </p>
       </SetupSection>
       <SetupSection id="paymob-credentials" icon={KeyRound} title={t('paymob.credentialsTitle')} description={t('paymob.ux.sameEnvironment')}>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -79,11 +102,10 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
       <SetupSection id="paymob-connect" icon={Link2} title={t('paymob.connectTitle')} description={t('paymob.connectDescription')}>
         <PaymobConnectionForm unavailableNoticeId="paymob-unavailable" />
         <div className="mt-6 border-t pt-5">
-  <Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} className="group inline-flex w-fit items-center gap-2 rounded-full text-sm font-bold whitespace-nowrap text-foreground" style={{ padding: '0.625rem 1.25rem' }}>
-    <span className="pointer-events-none absolute inset-0 -z-10 rounded-full transition-colors group-hover:bg-muted" />
+  <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-11 w-fit whitespace-normal rounded-full bg-muted/80 px-5 text-foreground hover:bg-muted'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}>
     <BookOpen className="size-4 shrink-0" />{t('paymob.helpTitle')}
-  </Link>
-  <p className="mt-1 text-xs leading-6 text-muted-foreground">{t('paymob.helpDescription')}</p>
+  </Button>
+  <p className="mt-2 text-[13px] font-semibold leading-6 text-foreground/70">{t('paymob.helpDescription')}</p>
 </div>
       </SetupSection>
     </div>

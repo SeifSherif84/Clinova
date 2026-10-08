@@ -26,7 +26,7 @@ export function SetupScreenshot({ section, src, source = 'Paymob' }: { section: 
           <ZoomIn className="size-4" />{t(hasImage ? 'paymob.zoomImage' : 'paymob.zoom')}
         </DialogTrigger>
       </div>
-      <figcaption className="mt-2 text-xs leading-6 font-medium text-foreground/70">{caption}</figcaption>
+      <figcaption className="mt-2 text-xs leading-6 font-semibold text-foreground/70">{caption}</figcaption>
       <DialogContent showCloseButton={false} className="max-h-[85svh] overflow-y-auto rounded-2xl sm:max-w-3xl motion-reduce:animate-none">
         <DialogHeader>
           <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{title}</DialogTitle>

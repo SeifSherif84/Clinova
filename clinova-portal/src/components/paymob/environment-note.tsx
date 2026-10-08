@@ -23,7 +23,7 @@ export function PaymobEnvironmentNote() {
     </span>
     <p className="text-sm font-bold text-foreground">{t('paymob.testLabel')}</p>
   </div>
-  <p className="text-xs leading-6 text-muted-foreground">{t('paymob.testDescription')} {t('paymob.testNote')}</p>
+  <p className="text-xs leading-6 font-medium text-muted-foreground">{t('paymob.testDescription')} {t('paymob.testNote')}</p>
 </div>
 
         <div className="flex flex-col gap-2.5 p-5 sm:p-6">
@@ -33,7 +33,7 @@ export function PaymobEnvironmentNote() {
             </span>
             <p className="text-sm font-bold text-foreground">{t('paymob.liveLabel')}</p>
           </div>
-          <p className="text-xs leading-6 text-muted-foreground">{t('paymob.liveDescription')}</p>
+          <p className="text-xs leading-6 font-medium text-muted-foreground">{t('paymob.liveDescription')}</p>
         </div>
       </div>
     </section>

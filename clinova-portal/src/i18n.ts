@@ -399,6 +399,7 @@ const resources = {
         notNow: 'Not now',
         deleteClinic: 'Delete clinic',
         leaveClinic: 'Leave clinic',
+        "manage": "Manage"
       },
       workingHours: {
         eyebrow: 'Availability planning',
@@ -964,6 +965,7 @@ const resources = {
         notNow: 'ليس الآن',
         deleteClinic: 'حذف العيادة',
         leaveClinic: 'مغادرة العيادة',
+        "manage": "إدارة العيادة"
       },
       workingHours: {
         eyebrow: 'تخطيط أوقات التوفر',

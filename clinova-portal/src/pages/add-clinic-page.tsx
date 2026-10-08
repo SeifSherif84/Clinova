@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Building2, CircleDollarSign, FileImage, LoaderCircle, MapPin, Minus, Phone, Plus, Save, Upload } from 'lucide-react'
+import { ArrowLeft, Building2, CircleDollarSign, FileImage, LoaderCircle, MapPin, Minus, Phone, Plus, Save, Upload } from 'lucide-react'
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -91,10 +91,16 @@ export default function AddClinicPage() {
     createClinic.mutate(body)
   }
 
+  const topBackLink = (
+    <Link className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics">
+      <ArrowLeft className="size-4 rtl:rotate-180" />
+      {t('clinicForm.back')}
+    </Link>
+  )
+
   return (
-    <DoctorWorkspaceShell active="clinics">
-      <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-10">
-        <Link className="inline-flex text-sm font-bold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics">{t('clinicForm.back')}</Link>
+    <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
+      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
         <div className="mt-5">  <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
   <Building2 className="size-3" />
   {t('clinicForm.eyebrow')}

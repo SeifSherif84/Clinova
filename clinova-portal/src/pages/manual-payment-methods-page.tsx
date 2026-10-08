@@ -54,9 +54,15 @@ export default function ManualPaymentMethodsPage() {
   const isOwner = members.data?.some((member) => member.id === auth.user?.id && member.isOwner)
   const accessError = clinic.error || members.error
 
-  return <DoctorWorkspaceShell active="clinics">
-    <div className="mx-auto w-full min-w-0 max-w-6xl p-4 sm:p-6 lg:p-10">
-      <div className="mb-5"><Button variant="ghost" className={`${buttonClass} px-0 text-muted-foreground`} render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId }} />}><ArrowLeft className="rtl:rotate-180" />{t('manualPayments.back')}</Button></div>
+  const topBackLink = (
+    <Link className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics/$clinicId" params={{ clinicId }}>
+      <ArrowLeft className="size-4 rtl:rotate-180" />
+      {t('manualPayments.back')}
+    </Link>
+  )
+
+  return <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
+    <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
       {!validId ? <Notice message={t('clinicDetails.invalidId')} /> : accessError ? <div className="grid justify-items-start gap-4"><Notice message={getErrorMessage(accessError)} /><p className="text-sm text-muted-foreground">{getErrorMessage(accessError)}</p><Button variant="outline" className={buttonClass} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw />{t('manualPayments.retry')}</Button></div> : clinic.isPending || members.isPending ? <LoadingState /> : !isOwner ? <div className="flex items-center gap-3 rounded-2xl border bg-card p-6"><ShieldCheck className="shrink-0 text-primary" /><p className="text-sm font-bold">{t('manualPayments.ownerOnly')}</p></div> : clinic.data ? <PaymentWorkspace key={id} clinic={clinic.data} /> : null}
     </div>
   </DoctorWorkspaceShell>

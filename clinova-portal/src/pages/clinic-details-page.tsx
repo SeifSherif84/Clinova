@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Stethoscope, Trash2, TriangleAlert, UploadCloud, UserMinus, UsersRound, WalletCards} from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TriangleAlert, UploadCloud, UserMinus, UsersRound, WalletCards} from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -10,6 +10,7 @@ import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useApi } from '@/hooks/use-api'
@@ -250,10 +251,16 @@ export default function ClinicDetailsPage() {
     return <DoctorWorkspaceShell active="clinics"><div className="p-10"><Notice message={t('clinicDetails.invalidId')} /></div></DoctorWorkspaceShell>
   }
 
+  const topBackLink = (
+    <Link className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics">
+      <ArrowLeft className="size-4 rtl:rotate-180" />
+      {t('clinicDetails.back')}
+    </Link>
+  )
+
   return (
-    <DoctorWorkspaceShell active="clinics">
+    <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
       <div className="mx-auto min-w-0 w-full max-w-7xl p-4 sm:p-6 lg:p-10">
-        <Link className="inline-flex text-sm font-bold text-muted-foreground transition hover:text-foreground" to="/doctor/clinics">{t('clinicDetails.back')}</Link>
         {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
         {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="outline" className="rounded-xl normal-case cursor-pointer" onClick={() => details.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
 
@@ -283,25 +290,32 @@ export default function ClinicDetailsPage() {
       <span className="min-w-0 break-words">{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</span>
     </p>
   </CardContent>
-  <CardFooter className="relative z-10 mt-auto flex-wrap gap-2 border-t border-primary/10 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
-    <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
-      <CalendarClock />{t('dashboard.workingHours')}
-    </Button>
-    {isOwner && (
-      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}>
-        <WalletCards />{t('manualPayments.navigation')}
-      </Button>
-    )}
-    {isOwner && (
-      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
-        <WalletCards />{t('paymob.settingsTitle')}
-      </Button>
-    )}
-    {details.data.googleMapsUrl && (
-      <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}>
-        <MapPin />{t('clinicDetails.openMap')}<ExternalLink className="size-3.5" />
-      </Button>
-    )}
+  <CardFooter className="relative z-10 mt-auto flex-wrap justify-end gap-2 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" />}>
+        <Settings2 />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 rounded-xl p-1.5">
+        <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
+          <CalendarClock className="size-4 text-primary" />{t('dashboard.workingHours')}
+        </DropdownMenuItem>
+        {isOwner && (
+          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}>
+            <WalletCards className="size-4 text-primary" />{t('manualPayments.navigation')}
+          </DropdownMenuItem>
+        )}
+        {isOwner && (
+          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
+            <WalletCards className="size-4 text-primary" />{t('paymob.settingsTitle')}
+          </DropdownMenuItem>
+        )}
+        {details.data.googleMapsUrl && (
+          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}>
+            <MapPin className="size-4 text-primary" />{t('clinicDetails.openMap')}<ExternalLink className="ms-auto size-3.5 text-muted-foreground" />
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
     {isOwner && !isEditing && (
       <Button className="h-auto min-h-11 w-full cursor-pointer whitespace-normal rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
         <PencilLine />{t('clinicDetails.edit')}

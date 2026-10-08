@@ -37,7 +37,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
             <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{t('paymob.heroDescription')}</p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Button role="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-5'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
-              <Button role="link" variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-3'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
+              <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
             </div>
             <p className="mt-6 flex items-center gap-2.5 text-xs font-bold text-primary/70">
               <span className="h-px w-9 bg-primary/25" />
