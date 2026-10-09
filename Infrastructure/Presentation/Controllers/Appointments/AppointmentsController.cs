@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Services.Abstractions.Paymob;
 using Shared.Dtos.Appointments;
-using Shared.Dtos.Secretaries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,11 +95,22 @@ namespace Presentation.Controllers.Appointments
 
         [Authorize(Roles = "Secretary")]
         [HttpGet("clinics/{clinicId}")] // Get api/appointments/clinics/{clinicId}?pageNumber=1&pageSize=10&DoctorName=Seif&AppointmentStatus=Paid
-        public async Task<ActionResult<PaginatedResult<SecretaryAppointmentResponse>>> GetClinicAppointmentsForSecretary([FromRoute] int clinicId,
+        public async Task<IActionResult> GetClinicAppointmentsForSecretary([FromRoute] int clinicId,
                                                                                                                          [FromQuery] SecretaryAppointmentQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _serviceManager.AppointmentService.GetClinicAppointmentsForSecretaryAsync(userId ?? string.Empty, clinicId, query);
+            return Ok(result);
+        }
+
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("{appointmentId}/clinics/{clinicId}")] // Get api/appointments/{appointmentId}/clinics/{clinicId}
+        public async Task<IActionResult> GetClinicAppointmentDetailsForSecretary([FromRoute] int appointmentId, [FromRoute] int clinicId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.AppointmentService.GetClinicAppointmentDetailsForSecretaryAsync(userId ?? string.Empty, appointmentId, clinicId);
             return Ok(result);
         }
 

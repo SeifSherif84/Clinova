@@ -9,6 +9,7 @@ namespace Domain.Entities.Enums
     public enum AppointmentStatus
     {
         PendingPayment = 1,
+        PendingVerification,
         Confirmed,
         Cancelled,
         Completed,

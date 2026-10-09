@@ -50,8 +50,8 @@ namespace Services.ClinicManualPaymentMethods
 
 
         public async Task<string> UpdateManualPaymentMethodAsync(string userId, int clinicId,
-                                                                       int paymentMethodId,
-                                                                       UpdateClinicManualPaymentMethodRequest request)
+                                                                 int paymentMethodId,
+                                                                 UpdateClinicManualPaymentMethodRequest request)
         {
             await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 

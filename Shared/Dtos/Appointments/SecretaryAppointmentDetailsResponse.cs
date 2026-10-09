@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Dtos.Secretaries
+namespace Shared.Dtos.Appointments
 {
-    public class SecretaryAppointmentResponse
+    public class SecretaryAppointmentDetailsResponse
     {
         public int Id { get; set; }
 
@@ -23,12 +23,10 @@ namespace Shared.Dtos.Secretaries
 
 
         // Doctor
-        public string DoctorId { get; set; } = null!;
         public string DoctorName { get; set; } = null!;
 
 
         // Patient
-        public string PatientId { get; set; } = null!;
         public string PatientName { get; set; } = null!;
         public string PatientPhoneNumber { get; set; } = null!;
 
@@ -36,7 +34,7 @@ namespace Shared.Dtos.Secretaries
         // Payment
         public string PaymentStatus { get; set; } = null!;
         public string PaymentType { get; set; } = null!;
-        public ManualPaymentMethodType? ManualPaymentMethod { get; set; }
+        public string? ManualPaymentMethodType { get; set; }
 
         public decimal PaymentAmount { get; set; }
         public decimal RemainingAmount { get; set; }

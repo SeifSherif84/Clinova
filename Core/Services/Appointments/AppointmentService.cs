@@ -19,7 +19,6 @@ using Services.Specifications.AppointmentSlots;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.Appointments;
 using Shared.Dtos.ClinovaSettings;
-using Shared.Dtos.Secretaries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -471,7 +470,7 @@ namespace Services.Appointments
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
             var appointmentSpec =AppointmentSpecifications.ForCancellation(appointmentId);
-            var appointment =await appointmentRepo.GetByIdAsync(appointmentSpec);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
@@ -642,56 +641,26 @@ namespace Services.Appointments
 
         public async Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, int clinicId, SecretaryAppointmentQuery query)
         {
-            // ---------------------------------------------------------
-            // 1. Validate authenticated user
-            // ---------------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
 
 
-            // ---------------------------------------------------------
-            // 2. Validate request
-            // ---------------------------------------------------------
-
-            if (query is null)
-                throw new BadRequestException("Invalid appointment search parameters.");
-
-
-            // ---------------------------------------------------------
-            // 3. Get Secretary
-            // ---------------------------------------------------------
-
             var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
-
             var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
             if (secretary is null)
                 throw new NotFoundException("We couldn't find your account.");
 
 
-            // ---------------------------------------------------------
-            // 4. Security:
-            // Secretary can only access appointments
-            // of the clinic she currently belongs to.
-            // ---------------------------------------------------------
-
             if (secretary.ClinicId != clinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to access this clinic's appointments.");
 
 
-            // ---------------------------------------------------------
-            // 5. Normalize pagination
-            // ---------------------------------------------------------
 
-            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100); // 1
-            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); // 10
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); 
 
 
-            // ---------------------------------------------------------
-            // 6. Normalize doctor name
-            // ---------------------------------------------------------
-
-            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); // Ahmed
+            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); 
 
 
             // ---------------------------------------------------------
@@ -758,24 +727,22 @@ namespace Services.Appointments
                      
 
                     // Doctor
-                    DoctorId = appointment.AppointmentSlot.DoctorId,
                     DoctorName = $"{appointment.AppointmentSlot.Doctor.FirstName} {appointment.AppointmentSlot.Doctor.LastName}",
 
 
                     // Patient
-                    PatientId = appointment.PatientId,
                     PatientName = $"{appointment.Patient.FirstName} {appointment.Patient.LastName}",
-                    PatientPhoneNumber = appointment.Patient.PhoneNumber,
+                    //PatientPhoneNumber = appointment.Patient.PhoneNumber,
 
 
                 // Payment
                 PaymentStatus = appointment.Payment.Status.ToString(),
-                    PaymentType = appointment.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString(),
-                    ManualPaymentMethod = appointment.Payment.ClinicManualPaymentMethod?.Type,
-                    PaymentAmount = appointment.Payment.Amount,
-                    RemainingAmount = appointment.RemainingAmount,
-                    PaymentProofUrl = appointment.Payment.PaymentProofUrl,
-                    TransactionReference = appointment.Payment.TransactionReference
+                PaymentType = appointment.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString(),
+                //ManualPaymentMethod = appointment.Payment.ClinicManualPaymentMethod?.Type,
+                //PaymentAmount = appointment.Payment.Amount,
+                //RemainingAmount = appointment.RemainingAmount,
+                //PaymentProofUrl = appointment.Payment.PaymentProofUrl,
+                //TransactionReference = appointment.Payment.TransactionReference
                 })
                 .ToList();
 
@@ -793,7 +760,51 @@ namespace Services.Appointments
             };
         }
 
+        public async Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
 
+
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            if (secretary.ClinicId != clinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to access this clinic's appointments.");
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ByIdWithDetailsForSecretary(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.AppointmentSlot.ClinicId != clinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to view this appointment.");
+
+
+            return new SecretaryAppointmentDetailsResponse()
+            {
+                Id = appointment.Id,
+                SlotDate = appointment.AppointmentSlot.Date,
+                StartTime = appointment.AppointmentSlot.StartTime,
+                EndTime = appointment.AppointmentSlot.EndTime,
+                AppointmentStatus = appointment.Status.ToString(),
+                DoctorName = $"{appointment.AppointmentSlot.Doctor.FirstName} {appointment.AppointmentSlot.Doctor.LastName}",
+                PatientName = $"{appointment.Patient.FirstName} {appointment.Patient.LastName}",
+                PatientPhoneNumber = appointment.Patient.PhoneNumber!,
+                PaymentStatus = appointment.Payment.Status.ToString(),
+                PaymentType = appointment.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString(),
+                ManualPaymentMethodType = appointment.Payment.ClinicManualPaymentMethod?.Type.ToString(),
+                PaymentAmount = appointment.Payment.Amount,
+                RemainingAmount = appointment.RemainingAmount,
+                PaymentProofUrl = appointment.Payment.PaymentProofUrl,
+                TransactionReference = appointment.Payment.TransactionReference
+            };
+        }
 
 
 

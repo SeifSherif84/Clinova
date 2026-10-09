@@ -93,6 +93,31 @@ namespace Services.Specifications.Appointments
             return specification;
         }
 
+        public static AppointmentSpecifications ByIdWithDetailsForSecretary(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId &&
+
+                    // Hide temporary reservations.
+                    // PaymentStatus.Pending means the patient has not completed
+                    // the payment process yet, so this is not a real booking.
+                    (
+                        appointment.Payment.Status == PaymentStatus.PendingVerification ||
+                        appointment.Payment.Status == PaymentStatus.Paid ||
+                        appointment.Payment.Status == PaymentStatus.Rejected ||
+                        appointment.Payment.Status == PaymentStatus.Refunded
+                    ) 
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
+            specification.Includes.Add(appointment => appointment.Patient);
+            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.Payment.ClinicManualPaymentMethod);
+            return specification;
+        }
+
 
 
         public static AppointmentSpecifications ForClinicSecretary(int clinicId,
@@ -167,7 +192,6 @@ namespace Services.Specifications.Appointments
                 specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
                 specification.Includes.Add(appointment => appointment.Patient);
                 specification.Includes.Add(appointment => appointment.Payment);
-                specification.Includes.Add(appointment => appointment.Payment.ClinicManualPaymentMethod);
             }
 
             return specification;

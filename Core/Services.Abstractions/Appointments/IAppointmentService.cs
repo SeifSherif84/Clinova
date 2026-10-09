@@ -1,6 +1,5 @@
 ﻿using Shared.Dtos.Appointments;
 using Shared.Dtos.ClinovaSettings;
-using Shared.Dtos.Secretaries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +18,6 @@ namespace Services.Abstractions.Appointments
         CancellationPolicyResponse GetCancellationPolicyAsync();
         Task ExpirePendingAppointmentsAsync();
         Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, int clinicId, SecretaryAppointmentQuery query);
+        Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId, int clinicId);
     }
 }
