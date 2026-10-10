@@ -17,7 +17,7 @@ function save(changes: Partial<PaymobCredentials>) {
   })
 }
 const mode = new URLSearchParams(location.search).get('mode')
-const existing = { accountId: 12, storedFields: { publicKey: true, secretKey: true, hmacSecret: true, apiKey: true, cardIntegrationId: true }, cardIntegrationId: '5934907' }
+const existing = { accountId: 12, status: 'Ready' as const, isReady: true, integrations: [], storedFields: { publicKey: true, secretKey: true, hmacSecret: true, apiKey: true, cardIntegrationId: true }, cardIntegrationId: '5934907' }
 createRoot(document.getElementById('root')!).render(mode === 'update'
   ? <PaymobConnectionForm mode="update" existing={existing} onUpdate={save} />
   : mode === 'image' ? <SetupScreenshot section="Supplied image test" src="/src/assets/logo.svg" />

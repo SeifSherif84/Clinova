@@ -11,7 +11,7 @@ export function PaymobCredentialsGuide() {
   const { t } = useTranslation()
   const id = useId()
   return <div className="min-w-0">
-      <p className="max-w-full font-sans text-2xl font-bold leading-snug text-nowrap sm:text-3xl">{t('paymob.requiredCredentials')}</p>
+      <p className="max-w-full font-sans text-2xl font-bold leading-snug break-words sm:text-3xl">{t('paymob.requiredCredentials')}</p>
       <div className="relative mt-8 overflow-x-auto overflow-y-visible pb-2">
         <div className="flex min-w-max items-start">
           {([
