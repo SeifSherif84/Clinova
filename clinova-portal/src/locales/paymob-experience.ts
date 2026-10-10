@@ -202,8 +202,8 @@ export const paymobExperienceEn = {
       "intro": "Review your saved settings and choose the credentials you want to replace without revealing existing secrets.",
       "steps": [
         "Open your clinic’s Online Payments settings and choose Manage.",
-        "Select Replace beside a credential to enter a new value. Leave other fields unchanged to keep their saved values. Saving updates is not available from this page yet.",
-        "Return to Online Payments to find Disable. Disabling or disconnecting is not available yet; opening this action does not change your configuration."
+        "Select Replace beside a credential and enter a new value. Keep other fields unchanged, confirm your authorization, and choose Update credentials. The account returns to pending verification.",
+        "Return to Online Payments to review status and add missing Card or Wallet integrations. Disabling or disconnecting an account and changing existing integrations are not available."
       ],
       "screenshot": "Online Payments"
     }
@@ -414,8 +414,8 @@ export const paymobExperienceAr = {
       "intro": "راجع إعداداتك المحفوظة واختر البيانات التي تريد استبدالها دون إظهار القيم السرية الحالية.",
       "steps": [
         "افتح إعدادات المدفوعات الإلكترونية للعيادة واختر إدارة.",
-        "اختر استبدال بجانب أحد البيانات لإدخال قيمة جديدة. اترك الحقول الأخرى دون تغيير للاحتفاظ بقيمها المحفوظة. حفظ التحديثات غير متاح من هذه الصفحة بعد.",
-        "عُد إلى المدفوعات الإلكترونية للعثور على تعطيل. التعطيل وإلغاء الربط غير متاحين بعد؛ فتح هذا الإجراء لا يغير إعداداتك."
+        "اختر استبدال بجانب أحد البيانات وأدخل قيمة جديدة. اترك باقي الحقول دون تغيير، وأكد صلاحيتك ثم اختر تحديث بيانات الربط. يعود الحساب إلى حالة انتظار التحقق.",
+        "عُد إلى المدفوعات الإلكترونية لمراجعة الحالة وإضافة تكامل البطاقة أو المحفظة غير المضاف. تعطيل الحساب أو إلغاء ربطه وتغيير التكاملات الحالية غير متاح."
       ],
       "screenshot": "المدفوعات الإلكترونية"
     }
