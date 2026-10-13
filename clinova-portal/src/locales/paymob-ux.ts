@@ -23,7 +23,7 @@ export const paymobUxEn = {
   "manageGroup": "Manage and protect your account",
   "helpStart": "Choose the topic you need; you do not have to follow every guide.",
   "unavailableControls": "Enable and disable controls are not available yet.",
-  "setupAvailability": "Save your account credentials, then add Card or Wallet from Online Payments.",
+  "setupAvailability": "Save your account credentials, then add an Integration ID for each payment method from Online Payments.",
   "shortFields": {
     "publicKey": "Identifies your Paymob environment.",
     "secretKey": "Lets Clinova create payment requests.",
@@ -58,7 +58,7 @@ export const paymobUxAr = {
   "manageGroup": "إدارة حسابك وحمايته",
   "helpStart": "اختر الموضوع الذي تحتاجه؛ لا يلزم اتباع كل الأدلة.",
   "unavailableControls": "تفعيل المدفوعات وتعطيلها غير متاحين بعد.",
-  "setupAvailability": "احفظ بيانات الحساب، ثم أضف البطاقة أو المحفظة من صفحة المدفوعات الإلكترونية.",
+  "setupAvailability": "احفظ بيانات الحساب، ثم أضف رقم تكامل لكل طريقة دفع من صفحة المدفوعات الإلكترونية.",
   "shortFields": {
     "publicKey": "يحدد بيئة Paymob المستخدمة في الربط.",
     "secretKey": "يتيح لمنصة Clinova إنشاء طلبات الدفع.",

@@ -31,7 +31,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
               <img src="/payment-providers/paymob2.png" alt="" className="h-11 w-auto" />
             </span>
             <strong className="mt-4 block text-sm font-bold">Paymob</strong>
-            <span className="mt-1 block text-xs leading-5 text-muted-foreground">Online account</span>
+            <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t('paymob.onlineAccount')}</span>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="flex items-center gap-2 font-sans text-xl font-bold"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CreditCard className="size-7" /></span>Paymob</h2>
-          <span className={'rounded-full border px-2.5 py-1 text-xs font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
+          <span className={'rounded-full border px-2.5 py-1 text-[10px] font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
         </div>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('paymob.accountStatusDescription.' + status)}</p>
       </div>

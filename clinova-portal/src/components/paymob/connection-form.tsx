@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { PaymobCredentialsGuideDialog } from './credentials-guide'
 import type { SavedPaymobConfiguration } from '@/lib/paymob-configuration'
 import { CredentialField } from './credential-field'
@@ -175,11 +176,11 @@ export function PaymobConnectionForm(props: Props) {
         <legend className="mb-3 text-sm font-bold text-foreground">{t('paymob.consentTitle')}</legend>
         <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-authorized" aria-label={t(update ? 'paymob.updateConsent' : 'paymob.authorized')} checked={authorized} onCheckedChange={setAuthorized} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <p className="max-w-2xl cursor-default select-none text-sm font-normal leading-6 text-foreground/85">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</p>
+          <Label htmlFor="paymob-authorized" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</Label>
         </div>
         {!update && <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-understood" aria-label={t('paymob.understood')} checked={understood} onCheckedChange={setUnderstood} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <p className="max-w-2xl cursor-default select-none text-sm font-normal leading-6 text-foreground/85">{t('paymob.understood')}</p>
+          <Label htmlFor="paymob-understood" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t('paymob.understood')}</Label>
         </div>}
       </fieldset>
       <div className="mt-10 grid gap-4">

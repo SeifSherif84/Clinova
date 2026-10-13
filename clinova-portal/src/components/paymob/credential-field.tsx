@@ -21,9 +21,9 @@ export function CredentialHelp({ name }: { name: CredentialName }) {
   </Popover>
 }
 
-export function CredentialField({ name, disabled, error, onBlur, stored = false, replacing = true, currentIntegrationId, onReplace }: {
+export function CredentialField({ name, disabled, error, onBlur, stored = false, replacing = true, onReplace }: {
   name: CredentialName; disabled?: boolean; error?: string; onBlur?: FocusEventHandler<HTMLInputElement>
-  stored?: boolean; replacing?: boolean; currentIntegrationId?: string; onReplace?: (replace: boolean) => void
+  stored?: boolean; replacing?: boolean; onReplace?: (replace: boolean) => void
 }) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
@@ -33,12 +33,12 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
   const required = error === t('paymob.fieldRequired', { field: label })
   const savedView = onReplace !== undefined && !replacing
   // These are fixed presentation masks, never values or substrings from the backend.
-  const masked = !stored ? t('paymob.metadataUnavailable') : name === 'publicKey' ? 'pk_••••••••••••' : name === 'cardIntegrationId' ? currentIntegrationId ?? t('paymob.metadataUnavailable') : '••••••••••••••••••'
+  const masked = !stored ? t('paymob.metadataUnavailable') : name === 'publicKey' ? 'pk_••••••••••••' : '••••••••••••••••••'
   function changeReplacement(next: boolean) {
     setVisible(false)
     onReplace?.(next)
   }
-    return <div id={id + '-section'} tabIndex={-1} className={'grid min-w-0 scroll-mt-28 content-start gap-1.5 outline-offset-8 focus-visible:outline-2 focus-visible:outline-ring' + (name === 'cardIntegrationId' ? ' sm:col-span-2' : '')}>
+  return <div id={id + '-section'} tabIndex={-1} className="grid min-w-0 scroll-mt-28 content-start gap-1.5 outline-offset-8 focus-visible:outline-2 focus-visible:outline-ring">
     <div className="flex min-h-9 flex-wrap items-center justify-between gap-x-3 gap-y-0.5">
       <div className="flex items-center gap-0.5">
         <Label htmlFor={id} className="text-sm font-semibold normal-case tracking-normal text-foreground">{label}</Label><CredentialHelp name={name} />
@@ -53,7 +53,6 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
       <div className="relative">
         <Input key="entry" autoFocus={Boolean(onReplace)} id={id} name={name} required disabled={disabled} dir="ltr" type={sensitive && !visible ? 'password' : 'text'}
           autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
-          inputMode={name === 'cardIntegrationId' ? 'numeric' : 'text'} pattern={name === 'cardIntegrationId' ? '[0-9]*[1-9][0-9]*' : undefined}
           aria-invalid={Boolean(error) || undefined} onBlur={onBlur}
           aria-describedby={(sensitive ? id + '-sensitive' : '') + (sensitive && error ? ' ' : '') + (error ? id + '-error' : '') || undefined}
           placeholder={t(onReplace ? 'paymob.newValue' : 'paymob.enter', { field: label })}

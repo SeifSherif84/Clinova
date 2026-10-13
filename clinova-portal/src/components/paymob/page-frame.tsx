@@ -61,8 +61,6 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
                   <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{description}</p>
                 </div>
                 <div className="relative mx-auto grid h-36 w-full max-w-xs grid-cols-[auto_1fr_auto] items-center gap-2 sm:h-40 sm:max-w-sm">
-  {/* سيب العمود الأول زي ما هو، وعدّل عمود Paymob بس */}
-  {/* سيب العمود الأول زي ما هو، وعدّل عمود Paymob بس */}
                   <span className="relative z-10 grid size-20 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
                     <Landmark className="size-8" />
                   </span>

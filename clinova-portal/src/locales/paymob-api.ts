@@ -16,13 +16,13 @@ export const paymobApiEn = {
     "Disabled": "Your Paymob account is disabled. New payment integrations cannot be added.",
     "NeedsAttention": "Your Paymob account requires attention. Review your credentials and Paymob dashboard."
   },
-  "connectDescription": "Enter all four credentials. After saving, add Card or Wallet using its Paymob Integration ID.",
+  "connectDescription": "Enter your four account credentials. No Integration ID is needed to connect. After saving, add an Integration ID for each payment method you want to accept.",
   "savedDescription": "Your Paymob credentials were saved and are pending verification. Add your payment integrations below.",
   "updatedDescription": "Your updated credentials were saved and are pending verification again. Unchanged credentials were kept.",
   "requiredCredentials": "Account credentials and payment integrations",
   "guideIntro": "Find your four account credentials in Paymob. Payment Integration IDs are added separately after connecting.",
   "guideFinish": "Return to Connect Paymob to save your four credentials, then add your payment integrations.",
-  "integrationsDescription": "Add Card or Wallet using the Integration ID from your Paymob dashboard. Each method can be added once.",
+  "integrationsDescription": "Link Integration IDs from your Paymob dashboard to this account, one at a time, now or later. Each payment method can be linked once per account.",
   "method": {
     "Card": "Card",
     "Wallet": "Wallet"
@@ -38,7 +38,36 @@ export const paymobApiEn = {
   "integrationsError": "The integration could not be added. Refresh settings and check that this method is not already configured before trying again.",
   "integrationsAccessError": "Only the clinic owner can add payment integrations.",
   "integrationsDisabled": "This Paymob account is disabled. New payment integrations cannot be added.",
-  "integrationsComplete": "Card and Wallet are configured. Existing integrations cannot be changed here."
+  "integrationsComplete": "Every supported payment method (Card and Wallet) is linked to this account. Existing integrations cannot be changed here.",
+  "integrationsCount": "Integrations on this account: {{count}}",
+  "integrationsEmptyTitle": "Your account is connected without an integration",
+  "integrationsInactiveTitle": "No active integration on this account",
+  "integrationsNeeded": "Patients can't pay online until at least one active Integration ID is linked to this account. Start with one method; you can add the other later.",
+  "addIntegrationDescription": "Choose a payment method, then paste the Integration ID from your Paymob dashboard.",
+  "addMethodIntegration": "Add {{method}} integration",
+  "methodHint": {
+    "Card": "Debit and credit card payments",
+    "Wallet": "Mobile wallet payments"
+  },
+  "methodLinked": "Linked",
+  "integrationIdPlaceholder": "e.g. 4812345",
+  "cancelIntegration": "Cancel",
+  "linkIntegration": "Link integration",
+  "addFirstIntegrationTitle": "Add your first Integration ID",
+  "addAnotherIntegrationTitle": "Add another Integration ID",
+  "onlineAccount": "Online account",
+  "integrationIdsStep": "Integration IDs",
+  "afterConnecting": "After connecting",
+  "integrationTitle": "Payment Integration IDs",
+  "integrationSection": "Payment Integration IDs",
+  "integrationSectionDescription": "You don't need an Integration ID to connect. After your account is saved, add one for each payment method you want patients to use.",
+  "integrationSteps": [
+    "Open Paymob Dashboard → Settings → Payment Integrations.",
+    "Select the appropriate mode: Test or Live.",
+    "Find the integration for each payment method you want to accept, such as Card or Wallet.",
+    "Copy its Integration ID, then add it from Online Payments in Clinova after your account is connected."
+  ],
+  "required": "Complete all four fields and both confirmations before connecting."
 }
 
 export const paymobApiAr = {
@@ -59,13 +88,13 @@ export const paymobApiAr = {
     "Disabled": "حساب Paymob معطّل. لا يمكن إضافة تكاملات دفع جديدة.",
     "NeedsAttention": "يحتاج حساب Paymob إلى مراجعة. راجع بيانات الاعتماد ولوحة تحكم Paymob."
   },
-  "connectDescription": "أدخل بيانات الاعتماد الأربعة. بعد الحفظ، أضف البطاقة أو المحفظة باستخدام رقم التكامل من Paymob.",
+  "connectDescription": "أدخل بيانات حسابك الأربعة. لا تحتاج إلى رقم تكامل للربط. بعد الحفظ، أضف رقم تكامل لكل طريقة دفع تريد قبولها.",
   "savedDescription": "تم حفظ بيانات اعتماد Paymob وهي بانتظار التحقق. أضف تكاملات الدفع أدناه.",
   "updatedDescription": "تم حفظ بيانات الاعتماد المحدثة وهي بانتظار التحقق مجدداً. تم الاحتفاظ بالبيانات التي لم تتغير.",
   "requiredCredentials": "بيانات الحساب وتكاملات الدفع",
   "guideIntro": "ابحث عن بيانات حسابك الأربعة في Paymob. تتم إضافة أرقام تكامل الدفع بشكل منفصل بعد الربط.",
   "guideFinish": "ارجع إلى ربط Paymob لحفظ بيانات الاعتماد الأربعة، ثم أضف تكاملات الدفع.",
-  "integrationsDescription": "أضف البطاقة أو المحفظة باستخدام رقم التكامل من لوحة تحكم Paymob. يمكن إضافة كل طريقة مرة واحدة.",
+  "integrationsDescription": "اربط أرقام التكامل من لوحة تحكم Paymob بهذا الحساب، واحدًا تلو الآخر، الآن أو لاحقًا. يمكن ربط كل طريقة دفع مرة واحدة لكل حساب.",
   "method": {
     "Card": "بطاقة",
     "Wallet": "محفظة"
@@ -81,5 +110,34 @@ export const paymobApiAr = {
   "integrationsError": "تعذرت إضافة التكامل. حدّث الإعدادات وتأكد من عدم إعداد هذه الطريقة مسبقاً قبل المحاولة مجدداً.",
   "integrationsAccessError": "يمكن لمالك العيادة فقط إضافة تكاملات الدفع.",
   "integrationsDisabled": "حساب Paymob معطّل. لا يمكن إضافة تكاملات دفع جديدة.",
-  "integrationsComplete": "تم إعداد البطاقة والمحفظة. لا يمكن تغيير التكاملات الحالية هنا."
+  "integrationsComplete": "تم ربط كل طرق الدفع المدعومة (البطاقة والمحفظة) بهذا الحساب. لا يمكن تغيير التكاملات الحالية هنا.",
+  "integrationsCount": "التكاملات على هذا الحساب: {{count}}",
+  "integrationsEmptyTitle": "تم ربط حسابك دون أي تكامل",
+  "integrationsInactiveTitle": "لا يوجد تكامل نشط على هذا الحساب",
+  "integrationsNeeded": "لن يتمكن المرضى من الدفع إلكترونيًا حتى يتم ربط رقم تكامل نشط واحد على الأقل بهذا الحساب. ابدأ بطريقة واحدة، ويمكنك إضافة الأخرى لاحقًا.",
+  "addIntegrationDescription": "اختر طريقة الدفع، ثم الصق رقم التكامل من لوحة تحكم Paymob.",
+  "addMethodIntegration": "إضافة تكامل {{method}}",
+  "methodHint": {
+    "Card": "مدفوعات البطاقات البنكية والائتمانية",
+    "Wallet": "مدفوعات المحافظ الإلكترونية"
+  },
+  "methodLinked": "مرتبط",
+  "integrationIdPlaceholder": "مثال: 4812345",
+  "cancelIntegration": "إلغاء",
+  "linkIntegration": "ربط التكامل",
+  "addFirstIntegrationTitle": "أضف أول رقم تكامل",
+  "addAnotherIntegrationTitle": "أضف رقم تكامل آخر",
+  "onlineAccount": "حساب إلكتروني",
+  "integrationIdsStep": "أرقام التكامل",
+  "afterConnecting": "بعد الربط",
+  "integrationTitle": "أرقام تكامل الدفع",
+  "integrationSection": "أرقام تكامل الدفع",
+  "integrationSectionDescription": "لا تحتاج إلى رقم تكامل للربط. بعد حفظ حسابك، أضف رقمًا لكل طريقة دفع تريد أن يستخدمها المرضى.",
+  "integrationSteps": [
+    "افتح Paymob Dashboard → Settings → Payment Integrations.",
+    "اختر الوضع المناسب: Test أو Live.",
+    "ابحث عن التكامل الخاص بكل طريقة دفع تريد قبولها، مثل Card أو Wallet.",
+    "انسخ Integration ID الخاص به، ثم أضفه من صفحة المدفوعات الإلكترونية في Clinova بعد ربط حسابك."
+  ],
+  "required": "أكمل الحقول الأربعة وأكّد الموافقتين قبل الربط."
 } satisfies Record<keyof typeof paymobApiEn, unknown>

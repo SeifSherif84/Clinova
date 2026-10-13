@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight, CreditCard, ExternalLink, KeyRound, Link2, LockKeyhole, X } from 'lucide-react'
+import { BookOpen, ChevronRight, CreditCard, ExternalLink, KeyRound, Link2, LockKeyhole, Plus, X } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,6 @@ export function PaymobCredentialsGuide() {
             { name: 'Secret Key', key: 'secretKey' },
             { name: 'HMAC Secret', key: 'hmacSecret' },
             { name: 'ApiKey', key: 'apiKey' },
-            { name: 'Card Integration ID', key: 'cardIntegrationId' },
           ] as const).map((credential, i, arr) => (
             <div key={credential.name} className="flex items-start">
               <div className="group relative flex w-24 flex-col items-center gap-2.5">
@@ -40,6 +39,14 @@ export function PaymobCredentialsGuide() {
               <Link2 className="size-4" />
             </span>
             <span className="text-center text-xs font-bold leading-5 text-primary">Paymob</span>
+          </div>
+          <span aria-hidden="true" className="mx-1 mt-4.5 h-px w-10 shrink-0 bg-primary/25 sm:w-16" />
+          <div className="flex w-28 shrink-0 flex-col items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-full border-2 border-primary/25 bg-card text-primary">
+              <Plus className="size-4" />
+            </span>
+            <span className="text-center text-xs font-bold leading-5 text-foreground/80">{t('paymob.integrationIdsStep')}</span>
+            <span className="text-center text-[10px] font-bold uppercase leading-4 tracking-wider text-muted-foreground">{t('paymob.afterConnecting')}</span>
           </div>
         </div>
       </div>
@@ -83,7 +90,7 @@ const cellClasses = [
         </dl>
         <SetupScreenshot section={t('paymob.apiKeys')} src="/paymob-screenshot/paymobApiKeys.png" />
       </SetupSection>
-      <SetupSection id={id + "-card-integration"} icon={CreditCard} title={t('paymob.integrationSection')} description={t('paymob.fields.cardIntegrationId.what')}>
+      <SetupSection id={id + "-integrations"} icon={CreditCard} title={t('paymob.integrationSection')} description={t('paymob.integrationSectionDescription')}>
         <ol className="mb-5 grid gap-4">{(t('paymob.integrationSteps', { returnObjects: true }) as string[]).map((step, i) => <li key={step} className="flex items-center gap-3.5 text-sm leading-7 font-medium text-foreground/75"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-foreground">{i + 1}</span><span>{step}</span></li>)}</ol>
         <SetupScreenshot section={t('paymob.paymentIntegrations')} src="/paymob-screenshot/paymobPaymentIntegrations.png" />
       </SetupSection>
