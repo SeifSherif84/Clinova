@@ -2,7 +2,7 @@ import { Link, useLocation, useParams } from '@tanstack/react-router'
 import { ArrowRight, UserPlus, BookOpen, ExternalLink, KeyRound, Link2, Lock} from 'lucide-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PaymobConnectionForm } from '@/components/paymob/connection-form'
+import { ConnectPaymobAccount } from '@/components/paymob/connect-account'
 import { PaymobCredentialsGuideDialog } from '@/components/paymob/credentials-guide'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
 import { SetupSection, paymobButtonClass } from '@/components/paymob/setup-section'
@@ -100,7 +100,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
         <PaymobEnvironmentNote />
       </SetupSection>
       <SetupSection id="paymob-connect" icon={Link2} title={t('paymob.connectTitle')} description={t('paymob.connectDescription')}>
-        <PaymobConnectionForm unavailableNoticeId="paymob-unavailable" />
+        <ConnectPaymobAccount clinicId={clinicId} />
         <div className="mt-6 border-t pt-5">
   <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-11 w-fit whitespace-normal rounded-full bg-muted/80 px-5 text-foreground hover:bg-muted'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}>
     <BookOpen className="size-4 shrink-0" />{t('paymob.helpTitle')}

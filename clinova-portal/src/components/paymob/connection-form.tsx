@@ -6,11 +6,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { PaymobCredentialsGuideDialog } from './credentials-guide'
 import type { SavedPaymobConfiguration } from '@/lib/paymob-configuration'
 import { CredentialField } from './credential-field'
-import { credentialNames, type CredentialName, type PaymobCredentials } from './credentials'
+import { accountCredentialNames as credentialNames, type PaymobCredentials } from './credentials'
 import { paymobButtonClass } from './setup-section'
+
+type CredentialName = keyof PaymobCredentials
 
 type SaveStatus = 'idle' | 'saving' | 'saved'
 type Props = { unavailableNoticeId?: string } & (
@@ -20,7 +23,7 @@ type Props = { unavailableNoticeId?: string } & (
 )
 
 // Save callbacks must resolve only after storage succeeds. Their response is never rendered.
-// The routed pages intentionally supply none until the complete save contract is integrated.
+// Routed pages supply authenticated account create/update callbacks.
 export function PaymobConnectionForm(props: Props) {
   const { t } = useTranslation()
   const update = props.mode === 'update'
@@ -50,7 +53,7 @@ export function PaymobConnectionForm(props: Props) {
   function validateField(name: CredentialName) {
     const value = valueFor(name)
     if (!value) return t('paymob.fieldRequired', { field: t('paymob.fields.' + name + '.label') })
-    if (name === 'cardIntegrationId' && !/^[0-9]*[1-9][0-9]*$/.test(value)) return t('paymob.invalidIntegration')
+
     return ''
   }
   function replaceField(name: CredentialName, replace: boolean) {
@@ -145,7 +148,7 @@ export function PaymobConnectionForm(props: Props) {
             if (!busy) setFieldErrors((errors) => ({ ...errors, [name]: validateField(name) }))
           }}
           stored={update ? props.existing.storedFields[name] : false}
-          currentIntegrationId={update ? props.existing.cardIntegrationId : undefined}
+
           replacing={!update || Boolean(replacing[name])}
           onReplace={update ? (replace) => replaceField(name, replace) : undefined} />)}
       </div>
@@ -173,11 +176,11 @@ export function PaymobConnectionForm(props: Props) {
         <legend className="mb-3 text-sm font-bold text-foreground">{t('paymob.consentTitle')}</legend>
         <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-authorized" aria-label={t(update ? 'paymob.updateConsent' : 'paymob.authorized')} checked={authorized} onCheckedChange={setAuthorized} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <p className="max-w-2xl cursor-default select-none text-sm font-normal leading-6 text-foreground/85">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</p>
+          <Label htmlFor="paymob-authorized" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</Label>
         </div>
         {!update && <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-understood" aria-label={t('paymob.understood')} checked={understood} onCheckedChange={setUnderstood} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <p className="max-w-2xl cursor-default select-none text-sm font-normal leading-6 text-foreground/85">{t('paymob.understood')}</p>
+          <Label htmlFor="paymob-understood" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t('paymob.understood')}</Label>
         </div>}
       </fieldset>
       <div className="mt-10 grid gap-4">

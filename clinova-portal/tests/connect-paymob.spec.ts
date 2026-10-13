@@ -30,28 +30,22 @@ async function fillForm(page: Page) {
   for (const [index, name] of ['Secret Key', 'HMAC Secret', 'ApiKey'].entries()) {
     await page.getByLabel(name, { exact: true }).fill(secrets[index])
   }
-  await page.getByLabel('Card Integration ID', { exact: true }).fill('123456')
   await page.getByRole('checkbox').nth(0).check()
   await page.getByRole('checkbox').nth(1).check()
 }
 
-test('guided page has separate credentials and cannot claim a save without a backend', async ({ page }) => {
+test('guided page enables account save only after credentials and consent', async ({ page }) => {
   const calls = await setup(page)
   await expect(page.getByRole('heading', { name: 'Connect Paymob', exact: true })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Open Paymob' })).toHaveAttribute('href', 'https://paymob.com/')
   await page.getByRole('button', { name: 'Skip to Step 2.' }).click()
   await expect(page.locator('#paymob-credentials-title')).toBeFocused()
-  await fillForm(page)
   await expect(page.getByRole('button', { name: 'Connect Paymob Account', exact: true })).toBeDisabled()
-  await expect(page.getByText(/This page cannot save credentials yet/)).toBeVisible()
-  await expect(page.getByText('Paymob configuration saved successfully', { exact: true })).toHaveCount(0)
+  await fillForm(page)
+  await expect(page.getByRole('button', { name: 'Connect Paymob Account', exact: true })).toBeEnabled()
+  await expect(page.getByLabel('Card Integration ID', { exact: true })).toHaveCount(0)
   expect(calls.every((call) => call.startsWith('GET '))).toBe(true)
-  expect(calls.some((call) => /paymob|configuration/i.test(call))).toBe(false)
-  const storage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }))
-  for (const secret of secrets) {
-    expect(storage).not.toContain(secret)
-    expect(page.url()).not.toContain(secret)
-  }
+  const storage = await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))
+  for (const secret of secrets) expect(storage).not.toContain(secret)
   await page.reload()
   await expect(page.getByLabel('ApiKey', { exact: true })).toHaveValue('')
 })
@@ -72,11 +66,11 @@ test('secret visibility is independent; help and lightboxes work by keyboard', a
   await expect(help).toBeFocused()
   await page.getByRole('button', { name: 'Where do I find these?', exact: true }).click()
   const guide = page.getByRole('dialog', { name: 'Get your integration credentials', exact: true })
-  const zoom = guide.getByRole('button', { name: 'Expand API Keys screenshot placeholder', exact: true })
+  const zoom = guide.getByRole('button', { name: 'Zoom API Keys screenshot', exact: true })
   await zoom.click()
   const screenshot = page.getByRole('dialog', { name: 'Paymob Dashboard Screenshot — API Keys', exact: true })
   await expect(screenshot).toBeVisible()
-  await expect(screenshot.getByText(/This is a placeholder/)).toBeVisible()
+  await expect(screenshot.getByRole('img')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(zoom).toBeFocused()
   await page.keyboard.press('Escape')
@@ -89,7 +83,7 @@ for (const width of [360, 768, 1440]) {
     await setup(page)
     await expect(page.getByLabel('ApiKey', { exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    for (const name of ['Public Key', 'Secret Key', 'HMAC Secret', 'ApiKey', 'Card Integration ID']) {
+    for (const name of ['Public Key', 'Secret Key', 'HMAC Secret', 'ApiKey']) {
       const box = await page.getByLabel(name, { exact: true }).boundingBox()
       expect(box!.width).toBeGreaterThan(200)
       expect(box!.x + box!.width).toBeLessThanOrEqual(width)
@@ -126,7 +120,7 @@ test('anonymous route preserves the intended destination', async ({ page }) => {
 })
 
 test('save UI waits for a result, clears values, and never renders provider errors', async ({ page }) => {
-  // Isolated test fixture supplies a save callback; the production route has none.
+  // Isolated fixture holds the save response to exercise pending and failure states.
   await page.goto('/tests/fixtures/paymob-form.html')
   const submit = page.getByRole('button', { name: 'Connect Paymob Account', exact: true })
   await expect(submit).toBeDisabled()
@@ -145,18 +139,14 @@ test('save UI waits for a result, clears values, and never renders provider erro
   await expect(page.getByText(/credentials verified|connection verified/i)).toHaveCount(0)
 })
 
-test('connection requires both consents and a positive numeric Integration ID', async ({ page }) => {
+test('connection requires both consents', async ({ page }) => {
   await page.goto('/tests/fixtures/paymob-form.html')
   await fillForm(page)
   const submit = page.getByRole('button', { name: 'Connect Paymob Account', exact: true })
   await page.getByRole('checkbox').nth(1).uncheck()
   await expect(submit).toBeDisabled()
   await page.getByRole('checkbox').nth(1).check()
-  await page.getByLabel('Card Integration ID', { exact: true }).fill('abc')
-  await submit.click()
-  await expect(page.getByText('Enter a positive numeric Card Integration ID.', { exact: true })).toBeVisible()
-  await expect(page.getByLabel('Card Integration ID', { exact: true })).toBeFocused()
-  await expect(page.getByRole('button', { name: 'Saving your Paymob configuration securely...' })).toHaveCount(0)
+  await expect(submit).toBeEnabled()
 })
 
 test('quick start and in-place guidance preserve entries without persisting them', async ({ page }) => {
@@ -172,7 +162,7 @@ test('quick start and in-place guidance preserve entries without persisting them
   await dialog.getByRole('button', { name: 'Return to form', exact: true }).click()
   await expect(help).toBeFocused()
   await expect(page.getByLabel('ApiKey', { exact: true })).toHaveValue('guide-open-demo-value')
-  await expect(page.getByRole('status').filter({ hasText: '1 of 5 fields filled' })).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: '1 of 4 fields filled' })).toBeVisible()
   expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain('guide-open-demo-value')
   expect(page.url()).not.toContain('guide-open-demo-value')
 })

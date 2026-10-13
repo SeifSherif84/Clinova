@@ -151,18 +151,19 @@ export const paymobExperienceEn = {
       "intro": "Your ApiKey is a Paymob integration credential that allows Clinova's secure backend to communicate with your Paymob merchant account.",
       "steps": [
         "Sign in to your Paymob Dashboard and open Settings → API Keys (under Developers where shown).",
-        "Find API Key. Do not use the Public Key, Secret Key, or Card Integration ID in its place.",
+        "Find API Key. Do not use the Public Key, Secret Key, or an Integration ID in its place.",
         "Enter this value directly into the ApiKey field in Clinova. Treat it as a sensitive credential and never share it publicly."
       ],
       "screenshot": "API Keys"
     },
     "card-integration": {
-      "title": "How to find your Card Integration ID",
-      "intro": "This identifies the Paymob payment integration Clinova should use for card payments.",
+      "title": "How to find and add your Integration IDs",
+      "intro": "Each Integration ID tells Clinova which Paymob payment integration to use for a payment method, such as Card or Wallet. You don't need one to connect your account.",
       "steps": [
-        "Open Paymob Dashboard → Settings → Payment Integrations.",
-        "Select the environment you intend to connect: Test or Live.",
-        "Find the Card integration and copy its Integration ID into the Card Integration ID field in Clinova."
+        "Connect your Paymob account in Clinova with your four account credentials first.",
+        "Open Paymob Dashboard → Settings → Payment Integrations and select the environment you connected: Test or Live.",
+        "Find the integration for the payment method you want to accept and copy its Integration ID. It is not the Merchant ID.",
+        "In Clinova, open Online Payments, choose the payment method, paste the Integration ID, and choose Add payment integration. Repeat for each method you want to accept."
       ],
       "screenshot": "Payment Integrations"
     },
@@ -172,7 +173,7 @@ export const paymobExperienceEn = {
       "steps": [
         "For development and testing, use Test credentials. They do not process real money.",
         "For real patient payments, use Live credentials after your Paymob account has completed the required verification and approval process.",
-        "Copy the keys and Card Integration ID from the same intended environment."
+        "Copy the keys and every Integration ID you add from the same intended environment."
       ],
       "screenshot": "Payment Integrations"
     },
@@ -182,7 +183,7 @@ export const paymobExperienceEn = {
       "steps": [
         "Connect your own Paymob merchant account to receive appointment deposits through it. Clinova does not need your Paymob login email or password.",
         "The Secret Key allows the secure backend to create payment intentions; HMAC Secret allows it to authenticate payment notifications.",
-        "ApiKey supports secure backend communication with Paymob. Public Key identifies the environment, and Card Integration ID identifies the card payment integration.",
+        "ApiKey supports secure backend communication with Paymob. Public Key identifies the environment. Integration IDs, added after connecting, tell Clinova which payment integration to use for each payment method.",
         "Enter the credentials directly into Clinova. Patients never see sensitive credentials."
       ],
       "screenshot": "Connect Paymob"
@@ -202,8 +203,8 @@ export const paymobExperienceEn = {
       "intro": "Review your saved settings and choose the credentials you want to replace without revealing existing secrets.",
       "steps": [
         "Open your clinic’s Online Payments settings and choose Manage.",
-        "Select Replace beside a credential to enter a new value. Leave other fields unchanged to keep their saved values. Saving updates is not available from this page yet.",
-        "Return to Online Payments to find Disable. Disabling or disconnecting is not available yet; opening this action does not change your configuration."
+        "Select Replace beside a credential and enter a new value. Keep other fields unchanged, confirm your authorization, and choose Update credentials. The account returns to pending verification.",
+        "Return to Online Payments to review status and add Integration IDs for any payment method that is not linked yet. Disabling or disconnecting an account and changing existing integrations are not available."
       ],
       "screenshot": "Online Payments"
     }
@@ -363,18 +364,19 @@ export const paymobExperienceAr = {
       "intro": "ApiKey هو أحد بيانات الربط لدى Paymob، ويسمح لخادم Clinova الآمن بالتواصل مع حساب التاجر الخاص بك لدى Paymob.",
       "steps": [
         "سجّل الدخول إلى لوحة تحكم Paymob وافتح Settings → API Keys، ضمن Developers إذا ظهر.",
-        "ابحث عن API Key. لا تستخدم Public Key أوSecret Key أوCard Integration ID بدلًا منه.",
+        "ابحث عن API Key. لا تستخدم Public Key أوSecret Key أو أي Integration ID بدلًا منه.",
         "أدخل القيمة مباشرة في حقل ApiKey في Clinova. تعامل معها كبيانات حساسة ولا تشاركها علنًا."
       ],
       "screenshot": "API Keys"
     },
     "card-integration": {
-      "title": "كيفية العثور على Card Integration ID",
-      "intro": "يحدد تكامل الدفع لدى Paymob الذي ينبغي أن تستخدمه Clinova لمدفوعات البطاقات.",
+      "title": "كيفية العثور على أرقام التكامل وإضافتها",
+      "intro": "يحدد كل Integration ID تكامل الدفع لدى Paymob الذي تستخدمه Clinova لطريقة دفع معينة، مثل Card أو Wallet. لا تحتاج إليه لربط حسابك.",
       "steps": [
-        "افتح Paymob Dashboard → Settings → Payment Integrations.",
-        "اختر البيئة التي تريد ربطها: Test أوLive.",
-        "ابحث عن تكامل Card وانسخ Integration ID إلى حقل Card Integration ID في Clinova."
+        "اربط حساب Paymob في Clinova أولًا باستخدام بيانات الحساب الأربعة.",
+        "افتح Paymob Dashboard → Settings → Payment Integrations واختر البيئة التي ربطتها: Test أوLive.",
+        "ابحث عن تكامل طريقة الدفع التي تريد قبولها وانسخ Integration ID الخاص به. وهو ليس Merchant ID.",
+        "في Clinova، افتح المدفوعات الإلكترونية، واختر طريقة الدفع، والصق Integration ID، ثم اختر إضافة تكامل دفع. كرر ذلك لكل طريقة تريد قبولها."
       ],
       "screenshot": "Payment Integrations"
     },
@@ -384,7 +386,7 @@ export const paymobExperienceAr = {
       "steps": [
         "استخدم بيانات Test للتطوير والاختبار. هذه البيانات لا تعالج أموالًا حقيقية.",
         "استخدم بيانات Live لمدفوعات المرضى الفعلية بعد اكتمال إجراءات التحقق والموافقة المطلوبة لحسابك لدى Paymob.",
-        "انسخ المفاتيح ومعرّف Card Integration ID من البيئة نفسها التي تريد ربطها."
+        "انسخ المفاتيح وكل Integration ID تضيفه من البيئة نفسها التي تريد ربطها."
       ],
       "screenshot": "Payment Integrations"
     },
@@ -394,7 +396,7 @@ export const paymobExperienceAr = {
       "steps": [
         "اربط حساب التاجر الخاص بك لدى Paymob لاستقبال مقدم حجز المواعيد من خلاله. لا تحتاج Clinova بريد تسجيل الدخول أو كلمة المرور لدى Paymob.",
         "يسمح Secret Key للخادم الآمن بإنشاء طلبات الدفع، وتتيح قيمة HMAC Secret التحقق من صحة إشعارات الدفع.",
-        "تدعم قيمة ApiKey الاتصال الآمن مع Paymob على الخادم. يحدد Public Key البيئة، ويحدد Card Integration ID تكامل مدفوعات البطاقات.",
+        "تدعم قيمة ApiKey الاتصال الآمن مع Paymob على الخادم. يحدد Public Key البيئة، وتحدد أرقام التكامل، التي تُضاف بعد الربط، تكامل الدفع المستخدم لكل طريقة دفع.",
         "أدخل البيانات مباشرة في Clinova. لا يرى المرضى البيانات الحساسة مطلقًا."
       ],
       "screenshot": "ربط Paymob"
@@ -414,8 +416,8 @@ export const paymobExperienceAr = {
       "intro": "راجع إعداداتك المحفوظة واختر البيانات التي تريد استبدالها دون إظهار القيم السرية الحالية.",
       "steps": [
         "افتح إعدادات المدفوعات الإلكترونية للعيادة واختر إدارة.",
-        "اختر استبدال بجانب أحد البيانات لإدخال قيمة جديدة. اترك الحقول الأخرى دون تغيير للاحتفاظ بقيمها المحفوظة. حفظ التحديثات غير متاح من هذه الصفحة بعد.",
-        "عُد إلى المدفوعات الإلكترونية للعثور على تعطيل. التعطيل وإلغاء الربط غير متاحين بعد؛ فتح هذا الإجراء لا يغير إعداداتك."
+        "اختر استبدال بجانب أحد البيانات وأدخل قيمة جديدة. اترك باقي الحقول دون تغيير، وأكد صلاحيتك ثم اختر تحديث بيانات الربط. يعود الحساب إلى حالة انتظار التحقق.",
+        "عُد إلى المدفوعات الإلكترونية لمراجعة الحالة وإضافة أرقام التكامل لأي طريقة دفع لم تُربط بعد. تعطيل الحساب أو إلغاء ربطه وتغيير التكاملات الحالية غير متاح."
       ],
       "screenshot": "المدفوعات الإلكترونية"
     }

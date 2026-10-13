@@ -1,3 +1,4 @@
+import { paymobApiEn, paymobApiAr } from '@/locales/paymob-api'
 import { paymobUxEn, paymobUxAr } from '@/locales/paymob-ux'
 import { paymobExperienceEn, paymobExperienceAr } from '@/locales/paymob-experience'
 import { paymobEn, paymobAr } from '@/locales/paymob'
@@ -9,7 +10,7 @@ const resources = {
   en: {
     translation: {
       manualPayments: manualPaymentsEn,
-      paymob: { ...paymobEn, ...paymobExperienceEn, ux: paymobUxEn },
+      paymob: { ...paymobEn, ...paymobExperienceEn, ...paymobApiEn, ux: paymobUxEn },
       common: {
         appTitle: 'Clinova | Connected healthcare',
         brandTagline: 'Care, beautifully connected',
@@ -592,7 +593,7 @@ const resources = {
   ar: {
     translation: {
       manualPayments: manualPaymentsAr,
-      paymob: { ...paymobAr, ...paymobExperienceAr, ux: paymobUxAr },
+      paymob: { ...paymobAr, ...paymobExperienceAr, ...paymobApiAr, ux: paymobUxAr },
       common: {
         appTitle: 'كلينوفا | رعاية صحية مترابطة',
         brandTagline: 'رعاية مترابطة بأناقة',

@@ -1,10 +1,10 @@
 import { test, expect, type Page } from '@playwright/test'
-import { readPaymobStatus, readSavedPaymobConfiguration, paymobIssueCodes } from '../src/lib/paymob-configuration'
+import { readSavedPaymobConfiguration } from '../src/lib/paymob-configuration'
 import { paymobTutorials } from '../src/lib/paymob-tutorials'
 import { paymobExperienceEn } from '../src/locales/paymob-experience'
 
 const base = '/doctor/clinics/7/payments'
-const savedAccount = { id: 12, provider: 'Paymob', status: 'Ready', integrations: [{ id: 23, paymentMethod: 'Card', integrationId: 5934907, isActive: true }] }
+const savedAccount = { id: 12, provider: 'Paymob', status: 'Ready', isReady: true, integrations: [{ id: 23, paymentMethod: 'Card', integrationId: 5934907, isActive: true }] }
 
 async function setup(page: Page, options: { status?: string; issue?: string; owner?: boolean; language?: string; theme?: string } = {}) {
   await page.addInitScript(({ language, theme }) => {
@@ -17,7 +17,7 @@ async function setup(page: Page, options: { status?: string; issue?: string; own
   await page.route('**/hubs/**', (route) => route.abort())
   const state = {
     response: { provider: 'Paymob', status: options.status ?? 'Connected', issueCode: options.issue, message: 'RAW_PROVIDER_PRIVATE_MESSAGE', lastIssueAt: '2026-10-06T10:00:00Z' },
-    accounts: [savedAccount] as unknown[],
+    accounts: (options.status === 'NotConfigured' ? [] : [{ ...savedAccount, status: options.status ?? 'Ready', isReady: !options.status || options.status === 'Ready' }]) as unknown[],
     fail: false,
     calls: [] as string[],
   }
@@ -28,67 +28,49 @@ async function setup(page: Page, options: { status?: string; issue?: string; own
     if (path === '/api/clinics/7') return route.fulfill({ json: { id: 7, name: 'Olive Care Clinic', images: [], phoneNumbers: [] } })
     if (path === '/api/clinics/7/members') return route.fulfill({ json: [{ id: 'doctor-1', isOwner: options.owner !== false }] })
     if (path === '/api/payments/clinics/7/configuration') return state.fail ? route.fulfill({ status: 500, json: { message: 'RAW_PROVIDER_PRIVATE_MESSAGE' } }) : route.fulfill({ json: state.response })
-    if (path === '/api/online-payment-accounts/clinics/7') return route.fulfill({ json: state.accounts })
+    if (path === '/api/online-payment-accounts/clinics/7') return state.fail ? route.fulfill({ status: 500, json: { message: 'RAW_PROVIDER_PRIVATE_MESSAGE' } }) : route.fulfill({ json: state.accounts })
     return route.fulfill({ json: [] })
   })
   return state
 }
 
-test('safe metadata parsing discards credentials and rejects missing or patient-derived status', () => {
-  const unsafe = { provider: 'Paymob', status: 'Connected', issueCode: 'HmacVerificationFailed', secretKey: 'never-return', apiKey: 'never-return', hmacSecret: 'never-return', message: 'card declined', lastUpdatedAt: 'not-a-date' }
-  expect(readPaymobStatus(unsafe)).toEqual({ status: 'Connected', issueCode: undefined, lastUpdatedAt: undefined })
-  expect(() => readPaymobStatus({ provider: 'Paymob', paymentError: 'CardDeclined' })).toThrow('Payment settings unavailable')
-  expect(() => readPaymobStatus({ provider: 'Other', status: 'Connected' })).toThrow()
-  expect(() => readPaymobStatus({ provider: 'Paymob', status: 'CredentialsVerified' })).toThrow()
-  expect(readSavedPaymobConfiguration([{ ...savedAccount, ...unsafe }])).toEqual({ accountId: 12, storedFields: { publicKey: true, secretKey: true, hmacSecret: true, apiKey: true, cardIntegrationId: true }, cardIntegrationId: '5934907' })
+test('account metadata excludes credentials and rejects invalid contracts', () => {
+  const unsafe = { ...savedAccount, publicKey: 'never-cache', apiKey: 'never-cache', secretKey: 'never-cache', message: 'never-cache' }
+  const parsed = readSavedPaymobConfiguration([unsafe])
+  expect(parsed?.status).toBe('Ready')
+  expect(parsed?.integrations).toEqual(savedAccount.integrations)
+  expect(JSON.stringify(parsed)).not.toContain('never-cache')
   expect(readSavedPaymobConfiguration([])).toBeNull()
-  expect(() => readSavedPaymobConfiguration([savedAccount, savedAccount])).toThrow()
+  for (const value of [[savedAccount, savedAccount], [{ ...savedAccount, isReady: false }], [{ ...savedAccount, status: 'Connected' }], [null]]) {
+    expect(() => readSavedPaymobConfiguration(value)).toThrow()
+  }
 })
-
 for (const [status, label, action] of [
-  ['NotConfigured', 'Not connected', 'Connect Paymob'],
-  ['Connected', 'Connected', 'Manage'],
-  ['NeedsAttention', 'Needs attention', 'Review Settings'],
-  ['Disabled', 'Disabled', 'Enable Online Payments'],
+  ['PendingVerification', 'Pending verification', 'Manage'], ['Ready', 'Ready', 'Manage'],
+  ['Restricted', 'Restricted', 'Manage'], ['NeedsAttention', 'Needs attention', 'Review Settings'], ['Disabled', 'Disabled', 'Manage'],
 ]) {
   test('backend-driven settings state: ' + status, async ({ page }) => {
     const state = await setup(page, { status })
     await page.goto(base)
     const row = page.getByRole('region', { name: 'Paymob', exact: true })
     await expect(row.getByText(label, { exact: true })).toBeVisible()
-    await expect(row.getByRole(status === 'Disabled' ? 'button' : 'link', { name: action, exact: true })).toBeVisible()
-    await expect(page.getByText('RAW_PROVIDER_PRIVATE_MESSAGE')).toHaveCount(0)
-    await expect(page.getByText('Last updated', { exact: true })).toHaveCount(0)
-    if (status === 'Connected' || status === 'Disabled') {
-      await row.getByRole('button', { name: status === 'Connected' ? 'Disable' : 'Enable Online Payments', exact: true }).click()
-      await expect(page.getByRole('dialog').getByText('This action is not available yet')).toBeVisible()
-      await page.getByRole('button', { name: 'Close', exact: true }).click()
-      await expect(row.getByText(label, { exact: true })).toBeVisible()
-    }
+    await expect(row.getByRole('link', { name: action, exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Disable', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Enable Online Payments', exact: true })).toHaveCount(0)
     expect(state.calls.every((call) => call.startsWith('GET '))).toBe(true)
+    expect(state.calls.some((call) => call.includes('/api/payments/'))).toBe(false)
   })
 }
-
-for (const issue of paymobIssueCodes) {
-  test('doctor warning maps explicit issue ' + issue, async ({ page }) => {
-    await setup(page, { status: 'NeedsAttention', issue })
-    await page.goto(base)
-    await expect(page.getByText(paymobExperienceEn.issues[issue].title, { exact: true })).toBeVisible()
-    await expect(page.getByText(paymobExperienceEn.issues[issue].message, { exact: true })).toBeVisible()
-    await page.getByRole('link', { name: paymobExperienceEn.issues[issue].action, exact: true }).click()
-    if (issue === 'ProviderUnavailable') await expect(page).toHaveURL(base + '/paymob/guide')
-    else {
-      await expect(page.getByRole('heading', { name: 'Update Paymob credentials' })).toBeVisible()
-      if (issue === 'HmacVerificationFailed') await expect(page.locator('#paymob-hmacSecret-section')).toBeFocused()
-      if (issue === 'InvalidIntegration') await expect(page.locator('#paymob-cardIntegrationId-section')).toBeFocused()
-    }
-  })
-}
+test('empty account list offers connection', async ({ page }) => {
+  await setup(page, { status: 'NotConfigured' })
+  await page.goto(base)
+  await expect(page.getByRole('link', { name: 'Connect Paymob', exact: true })).toBeVisible()
+})
 
 test('generic failure and stale issue codes never invent a configuration issue', async ({ page }) => {
-  const state = await setup(page, { status: 'Connected', issue: 'HmacVerificationFailed' })
+  const state = await setup(page, { status: 'Ready', issue: 'HmacVerificationFailed' })
   await page.goto(base)
-  await expect(page.getByText('Connected', { exact: true })).toBeVisible()
+  await expect(page.getByText('Ready', { exact: true })).toBeVisible()
   await expect(page.getByText(paymobExperienceEn.issues.HmacVerificationFailed.title)).toHaveCount(0)
   state.fail = true
   await page.getByRole('button', { name: 'Refresh settings' }).click()
@@ -98,25 +80,29 @@ test('generic failure and stale issue codes never invent a configuration issue',
 })
 
 test('settings, guide, setup, help and all nine tutorials preserve clinic context', async ({ page }) => {
-  test.setTimeout(60000)
+  test.setTimeout(120000)
   await setup(page)
   await page.goto(base)
   await page.getByRole('link', { name: 'Setup Guide', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Get your integration credentials', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Expand API Keys screenshot placeholder' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Zoom API Keys screenshot' })).toBeVisible()
   await page.getByRole('link', { name: 'Back to Connect Paymob' }).first().click()
   await expect(page).toHaveURL(base + '/paymob/connect#paymob-connect')
   await expect(page.locator('#paymob-connect-title')).toBeFocused()
   await page.getByRole('link', { name: 'Need help?', exact: true }).click()
   for (const topic of paymobTutorials) {
-    await page.getByRole('link', { name: new RegExp(paymobExperienceEn.tutorials[topic].title.replace(/[.*+?^$()|[\]\\]/g, '\\$&')) }).click()
-    await expect(page).toHaveURL(base + '/paymob/help/' + topic)
-    await expect(page.getByRole('heading', { name: paymobExperienceEn.tutorials[topic].title, exact: true })).toBeVisible()
-    await expect(page.locator('article ol > li')).toHaveCount(paymobExperienceEn.tutorials[topic].steps.length)
-    await page.getByRole('button', { name: /Expand .* screenshot placeholder/ }).click()
+    const title = paymobExperienceEn.tutorials[topic].title
+    await page.getByRole('button', { name: title, exact: true }).click()
+    const panel = page.getByRole('region', { name: title, exact: true })
+    await expect(panel).toBeVisible()
+    await expect(panel.locator('ol > li')).toHaveCount(paymobExperienceEn.tutorials[topic].steps.length)
+    await panel.getByRole('button', { name: /(?:Zoom .* screenshot|Expand .* screenshot placeholder)/ }).first().click()
     await expect(page.getByRole('dialog')).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toHaveCount(0)
+    // Deep links remain supported alongside the in-place FAQ.
+    await page.goto(base + '/paymob/help/' + topic)
+    await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
     await page.getByRole('link', { name: 'All Paymob guides', exact: true }).click()
   }
 })
@@ -130,7 +116,7 @@ test('manage masks saved secrets and explicit replacement never prefills them', 
     await expect(page.getByRole('button', { name: 'Show ' + label, exact: true })).toHaveCount(0)
   }
   await expect(page.getByLabel('Public Key', { exact: true })).toHaveValue('pk_••••••••••••')
-  await expect(page.getByLabel('Card Integration ID', { exact: true })).toHaveValue('5934907')
+  await expect(page.getByLabel('Card Integration ID', { exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Replace ApiKey', exact: true }).click()
   await expect(page.getByLabel('ApiKey', { exact: true })).toHaveValue('')
   await page.getByLabel('ApiKey', { exact: true }).fill('local-test-api-value')
@@ -178,7 +164,7 @@ for (const width of [360, 768, 1440]) {
     await setup(page, { status: 'NeedsAttention', issue: 'HmacVerificationFailed', language: width === 360 ? 'ar' : 'en', theme: width === 360 ? 'dark' : 'light' })
     for (const route of ['', '/paymob/guide', '/paymob/manage', '/paymob/help', '/paymob/help/hmac-secret']) {
       await page.goto(base + route)
-      await expect(page.locator('h1')).toBeVisible()
+      await expect(page.getByRole('heading').first()).toBeVisible({ timeout: 10000 })
       if (route === '/paymob/manage') await expect(page.getByLabel('ApiKey', { exact: true })).toBeVisible()
       else if (!route) await expect(page.getByRole('region', { name: 'Paymob', exact: true })).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

@@ -3,10 +3,11 @@ import { BookOpen, LoaderCircle, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
+import { PaymobIntegrations } from '@/components/paymob/integrations'
 import { PaymobSettingsRow } from '@/components/paymob/payment-settings-row'
 import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
-import { usePaymobStatus } from '@/hooks/use-paymob-configuration'
+import { useSavedPaymobConfiguration } from '@/hooks/use-paymob-configuration'
 
 export default function OnlinePaymentsPage() {
   const { clinicId } = useParams({ from: '/doctor/clinics/$clinicId/payments' })
@@ -15,13 +16,14 @@ export default function OnlinePaymentsPage() {
 }
 function PaymentSettings({ clinicId }: { clinicId: string }) {
   const { t } = useTranslation()
-  const configuration = usePaymobStatus(clinicId)
+  const configuration = useSavedPaymobConfiguration(clinicId)
   if (configuration.isPending) return <p role="status" className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('paymob.settingsLoading')}</p>
   return <>
     {configuration.isError ? <div className="grid gap-4 border-y py-6">
       <Notice message={t('paymob.statusUnavailable')} /><p role="alert" className="text-sm leading-6 text-muted-foreground">{t('paymob.statusUnavailable')}</p>
       <div className="flex flex-wrap gap-2"><Button variant="outline" className={paymobButtonClass} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button></div>
     </div> : <PaymobSettingsRow clinicId={clinicId} configuration={configuration.data} />}
+    {!configuration.isError && configuration.data && <PaymobIntegrations clinicId={clinicId} account={configuration.data} refreshing={configuration.isFetching} />}
     <div className="mt-5 flex flex-wrap gap-2">
       <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen />{t('paymob.helpTitle')}</Button>
       {!configuration.isError && <Button variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('paymob.refreshSettings')}</Button>}
