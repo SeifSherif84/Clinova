@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
+using Microsoft.Extensions.Configuration;
 using Shared.Dtos.Appointments;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Services.AutoMapping.Appointments
 {
     public class AppointmentProfile : Profile
     {
-        public AppointmentProfile()
+        public AppointmentProfile(IConfiguration _configuration)
         {
             CreateMap<Appointment, PatientAppointmentResponse>()
                 .ForMember(dest => dest.AppointmentId, options => options.MapFrom(src => src.Id))
@@ -22,8 +23,7 @@ namespace Services.AutoMapping.Appointments
                 .ForMember(dest => dest.AppointmentSlotDate, options => options.MapFrom(src => src.AppointmentSlot.Date))
                 .ForMember(dest => dest.StartTime, options => options.MapFrom(src => src.AppointmentSlot.StartTime))
                 .ForMember(dest => dest.EndTime, options => options.MapFrom(src => src.AppointmentSlot.EndTime))
-                .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()))
-                .ForMember(dest => dest.ReservationExpiresAt, options => options.MapFrom(src => src.ReservationExpiresAt));
+                .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()));
 
 
             CreateMap<Appointment, PatientAppointmentDetailsResponse>()
@@ -32,19 +32,49 @@ namespace Services.AutoMapping.Appointments
                 .ForMember(dest => dest.DoctorName, options => options.MapFrom(src => $"{src.AppointmentSlot.Doctor.FirstName} {src.AppointmentSlot.Doctor.LastName}"))
                 .ForMember(dest => dest.ClinicId, options => options.MapFrom(src => src.AppointmentSlot.ClinicId))
                 .ForMember(dest => dest.ClinicName, options => options.MapFrom(src => src.AppointmentSlot.Clinic.Name))
-                .ForMember(dest => dest.BookingDate, options => options.MapFrom(src => src.BookingDate))
                 .ForMember(dest => dest.AppointmentStatus, options => options.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.AppointmentSlotDate, options => options.MapFrom(src => src.AppointmentSlot.Date))
                 .ForMember(dest => dest.StartTime, options => options.MapFrom(src => src.AppointmentSlot.StartTime))
                 .ForMember(dest => dest.EndTime, options => options.MapFrom(src => src.AppointmentSlot.EndTime))
+                .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()));
+
+
+
+            CreateMap<Appointment, SecretaryAppointmentResponse>()
+                .ForMember(dest => dest.AppointmentId, options => options.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SlotDate, options => options.MapFrom(src => src.AppointmentSlot.Date))
+                .ForMember(dest => dest.StartTime, options => options.MapFrom(src => src.AppointmentSlot.StartTime))
+                .ForMember(dest => dest.EndTime, options => options.MapFrom(src => src.AppointmentSlot.EndTime))
+                .ForMember(dest => dest.AppointmentStatus, options => options.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.DoctorName, options => options.MapFrom(src => $"{src.AppointmentSlot.Doctor.FirstName} {src.AppointmentSlot.Doctor.LastName}"))
+                .ForMember(dest => dest.PatientName, options => options.MapFrom(src => $"{src.Patient.FirstName} {src.Patient.LastName}"))
                 .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()))
-                .ForMember(dest => dest.PatientNotes, options => options.MapFrom(src => src.PatientNotes))
-                .ForMember(dest => dest.ConsultationFee, options => options.MapFrom(src => src.ConsultationFee))
-                .ForMember(dest => dest.DepositAmount, options => options.MapFrom(src => src.DepositAmount))
+                .ForMember(dest => dest.PaymentType, options => options.MapFrom(src => src.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString()))
+                .ForMember(dest => dest.RequiresManualRefundAction, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Status == RefundStatus.PendingManualProcessing : false));
+
+
+
+            CreateMap<Appointment, SecretaryAppointmentDetailsResponse>()
+                .ForMember(dest => dest.AppointmentId, options => options.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SlotDate, options => options.MapFrom(src => src.AppointmentSlot.Date))
+                .ForMember(dest => dest.StartTime, options => options.MapFrom(src => src.AppointmentSlot.StartTime))
+                .ForMember(dest => dest.EndTime, options => options.MapFrom(src => src.AppointmentSlot.EndTime))
+                .ForMember(dest => dest.AppointmentStatus, options => options.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.DoctorName, options => options.MapFrom(src => $"{src.AppointmentSlot.Doctor.FirstName} {src.AppointmentSlot.Doctor.LastName}"))
+                .ForMember(dest => dest.PatientName, options => options.MapFrom(src => $"{src.Patient.FirstName} {src.Patient.LastName}"))
+                .ForMember(dest => dest.PatientPhoneNumber, options => options.MapFrom(src => src.Patient.PhoneNumber))
+                .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()))
+                .ForMember(dest => dest.PaymentType, options => options.MapFrom(src => src.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString()))
+                .ForMember(dest => dest.ManualPaymentMethodType, options => options.MapFrom(src => src.Payment.ClinicManualPaymentMethod != null ? src.Payment.ClinicManualPaymentMethod.Type.ToString() : null))
+                .ForMember(dest => dest.PaymentRejectionReason, options => options.MapFrom(src => src.Payment.RejectionReason))
+                .ForMember(dest => dest.PaymentAmount, options => options.MapFrom(src => src.Payment.Amount))
                 .ForMember(dest => dest.RemainingAmount, options => options.MapFrom(src => src.RemainingAmount))
-                .ForMember(dest => dest.ReservationExpiresAt, options => options.MapFrom(src => src.ReservationExpiresAt))
-                .ForMember(dest => dest.FullRefundCancellationWindowMinutes, options => options.MapFrom(src => src.FullRefundCancellationWindowMinutes))
-                .ForMember(dest => dest.BookingCancellationGracePeriodMinutes, options => options.MapFrom(src => src.BookingCancellationGracePeriodMinutes));
+                .ForMember(dest => dest.PaymentProofUrl, options => options.MapFrom(new PaymentProofUrlResolver(_configuration)))
+                .ForMember(dest => dest.TransactionReference, options => options.MapFrom(src => src.Payment.TransactionReference))
+                .ForMember(dest => dest.RefundStatus, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Status.ToString() : null))
+                .ForMember(dest => dest.RefundAmount, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Amount : (decimal?)null))
+                .ForMember(dest => dest.RefundReason, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Reason.ToString() : null))
+                .ForMember(dest => dest.RefundProcessedAt, options => options.MapFrom(src => src.Payment.Refund != null && src.Payment.Refund.ProcessedAt.HasValue ? src.Payment.Refund.ProcessedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null));
         }
 
 

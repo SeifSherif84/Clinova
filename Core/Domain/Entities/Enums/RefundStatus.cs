@@ -11,6 +11,7 @@ namespace Domain.Entities.Enums
         Processing = 1,
         Succeeded,
         Failed,
-        PendingVerification
+        PendingVerification,
+        PendingManualProcessing
     }
 }

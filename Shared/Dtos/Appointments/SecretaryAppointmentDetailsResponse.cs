@@ -9,7 +9,7 @@ namespace Shared.Dtos.Appointments
 {
     public class SecretaryAppointmentDetailsResponse
     {
-        public int Id { get; set; }
+        public int AppointmentId { get; set; }
 
 
         // Appointment Slot
@@ -35,10 +35,18 @@ namespace Shared.Dtos.Appointments
         public string PaymentStatus { get; set; } = null!;
         public string PaymentType { get; set; } = null!;
         public string? ManualPaymentMethodType { get; set; }
+        public string? PaymentRejectionReason { get; set; }
 
         public decimal PaymentAmount { get; set; }
         public decimal RemainingAmount { get; set; }
         public string? PaymentProofUrl { get; set; }
         public string? TransactionReference { get; set; }
+
+
+        public string? RefundStatus { get; set; }
+        public decimal? RefundAmount { get; set; }
+
+        public string? RefundReason { get; set; }
+        public string? RefundProcessedAt { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Shared.Dtos.Appointments
 {
     public class SecretaryAppointmentResponse
     {
-        public int Id { get; set; }
+        public int AppointmentId { get; set; }
 
         public DateOnly SlotDate { get; set; }
         public TimeOnly StartTime { get; set; }
@@ -19,5 +19,7 @@ namespace Shared.Dtos.Appointments
         public string PatientName { get; set; } = null!;
         public string PaymentStatus { get; set; } = null!;
         public string PaymentType { get; set; } = null!;
+
+        public bool RequiresManualRefundAction { get; set; }
     }
 }

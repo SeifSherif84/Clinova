@@ -19,7 +19,7 @@ const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
 
 function MethodLogo({ method, className = '' }: { method: PaymobPaymentMethod; className?: string }) {
   return <span aria-hidden="true" className={`relative flex h-12 w-24 shrink-0 items-center justify-start ${className}`}>
-    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
   </span>
 }
 
@@ -99,7 +99,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
       <ul className="mt-5 grid gap-3">{account.integrations.map((integration) => (
         <li key={integration.id} className="group relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg motion-reduce:transition-none sm:p-5">
           <span aria-hidden="true" className="flex h-12 w-24 shrink-0 items-center justify-center">
-            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -132,7 +132,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
         </div>
         {!disabled && <div className="grid gap-3 sm:grid-cols-2">{methods.map((value) => (
           <button key={value} type="button" disabled={busy || refreshing} onClick={() => openEditor(value)} aria-label={t('paymob.addMethodIntegration', { method: t('paymob.method.' + value) })} className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-5 text-start transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg disabled:pointer-events-none disabled:opacity-60">
-              <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
+              <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
             <div>
               <strong className="block text-sm font-bold">{t('paymob.method.' + value)}</strong>
               <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t('paymob.methodHint.' + value)}</span>

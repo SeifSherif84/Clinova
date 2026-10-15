@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Presentation.Controllers.DoctorInvitations
 {
     [ApiController]
-    [Route("api/doctor-invitations")]
+    [Route("api/invitations")]
     public class DoctorInvitationsController(IServiceManager _serviceManager) : ControllerBase
     {
 
