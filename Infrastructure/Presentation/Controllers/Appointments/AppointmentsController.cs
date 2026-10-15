@@ -145,11 +145,11 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/mark-completed")] // Patch: /api/appointments/{appointmentId}/mark-completed
+        [HttpPatch("{appointmentId}/mark-completed")]
         public async Task<IActionResult> SecretaryMarkAppointmentCompleted([FromRoute] int appointmentId)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.CancelAppointmentBySecretaryAsync(secretaryId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.SecretaryMarkAppointmentCompletedAsync(secretaryId ?? string.Empty, appointmentId);
             return Ok(response);
         }
 

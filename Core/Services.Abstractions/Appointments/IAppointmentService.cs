@@ -24,5 +24,9 @@ namespace Services.Abstractions.Appointments
         Task<string> PatientSubmitManualPaymentProofAsync(string userId, int appointmentId, SubmitManualPaymentProofRequest request);
         Task<string> ApproveManualPaymentAsync(string userId, int appointmentId);
         Task<string> RejectManualPaymentAsync(string userId, int appointmentId, RejectManualPaymentRequest request);
+
+        Task<CancelAppointmentResponse> CancelAppointmentBySecretaryAsync(string secretaryId, int appointmentId);
+        Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId);
+        Task<string> SecretaryMarkAppointmentNoShowAsync(string secretaryId, int appointmentId);
     }
 }
