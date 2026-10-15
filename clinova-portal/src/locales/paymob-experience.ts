@@ -14,6 +14,8 @@ export const paymobExperienceEn = {
     "Find the Card integration.",
     "Copy the Integration ID."
   ],
+  "previewPlaceholder": "Your Integration ID",
+  "previewNote": "Use the Integration ID for this method from your Paymob dashboard, not the Merchant ID.",
   "guideFinish": "When you have all five credentials, return to Connect Paymob to enter them directly into the secure form.",
   "zoomImage": "Zoom screenshot",
   "zoomImageLabel": "Zoom {{section}} screenshot",
@@ -227,6 +229,8 @@ export const paymobExperienceAr = {
     "ابحث عن تكامل البطاقات Card.",
     "انسخ Integration ID."
   ],
+  "previewPlaceholder": "رقم التكامل الخاص بك",
+  "previewNote": "استخدم Integration ID الخاص بهذه الطريقة من لوحة تحكم Paymob، وليس Merchant ID.",
   "guideFinish": "بعد الحصول على البيانات الخمسة، عُد إلى صفحة ربط Paymob لإدخالها مباشرة في النموذج الآمن.",
   "zoomImage": "تكبير لقطة الشاشة",
   "zoomImageLabel": "تكبير لقطة شاشة {{section}}",

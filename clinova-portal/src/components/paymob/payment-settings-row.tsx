@@ -46,7 +46,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
     <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="flex items-center gap-2 font-sans text-xl font-bold"><span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CreditCard className="size-7" /></span>Paymob</h2>
+          <h2 className="flex items-center gap-3.5 font-sans text-xl font-bold"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><CreditCard className="size-5" /></span>Paymob</h2>
           <span className={'rounded-full border px-2.5 py-1 text-[10px] font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
         </div>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('paymob.accountStatusDescription.' + status)}</p>
