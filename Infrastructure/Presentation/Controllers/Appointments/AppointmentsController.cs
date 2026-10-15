@@ -81,7 +81,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpGet] // Get: /api/appointments?date=2024-06-01&status=Pending&pageNumber=1&pageSize=10
+        [HttpGet("management")] // Get: /api/appointments?date=2024-06-01&status=Pending&pageNumber=1&pageSize=10
         public async Task<IActionResult> GetClinicAppointmentsForSecretary([FromQuery] SecretaryAppointmentQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -92,7 +92,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpGet("{appointmentId}")] // Get: /api/appointments/{appointmentId}
+        [HttpGet("{appointmentId}/management")] // Get: /api/appointments/{appointmentId}
         public async Task<IActionResult> GetClinicAppointmentDetailsForSecretary([FromRoute] int appointmentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
