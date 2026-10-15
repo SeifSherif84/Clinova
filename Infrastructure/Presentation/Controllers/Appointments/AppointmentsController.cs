@@ -134,5 +134,35 @@ namespace Presentation.Controllers.Appointments
         }
 
 
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/secretary-cancel")] // Patch: /api/appointments/{appointmentId}/secretary-cancel
+        public async Task<IActionResult> CancelAppointmentBySecretary([FromRoute] int appointmentId)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.CancelAppointmentBySecretaryAsync(secretaryId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/mark-completed")] // Patch: /api/appointments/{appointmentId}/mark-completed
+        public async Task<IActionResult> SecretaryMarkAppointmentCompleted([FromRoute] int appointmentId)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryMarkAppointmentCompletedAsync(secretaryId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/mark-no-show")] // Patch: /api/appointments/{appointmentId}/mark-no-show
+        public async Task<IActionResult> SecretaryMarkAppointmentNoShow([FromRoute] int appointmentId)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryMarkAppointmentNoShowAsync(secretaryId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
     }
 }
