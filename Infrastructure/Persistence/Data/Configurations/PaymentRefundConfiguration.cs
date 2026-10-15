@@ -28,7 +28,7 @@ namespace Persistence.Data.Configurations
                    .HasPrecision(18, 2);
 
             builder.Property(refund => refund.OriginalTransactionId)
-                   .IsRequired()
+                   .IsRequired(false)
                    .HasMaxLength(100);
 
             builder.Property(refund => refund.ProviderRefundTransactionId)

@@ -487,6 +487,10 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("ProviderTransactionId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()

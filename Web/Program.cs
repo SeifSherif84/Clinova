@@ -101,7 +101,7 @@ namespace Web
                 MapperConfig.AddProfile(new PatientProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicManualPaymentMethodProfile());
                 MapperConfig.AddProfile(new AppointmentSlotProfile());
-                MapperConfig.AddProfile(new AppointmentProfile());
+                MapperConfig.AddProfile(new AppointmentProfile(builder.Configuration));
                 MapperConfig.AddProfile(new SecretaryInvitationProfile());
                 MapperConfig.AddProfile(new SecretaryProfile(builder.Configuration));
             });

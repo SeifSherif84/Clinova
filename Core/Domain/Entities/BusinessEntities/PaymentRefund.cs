@@ -35,7 +35,7 @@ namespace Domain.Entities.BusinessEntities
         /// <summary>
         /// Paymob transaction ID of the original successful payment.
         /// </summary>
-        public string OriginalTransactionId { get; set; } = null!;
+        public string? OriginalTransactionId { get; set; }
 
 
         /// <summary>

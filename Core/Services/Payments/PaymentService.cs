@@ -30,18 +30,14 @@ using System.Threading.Tasks;
 namespace Services.Payments
 {
     public class PaymentService(IUnitOfWork _unitOfWork,
-                               IPaymobService _paymobService,
-                               IPaymobHmacService _paymobHmacService,
-                               IPaymentCredentialEncryptor _credentialProtector,
-                               INotificationService _notificationService,
-                               IPaymobRefundService _refundService) : IPaymentService
+                                IPaymobService _paymobService,
+                                IPaymobHmacService _paymobHmacService,
+                                IPaymentCredentialEncryptor _credentialProtector,
+                                INotificationService _notificationService,
+                                IPaymobRefundService _refundService) : IPaymentService
     {
         public async Task<object> CreatePaymobPaymentIntentionAsync(string userId, int appointmentId, CreatePaymobPaymentIntentionRequest request)
         {
-            // --------------------------------------------------
-            // 1. Validate User
-            // --------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
 
@@ -50,18 +46,9 @@ namespace Services.Payments
                 throw new NotFoundException("We couldn't find your account.");
 
 
-            // --------------------------------------------------
-            // 2. Validate Payment Method
-            // --------------------------------------------------
-
             if (!Enum.IsDefined<OnlinePaymentMethod>(request.PaymentMethod))
                 throw new BadRequestException("Invalid online payment method.");
 
-
-
-            // --------------------------------------------------
-            // 3. Get Appointment
-            // --------------------------------------------------
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
             var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
@@ -70,38 +57,14 @@ namespace Services.Payments
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
-
-            // --------------------------------------------------
-            // 4. Ownership
-            // --------------------------------------------------
-
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to make payment for this appointment.");
-
-
-
-            // --------------------------------------------------
-            // 5. Appointment Status
-            // --------------------------------------------------
 
             if (appointment.Status != AppointmentStatus.PendingPayment)
                 throw new BadRequestException("This appointment is no longer awaiting payment.");
 
-
-            // --------------------------------------------------
-            // 6. Reservation Expiration
-            // --------------------------------------------------
-
             if (DateTime.UtcNow >= appointment.ReservationExpiresAt)
-            {
                 throw new BadRequestException("The payment reservation for this appointment has expired.");
-            }
-
-
-
-            // --------------------------------------------------
-            // 7. Payment Status
-            // --------------------------------------------------
 
             if (appointment.Payment is null)
                 throw new InternalServerErrorException("The appointment payment was not found.");
@@ -139,10 +102,6 @@ namespace Services.Payments
             }
 
 
-            // --------------------------------------------------
-            // 9. Get Clinic
-            // --------------------------------------------------
-
             // check clinic doctor , member
             var clinicId = appointment.AppointmentSlot.ClinicId;
 
@@ -153,12 +112,6 @@ namespace Services.Payments
             if (paymobAccount is null)
                 throw new BadRequestException("Online payment is not configured for this clinic.");
 
-
-
-            // --------------------------------------------------
-            // 10. Validate Account Status
-            // --------------------------------------------------
-
             if (paymobAccount.Status == OnlinePaymentAccountStatus.Disabled)
                 throw new BadRequestException("Online payment Account is currently disabled for this clinic.");
 
@@ -168,10 +121,6 @@ namespace Services.Payments
             if (paymobAccount.Status == OnlinePaymentAccountStatus.NotConfigured)
                 throw new BadRequestException("Online payment is not configured for this clinic.");
 
-
-            // --------------------------------------------------
-            // 11. Get Integration
-            // --------------------------------------------------
 
             var integrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
             var integrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(paymobAccount.Id, request.PaymentMethod);
@@ -331,6 +280,9 @@ namespace Services.Payments
         }
 
 
+
+
+
         public async Task HandlePaymobTransactionCallbackAsync(PaymobTransactionCallbackRequest request, string hmac)
         {
             // --------------------------------------------------
@@ -367,35 +319,26 @@ namespace Services.Payments
             // 3. Find Payment by Paymob Order ID
             // --------------------------------------------------
 
-            var paymentRepo =
-                _unitOfWork.GetRepository<Payment, int>();
+            var paymentRepo = _unitOfWork.GetRepository<Payment, int>();
 
-            var paymentSpec =
-                PaymentSpecifications.ByProviderOrderId(
-                    transaction.Order.Id.ToString());
+            var paymentSpec = PaymentSpecifications.ByProviderOrderId(transaction.Order.Id.ToString());
 
-            var payment =
-                await paymentRepo.GetByIdAsync(paymentSpec);
+            var payment = await paymentRepo.GetByIdAsync(paymentSpec);
 
             if (payment is null)
-                throw new NotFoundException(
-                    "The payment associated with this Paymob transaction was not found.");
+                throw new NotFoundException("The payment associated with this Paymob transaction was not found.");
 
 
             // --------------------------------------------------
             // 4. Validate Payment Provider
             // --------------------------------------------------
 
-            var paymentAccount =
-                payment.ClinicOnlinePaymentAccount;
-
+            var paymentAccount = payment.ClinicOnlinePaymentAccount;
             if (paymentAccount is null)
-                throw new InternalServerErrorException(
-                    "The online payment account associated with this payment was not found.");
+                throw new InternalServerErrorException("The online payment account associated with this payment was not found.");
 
             if (paymentAccount.Provider != OnlinePaymentProvider.Paymob)
-                throw new BadRequestException(
-                    "The payment provider does not match Paymob.");
+                throw new BadRequestException("The payment provider does not match Paymob.");
 
 
             // --------------------------------------------------
@@ -406,14 +349,11 @@ namespace Services.Payments
 
             try
             {
-                hmacSecret =
-                    _credentialProtector.Decrypt(
-                        paymentAccount.HmacSecret);
+                hmacSecret = _credentialProtector.Decrypt(paymentAccount.HmacSecret);
             }
             catch
             {
-                throw new InternalServerErrorException(
-                    "The Paymob HMAC configuration could not be loaded.");
+                throw new InternalServerErrorException("The Paymob HMAC configuration could not be loaded.");
             }
 
 
@@ -421,38 +361,24 @@ namespace Services.Payments
             // 6. Verify HMAC
             // --------------------------------------------------
 
-            var isValidHmac =
-                _paymobHmacService.IsValid(
-                    transaction,
-                    hmac,
-                    hmacSecret);
-
+            var isValidHmac = _paymobHmacService.IsValid(transaction, hmac, hmacSecret);
             if (!isValidHmac)
-                throw new BadRequestException(
-                    "Invalid Paymob callback signature.");
+                throw new BadRequestException("Invalid Paymob callback signature.");
 
 
             // --------------------------------------------------
             // 7. Validate Integration ID
             // --------------------------------------------------
 
-            var configuredIntegration =
-                paymentAccount.PaymentIntegrations.FirstOrDefault(
-                    integration =>
-                        integration.IntegrationId ==
-                        transaction.IntegrationId &&
-                        integration.IsActive);
+            var configuredIntegration = paymentAccount.PaymentIntegrations.FirstOrDefault(integration =>
+                                                                                          integration.IntegrationId == transaction.IntegrationId &&
+                                                                                          integration.IsActive);
 
             if (configuredIntegration is null)
             {
-                await MarkConfigurationIssueAsync(
-                    paymentAccount,
-                    PaymentConfigurationIssueCode.InvalidIntegration);
-
+                await MarkConfigurationIssueAsync(paymentAccount, PaymentConfigurationIssueCode.InvalidIntegration);
                 await _unitOfWork.SaveChangesAsync();
-
-                throw new BadRequestException(
-                    "The Paymob integration does not match the configured payment integration.");
+                throw new BadRequestException("The Paymob integration does not match the configured payment integration.");
             }
 
 
@@ -460,32 +386,18 @@ namespace Services.Payments
             // 8. Validate Currency
             // --------------------------------------------------
 
-            if (!string.Equals(
-                    transaction.Currency,
-                    "EGP",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                throw new BadRequestException(
-                    "The Paymob transaction currency is invalid.");
-            }
+            if (!string.Equals(transaction.Currency, "EGP", StringComparison.OrdinalIgnoreCase))
+                throw new BadRequestException("The Paymob transaction currency is invalid.");
 
 
             // --------------------------------------------------
             // 9. Validate Amount
             // --------------------------------------------------
 
-            var expectedAmountCents =
-                checked(
-                    (int)Math.Round(
-                        payment.Amount * 100m,
-                        0,
-                        MidpointRounding.AwayFromZero));
-
+            var expectedAmountCents = checked((int)Math.Round(payment.Amount * 100m, 0, MidpointRounding.AwayFromZero));
             if (transaction.AmountCents != expectedAmountCents)
-            {
-                throw new BadRequestException(
-                    "The Paymob transaction amount does not match the payment amount.");
-            }
+                throw new BadRequestException("The Paymob transaction amount does not match the payment amount.");
+
 
 
             // --------------------------------------------------
@@ -506,28 +418,20 @@ namespace Services.Payments
 
             if (transaction.Success)
             {
-                await HandleSuccessfulPaymentAsync(
-                    payment,
-                    transaction);
-
+                await HandleSuccessfulPaymentAsync(payment, transaction);
                 return;
             }
 
-            await HandleFailedPaymentAsync(
-                payment,
-                transaction);
+            await HandleFailedPaymentAsync(payment, transaction);
         }
 
 
 
-        private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(
-            Payment payment,
-            RefundReason reason)
+
+
+        private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(Payment payment, RefundReason reason)
         {
-            var refundResult =
-                await _refundService.RefundPaymentAsync(
-                    payment.Id,
-                    reason);
+            var refundResult = await _refundService.RefundPaymentAsync(payment.Id, reason);
 
             if (refundResult.Succeeded)
                 return;
@@ -541,33 +445,26 @@ namespace Services.Payments
             if (refundResult.PendingVerification)
                 return;
 
-            throw new InternalServerErrorException(
-                refundResult.ErrorMessage ??
-                "The payment was successful, but the refund could not be completed.");
+            throw new InternalServerErrorException(refundResult.ErrorMessage ?? "The payment was successful, but the refund could not be completed.");
         }
 
 
-        private async Task HandleSuccessfulPaymentAsync(
-            Payment payment,
-            PaymobTransactionCallbackObject transaction)
+
+
+
+        private async Task HandleSuccessfulPaymentAsync(Payment payment, PaymobTransactionCallbackObject transaction)
         {
             // --------------------------------------------------
             // 1. Get Appointment
             // --------------------------------------------------
 
             var appointment = payment.Appointment;
-
             if (appointment is null)
-            {
-                throw new InternalServerErrorException(
-                    "The appointment associated with this payment was not found.");
-            }
+                throw new InternalServerErrorException("The appointment associated with this payment was not found.");
 
             if (appointment.AppointmentSlot is null)
-            {
-                throw new InternalServerErrorException(
-                    "The appointment slot associated with this payment was not found.");
-            }
+                throw new InternalServerErrorException("The appointment slot associated with this payment was not found.");
+
 
 
             // --------------------------------------------------
@@ -597,23 +494,15 @@ namespace Services.Payments
                 try
                 {
                     var result = await _unitOfWork.SaveChangesAsync();
-
                     if (result == 0)
-                    {
-                        throw new InternalServerErrorException(
-                            "The successful payment could not be recorded.");
-                    }
+                        throw new InternalServerErrorException("The successful payment could not be recorded.");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    throw new InternalServerErrorException(
-                        "The appointment or payment was modified by another operation. Please try again.");
+                    throw new InternalServerErrorException("The appointment or payment was modified by another operation. Please try again.");
                 }
 
-                await RefundSuccessfulPaymentAfterAppointmentBecameInvalid(
-                    payment,
-                    RefundReason.PatientCancellation);
-
+                await RefundSuccessfulPaymentAfterAppointmentBecameInvalid(payment, RefundReason.PatientCancellation);
                 return;
             }
 
@@ -622,37 +511,25 @@ namespace Services.Payments
             // 5. Reservation Expired
             // --------------------------------------------------
 
-            var reservationExpired =
-                DateTime.UtcNow >= appointment.ReservationExpiresAt;
+            var reservationExpired = DateTime.UtcNow >= appointment.ReservationExpiresAt;
 
-            if (appointment.Status == AppointmentStatus.Expired ||
-                reservationExpired)
+            if (appointment.Status == AppointmentStatus.Expired || reservationExpired)
             {
                 if (appointment.Status == AppointmentStatus.PendingPayment)
-                {
                     appointment.Status = AppointmentStatus.Expired;
-                }
 
                 try
                 {
                     var result = await _unitOfWork.SaveChangesAsync();
-
                     if (result == 0)
-                    {
-                        throw new InternalServerErrorException(
-                            "The successful payment could not be recorded.");
-                    }
+                        throw new InternalServerErrorException("The successful payment could not be recorded.");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    throw new InternalServerErrorException(
-                        "The appointment or payment was modified by another operation. Please try again.");
+                    throw new InternalServerErrorException("The appointment or payment was modified by another operation. Please try again.");
                 }
 
-                await RefundSuccessfulPaymentAfterAppointmentBecameInvalid(
-                    payment,
-                    RefundReason.LatePaymentAfterReservationExpiration);
-
+                await RefundSuccessfulPaymentAfterAppointmentBecameInvalid(payment, RefundReason.LatePaymentAfterReservationExpiration);
                 return;
             }
 
@@ -662,10 +539,7 @@ namespace Services.Payments
             // --------------------------------------------------
 
             if (appointment.Status != AppointmentStatus.PendingPayment)
-            {
-                throw new BadRequestException(
-                    "The appointment is no longer awaiting payment.");
-            }
+                throw new BadRequestException("The appointment is no longer awaiting payment.");
 
 
             // --------------------------------------------------
@@ -683,24 +557,21 @@ namespace Services.Payments
             try
             {
                 var result = await _unitOfWork.SaveChangesAsync();
-
                 if (result == 0)
-                {
-                    throw new InternalServerErrorException(
-                        "The payment was received but the appointment status could not be updated.");
-                }
+                    throw new InternalServerErrorException("The payment was received but the appointment status could not be updated.");
+
             }
             catch (DbUpdateConcurrencyException)
             {
-                throw new InternalServerErrorException(
-                    "The appointment or payment was modified by another operation. Please try again.");
+                throw new InternalServerErrorException("The appointment or payment was modified by another operation. Please try again.");
             }
         }
 
 
-        private async Task HandleFailedPaymentAsync(
-            Payment payment,
-            PaymobTransactionCallbackObject transaction)
+
+
+
+        private async Task HandleFailedPaymentAsync(Payment payment, PaymobTransactionCallbackObject transaction)
         {
             // --------------------------------------------------
             // Idempotency
@@ -727,19 +598,17 @@ namespace Services.Payments
             try
             {
                 var result = await _unitOfWork.SaveChangesAsync();
-
                 if (result == 0)
-                {
-                    throw new InternalServerErrorException(
-                        "The payment failure could not be recorded.");
-                }
+                    throw new InternalServerErrorException("The payment failure could not be recorded.");
             }
             catch (DbUpdateConcurrencyException)
             {
-                throw new InternalServerErrorException(
-                    "The payment was modified by another operation. Please try again.");
+                throw new InternalServerErrorException("The payment was modified by another operation. Please try again.");
             }
         }
+
+
+
 
 
         private async Task MarkConfigurationIssueAsync(ClinicOnlinePaymentAccount paymentAccount, PaymentConfigurationIssueCode issueCode)
@@ -768,6 +637,8 @@ namespace Services.Payments
                                                           "A recent online payment request could not be completed using your clinic's Paymob configuration. Please review your payment settings.",
                                                           NotificationType.PaymentConfigurationIssue);
         }
+
+
 
 
 
@@ -832,6 +703,10 @@ namespace Services.Payments
                 Message = message
             };
         }
+
+
+
+
 
 
 

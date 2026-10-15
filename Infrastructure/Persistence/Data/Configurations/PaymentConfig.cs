@@ -21,6 +21,8 @@ namespace Persistence.Data.Configurations
                    .HasPrecision(18, 2)
                    .IsRequired();
 
+            builder.Property(payment => payment.RejectionReason).HasColumnType("varchar").HasMaxLength(200);
+
             builder.HasOne(payment => payment.Appointment)
                    .WithOne(appointment => appointment.Payment)
                    .HasForeignKey<Payment>(payment => payment.AppointmentId)

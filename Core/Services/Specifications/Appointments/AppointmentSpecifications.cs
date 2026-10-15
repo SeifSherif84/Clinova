@@ -58,6 +58,7 @@ namespace Services.Specifications.Appointments
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.Payment.Refund);
 
             return specification;
         }
@@ -192,6 +193,7 @@ namespace Services.Specifications.Appointments
                 specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
                 specification.Includes.Add(appointment => appointment.Patient);
                 specification.Includes.Add(appointment => appointment.Payment);
+                specification.Includes.Add(appointment => appointment.Payment.Refund);
             }
 
             return specification;

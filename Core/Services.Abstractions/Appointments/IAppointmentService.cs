@@ -17,7 +17,12 @@ namespace Services.Abstractions.Appointments
         Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(string userId, int appointmentId);
         CancellationPolicyResponse GetCancellationPolicyAsync();
         Task ExpirePendingAppointmentsAsync();
-        Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, int clinicId, SecretaryAppointmentQuery query);
-        Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId, int clinicId);
+
+        Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, SecretaryAppointmentQuery query);
+        Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId);
+
+        Task<string> PatientSubmitManualPaymentProofAsync(string userId, int appointmentId, SubmitManualPaymentProofRequest request);
+        Task<string> ApproveManualPaymentAsync(string userId, int appointmentId);
+        Task<string> RejectManualPaymentAsync(string userId, int appointmentId, RejectManualPaymentRequest request);
     }
 }

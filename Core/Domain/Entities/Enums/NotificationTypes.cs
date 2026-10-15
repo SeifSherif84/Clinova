@@ -21,5 +21,8 @@ namespace Domain.Entities.Enums
         SecretaryLeft,
         ReviewSubmitted,
         PaymentConfigurationIssue,
+        ManualPaymentApproved,
+        ManualPaymentRejected,
+        ManualPaymentSubmitted,
     }
 }

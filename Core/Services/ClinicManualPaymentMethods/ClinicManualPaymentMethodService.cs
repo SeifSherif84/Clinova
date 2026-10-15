@@ -83,31 +83,6 @@ namespace Services.ClinicManualPaymentMethods
 
 
 
-        public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
-            if (patient is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            var clinicRepo = _unitOfWork.GetRepository<Clinic, int>();
-            var clinic = await clinicRepo.GetByIdAsync(clinicId);
-            if (clinic is null)
-                throw new NotFoundException("The clinic you are trying to access does not exist.");
-
-            var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
-            var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
-            var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
-            if (!paymentMethods.Any())
-                return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
-
-            return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
-        }
-
-
-
         public async Task<IEnumerable<ClinicManualPaymentMethodResponseForOwner>> GetManualPaymentMethodsForOwnerAsync(string userId, int clinicId)
         {
             await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
@@ -221,6 +196,31 @@ namespace Services.ClinicManualPaymentMethods
             }
 
             return "The payment method has been deleted successfully.";
+        }
+
+
+
+        public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var clinicRepo = _unitOfWork.GetRepository<Clinic, int>();
+            var clinic = await clinicRepo.GetByIdAsync(clinicId);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you are trying to access does not exist.");
+
+            var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
+            var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
+            var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
+            if (!paymentMethods.Any())
+                return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
+
+            return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
         }
 
 

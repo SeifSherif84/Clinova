@@ -58,6 +58,9 @@ namespace Domain.Entities.BusinessEntities
         public PaymentRefund? Refund { get; set; }
 
 
+        public string? RejectionReason { get; set; }
+
+
         public byte[] RowVersion { get; set; } = null!;
     }
 }

@@ -59,6 +59,7 @@ namespace Services.Paymob
 
 
 
+
         private static PaymentConfigurationIssueCode? ClassifyConfigurationIssue(HttpStatusCode statusCode,
                                                                                  string responseBody)
         {
@@ -82,6 +83,8 @@ namespace Services.Paymob
         }
 
 
+
+
         private static bool ContainsAny(string value, params string[] keywords)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -93,15 +96,11 @@ namespace Services.Paymob
 
 
 
-        public async Task<RefundResult> RefundAsync(
-    string secretKey,
-    long transactionId,
-    long amountCents)
+
+        public async Task<RefundResult> RefundAsync(string secretKey,
+                                                    long transactionId,
+                                                    long amountCents)
         {
-
-
-
-
             //// TEST ONLY
             //return new RefundResult
             //{
@@ -112,19 +111,14 @@ namespace Services.Paymob
             //    ProviderResponse = null
             //};
 
-
-
             if (string.IsNullOrWhiteSpace(secretKey))
-                throw new BadRequestException(
-                    "Paymob secret key is not configured.");
+                throw new BadRequestException("Paymob secret key is not configured.");
 
             if (transactionId <= 0)
-                throw new BadRequestException(
-                    "The Paymob transaction ID is invalid.");
+                throw new BadRequestException("The Paymob transaction ID is invalid.");
 
             if (amountCents <= 0)
-                throw new BadRequestException(
-                    "The refund amount must be greater than zero.");
+                throw new BadRequestException("The refund amount must be greater than zero.");
 
 
             var request = new PaymobRefundRequest
@@ -134,23 +128,17 @@ namespace Services.Paymob
             };
 
 
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                $"{_paymobSettings.BaseUrl}/api/acceptance/void_refund/refund");
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post,
+                                                           $"{_paymobSettings.BaseUrl}/api/acceptance/void_refund/refund");
 
-            httpRequest.Headers.Authorization =
-                new AuthenticationHeaderValue("Token", secretKey);
-
-            httpRequest.Content =
-                JsonContent.Create(request);
-
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Token", secretKey);
+            httpRequest.Content = JsonContent.Create(request);
 
             HttpResponseMessage response;
 
             try
             {
-                response =
-                    await _httpClient.SendAsync(httpRequest);
+                response = await _httpClient.SendAsync(httpRequest);
             }
             catch (HttpRequestException ex)
             {
@@ -158,8 +146,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "We could not confirm the refund result with Paymob.",
+                    ErrorMessage = "We could not confirm the refund result with Paymob.",
                     ProviderResponse = ex.Message
                 };
             }
@@ -169,15 +156,13 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "The refund request timed out before its result could be confirmed.",
+                    ErrorMessage = "The refund request timed out before its result could be confirmed.",
                     ProviderResponse = ex.Message
                 };
             }
 
 
-            var responseBody =
-                await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync();
 
 
             // ---------------------------------------------------------
@@ -190,10 +175,8 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = false,
-                    ErrorMessage =
-                        "Paymob could not process the refund.",
-                    ProviderResponse =
-                        responseBody
+                    ErrorMessage = "Paymob could not process the refund.",
+                    ProviderResponse = responseBody
                 };
             }
 
@@ -207,12 +190,10 @@ namespace Services.Paymob
             try
             {
                 refundResponse =
-                    JsonSerializer.Deserialize<PaymobRefundResponse>(
-                        responseBody,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                    JsonSerializer.Deserialize<PaymobRefundResponse>(responseBody,new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
             }
             catch (JsonException)
             {
@@ -227,10 +208,8 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob accepted the refund request, but the response could not be verified.",
-                    ProviderResponse =
-                        responseBody
+                    ErrorMessage = "Paymob accepted the refund request, but the response could not be verified.",
+                    ProviderResponse = responseBody
                 };
             }
 
@@ -241,30 +220,24 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob returned an empty refund response.",
-                    ProviderResponse =
-                        responseBody
+                    ErrorMessage = "Paymob returned an empty refund response.",
+                    ProviderResponse = responseBody
                 };
             }
 
 
-            var refundedAmount =
-                refundResponse.RefundedAmountCentsInt
-                ?? refundResponse.RefundedAmountCents
-                ?? 0;
+            var refundedAmount = refundResponse.RefundedAmountCentsInt ?? refundResponse.RefundedAmountCents ?? 0;
 
 
             // ---------------------------------------------------------
             // Refund confirmed
             // ---------------------------------------------------------
 
-            var refundConfirmed =
-    refundResponse.Success &&
-    !refundResponse.Pending &&
-    refundResponse.IsRefund &&
-    refundResponse.AmountCents == amountCents &&
-    refundResponse.ParentTransaction == transactionId;
+            var refundConfirmed = refundResponse.Success &&
+                                  !refundResponse.Pending &&
+                                  refundResponse.IsRefund &&
+                                  refundResponse.AmountCents == amountCents &&
+                                  refundResponse.ParentTransaction == transactionId;
 
             if (refundConfirmed)
             {
@@ -272,15 +245,10 @@ namespace Services.Paymob
                 {
                     Succeeded = true,
                     PendingVerification = false,
-                    ProviderRefundTransactionId =
-                        refundResponse.Id > 0
-                            ? refundResponse.Id.ToString()
-                            : null,
-                    ProviderResponse =
-                        responseBody
+                    ProviderRefundTransactionId = refundResponse.Id > 0 ? refundResponse.Id.ToString() : null,
+                    ProviderResponse = responseBody
                 };
             }
-
 
             //if (refundConfirmed)
             //{
@@ -305,16 +273,12 @@ namespace Services.Paymob
             {
                 Succeeded = false,
                 PendingVerification = true,
-                ProviderRefundTransactionId =
-                    refundResponse.Id > 0
-                        ? refundResponse.Id.ToString()
-                        : null,
-                ErrorMessage =
-                    "Paymob accepted the refund request, but the final refund status could not be confirmed.",
-                ProviderResponse =
-                    responseBody
+                ProviderRefundTransactionId = refundResponse.Id > 0 ? refundResponse.Id.ToString() : null,
+                ErrorMessage = "Paymob accepted the refund request, but the final refund status could not be confirmed.",
+                ProviderResponse = responseBody
             };
         }
+
 
 
 
@@ -322,22 +286,15 @@ namespace Services.Paymob
         // ============================================================
         // Transaction Inquiry
         // ============================================================
-
-        public async Task<PaymobTransactionInquiryResult> GetTransactionAsync(
-            string apiKey,
-            long transactionId)
+        public async Task<PaymobTransactionInquiryResult> GetTransactionAsync(string apiKey, long transactionId)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                throw new BadRequestException(
-                    "Paymob API key is not configured.");
-            }
+                throw new BadRequestException("Paymob API key is not configured.");
+
 
             if (transactionId <= 0)
-            {
-                throw new BadRequestException(
-                    "The Paymob transaction ID is invalid.");
-            }
+                throw new BadRequestException("The Paymob transaction ID is invalid.");
+            
 
             string authToken;
 
@@ -351,8 +308,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "We could not connect to Paymob to verify the transaction.",
+                    ErrorMessage = "We could not connect to Paymob to verify the transaction.",
                     ProviderResponse = ex.Message
                 };
             }
@@ -362,20 +318,15 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "The Paymob transaction verification request timed out.",
+                    ErrorMessage = "The Paymob transaction verification request timed out.",
                     ProviderResponse = ex.Message
                 };
             }
 
-            using var request = new HttpRequestMessage(
-                HttpMethod.Get,
-                $"{_paymobSettings.BaseUrl}/api/acceptance/transactions/{transactionId}");
+            using var request = new HttpRequestMessage(HttpMethod.Get,
+                                                       $"{_paymobSettings.BaseUrl}/api/acceptance/transactions/{transactionId}");
 
-            request.Headers.Authorization =
-                new AuthenticationHeaderValue(
-                    "Bearer",
-                    authToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
             HttpResponseMessage response;
 
@@ -389,8 +340,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "We could not connect to Paymob to verify the transaction.",
+                    ErrorMessage = "We could not connect to Paymob to verify the transaction.",
                     ProviderResponse = ex.Message
                 };
             }
@@ -400,14 +350,12 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "The Paymob transaction verification request timed out.",
+                    ErrorMessage = "The Paymob transaction verification request timed out.",
                     ProviderResponse = ex.Message
                 };
             }
 
-            var responseBody =
-                await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -416,8 +364,7 @@ namespace Services.Paymob
                     Succeeded = false,
                     PendingVerification = false,
                     NotFound = true,
-                    ErrorMessage =
-                        "Paymob could not find the requested transaction.",
+                    ErrorMessage = "Paymob could not find the requested transaction.",
                     ProviderResponse = responseBody
                 };
             }
@@ -428,8 +375,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob could not verify the transaction.",
+                    ErrorMessage = "Paymob could not verify the transaction.",
                     ProviderResponse = responseBody
                 };
             }
@@ -439,12 +385,10 @@ namespace Services.Paymob
             try
             {
                 transaction =
-                    JsonSerializer.Deserialize<PaymobTransactionInquiryResponse>(
-                        responseBody,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                    JsonSerializer.Deserialize<PaymobTransactionInquiryResponse>(responseBody, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
             }
             catch (JsonException)
             {
@@ -452,8 +396,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob returned an invalid transaction verification response.",
+                    ErrorMessage = "Paymob returned an invalid transaction verification response.",
                     ProviderResponse = responseBody
                 };
             }
@@ -464,8 +407,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob returned an empty transaction verification response.",
+                    ErrorMessage = "Paymob returned an empty transaction verification response.",
                     ProviderResponse = responseBody
                 };
             }
@@ -476,8 +418,7 @@ namespace Services.Paymob
                 {
                     Succeeded = false,
                     PendingVerification = true,
-                    ErrorMessage =
-                        "Paymob returned a transaction different from the requested transaction.",
+                    ErrorMessage = "Paymob returned a transaction different from the requested transaction.",
                     ProviderResponse = responseBody
                 };
             }
@@ -493,71 +434,57 @@ namespace Services.Paymob
         }
 
 
+
+
+
+
+
         // ============================================================
         // Paymob Inquiry Authentication
         // ============================================================
-
-        private async Task<string> GenerateInquiryAuthTokenAsync(
-            string apiKey)
+        private async Task<string> GenerateInquiryAuthTokenAsync(string apiKey)
         {
             var requestBody = new
             {
                 api_key = apiKey
             };
 
-            using var request = new HttpRequestMessage(
-                HttpMethod.Post,
-                $"{_paymobSettings.BaseUrl}/api/auth/tokens");
+            using var request = new HttpRequestMessage(HttpMethod.Post,
+                                                       $"{_paymobSettings.BaseUrl}/api/auth/tokens");
 
-            request.Content =
-                JsonContent.Create(requestBody);
-
-            using var response =
-                await _httpClient.SendAsync(request);
-
-            var responseBody =
-                await response.Content.ReadAsStringAsync();
+            request.Content = JsonContent.Create(requestBody);
+            using var response = await _httpClient.SendAsync(request);
+            var responseBody = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(
-                    $"Paymob authentication failed with status code {(int)response.StatusCode}. " +
-                    $"Response: {responseBody}");
+                throw new HttpRequestException($"Paymob authentication failed with status code {(int)response.StatusCode}. " +
+                                               $"Response: {responseBody}");
             }
 
             PaymobAuthTokenResponse? result;
 
             try
             {
-                result =
-                    JsonSerializer.Deserialize<PaymobAuthTokenResponse>(
-                        responseBody,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                result = JsonSerializer.Deserialize<PaymobAuthTokenResponse>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
             }
             catch (JsonException ex)
             {
-                throw new HttpRequestException(
-                    "Paymob returned an invalid authentication response.",
-                    ex);
+                throw new HttpRequestException("Paymob returned an invalid authentication response.", ex);
             }
 
             if (result is null)
             {
-                throw new HttpRequestException(
-                    "Paymob returned an empty authentication response.");
+                throw new HttpRequestException("Paymob returned an empty authentication response.");
             }
 
-            var token =
-                result.Token;
+            var token = result.Token;
 
             if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new HttpRequestException(
-                    "Paymob did not return a valid authentication token.");
-            }
+                throw new HttpRequestException("Paymob did not return a valid authentication token.");
 
             return token;
         }
