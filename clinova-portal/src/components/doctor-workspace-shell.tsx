@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
+import { Bell, Building2, CalendarDays, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -11,9 +11,13 @@ import { useAuth } from '@/hooks/use-auth'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
 
-export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile'; topBackLink?: ReactNode }) {
+type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'secretary-appointments' | 'secretary-invitations' | 'secretary-profile'
+
+// Shared sidebar shell for clinic staff; the navigation follows the signed-in role.
+export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: WorkspaceSection; topBackLink?: ReactNode }) {
   const { t } = useTranslation()
   const auth = useAuth()
+  const isSecretary = auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')
   const navigate = useNavigate()
   const logout = useMutation({ mutationFn: auth.signOut, onSettled: () => navigate({ to: '/login', search: { redirect: undefined } }) })
   const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
@@ -23,7 +27,13 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
     <main className="min-h-svh w-full min-w-0 max-w-full overflow-x-clip bg-background text-foreground lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-svh flex-col border-e border-sidebar-border bg-sidebar px-5 py-7 lg:flex">
         <Brand />
-        <nav className="mt-12 grid gap-1">
+        {isSecretary ? <nav className="mt-12 grid gap-1">
+          <Link className={navItem} to="/dashboard"><Sparkles />{t('dashboard.overview')}</Link>
+          <Link className={active === 'secretary-appointments' ? activeItem : navItem} to="/secretary/appointments"><CalendarDays />{t('dashboard.appointments')}</Link>
+          <Link className={active === 'secretary-invitations' ? activeItem : navItem} to="/secretary/invitations"><MailOpen />{t('dashboard.invitations')}</Link>
+          <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
+          <Link className={active === 'secretary-profile' ? activeItem : navItem} to="/secretary/profile"><UserRound />{t('dashboard.profile')}</Link>
+        </nav> : <nav className="mt-12 grid gap-1">
           <Link className={navItem} to="/dashboard"><Sparkles />{t('dashboard.overview')}</Link>
           <a className={navItem} href="/dashboard#appointments"><CalendarDays />{t('dashboard.appointments')}</a>
           <Link className={active === 'clinics' ? activeItem : navItem} to="/doctor/clinics"><Building2 />{t('dashboard.clinics')}</Link>
@@ -31,7 +41,7 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
           <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
           <Link className={active === 'working-hours' ? activeItem : navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 />{t('dashboard.workingHours')}</Link>
           <Link className={active === 'profile' ? activeItem : navItem} to="/doctor/profile"><Stethoscope />{t('dashboard.profile')}</Link>
-        </nav>
+        </nav>}
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">
   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><ShieldCheck className="size-4" /></span>
   <span className="grid"><strong className="text-xs">{t('dashboard.secureSession')}</strong><small className="text-[10px] text-muted-foreground">{t('dashboard.protected')}</small></span>
@@ -50,7 +60,7 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
             </span>
             <span className="grid min-w-0 gap-0.5 text-start leading-tight">
               <strong className="truncate text-[15px] font-extrabold text-foreground">{auth.user?.name}</strong>
-              <small className="truncate text-xs font-semibold text-muted-foreground">{t('clinicModule.doctorWorkspace')}</small>
+              <small className="truncate text-xs font-semibold text-muted-foreground">{t(isSecretary ? 'secretary.workspace' : 'clinicModule.doctorWorkspace')}</small>
             </span>
           </div>
           <Button

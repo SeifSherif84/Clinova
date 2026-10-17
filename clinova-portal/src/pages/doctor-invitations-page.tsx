@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Building2, Check, Clock3, Inbox, LoaderCircle, MailOpen, RefreshCw, Send, UserRound, X } from 'lucide-react'
+import { Building2, Check, Clock3, Inbox, LoaderCircle, MailOpen, RefreshCw, Send, UserRound, UserRoundPlus, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -12,7 +12,7 @@ import { getErrorMessage } from '@/lib/api'
 import type { InvitationAction, ReceivedInvitation, SentInvitation } from '@/types/invitation'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 
-type InvitationView = 'received' | 'sent'
+type InvitationView = 'received' | 'sent' | 'secretaries'
 
 function isPending(status: string) {
   return status.toLowerCase() === 'pending'
@@ -56,10 +56,14 @@ export default function DoctorInvitationsPage() {
     queryKey: ['doctor', 'invitations', 'sent'],
     queryFn: () => api.request<SentInvitation[]>('/api/invitations/sent', {}, { notifyOnError: false }),
   })
+  const secretariesSent = useQuery({
+    queryKey: ['doctor', 'invitations', 'secretaries'],
+    queryFn: () => api.request<SentInvitation[]>('/api/secretary-invitations/sent', {}, { notifyOnError: false }),
+  })
 
   const action = useMutation({
     mutationFn: ({ invitationId, type }: { invitationId: number; type: InvitationAction }) =>
-      api.request<string>(`/api/invitations/${type}/${invitationId}`, { method: 'POST' }, { notifyOnError: false }),
+      api.request<string>(`/api/${view === 'secretaries' ? 'secretary-invitations' : 'invitations'}/${type}/${invitationId}`, { method: 'POST' }, { notifyOnError: false }),
     onMutate: () => {
       setSuccess('')
     },
@@ -88,7 +92,7 @@ export default function DoctorInvitationsPage() {
     [i18n.resolvedLanguage],
   )
 
-  const activeQuery = view === 'received' ? received : sent
+  const activeQuery = view === 'received' ? received : view === 'sent' ? sent : secretariesSent
   const invitations = useMemo(
     () => [...(activeQuery.data ?? [])].sort((a, b) => Date.parse(b.sentAt) - Date.parse(a.sentAt)),
     [activeQuery.data],
@@ -159,6 +163,21 @@ export default function DoctorInvitationsPage() {
 {t('invitations.sent')}
 <Badge className={view === 'sent' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{sent.data?.length ?? 0}</Badge>
   </Button>
+  <Button
+    type="button"
+    variant={view === 'secretaries' ? 'default' : 'ghost'}
+    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
+    aria-pressed={view === 'secretaries'}
+    onClick={() => {
+      setView('secretaries')
+      setSuccess('')
+      action.reset()
+    }}
+  >
+<UserRoundPlus />
+{t('secretary.invitations.doctorTab')}
+<Badge className={view === 'secretaries' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{secretariesSent.data?.length ?? 0}</Badge>
+  </Button>
 </div>
         </div>
 
@@ -195,7 +214,7 @@ export default function DoctorInvitationsPage() {
     <div className="relative">
       <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
       <span className="relative grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
-        {view === 'received' ? <Inbox className="size-10" /> : <Send className="size-10" />}
+        {view === 'received' ? <Inbox className="size-10" /> : view === 'sent' ? <Send className="size-10" /> : <UserRoundPlus className="size-10" />}
       </span>
       <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
       <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
@@ -203,11 +222,11 @@ export default function DoctorInvitationsPage() {
     </div>
 
     <h2 className="mt-10 font-heading text-3xl font-bold sm:text-5xl">
-      {t(view === 'received' ? 'invitations.emptyReceivedTitle' : 'invitations.emptySentTitle')}
+      {t(view === 'received' ? 'invitations.emptyReceivedTitle' : view === 'sent' ? 'invitations.emptySentTitle' : 'secretary.invitations.emptySentTitle')}
     </h2>
     <span className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent" />
     <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">
-      {t(view === 'received' ? 'invitations.emptyReceivedDescription' : 'invitations.emptySentDescription')}
+      {t(view === 'received' ? 'invitations.emptyReceivedDescription' : view === 'sent' ? 'invitations.emptySentDescription' : 'secretary.invitations.emptySentDescription')}
     </p>
   </section>
 )}

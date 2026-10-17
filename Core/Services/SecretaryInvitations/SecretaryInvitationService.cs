@@ -139,9 +139,10 @@ namespace Services.SecretaryInvitations
 
         private bool SendSecretaryInvitationEmail(string email, string doctorName, string clinicName)
         {
-            var frontendBaseUrl = /*_configuration["FrontendBaseURL"] ?? */_configuration["BaseURL"];
+            var frontendBaseUrl = _configuration["FrontendBaseURL"] ?? _configuration["BaseURL"];
 
-            var invitationUrl = $"{frontendBaseUrl}/{_configuration["SecretaryRegistrationPage"]}";
+            // The frontend pre-fills the registration form with this email.
+            var invitationUrl = $"{frontendBaseUrl}/{_configuration["SecretaryRegistrationPage"]}?email={Uri.EscapeDataString(email)}";
 
             var mail = new Email
             {

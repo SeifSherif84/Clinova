@@ -37,7 +37,8 @@ export default function RegisterChoicePage() {
           </Card>
         </Link>
       </div>
-      <p className="mt-6 text-center text-xs text-muted-foreground">{t('registerChoice.alreadyAccount')} <Link to="/login" search={{ redirect: undefined }} className="font-semibold text-primary hover:text-primary/75">{t('common.signIn')}</Link></p>
+      <p className="mt-6 text-center text-xs text-muted-foreground">{t('secretary.register.choicePrompt')} <Link to="/register/secretary" className="font-semibold text-primary hover:text-primary/75">{t('secretary.register.choiceLink')}</Link></p>
+      <p className="mt-2 text-center text-xs text-muted-foreground">{t('registerChoice.alreadyAccount')} <Link to="/login" search={{ redirect: undefined }} className="font-semibold text-primary hover:text-primary/75">{t('common.signIn')}</Link></p>
     </AuthShell>
   )
 }

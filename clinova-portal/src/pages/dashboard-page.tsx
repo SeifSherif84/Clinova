@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope } from 'lucide-react'
+import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
 import PreferencesControls from '@/components/preferences-controls'
@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const logout = useMutation({ mutationFn: auth.signOut, onSettled: () => navigate({ to: '/login', search: { redirect: undefined } }) })
   const firstName = auth.user?.name.split(' ')[0] || t('dashboard.fallbackName')
   const isDoctor = auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')
+  const isSecretary = auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')
   const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
 
   return (
@@ -29,12 +30,13 @@ export default function DashboardPage() {
         <Brand />
         <nav className="mt-12 grid gap-1">
           <a className={`${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`} href="#overview"><Sparkles /> {t('dashboard.overview')}</a>
-          <a className={navItem} href="#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>
+          {isSecretary ? <Link className={navItem} to="/secretary/appointments"><CalendarDays /> {t('dashboard.appointments')}</Link> : <a className={navItem} href="#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>}
+          {isSecretary && <Link className={navItem} to="/secretary/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           {isDoctor && <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>}
           {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           <Link className={navItem} to="/notifications"><Bell /> {t('dashboard.notifications')}</Link>
           {isDoctor && <Link className={navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 /> {t('dashboard.workingHours')}</Link>}
-          {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
+          {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : isSecretary ? <Link className={navItem} to="/secretary/profile"><UserRound /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
         </nav>
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">
   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><ShieldCheck className="size-4" /></span>
