@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TriangleAlert, UploadCloud, UserMinus, UsersRound, WalletCards} from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import ClinicSecretariesCard from '@/components/clinic-secretaries-card'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import FormField from '@/components/form-field'
@@ -531,6 +532,7 @@ export default function ClinicDetailsPage() {
                     </CardContent>
                   </Card>
                 )}
+                {isOwner && <ClinicSecretariesCard clinicId={numericClinicId} />}
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
   <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, Clock3, MailOpen, Menu, Sparkles, Stethoscope, X } from 'lucide-react'
+import { Bell, Building2, CalendarDays, Clock3, MailOpen, Menu, Sparkles, Stethoscope, UserRound, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ export default function MobileNavigationMenu() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const [open, setOpen] = useState(false)
   const isDoctor = auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')
+  const isSecretary = auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')
   const itemClass = 'rounded-xl px-3 py-3 text-sm font-bold normal-case tracking-normal text-muted-foreground focus:bg-sidebar-accent focus:text-sidebar-foreground [&>svg]:size-4'
   const activeClass = `${itemClass} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`
 
@@ -29,7 +30,10 @@ export default function MobileNavigationMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-72 max-w-[calc(100dvw-2rem)] rounded-2xl border border-border bg-card p-2 text-foreground shadow-md ring-1 ring-foreground/5" aria-label={t('dashboard.navigation')}>
         <DropdownMenuItem className={pathname === '/dashboard' ? activeClass : itemClass} render={<Link to="/dashboard" />}><Sparkles />{t('dashboard.overview')}</DropdownMenuItem>
-        <DropdownMenuItem className={itemClass} render={<a href="/dashboard#appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>
+        {isSecretary
+          ? <DropdownMenuItem className={pathname === '/secretary/appointments' ? activeClass : itemClass} render={<Link to="/secretary/appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>
+          : <DropdownMenuItem className={itemClass} render={<a href="/dashboard#appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>}
+        {isSecretary && <DropdownMenuItem className={pathname === '/secretary/invitations' ? activeClass : itemClass} render={<Link to="/secretary/invitations" />}><MailOpen />{t('dashboard.invitations')}</DropdownMenuItem>}
         {isDoctor && <DropdownMenuItem className={pathname.startsWith('/doctor/clinics') ? activeClass : itemClass} render={<Link to="/doctor/clinics" />}><Building2 />{t('dashboard.clinics')}</DropdownMenuItem>}
         {isDoctor && <DropdownMenuItem className={pathname === '/doctor/invitations' ? activeClass : itemClass} render={<Link to="/doctor/invitations" />}><MailOpen />{t('dashboard.invitations')}</DropdownMenuItem>}
         <DropdownMenuItem className={pathname === '/notifications' ? activeClass : itemClass} render={<Link to="/notifications" />}>
@@ -39,6 +43,8 @@ export default function MobileNavigationMenu() {
         {isDoctor && <DropdownMenuItem className={pathname === '/doctor/working-hours' ? activeClass : itemClass} render={<Link to="/doctor/working-hours" search={{ clinicId: undefined }} />}><Clock3 />{t('dashboard.workingHours')}</DropdownMenuItem>}
         {isDoctor
           ? <DropdownMenuItem className={pathname === '/doctor/profile' ? activeClass : itemClass} render={<Link to="/doctor/profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>
+          : isSecretary
+          ? <DropdownMenuItem className={pathname === '/secretary/profile' ? activeClass : itemClass} render={<Link to="/secretary/profile" />}><UserRound />{t('dashboard.profile')}</DropdownMenuItem>
           : <DropdownMenuItem className={itemClass} render={<a href="/dashboard#profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -141,7 +141,8 @@ namespace Services.SecretaryInvitations
         {
             var frontendBaseUrl = _configuration["FrontendBaseURL"] ?? _configuration["BaseURL"];
 
-            var invitationUrl = $"{frontendBaseUrl}/{_configuration["SecretaryRegistrationPage"]}?email={email}";
+            // The frontend pre-fills the registration form with this email.
+            var invitationUrl = $"{frontendBaseUrl}/{_configuration["SecretaryRegistrationPage"]}?email={Uri.EscapeDataString(email)}";
 
             var mail = new Email
             {

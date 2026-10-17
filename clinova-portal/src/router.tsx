@@ -29,6 +29,14 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: '/register', component: lazyRouteComponent(() => import('@/pages/register-choice-page')) })
 const patientRegisterRoute = createRoute({ getParentRoute: () => rootRoute, path: '/register/patient', component: lazyRouteComponent(() => import('@/pages/patient-register-page')) })
 const doctorRegisterRoute = createRoute({ getParentRoute: () => rootRoute, path: '/register/doctor', component: lazyRouteComponent(() => import('@/pages/doctor-register-page')) })
+const secretaryRegisterRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register/secretary',
+  component: lazyRouteComponent(() => import('@/pages/secretary-register-page')),
+  validateSearch: (search: Record<string, unknown>): { email?: string } => ({
+    email: typeof search.email === 'string' ? search.email : undefined,
+  }),
+})
 const forgotPasswordRoute = createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: lazyRouteComponent(() => import('@/pages/forgot-password-page')) })
 const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -97,6 +105,8 @@ const doctorInvitationsRoute = createRoute({
       throw redirect({ to: '/login', search: { redirect: '/doctor/invitations' } })
     }
 
+    // Invitation notifications link here for every role; secretaries have their own inbox.
+    if (context.auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')) throw redirect({ to: '/secretary/invitations' })
     if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')) {
       throw redirect({ to: '/dashboard' })
     }
@@ -111,6 +121,28 @@ function requireDoctor(context: RouterContext) {
     throw redirect({ to: '/dashboard' })
   }
 }
+function requireSecretary(context: RouterContext, pathname: string) {
+  if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: pathname } })
+  if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')) throw redirect({ to: '/dashboard' })
+}
+const secretaryAppointmentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/appointments',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/secretary-appointments-page')),
+})
+const secretaryInvitationsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/invitations',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/secretary-invitations-page')),
+})
+const secretaryProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/profile',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/secretary-profile-page')),
+})
 const doctorWorkingHoursRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/doctor/working-hours',
@@ -212,6 +244,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   patientRegisterRoute,
   doctorRegisterRoute,
+  secretaryRegisterRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   confirmEmailRoute,
@@ -220,6 +253,9 @@ const routeTree = rootRoute.addChildren([
   notificationsRoute,
   doctorProfileRoute,
   doctorInvitationsRoute,
+  secretaryAppointmentsRoute,
+  secretaryInvitationsRoute,
+  secretaryProfileRoute,
   doctorWorkingHoursRoute,
   doctorClinicsRoute,
   addDoctorClinicRoute,
