@@ -13,7 +13,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
       <div className="relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
         <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[1.2fr_auto]">
+        <div className="p-6 sm:p-10">
           <div>
             <h2 className="font-sans text-3xl leading-tight font-bold sm:text-4xl">{t('paymob.heroTitle')}</h2>
             <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{t('paymob.heroDescription')}</p>
@@ -25,13 +25,6 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
               <span className="h-px w-9 bg-primary/25" />
               <span className="inline-flex items-center gap-1.5">{t('paymob.heroHint')}<Link2 className="size-3.5 shrink-0 rtl:rotate-180" /></span>
             </p>
-          </div>
-          <div className="group grid w-56 shrink-0 justify-self-center rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:justify-self-end">
-            <span aria-hidden="true" className="flex h-14 w-24 shrink-0 items-center justify-center justify-self-center overflow-hidden rounded-xl border border-border/40 bg-white shadow-sm">
-              <img src="/payment-providers/paymob2.png" alt="" className="h-11 w-auto" />
-            </span>
-            <strong className="mt-4 block text-sm font-bold">Paymob</strong>
-            <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t('paymob.onlineAccount')}</span>
           </div>
         </div>
       </div>
@@ -52,7 +45,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('paymob.accountStatusDescription.' + status)}</p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
-        <Button role="link" variant="outline" className={paymobButtonClass} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/manage" params={{ clinicId }} />}><PencilLine />{t(status === 'NeedsAttention' ? 'paymob.reviewSettings' : 'paymob.manage')}</Button>
+        <Button role="link" variant="outline" className={paymobButtonClass + ' border-transparent bg-muted text-foreground hover:bg-foreground/10'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/manage" params={{ clinicId }} />}><PencilLine />{t(status === 'NeedsAttention' ? 'paymob.reviewSettings' : 'paymob.manage')}</Button>
         <Button role="link" variant="ghost" className={paymobButtonClass} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.setupGuide')}</Button>
       </div>
     </div>

@@ -46,7 +46,7 @@ export function PaymobCredentialsGuide() {
               <Plus className="size-4" />
             </span>
             <span className="text-center text-xs font-bold leading-5 text-foreground/80">{t('paymob.integrationIdsStep')}</span>
-            <span className="text-center text-[10px] font-bold uppercase leading-4 tracking-wider text-muted-foreground">{t('paymob.afterConnecting')}</span>
+            <span aria-hidden="true" className="invisible text-center text-[10px] font-bold uppercase leading-4 tracking-wider text-muted-foreground">{t('paymob.afterConnecting')}</span>
           </div>
         </div>
       </div>

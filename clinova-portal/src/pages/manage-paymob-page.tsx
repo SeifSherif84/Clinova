@@ -35,8 +35,8 @@ function ManageConfiguration({ clinicId }: { clinicId: string }) {
   const account = configuration.data
   return <>
     <PaymobConnectionForm key={configuration.data.accountId} mode="update" existing={configuration.data} onUpdate={(changes) => saveCredentials(changes, account.accountId)} />
-    <div className="mt-6 flex flex-wrap gap-2 border-t pt-5">
-      <Button role="link" variant="outline" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal'} render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><ArrowLeft className="rtl:rotate-180" />{t('paymob.backSettings')}</Button>
+    <div className="mt-8 flex flex-wrap gap-2">
+      <Button role="link" variant="outline" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal border-transparent bg-muted text-foreground hover:bg-muted/70'} render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><ArrowLeft className="rtl:rotate-180" />{t('paymob.backSettings')}</Button>
 
     </div>
   </>

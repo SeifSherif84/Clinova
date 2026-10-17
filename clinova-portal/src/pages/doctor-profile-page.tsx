@@ -446,7 +446,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
 
                 {!isEditing && (
                   <Button
-                    className="mx-auto h-11 rounded-xl text-sm font-bold normal-case sm:mx-0 cursor-pointer"
+                    className="mx-auto h-11 self-end rounded-xl text-sm font-bold normal-case sm:mx-0 cursor-pointer"
                     onClick={startEditing}
                   >
                     <PencilLine />

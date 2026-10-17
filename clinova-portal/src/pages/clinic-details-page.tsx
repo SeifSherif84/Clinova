@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TriangleAlert, UploadCloud, UserMinus, UsersRound, WalletCards} from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import ClinicSecretariesCard from '@/components/clinic-secretaries-card'
+import ClinicSecretariesCard, { SecretaryInviteCard } from '@/components/clinic-secretaries-card'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import FormField from '@/components/form-field'
@@ -286,12 +286,13 @@ export default function ClinicDetailsPage() {
       {isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}
     </Badge>
     <h1 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1>
-    <p className="mt-3 flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
+  </CardContent>
+  <CardFooter className="relative z-10 mt-auto flex-wrap items-center justify-between gap-3 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
+    <p className="flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
       <MapPin className="size-4 shrink-0 text-primary" />
       <span className="min-w-0 break-words">{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</span>
     </p>
-  </CardContent>
-  <CardFooter className="relative z-10 mt-auto flex-wrap justify-end gap-2 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
+    <div className="flex flex-wrap gap-2">
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" />}>
         <Settings2 />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
@@ -322,6 +323,7 @@ export default function ClinicDetailsPage() {
         <PencilLine />{t('clinicDetails.edit')}
       </Button>
     )}
+    </div>
   </CardFooter>
 </Card>
 
@@ -505,6 +507,8 @@ export default function ClinicDetailsPage() {
     </div>
   ))}
 </CardContent></Card>
+
+{isOwner && <ClinicSecretariesCard clinicId={numericClinicId} />}
               </div>
 
               <div className="min-w-0 grid gap-5">
@@ -532,7 +536,7 @@ export default function ClinicDetailsPage() {
                     </CardContent>
                   </Card>
                 )}
-                {isOwner && <ClinicSecretariesCard clinicId={numericClinicId} />}
+                {isOwner && <SecretaryInviteCard clinicId={numericClinicId} />}
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
   <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">

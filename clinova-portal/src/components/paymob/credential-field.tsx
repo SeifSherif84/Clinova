@@ -46,9 +46,10 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
       {sensitive && <p id={id + '-sensitive'} className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase leading-none tracking-wider text-muted-foreground"><LockKeyhole className="size-3 shrink-0" />{t('paymob.sensitive')}</p>}
     </div>
     {savedView ? <>
-      <Input key="saved" id={id} readOnly value={masked} dir="ltr" aria-describedby={id + '-saved-hint'} className="h-12 cursor-default rounded-2xl border border-dashed border-input bg-muted/30 px-4 text-sm text-muted-foreground shadow-none focus-visible:border-input focus-visible:ring-0" />
-      <p id={id + '-saved-hint'} className="text-xs leading-5 text-muted-foreground">{t('paymob.replaceHint')}</p>
-      <Button type="button" variant="ghost" disabled={disabled} className="h-auto min-h-9 w-fit max-w-full whitespace-normal rounded-md px-0 py-1 text-xs font-semibold normal-case tracking-normal text-primary hover:bg-transparent hover:underline" onClick={() => changeReplacement(true)}><PencilLine />{t('paymob.replace', { field: label })}</Button>
+      <div className="relative">
+        <Input key="saved" id={id} readOnly value={masked} dir="ltr" aria-describedby={sensitive ? id + '-sensitive' : undefined} className="h-12 cursor-default rounded-2xl border border-input bg-background/60 px-4 text-sm text-muted-foreground shadow-none focus-visible:border-input focus-visible:ring-0" />
+        <Button type="button" variant="ghost" disabled={disabled} className="absolute right-1.5 top-1.5 h-9 max-w-[62%] gap-1.5 rounded-xl px-3 text-xs font-semibold normal-case tracking-normal text-primary hover:bg-transparent aria-expanded:bg-transparent" aria-label={t('paymob.replace', { field: label })} onClick={() => changeReplacement(true)}><PencilLine className="size-3.5 shrink-0" /><span className="truncate">{t('paymob.replace', { field: '' }).trim()}</span></Button>
+      </div>
     </> : <>
       <div className="relative">
         <Input key="entry" autoFocus={Boolean(onReplace)} id={id} name={name} required disabled={disabled} dir="ltr" type={sensitive && !visible ? 'password' : 'text'}

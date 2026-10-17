@@ -132,52 +132,68 @@ export default function DoctorInvitationsPage() {
             <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('invitations.title')}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('invitations.description')}</p>
           </div>
-<div className="flex items-center gap-2 rounded-full border border-border bg-card/70 p-2" role="group" aria-label={t('invitations.viewLabel')}>
-  <Button
-    type="button"
-    variant={view === 'received' ? 'default' : 'ghost'}
-    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
-    aria-pressed={view === 'received'}
-    onClick={() => {
-      setView('received')
-      setSuccess('')
-      action.reset()
-    }}
-  >
-<Inbox />
-{t('invitations.received')}
-<Badge className={view === 'received' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{received.data?.length ?? 0}</Badge>
-  </Button>
-  <Button
-    type="button"
-    variant={view === 'sent' ? 'default' : 'ghost'}
-    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
-    aria-pressed={view === 'sent'}
-    onClick={() => {
-      setView('sent')
-      setSuccess('')
-      action.reset()
-    }}
-  >
-<Send />
-{t('invitations.sent')}
-<Badge className={view === 'sent' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{sent.data?.length ?? 0}</Badge>
-  </Button>
-  <Button
-    type="button"
-    variant={view === 'secretaries' ? 'default' : 'ghost'}
-    className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
-    aria-pressed={view === 'secretaries'}
-    onClick={() => {
-      setView('secretaries')
-      setSuccess('')
-      action.reset()
-    }}
-  >
-<UserRoundPlus />
-{t('secretary.invitations.doctorTab')}
-<Badge className={view === 'secretaries' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{secretariesSent.data?.length ?? 0}</Badge>
-  </Button>
+<div className="grid justify-items-center gap-2">
+  <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/70 p-2" role="group" aria-label={t('invitations.viewLabel')}>
+    <Button
+      type="button"
+      variant={view === 'received' ? 'default' : 'ghost'}
+      className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
+      aria-pressed={view === 'received'}
+      onClick={() => {
+        setView('received')
+        setSuccess('')
+        action.reset()
+      }}
+    >
+      <Inbox />
+      {t('invitations.received')}
+      <Badge className={view === 'received' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{received.data?.length ?? 0}</Badge>
+    </Button>
+    <Button
+      type="button"
+      variant={view === 'sent' || view === 'secretaries' ? 'default' : 'ghost'}
+      className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
+      aria-pressed={view === 'sent' || view === 'secretaries'}
+      onClick={() => {
+        if (view !== 'sent' && view !== 'secretaries') setView('sent')
+        setSuccess('')
+        action.reset()
+      }}
+    >
+      <Send />
+      {t('invitations.sent')}
+      <Badge className={view === 'sent' || view === 'secretaries' ? 'rounded-full bg-primary-foreground/20 px-2 py-0.5 text-xs text-primary-foreground' : 'rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground'}>{(sent.data?.length ?? 0) + (secretariesSent.data?.length ?? 0)}</Badge>
+    </Button>
+  </div>
+
+  <div className={`inline-flex w-fit items-center gap-0.5 rounded-full bg-muted/60 p-1 ${view === 'sent' || view === 'secretaries' ? '' : 'invisible'}`} role="group" aria-label={t('secretary.invitations.doctorTab')}>
+      <button
+        type="button"
+        aria-pressed={view === 'sent'}
+        onClick={() => {
+          setView('sent')
+          setSuccess('')
+          action.reset()
+        }}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'sent' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+      >
+        {t('secretary.invitations.doctorChip')}
+        <span className="text-[10px] tabular-nums text-muted-foreground">{sent.data?.length ?? 0}</span>
+      </button>
+      <button
+        type="button"
+        aria-pressed={view === 'secretaries'}
+        onClick={() => {
+          setView('secretaries')
+          setSuccess('')
+          action.reset()
+        }}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'secretaries' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+      >
+        {t('secretary.invitations.doctorTab')}
+        <span className="text-[10px] tabular-nums text-muted-foreground">{secretariesSent.data?.length ?? 0}</span>
+      </button>
+  </div>
 </div>
         </div>
 

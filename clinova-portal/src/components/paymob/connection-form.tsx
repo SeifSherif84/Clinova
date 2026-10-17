@@ -1,8 +1,8 @@
-import { ArrowRight, CircleCheck, Info, Link2, LoaderCircle, LockKeyhole, ShieldCheck, X } from 'lucide-react'
+import { ArrowRight, Info, Link2, LoaderCircle, LockKeyhole, ShieldCheck, X } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -114,7 +114,7 @@ export function PaymobConnectionForm(props: Props) {
     {!available && !props.unavailableNoticeId && <Alert role="note" className="mb-5 rounded-xl border-primary/15 bg-primary/5"><Info /><AlertDescription id="paymob-unavailable">{t(update ? 'paymob.updateUnavailable' : 'paymob.unavailable')}</AlertDescription></Alert>}
     <div aria-live="polite">
       {error && <><Notice message={t('paymob.' + error)} /><p className="mb-5 text-sm text-muted-foreground">{t('paymob.' + error)}</p></>}
-      {status === 'saved' && <><Notice tone="success" message={t(update ? 'paymob.updated' : 'paymob.saved')} /><Alert role="status" className="rounded-xl border-primary/20 bg-primary/5"><CircleCheck className="text-primary" /><AlertTitle className="font-bold">{t(update ? 'paymob.updated' : 'paymob.saved')}</AlertTitle><AlertDescription className="leading-6">{t(update ? 'paymob.updatedDescription' : 'paymob.savedDescription')}</AlertDescription></Alert></>}
+      {status === 'saved' && <Notice tone="success" message={t(update ? 'paymob.updated' : 'paymob.saved')} />}
     </div>
     {status !== 'saved' && <form ref={formRef} autoComplete="off" noValidate aria-busy={busy} onSubmit={submit} onInput={(event) => {
       const selected = selectedNames()
@@ -139,7 +139,6 @@ export function PaymobConnectionForm(props: Props) {
           </div>
         )}
       </div>
-      {update && <p className="mb-5 text-sm text-muted-foreground">{t('paymob.unchanged')}</p>}
       <div key={fieldVersion} className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
         {credentialNames.map((name) => <CredentialField key={name} name={name} disabled={busy} error={fieldErrors[name]}
           onBlur={(event) => {
@@ -152,7 +151,7 @@ export function PaymobConnectionForm(props: Props) {
           replacing={!update || Boolean(replacing[name])}
           onReplace={update ? (replace) => replaceField(name, replace) : undefined} />)}
       </div>
-      <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
+      {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
         <div className="flex min-w-0 items-start gap-3.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><ShieldCheck className="size-[18px]" strokeWidth={1.75} /></span>
           <div className="min-w-0">
@@ -171,7 +170,7 @@ export function PaymobConnectionForm(props: Props) {
             <DialogClose render={<Button type="button" variant="outline" className={paymobButtonClass} />}><X />{t('paymob.close')}</DialogClose>
           </DialogContent>
         </Dialog>
-      </div>
+      </div>}
       <fieldset disabled={busy} className="mt-10 grid">
         <legend className="mb-3 text-sm font-bold text-foreground">{t('paymob.consentTitle')}</legend>
         <div className="flex items-start gap-4 py-1">
