@@ -12,9 +12,10 @@ import { getErrorMessage } from '@/lib/api'
 export default function NotificationsPage() {
   const auth = useAuth()
   const content = <NotificationContent />
-  const isDoctor = auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')
+  // Clinic staff get the shared workspace shell; it renders the sidebar for their role.
+  const isStaff = auth.user?.roles.some((role) => ['doctor', 'secretary'].includes(role.toLowerCase()))
 
-  if (isDoctor) return <DoctorWorkspaceShell active="notifications">{content}</DoctorWorkspaceShell>
+  if (isStaff) return <DoctorWorkspaceShell active="notifications">{content}</DoctorWorkspaceShell>
   return <main className="min-h-svh bg-background text-foreground">{content}</main>
 }
 
