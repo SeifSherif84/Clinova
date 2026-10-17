@@ -94,6 +94,21 @@ namespace Services.Specifications.Appointments
             return specification;
         }
 
+
+        public static AppointmentSpecifications ByIdWithRefund(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
+            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.Payment.Refund);
+
+            return specification;
+        }
+
         public static AppointmentSpecifications ByIdWithDetailsForSecretary(int appointmentId)
         {
             var specification = new AppointmentSpecifications
@@ -116,6 +131,7 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.Patient);
             specification.Includes.Add(appointment => appointment.Payment);
             specification.Includes.Add(appointment => appointment.Payment.ClinicManualPaymentMethod);
+            specification.Includes.Add(appointment => appointment.Payment.Refund);
             return specification;
         }
 
@@ -134,46 +150,30 @@ namespace Services.Specifications.Appointments
 
             var specification = new AppointmentSpecifications
             {
-                // Appointment belongs to the requested clinic.
                 Criteria = appointment => appointment.AppointmentSlot.ClinicId == clinicId &&
 
                     // Hide temporary reservations.
                     // PaymentStatus.Pending means the patient has not completed
                     // the payment process yet, so this is not a real booking.
-                    (
-                        appointment.Payment.Status == PaymentStatus.PendingVerification ||
-                        appointment.Payment.Status == PaymentStatus.Paid ||
-                        appointment.Payment.Status == PaymentStatus.Rejected || 
-                        appointment.Payment.Status == PaymentStatus.Refunded
-                    ) &&
+                    (appointment.Payment.Status == PaymentStatus.PendingVerification ||
+                     appointment.Payment.Status == PaymentStatus.Paid ||
+                     appointment.Payment.Status == PaymentStatus.Rejected || 
+                     appointment.Payment.Status == PaymentStatus.Refunded) &&
 
-                    // Optional doctor name search.
-                    (
-                        normalizedDoctorName == null || EF.Functions.Like(appointment.AppointmentSlot.Doctor.FirstName +
+
+                    (normalizedDoctorName == null || EF.Functions.Like(appointment.AppointmentSlot.Doctor.FirstName +
                                                                           " " +
                                                                           appointment.AppointmentSlot.Doctor.LastName,
-                                                                          $"%{normalizedDoctorName}%"
-)
-                    ) &&
+                                                                          $"%{normalizedDoctorName}%")) &&
 
-                    // Optional slot date filter.
-                    (
-                        !slotDate.HasValue || appointment.AppointmentSlot.Date == slotDate.Value
-                    ) &&
+                    (!slotDate.HasValue || appointment.AppointmentSlot.Date == slotDate.Value) &&
 
-                    // Optional appointment status filter.
-                    (
-                        !appointmentStatus.HasValue || appointment.Status == appointmentStatus.Value
-                    ) &&
+                    (!appointmentStatus.HasValue || appointment.Status == appointmentStatus.Value) &&
 
-                    // Optional payment status filter.
-                    (
-                        !paymentStatus.HasValue || appointment.Payment.Status == paymentStatus.Value
-                    )
+                    (!paymentStatus.HasValue || appointment.Payment.Status == paymentStatus.Value)
             };
 
 
-            // Always order appointments by the actual slot date/time.
             specification.OrderBy = appointment => appointment.AppointmentSlot.Date;
             specification.ThenBy = appointment => appointment.AppointmentSlot.StartTime;
 
@@ -186,7 +186,6 @@ namespace Services.Specifications.Appointments
             }
 
 
-            // Required data for the response.
             if (applyPagination)
             {
                 specification.Includes.Add(appointment => appointment.AppointmentSlot);

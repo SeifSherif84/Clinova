@@ -27,12 +27,19 @@ namespace Services.AutoMapping.Doctors
                     .ForAllMembers(config => config.Condition((S, D, srcMember) => srcMember != null));
 
 
-            CreateMap<Doctor, ClinicMemberResponse>()
+            CreateMap<Doctor, ClinicMemberResponseForDoctor>()
                 .ForMember(dest => dest.FullName, config => config.MapFrom(src => $"Dr. {src.FirstName} {src.LastName}"))
-                .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<ClinicMemberResponse>(_configuration)))
+                .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<ClinicMemberResponseForDoctor>(_configuration)))
                 .ForMember(dest => dest.MedicalSpecialty, config => config.MapFrom(src => src.MedicalSpecialty.Name))
                 .ForMember(dest => dest.IsOwner, config => config.MapFrom(src => src.DoctorClinics.FirstOrDefault().IsOwner))
                 .ForMember(dest => dest.JoinedAt, config => config.MapFrom(src => src.DoctorClinics.FirstOrDefault().JoinedAt));
+
+
+            CreateMap<Doctor, ClinicMemberResponseForSecretary>()
+                .ForMember(dest => dest.FullName, config => config.MapFrom(src => $"Dr. {src.FirstName} {src.LastName}"))
+                .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<ClinicMemberResponseForSecretary>(_configuration)))
+                .ForMember(dest => dest.MedicalSpecialty, config => config.MapFrom(src => src.MedicalSpecialty.Name))
+                .ForMember(dest => dest.IsOwner, config => config.MapFrom(src => src.DoctorClinics.FirstOrDefault().IsOwner));
         }
     }
 }

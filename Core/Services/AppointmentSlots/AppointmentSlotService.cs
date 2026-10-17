@@ -155,13 +155,66 @@ namespace Services.AppointmentSlots
 
 
 
-        public async Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
-                                                                                                           string doctorId,
-                                                                                                           int clinicId,
-                                                                                                           GetAvailableAppointmentSlotRequest request)
+        //public async Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
+        //                                                                                                   string doctorId,
+        //                                                                                                   int clinicId,
+        //                                                                                                   GetAvailableAppointmentSlotRequest request)
+        //{
+        //    if (string.IsNullOrWhiteSpace(userId))
+        //        throw new BadRequestException("We couldn't identify your account.");
+
+        //    if (request.From is null)
+        //        throw new BadRequestException("The from date is required.");
+
+        //    if (request.To is null)
+        //        throw new BadRequestException("The to date is required.");
+
+        //    var from = request.From.Value;
+        //    var to = request.To.Value;
+
+        //    if (from > to)
+        //        throw new BadRequestException("The from date cannot be later than the to date.");
+
+        //    if (to.DayNumber - from.DayNumber > 31)
+        //        throw new BadRequestException("The date range cannot exceed 31 days.");
+
+        //    var patientRepo = _unitOfWork.GetRepository<Patient, string>();
+        //    var patient = await patientRepo.GetByIdAsync(userId);
+        //    if (patient is null)
+        //        throw new NotFoundException("We couldn't find your account.");
+
+        //    await GetDoctorClinicAccessAsync(doctorId, clinicId);
+
+        //    var slotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
+        //    var specification = new AppointmentSlotSpecifications(clinicId, doctorId, from, to);
+        //    var availableSlots = await slotRepo.GetAllAsync(specification);
+        //    if(!availableSlots.Any())
+        //        return Enumerable.Empty<AvailableAppointmentSlotResponse>();
+
+        //    var now = DateTime.UtcNow;
+        //    var futureAvailableSlots = availableSlots.Where(slot => slot.Date.ToDateTime(slot.StartTime, DateTimeKind.Utc) > now)
+        //                                             .OrderBy(slot => slot.Date)
+        //                                             .ThenBy(slot => slot.StartTime);
+
+        //    return _mapper.Map<IEnumerable<AvailableAppointmentSlotResponse>>(futureAvailableSlots);
+        //}
+
+
+
+        public async Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotAsync(string userId, string doctorId,
+                                                                                                                          DoctorDaysWhichHaveAvailableSlotRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not assigned to any clinic.");
+
+            int clinicId = secretary.ClinicId.Value;
 
             if (request.From is null)
                 throw new BadRequestException("The from date is required.");
@@ -178,26 +231,95 @@ namespace Services.AppointmentSlots
             if (to.DayNumber - from.DayNumber > 31)
                 throw new BadRequestException("The date range cannot exceed 31 days.");
 
-            var patientRepo = _unitOfWork.GetRepository<Patient, string>();
-            var patient = await patientRepo.GetByIdAsync(userId);
-            if (patient is null)
-                throw new NotFoundException("We couldn't find your account.");
 
             await GetDoctorClinicAccessAsync(doctorId, clinicId);
-            
+
+            // Retrieve available slots within the requested date range.
             var slotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
             var specification = new AppointmentSlotSpecifications(clinicId, doctorId, from, to);
             var availableSlots = await slotRepo.GetAllAsync(specification);
-            if(!availableSlots.Any())
-                return Enumerable.Empty<AvailableAppointmentSlotResponse>();
 
-            var now = DateTime.UtcNow;
-            var futureAvailableSlots = availableSlots.Where(slot => slot.Date.ToDateTime(slot.StartTime, DateTimeKind.Utc) > now)
-                                                     .OrderBy(slot => slot.Date)
-                                                     .ThenBy(slot => slot.StartTime);
 
-            return _mapper.Map<IEnumerable<AvailableAppointmentSlotResponse>>(futureAvailableSlots);
+
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "Egypt Standard Time" : "Africa/Cairo");
+            var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptTimeZone);
+
+            var todayInEgypt = DateOnly.FromDateTime(nowInEgypt);
+            var currentTimeInEgypt = TimeOnly.FromDateTime(nowInEgypt);
+
+
+            var futureAvailableSlots = availableSlots.Where(slot => slot.Date > todayInEgypt || (slot.Date == todayInEgypt && slot.StartTime > currentTimeInEgypt));
+
+            // Return each available date once, ordered chronologically.
+            var availableDays = futureAvailableSlots.Select(slot => slot.Date)
+                                                    .Distinct()
+                                                    .OrderBy(date => date)
+                                                    .Select(date => new DoctorDaysWhichHaveAvailableSlotResponse()
+                                                    {
+                                                        DayName = date.DayOfWeek.ToString(),
+                                                        Date = date
+                                                    });
+
+            return availableDays.ToList();
         }
+
+
+
+
+        public async Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDateAsync(string userId, string doctorId,
+                                                                                                                                                  AvailableAppointmentSlotsExistInSpecificDateRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+            var secretary = await secretaryRepo.GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not assigned to any clinic.");
+
+            var clinicId = secretary.ClinicId.Value;
+
+            if (request.Date is null)
+                throw new BadRequestException("The date is required.");
+
+            var date = request.Date.Value;
+
+
+            // Verify that the doctor belongs to the secretary's clinic
+            // and is approved for appointments.
+            await GetDoctorClinicAccessAsync(doctorId, clinicId);
+
+
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "Egypt Standard Time" : "Africa/Cairo");
+            var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptTimeZone);
+
+            var todayInEgypt = DateOnly.FromDateTime(nowInEgypt);
+            var currentTimeInEgypt = TimeOnly.FromDateTime(nowInEgypt);
+
+            if (date < todayInEgypt)
+                throw new BadRequestException("The date cannot be in the past.");
+
+            // Retrieve available slots for this doctor, clinic, and date.
+            var slotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
+            var specification = new AppointmentSlotSpecifications(clinicId, doctorId, date);
+            var availableSlots = await slotRepo.GetAllAsync(specification);
+
+            // Exclude slots whose start time has already passed.
+            var futureAvailableSlots = availableSlots.Where(slot => slot.Date > todayInEgypt || (slot.Date == todayInEgypt && slot.StartTime > currentTimeInEgypt))
+                                                     .OrderBy(slot => slot.StartTime);
+
+            return futureAvailableSlots.Select(slot => new AvailableAppointmentSlotsExistInSpecificDateResponse()
+            {
+                Id = slot.Id,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime
+            }).ToList();
+        }
+
+
 
 
 
@@ -234,5 +356,7 @@ namespace Services.AppointmentSlots
                 IsOwner = doctorClinic.IsOwner
             };
         }
+
+
     }
 }

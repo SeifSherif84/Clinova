@@ -60,14 +60,14 @@ namespace Presentation.Controllers.Appointments
         }
 
 
-        [Authorize(Roles = "Doctor")]
-        [HttpPatch("{appointmentId}/doctor-cancel")] // Patch: /api/appointments/{appointmentId}/doctor-cancel
-        public async Task<IActionResult> CancelAppointmentByDoctor([FromRoute] int appointmentId)
-        {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.CancelAppointmentByDoctorAsync(userId ?? string.Empty, appointmentId);
-            return Ok(response);
-        }
+        //[Authorize(Roles = "Doctor")]
+        //[HttpPatch("{appointmentId}/doctor-cancel")] // Patch: /api/appointments/{appointmentId}/doctor-cancel
+        //public async Task<IActionResult> CancelAppointmentByDoctor([FromRoute] int appointmentId)
+        //{
+        //    var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var response = await _serviceManager.AppointmentService.CancelAppointmentByDoctorAsync(userId ?? string.Empty, appointmentId);
+        //    return Ok(response);
+        //}
 
 
         [Authorize(Roles = "Patient")]
@@ -163,6 +163,47 @@ namespace Presentation.Controllers.Appointments
             return Ok(response);
         }
 
+
+        [Authorize("Secretary")]
+        [HttpPatch("{appointmentId}/confirm-manual-refund")]
+        public async Task<IActionResult> SecretaryConfirmManualRefund([FromRoute] int appointmentId,
+                                                                      [FromForm] ConfirmManualRefundRequest request)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryConfirmManualRefundAsync(secretaryId ?? string.Empty, appointmentId, request);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPost("slots/{appointmentSlotId}/guest-reservations")]
+        public async Task<IActionResult> SecretaryCreateGuestReservation([FromRoute] int appointmentSlotId,
+                                                                         [FromBody] CreateGuestReservationRequest request)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryCreateGuestReservationAsync(secretaryId ?? string.Empty, appointmentSlotId, request);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPost("{appointmentId}/guest-checkout/confirm-payment")]
+        public async Task<IActionResult> SecretaryConfirmGuestReservationPayment([FromRoute] int appointmentId, [FromBody] ConfirmGuestReservationPaymentRequest request)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryConfirmGuestReservationPaymentAsync(secretaryId ?? string.Empty, appointmentId, request);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpDelete("{appointmentId}/guest-checkout/Cancel-payment")]
+        public async Task<IActionResult> SecretaryCancelPendingGuestReservation([FromRoute] int appointmentId)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.SecretaryCancelPendingGuestReservationAsync(secretaryId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
 
     }
 }

@@ -20,9 +20,9 @@ namespace Persistence.Data.Configurations
             builder.Property(account => account.Provider)
                    .IsRequired();
 
-            builder.Property(onlinePaymentAccount => onlinePaymentAccount.MerchantId)
-                   .HasColumnType("varchar")
-                   .HasMaxLength(200);
+            builder.Property(onlinePaymentAccount => onlinePaymentAccount.IsActive)
+                   .IsRequired()
+                   .HasDefaultValue(true);
 
 
             builder.HasOne(onlinePaymentAccount => onlinePaymentAccount.Clinic)

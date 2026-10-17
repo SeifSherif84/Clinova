@@ -13,10 +13,11 @@ namespace Shared.Dtos.Appointments
     {
         [Required]
         [Range(1, int.MaxValue)]
-        [AllowedImage]
         public int ClinicManualPaymentMethodId { get; set; }
 
+
         [Required]
+        [AllowedImage]
         public IFormFile PaymentProof { get; set; } = null!;
 
 

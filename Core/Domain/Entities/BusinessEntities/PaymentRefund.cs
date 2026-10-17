@@ -53,6 +53,11 @@ namespace Domain.Entities.BusinessEntities
         public string? ProviderResponse { get; set; }
 
 
+        // Manual refund evidence
+        public string? ManualRefundTransactionReference { get; set; }
+        public string? ManualRefundProofUrl { get; set; }
+
+
         /// <summary>
         /// Used to protect refund state transitions from concurrent requests.
         /// This is important because a payment must never be refunded twice

@@ -12,13 +12,15 @@ namespace Domain.Entities.BusinessEntities
     {
         public OnlinePaymentProvider Provider { get; set; }
 
-
-        // Paymob Merchant ID (MID)
-        public string? MerchantId { get; set; }
-
         public OnlinePaymentAccountStatus Status { get; set; } = OnlinePaymentAccountStatus.NotConfigured;
         public PaymentConfigurationIssueCode? LastConfigurationIssueCode { get; set; }
         public DateTime? LastConfigurationIssueAt { get; set; }
+
+
+        // Doctor's permission to use this account for receiving payments.
+        // This is independent from the account's readiness status.
+        public bool IsActive { get; set; } = true;
+
 
         // Paymob Credentials
         public string PublicKey { get; set; } = null!;

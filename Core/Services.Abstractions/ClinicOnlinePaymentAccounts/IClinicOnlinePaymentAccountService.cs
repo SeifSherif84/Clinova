@@ -12,5 +12,8 @@ namespace Services.Abstractions.ClinicOnlinePaymentAccounts
         Task<string> ConfigurePaymobAccountAsync(string userId, int clinicId, ConfigurePaymobAccountRequest request);
         Task<string> UpdatePaymobAccountAsync(string userId, int accountId, int clinicId, UpdatePaymobAccountRequest request);
         Task<IEnumerable<ClinicOnlinePaymentAccountResponseForOwner>> GetPaymentAccountsAsync(string userId, int clinicId);
+        Task<string> DeletePaymentAccountAsync(string userId, int accountId, int clinicId);
+        Task<string> ActivatePaymentAccountAsync(string userId, int accountId, int clinicId);
+        Task<string> DeactivatePaymentAccountAsync(string userId, int accountId, int clinicId);
     }
 }

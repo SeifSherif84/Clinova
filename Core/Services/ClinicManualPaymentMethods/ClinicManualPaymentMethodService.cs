@@ -49,21 +49,18 @@ namespace Services.ClinicManualPaymentMethods
 
 
 
-        public async Task<string> UpdateManualPaymentMethodAsync(string userId, int clinicId,
-                                                                 int paymentMethodId,
-                                                                 UpdateClinicManualPaymentMethodRequest request)
+        public async Task<string> UpdateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId, UpdateClinicManualPaymentMethodRequest request)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var manualPaymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
             var manualPaymentMethod = await manualPaymentMethodRepo.GetByIdAsync(paymentMethodId);
 
             if (manualPaymentMethod is null)
                 throw new NotFoundException("The payment method you are trying to update does not exist.");
 
+            await GetDoctorOwnedClinicAccessAsync(userId, manualPaymentMethod.ClinicId);
+
             if (manualPaymentMethod.ClinicId != clinicId)
                 throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");
-
 
             var manualPaymentMethodSpec = ClinicManualPaymentMethodSpecifications.ByClinicAndTypeAndAccountIdentifier(clinicId, manualPaymentMethod.Type, request.AccountIdentifier);
             var existingPaymentMethod = await manualPaymentMethodRepo.GetByIdAsync(manualPaymentMethodSpec);
@@ -80,7 +77,6 @@ namespace Services.ClinicManualPaymentMethods
 
             return "Your payment method has been updated successfully.";
         }
-
 
 
         public async Task<IEnumerable<ClinicManualPaymentMethodResponseForOwner>> GetManualPaymentMethodsForOwnerAsync(string userId, int clinicId)
@@ -100,31 +96,25 @@ namespace Services.ClinicManualPaymentMethods
 
         public async Task<string> ActivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
             var paymentMethod = await paymentMethodRepo.GetByIdAsync(paymentMethodId);
 
             if (paymentMethod is null)
-                throw new NotFoundException(
-                    "The payment method you are trying to activate does not exist.");
+                throw new NotFoundException("The payment method you are trying to activate does not exist.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, paymentMethod.ClinicId);
 
             if (paymentMethod.ClinicId != clinicId)
-                throw new ResourceAccessDeniedException(
-                    "This payment method does not belong to this clinic.");
+                throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");
 
             if (paymentMethod.IsActive)
-                throw new BadRequestException(
-                    "This payment method is already active.");
+                throw new BadRequestException("This payment method is already active.");
 
             paymentMethod.IsActive = true;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-            {
-                throw new InternalServerErrorException(
-                    "We couldn't activate the payment method right now. Please try again later.");
-            }
+                throw new InternalServerErrorException("We couldn't activate the payment method right now. Please try again later.");
 
             return "The payment method has been activated successfully.";
         }
@@ -133,31 +123,25 @@ namespace Services.ClinicManualPaymentMethods
 
         public async Task<string> DeactivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
             var paymentMethod = await paymentMethodRepo.GetByIdAsync(paymentMethodId);
 
             if (paymentMethod is null)
-                throw new NotFoundException(
-                    "The payment method you are trying to deactivate does not exist.");
+                throw new NotFoundException("The payment method you are trying to deactivate does not exist.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, paymentMethod.ClinicId);
 
             if (paymentMethod.ClinicId != clinicId)
-                throw new ResourceAccessDeniedException(
-                    "This payment method does not belong to this clinic.");
+                throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");
 
             if (!paymentMethod.IsActive)
-                throw new BadRequestException(
-                    "This payment method is already inactive.");
+                throw new BadRequestException("This payment method is already inactive.");
 
             paymentMethod.IsActive = false;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
-            {
-                throw new InternalServerErrorException(
-                    "We couldn't deactivate the payment method right now. Please try again later.");
-            }
+                throw new InternalServerErrorException("We couldn't deactivate the payment method right now. Please try again later.");
 
             return "The payment method has been deactivated successfully.";
         }
@@ -173,12 +157,10 @@ namespace Services.ClinicManualPaymentMethods
             var paymentMethod = await paymentMethodRepo.GetByIdAsync(specification);
 
             if (paymentMethod is null)
-                throw new NotFoundException(
-                    "The payment method you are trying to delete does not exist.");
+                throw new NotFoundException("The payment method you are trying to delete does not exist.");
 
             if (paymentMethod.ClinicId != clinicId)
-                throw new ResourceAccessDeniedException(
-                    "This payment method does not belong to this clinic.");
+                throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");
 
             if (paymentMethod.Payments.Any())
             {
@@ -200,29 +182,60 @@ namespace Services.ClinicManualPaymentMethods
 
 
 
-        public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId)
+
+        //public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId)
+        //{
+        //    if (string.IsNullOrWhiteSpace(userId))
+        //        throw new BadRequestException("We couldn't identify your account.");
+
+        //    var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+        //    if (patient is null)
+        //        throw new NotFoundException("We couldn't find your account.");
+
+        //    var clinicRepo = _unitOfWork.GetRepository<Clinic, int>();
+        //    var clinic = await clinicRepo.GetByIdAsync(clinicId);
+        //    if (clinic is null)
+        //        throw new NotFoundException("The clinic you are trying to access does not exist.");
+
+        //    var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
+        //    var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
+        //    var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
+        //    if (!paymentMethods.Any())
+        //        return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
+
+        //    return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
+        //}
+
+
+
+        public async Task<IEnumerable<GuestCheckoutPaymentMethodResponse>> GetGuestCheckoutPaymentMethodsForSecretaryAsync(string secretaryId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
 
-            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
-            if (patient is null)
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
+
+            if (secretary is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-            var clinicRepo = _unitOfWork.GetRepository<Clinic, int>();
-            var clinic = await clinicRepo.GetByIdAsync(clinicId);
-            if (clinic is null)
-                throw new NotFoundException("The clinic you are trying to access does not exist.");
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not associated with any clinic.");
 
-            var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
+            var clinicId = secretary.ClinicId.Value;
+
             var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
-            var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
+            var paymentMethods = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetAllAsync(specification);
+
             if (!paymentMethods.Any())
-                return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
+                return Enumerable.Empty<GuestCheckoutPaymentMethodResponse>();
 
-            return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
+            return paymentMethods.Select(method => new GuestCheckoutPaymentMethodResponse()
+            {
+                Id = method.Id,
+                Type = method.Type.ToString(),
+                AccountIdentifier = method.AccountIdentifier
+            }).ToList();
         }
-
 
 
         private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync(string userId, int clinicId)
@@ -256,5 +269,6 @@ namespace Services.ClinicManualPaymentMethods
                 IsOwner = doctorClinic.IsOwner,
             };
         }
+
     }
 }

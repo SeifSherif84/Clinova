@@ -49,5 +49,41 @@ namespace Presentation.Controllers.ClinicOnlinePaymentAccounts
         }
 
 
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{accountId}/clinics/{clinicId}/activate")]
+        public async Task<IActionResult> ActivatePaymentAccount([FromRoute] int accountId,
+                                                                [FromRoute] int clinicId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicOnlinePaymentAccountService.ActivatePaymentAccountAsync(userId ?? string.Empty, accountId, clinicId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{accountId}/clinics/{clinicId}/deactivate")]
+        public async Task<IActionResult> DeactivatePaymentAccount([FromRoute] int accountId,
+                                                                  [FromRoute] int clinicId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicOnlinePaymentAccountService.DeactivatePaymentAccountAsync(userId ?? string.Empty, accountId, clinicId);
+
+            return Ok(response);
+        }
+
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpDelete("{accountId}/clinics/{clinicId}")]
+        public async Task<IActionResult> DeletePaymentAccount([FromRoute] int accountId,
+                                                              [FromRoute] int clinicId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicOnlinePaymentAccountService.DeletePaymentAccountAsync(userId ?? string.Empty, accountId, clinicId);
+
+            return Ok(response);
+        }
+
     }
 }

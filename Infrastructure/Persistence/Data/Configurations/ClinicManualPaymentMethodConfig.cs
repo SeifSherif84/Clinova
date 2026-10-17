@@ -27,7 +27,8 @@ namespace Persistence.Data.Configurations
                    .IsRequired();
 
             builder.Property(manualPaymentMethod => manualPaymentMethod.IsActive)
-                   .IsRequired();
+                   .IsRequired()
+                   .HasDefaultValue(true);
 
             builder.HasOne(manualPaymentMethod => manualPaymentMethod.Clinic)
                    .WithMany(clinic => clinic.ManualPaymentMethods)

@@ -136,10 +136,20 @@ namespace Presentation.Controllers.Clinics
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("{clinicId}/members")] // Get api/clinics/{clinicId}/members
-        public async Task<IActionResult> GetClinicMembers([FromRoute] int clinicId)
+        public async Task<IActionResult> GetClinicMembersForDoctor([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetClinicMembersAsync(userId ?? string.Empty, clinicId);
+            var response = await _serviceManager.ClinicService.GetClinicMembersForDoctorAsync(userId ?? string.Empty, clinicId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("{clinicId}/members/management")] // Get api/clinics/{clinicId}/members/management
+        public async Task<IActionResult> GetClinicMembersForSecretary([FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.GetClinicMembersForSecretaryAsync(userId ?? string.Empty, clinicId);
             return Ok(response);
         }
 

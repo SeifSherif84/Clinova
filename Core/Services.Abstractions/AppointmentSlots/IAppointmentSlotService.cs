@@ -15,9 +15,18 @@ namespace Services.Abstractions.AppointmentSlots
         Task ReconcileAppointmentSlotsAsync(WorkingHour workingHour);
         Task DeleteAvailableAppointmentSlotsAsync(WorkingHour workingHour);
         Task DeleteFutureAvailableSlotsAsync(WorkingHour workingHour);
-        Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
-                                                                                              string doctorId,
-                                                                                              int clinicId,
-                                                                                              GetAvailableAppointmentSlotRequest request);
+
+
+
+        //Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
+        //                                                                                      string doctorId,
+        //                                                                                      int clinicId,
+        //                                                                                      GetAvailableAppointmentSlotRequest request);
+
+
+
+        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotAsync(string userId, string doctorId, DoctorDaysWhichHaveAvailableSlotRequest request);
+
+        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDateAsync(string userId, string doctorId, AvailableAppointmentSlotsExistInSpecificDateRequest request);
     }
 }

@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Data.Configurations
 {
-
-
     public class PaymentRefundConfiguration : IEntityTypeConfiguration<PaymentRefund>
     {
         public void Configure(EntityTypeBuilder<PaymentRefund> builder)
@@ -34,6 +32,9 @@ namespace Persistence.Data.Configurations
             builder.Property(refund => refund.ProviderRefundTransactionId)
                    .HasMaxLength(100);
 
+            builder.Property(refund => refund.ManualRefundTransactionReference)
+                   .HasMaxLength(100);
+
             builder.Property(refund => refund.FailureReason)
                    .HasMaxLength(2000);
 
@@ -44,7 +45,6 @@ namespace Persistence.Data.Configurations
                    .IsRowVersion()
                    .IsConcurrencyToken();
 
-
             builder.HasOne(refund => refund.Payment)
                    .WithOne(refund => refund.Refund)
                    .HasForeignKey<PaymentRefund>(refund => refund.PaymentId)
@@ -52,7 +52,6 @@ namespace Persistence.Data.Configurations
 
             builder.HasIndex(refund => refund.PaymentId)
                    .IsUnique();
-
         }
     }
 }

@@ -36,8 +36,12 @@ namespace Domain.Entities.BusinessEntities
 
 
         // Patient
-        public string PatientId { get; set; } = null!;
-        public Patient Patient { get; set; } = null!;
+        public string? PatientId { get; set; }
+        public Patient? Patient { get; set; }
+
+        // Guest Patient Information
+        public string? GuestPatientName { get; set; }
+        public string? GuestPatientPhone { get; set; }
 
 
         // Appointment Slot

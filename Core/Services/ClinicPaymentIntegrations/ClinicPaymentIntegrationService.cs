@@ -69,6 +69,126 @@ namespace Services.ClinicPaymentIntegrations
             return $"A {request.PaymentMethod} payment integration is configured for this Paymob account.";
         }
 
+        public async Task<string> UpdatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId, UpdateClinicPaymentIntegrationRequest request)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
+            if (existingIntegration is null)
+                throw new NotFoundException("The specified payment integration was not found.");
+
+            if(existingIntegration.ClinicOnlinePaymentAccountId != accountId)
+                throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount is null)
+                throw new InternalServerErrorException("The specified payment integration is not associated with any online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment integration does not belong to this clinic.");
+
+            if (existingIntegration.IntegrationId == request.IntegrationId)
+                return $"The {existingIntegration.PaymentMethod} payment integration is already configured with the this integration ID.";
+
+            existingIntegration.IntegrationId = request.IntegrationId;
+            if(existingIntegration.ClinicOnlinePaymentAccount.Status != OnlinePaymentAccountStatus.PendingVerification)
+                existingIntegration.ClinicOnlinePaymentAccount.Status = OnlinePaymentAccountStatus.PendingVerification;
+
+
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to update the Paymob payment integration.");
+
+            return $"The {existingIntegration.PaymentMethod} payment integration has been updated successfully.";
+        }
+
+        public async Task<string> DeletePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
+            if (existingIntegration is null)
+                throw new NotFoundException("The specified payment integration was not found.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
+                throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount is null)
+                throw new InternalServerErrorException("The specified payment integration is not associated with any online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment integration does not belong to this clinic.");
+
+            paymentIntegrationRepo.Delete(existingIntegration);
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to delete the Paymob payment integration.");
+
+            return $"The {existingIntegration.PaymentMethod} payment integration has been deleted successfully.";
+        }
+
+        public async Task<string> ActivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
+            if (existingIntegration is null)
+                throw new NotFoundException("The specified payment integration was not found.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
+                throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount is null)
+                throw new InternalServerErrorException("The specified payment integration is not associated with any online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment integration does not belong to this clinic.");
+
+            if (existingIntegration.IsActive)
+                return "The specified payment integration is already active.";
+
+            existingIntegration.IsActive = true;
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to activate the Paymob payment integration.");
+
+            return $"The {existingIntegration.PaymentMethod} payment integration has been activated successfully.";
+        }
+
+        public async Task<string> DeactivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
+            if (existingIntegration is null)
+                throw new NotFoundException("The specified payment integration was not found.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
+                throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount is null)
+                throw new InternalServerErrorException("The specified payment integration is not associated with any online payment account.");
+
+            if (existingIntegration.ClinicOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment integration does not belong to this clinic.");
+
+            if (!existingIntegration.IsActive)
+                return "The specified payment integration is already inactive.";
+
+            existingIntegration.IsActive = false;
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to deactivate the Paymob payment integration.");
+
+            return $"The {existingIntegration.PaymentMethod} payment integration has been deactivated successfully.";
+        }
 
 
         private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync(string userId, int clinicId)

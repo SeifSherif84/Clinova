@@ -35,12 +35,12 @@ namespace Shared.Dtos.Appointments
         public string PaymentStatus { get; set; } = null!;
         public string PaymentType { get; set; } = null!;
         public string? ManualPaymentMethodType { get; set; }
-        public string? PaymentRejectionReason { get; set; }
+        public string? SecretaryPaymentRejectionReason { get; set; }
 
         public decimal PaymentAmount { get; set; }
         public decimal RemainingAmount { get; set; }
-        public string? PaymentProofUrl { get; set; }
-        public string? TransactionReference { get; set; }
+        public string? ManualPaymentProofUrl { get; set; }
+        public string? PaymentTransactionReference { get; set; }
 
 
         public string? RefundStatus { get; set; }
@@ -48,5 +48,8 @@ namespace Shared.Dtos.Appointments
 
         public string? RefundReason { get; set; }
         public string? RefundProcessedAt { get; set; }
+
+        public string? ManualRefundTransactionReference { get; set; }
+        public string? ManualRefundProofUrl { get; set; }
     }
 }

@@ -66,15 +66,17 @@ namespace Services.AutoMapping.Appointments
                 .ForMember(dest => dest.PaymentStatus, options => options.MapFrom(src => src.Payment.Status.ToString()))
                 .ForMember(dest => dest.PaymentType, options => options.MapFrom(src => src.Payment.ClinicManualPaymentMethodId.HasValue ? PaymentType.Manual.ToString() : PaymentType.Online.ToString()))
                 .ForMember(dest => dest.ManualPaymentMethodType, options => options.MapFrom(src => src.Payment.ClinicManualPaymentMethod != null ? src.Payment.ClinicManualPaymentMethod.Type.ToString() : null))
-                .ForMember(dest => dest.PaymentRejectionReason, options => options.MapFrom(src => src.Payment.RejectionReason))
+                .ForMember(dest => dest.SecretaryPaymentRejectionReason, options => options.MapFrom(src => src.Payment.SecretaryRejectionReason))
                 .ForMember(dest => dest.PaymentAmount, options => options.MapFrom(src => src.Payment.Amount))
                 .ForMember(dest => dest.RemainingAmount, options => options.MapFrom(src => src.RemainingAmount))
-                .ForMember(dest => dest.PaymentProofUrl, options => options.MapFrom(new PaymentProofUrlResolver(_configuration)))
-                .ForMember(dest => dest.TransactionReference, options => options.MapFrom(src => src.Payment.TransactionReference))
+                .ForMember(dest => dest.ManualPaymentProofUrl, options => options.MapFrom(new ManualPaymentProofUrlResolver(_configuration)))
+                .ForMember(dest => dest.PaymentTransactionReference, options => options.MapFrom(src => src.Payment.TransactionReference))
                 .ForMember(dest => dest.RefundStatus, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Status.ToString() : null))
                 .ForMember(dest => dest.RefundAmount, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Amount : (decimal?)null))
                 .ForMember(dest => dest.RefundReason, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.Reason.ToString() : null))
-                .ForMember(dest => dest.RefundProcessedAt, options => options.MapFrom(src => src.Payment.Refund != null && src.Payment.Refund.ProcessedAt.HasValue ? src.Payment.Refund.ProcessedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null));
+                .ForMember(dest => dest.RefundProcessedAt, options => options.MapFrom(src => src.Payment.Refund != null && src.Payment.Refund.ProcessedAt.HasValue ? src.Payment.Refund.ProcessedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null))
+                .ForMember(dest => dest.ManualRefundTransactionReference, options => options.MapFrom(src => src.Payment.Refund != null ? src.Payment.Refund.ManualRefundTransactionReference : null))
+                .ForMember(dest => dest.ManualRefundProofUrl, options => options.MapFrom(new ManualRefundProofUrlResolver(_configuration)));
         }
 
 

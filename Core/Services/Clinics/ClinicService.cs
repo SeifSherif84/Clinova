@@ -15,6 +15,7 @@ using Services.Abstractions.Notifications;
 using Services.Clinics;
 using Services.Commen;
 using Services.FileStorage;
+using Services.Specifications.Appointments;
 using Services.Specifications.Clinics;
 using Services.Specifications.Doctors;
 using Services.Specifications.Secretaries;
@@ -307,12 +308,32 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<IEnumerable<ClinicMemberResponse>> GetClinicMembersAsync(string userId, int clinicId)
+        public async Task<IEnumerable<ClinicMemberResponseForDoctor>> GetClinicMembersForDoctorAsync(string userId, int clinicId)
         {
             await GetDoctorClinicAccessAsync(userId, clinicId);
             var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
             var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
-            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponse>>(members);
+            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponseForDoctor>>(members);
+            return clinicMembersResponse;
+        }
+
+
+        public async Task<IEnumerable<ClinicMemberResponseForSecretary>> GetClinicMembersForSecretaryAsync(string userId, int clinicId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId != clinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to view members for this clinic.");
+
+            var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
+            var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
+            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponseForSecretary>>(members);
+
             return clinicMembersResponse;
         }
 

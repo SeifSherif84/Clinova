@@ -45,5 +45,16 @@ namespace Services.Specifications.AppointmentSlots
                                slot.Date <= to;
         }
 
+
+        public AppointmentSlotSpecifications(int clinicId, string doctorId,
+                                             DateOnly date)
+        {
+
+            Criteria = slot => slot.ClinicId == clinicId &&
+                               slot.DoctorId == doctorId &&
+                               slot.Status == SlotStatus.Available &&
+                               slot.Date == date;
+        }
+
     }
 }

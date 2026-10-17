@@ -13,8 +13,8 @@ namespace Services.AutoMapping.AppointmentSlots
     {
         public AppointmentSlotProfile()
         {
-            CreateMap<AppointmentSlot, AvailableAppointmentSlotResponse>()
-                .ForMember(dest => dest.Day, config => config.MapFrom(src => src.Date.DayOfWeek));
+            CreateMap<AppointmentSlot, DoctorDaysWhichHaveAvailableSlotResponse>()
+                .ForMember(dest => dest.DayName, config => config.MapFrom(src => src.Date.DayOfWeek));
         }
     }
 }

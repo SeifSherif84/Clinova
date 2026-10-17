@@ -52,8 +52,15 @@ namespace Persistence.Data.Migrations
                     b.Property<int>("FullRefundCancellationWindowMinutes")
                         .HasColumnType("int");
 
+                    b.Property<string>("GuestPatientName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("GuestPatientPhone")
+                        .HasMaxLength(11)
+                        .HasColumnType("varchar");
+
                     b.Property<string>("PatientId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PatientNotes")
@@ -197,7 +204,9 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -229,15 +238,16 @@ namespace Persistence.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<DateTime?>("LastConfigurationIssueAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("LastConfigurationIssueCode")
                         .HasColumnType("int");
-
-                    b.Property<string>("MerchantId")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar");
 
                     b.Property<int>("Provider")
                         .HasColumnType("int");
@@ -469,11 +479,11 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ManualPaymentProofUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentProofUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProviderClientSecret")
                         .HasColumnType("nvarchar(max)");
@@ -487,15 +497,15 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("ProviderTransactionId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar");
-
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<string>("SecretaryRejectionReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -536,8 +546,14 @@ namespace Persistence.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("ManualRefundProofUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ManualRefundTransactionReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("OriginalTransactionId")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -1084,8 +1100,7 @@ namespace Persistence.Data.Migrations
                     b.HasOne("Domain.Entities.BusinessEntities.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("AppointmentSlot");
 

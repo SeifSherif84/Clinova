@@ -20,12 +20,9 @@ namespace Services.Abstractions.Clinics
         Task<string> DeleteClinicAsync(string userId, int clinicId);
         Task<string> DoctorRemoveMemberAsync(string userId, int clinicId, string memberId);
         Task<string> MemberLeaveClinicAsync(string userId, int clinicId);
-        Task<IEnumerable<ClinicMemberResponse>> GetClinicMembersAsync(string userId, int clinicId);
-
-
-
+        Task<IEnumerable<ClinicMemberResponseForDoctor>> GetClinicMembersForDoctorAsync(string userId, int clinicId);
+        Task<IEnumerable<ClinicMemberResponseForSecretary>> GetClinicMembersForSecretaryAsync(string userId, int clinicId);
         Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId);
-
         Task<string> DoctorRemoveSecretaryAsync(string userId, int clinicId, string secretaryId);
         Task<string> SecretaryLeaveClinicAsync(string userId, int clinicId);
         Task<IEnumerable<ClinicSecretaryResponse>> GetClinicSecretariesAsync(string userId, int clinicId);

@@ -42,7 +42,7 @@ namespace Domain.Entities.BusinessEntities
         // Manual Payment Method
         public int? ClinicManualPaymentMethodId { get; set; }
         public ClinicManualPaymentMethod? ClinicManualPaymentMethod { get; set; }
-        public string? PaymentProofUrl { get; set; }
+        public string? ManualPaymentProofUrl { get; set; }
 
 
         // Online Payment Account
@@ -58,7 +58,7 @@ namespace Domain.Entities.BusinessEntities
         public PaymentRefund? Refund { get; set; }
 
 
-        public string? RejectionReason { get; set; }
+        public string? SecretaryRejectionReason { get; set; }
 
 
         public byte[] RowVersion { get; set; } = null!;

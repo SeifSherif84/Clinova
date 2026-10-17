@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos.Clinics
 {
-    public class ClinicMemberResponse
+    public class ClinicMemberResponseForDoctor
     {
         public string Id { get; set; } = null!;
         public string FullName { get; set; } = null!;

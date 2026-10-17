@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Appointments
 {
-    public class PaymentProofUrlResolver(IConfiguration _configuration) : IValueResolver<Appointment, SecretaryAppointmentDetailsResponse, string?>
+    public class ManualPaymentProofUrlResolver(IConfiguration _configuration) : IValueResolver<Appointment, SecretaryAppointmentDetailsResponse, string?>
     {
         public string? Resolve(Appointment source, SecretaryAppointmentDetailsResponse destination, string? destMember, ResolutionContext context)
         {
-            if (string.IsNullOrEmpty(source.Payment.PaymentProofUrl))
+            if (string.IsNullOrEmpty(source.Payment.ManualPaymentProofUrl))
                 return null;
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:ManualPaymentProofsPath"];
-            destMember = $"{baseUrl}/{imagesFolderPath}/{source.Payment.PaymentProofUrl}";
+            destMember = $"{baseUrl}/{imagesFolderPath}/{source.Payment.ManualPaymentProofUrl}";
             return destMember;
         }
     }

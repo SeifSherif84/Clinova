@@ -35,5 +35,27 @@ namespace Services.Specifications.ClinicOnlinePaymentAccounts
             specifications.Includes.Add(paymentAccount => paymentAccount.PaymentIntegrations);
             return specifications;
         }
+
+
+        public static ClinicOnlinePaymentAccountSpecifications ByIdWithPaymentsAndIntegrations(int accountId)
+        {
+            var specifications = new ClinicOnlinePaymentAccountSpecifications
+            {
+                Criteria = paymentAccount => paymentAccount.Id == accountId
+            };
+
+            specifications.Includes.Add(paymentAccount => paymentAccount.PaymentIntegrations);
+            specifications.Includes.Add(paymentAccount => paymentAccount.Payments);
+            return specifications;
+        }
+
+
+        public static ClinicOnlinePaymentAccountSpecifications ById(int accountId)
+        {
+            return new ClinicOnlinePaymentAccountSpecifications
+            {
+                Criteria = paymentAccount => paymentAccount.Id == accountId
+            };
+        }
     }
 }

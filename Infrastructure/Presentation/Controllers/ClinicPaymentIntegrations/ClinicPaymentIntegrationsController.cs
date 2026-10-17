@@ -26,5 +26,59 @@ namespace Presentation.Controllers.ClinicPaymentIntegrations
             return Ok(response);
         }
 
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{integrationId}/online-payment-accounts/{accountId}/clinics/{clinicId}")]
+        public async Task<IActionResult> UpdatePaymentIntegration([FromRoute] int integrationId,
+                                                                  [FromRoute] int accountId,
+                                                                  [FromRoute] int clinicId,
+                                                                  [FromBody] UpdateClinicPaymentIntegrationRequest request)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicPaymentIntegrationService.UpdatePaymentIntegrationAsync(userId ?? string.Empty, integrationId, accountId, clinicId, request);
+            return Ok(response);
+        }
+
+
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpDelete("{integrationId}/online-payment-accounts/{accountId}/clinics/{clinicId}")]
+        public async Task<IActionResult> DeletePaymentIntegration([FromRoute] int integrationId,
+                                                                  [FromRoute] int accountId,
+                                                                  [FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicPaymentIntegrationService.DeletePaymentIntegrationAsync(userId ?? string.Empty, integrationId, accountId, clinicId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{integrationId}/online-payment-accounts/{accountId}/clinics/{clinicId}/activate")]
+        public async Task<IActionResult> ActivatePaymentIntegration([FromRoute] int integrationId, 
+                                                                    [FromRoute] int accountId,
+                                                                    [FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicPaymentIntegrationService.ActivatePaymentIntegrationAsync(userId ?? string.Empty, integrationId, accountId, clinicId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpPatch("{integrationId}/online-payment-accounts/{accountId}/clinics/{clinicId}/deactivate")]
+        public async Task<IActionResult> DeactivatePaymentIntegration([FromRoute] int integrationId, 
+                                                                      [FromRoute] int accountId,
+                                                                      [FromRoute] int clinicId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicPaymentIntegrationService.DeactivatePaymentIntegrationAsync(userId ?? string.Empty, integrationId, accountId, clinicId);
+            return Ok(response);
+        }
+
+
+
+
     }
 }

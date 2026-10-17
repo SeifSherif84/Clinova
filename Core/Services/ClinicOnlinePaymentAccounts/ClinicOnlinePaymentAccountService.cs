@@ -14,6 +14,7 @@ using Services.Specifications.ClinicOnlinePaymentAccounts;
 using Services.Specifications.ClinicPaymentIntegrations;
 using Shared.Dtos.ClinicOnlinePaymentAccounts;
 using Shared.Dtos.ClinicPaymentIntegrations;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,6 @@ namespace Services.ClinicOnlinePaymentAccounts
         }
 
 
-
         public async Task<string> UpdatePaymobAccountAsync(string userId, int accountId, int clinicId, UpdatePaymobAccountRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.PublicKey) &&
@@ -85,21 +85,22 @@ namespace Services.ClinicOnlinePaymentAccounts
                 throw new BadRequestException("The specified account is not a Paymob account.");
 
 
-            if (!string.IsNullOrWhiteSpace(request.PublicKey))
+            if (!string.IsNullOrWhiteSpace(request.PublicKey) && existingOnlinePaymentAccount.PublicKey != request.PublicKey)
                 existingOnlinePaymentAccount.PublicKey = request.PublicKey.Trim();
 
-            if (!string.IsNullOrWhiteSpace(request.SecretKey))
+            if (!string.IsNullOrWhiteSpace(request.SecretKey) && existingOnlinePaymentAccount.SecretKey != request.SecretKey)
                 existingOnlinePaymentAccount.SecretKey = _credentialProtector.Encrypt(request.SecretKey.Trim());
 
-            if (!string.IsNullOrWhiteSpace(request.HmacSecret))
+            if (!string.IsNullOrWhiteSpace(request.HmacSecret) && existingOnlinePaymentAccount.HmacSecret != request.HmacSecret)
                 existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.HmacSecret.Trim());
 
-            if (!string.IsNullOrWhiteSpace(request.ApiKey))
+            if (!string.IsNullOrWhiteSpace(request.ApiKey) && existingOnlinePaymentAccount.ApiKey != request.ApiKey)
                 existingOnlinePaymentAccount.ApiKey = _credentialProtector.Encrypt(request.ApiKey.Trim());
 
 
             // Any credential change requires verification again.
-            existingOnlinePaymentAccount.Status = OnlinePaymentAccountStatus.PendingVerification;
+            if(existingOnlinePaymentAccount.Status != OnlinePaymentAccountStatus.PendingVerification)
+                existingOnlinePaymentAccount.Status = OnlinePaymentAccountStatus.PendingVerification;
 
             int result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -124,9 +125,9 @@ namespace Services.ClinicOnlinePaymentAccounts
             {
                 Id = account.Id,
                 Provider = account.Provider.ToString(),
-                //MerchantId = account.MerchantId,
                 Status = account.Status.ToString(),
                 IsReady = account.Status == OnlinePaymentAccountStatus.Ready,
+                IsActive = account.IsActive,
                 Integrations = account.PaymentIntegrations.Select(integration => new ClinicPaymentIntegrationResponse()
                 {
                     Id = integration.Id,
@@ -137,6 +138,99 @@ namespace Services.ClinicOnlinePaymentAccounts
             });
 
             return response;
+        }
+
+
+        public async Task<string> DeletePaymentAccountAsync(string userId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
+            var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ByIdWithPaymentsAndIntegrations(accountId);
+            var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
+            if (existingOnlinePaymentAccount is null)
+                throw new NotFoundException("The specified payment account was not found.");
+
+            if (existingOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment account does not belong to this clinic.");
+
+
+            if (existingOnlinePaymentAccount.Payments.Any())
+            {
+                throw new BadRequestException(
+                    "This payment account cannot be deleted because it has existing payments. Please deactivate it instead.");
+            }
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            foreach (var integration in existingOnlinePaymentAccount.PaymentIntegrations)
+            {
+                paymentIntegrationRepo.Delete(integration);
+            }
+
+            onlinePaymentAccountRepo.Delete(existingOnlinePaymentAccount);
+
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to delete the Paymob account.");
+
+            return "The Paymob account and its integrations were deleted successfully.";
+        }
+
+
+        public async Task<string> ActivatePaymentAccountAsync(string userId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
+            var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ById(accountId);
+            var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
+
+            if (existingOnlinePaymentAccount is null)
+                throw new NotFoundException("The specified payment account was not found.");
+
+            if (existingOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment account does not belong to this clinic.");
+
+
+            if (existingOnlinePaymentAccount.IsActive)
+                return "The payment account is already active.";
+
+            // Record the doctor's permission to use this account.
+            // The account does NOT need to be Ready at this stage.
+            existingOnlinePaymentAccount.IsActive = true;
+
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to activate the payment account.");
+
+            return "The payment account has been activated successfully.";
+        }
+
+
+        public async Task<string> DeactivatePaymentAccountAsync(string userId, int accountId, int clinicId)
+        {
+            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
+
+            var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
+            var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ById(accountId);
+            var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
+
+            if (existingOnlinePaymentAccount is null)
+                throw new NotFoundException("The specified payment account was not found.");
+
+            if (existingOnlinePaymentAccount.ClinicId != clinicId)
+                throw new BadRequestException("The specified payment account does not belong to this clinic.");
+
+            if (!existingOnlinePaymentAccount.IsActive)
+                return "The payment account is already inactive.";
+
+            existingOnlinePaymentAccount.IsActive = false;
+
+            int result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("Failed to deactivate the payment account.");
+
+            return "The payment account has been deactivated successfully.";
         }
 
 
@@ -172,5 +266,7 @@ namespace Services.ClinicOnlinePaymentAccounts
                 IsOwner = doctorClinic.IsOwner,
             };
         }
+
+
     }
 }

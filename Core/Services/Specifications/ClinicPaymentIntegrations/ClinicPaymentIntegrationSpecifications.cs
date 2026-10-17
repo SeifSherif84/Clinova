@@ -23,5 +23,16 @@ namespace Services.Specifications.ClinicPaymentIntegrations
                                                  paymentIntegration.PaymentMethod == paymentMethod,
             };
         }
+
+        public static ClinicPaymentIntegrationSpecifications ById(int integrationId)
+        {
+            var specification = new ClinicPaymentIntegrationSpecifications()
+            {
+                Criteria = paymentIntegration => paymentIntegration.Id == integrationId
+            };
+
+            specification.Includes.Add(paymentIntegration => paymentIntegration.ClinicOnlinePaymentAccount);
+            return specification;
+        }
     }
 }

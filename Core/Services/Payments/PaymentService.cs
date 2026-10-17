@@ -121,6 +121,9 @@ namespace Services.Payments
             if (paymobAccount.Status == OnlinePaymentAccountStatus.NotConfigured)
                 throw new BadRequestException("Online payment is not configured for this clinic.");
 
+            if (!paymobAccount.IsActive)
+                throw new BadRequestException("Online payment is currently unavailable for this clinic.");
+
 
             var integrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
             var integrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(paymobAccount.Id, request.PaymentMethod);

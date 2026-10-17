@@ -11,6 +11,7 @@ namespace Shared.Dtos.ClinicManualPaymentMethods
     public class AddClinicManualPaymentMethodRequest
     {
         [Required]
+        [EnumDataType(typeof(ManualPaymentMethodType))]
         public ManualPaymentMethodType Type { get; set; }
 
         [Required]

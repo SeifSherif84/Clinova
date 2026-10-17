@@ -15,13 +15,16 @@ namespace Persistence.Data.Configurations
         {
             builder.HasKey(payment => payment.Id);
 
-            builder.Property(payment => payment.Id).UseIdentityColumn(1, 1);
+            builder.Property(payment => payment.Id)
+                   .UseIdentityColumn(1, 1);
 
             builder.Property(x => x.Amount)
                    .HasPrecision(18, 2)
                    .IsRequired();
 
-            builder.Property(payment => payment.RejectionReason).HasColumnType("varchar").HasMaxLength(200);
+            builder.Property(payment => payment.SecretaryRejectionReason)
+                   .HasColumnType("varchar")
+                   .HasMaxLength(200);
 
             builder.HasOne(payment => payment.Appointment)
                    .WithOne(appointment => appointment.Payment)

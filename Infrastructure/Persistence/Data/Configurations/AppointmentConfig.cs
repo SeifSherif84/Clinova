@@ -24,9 +24,19 @@ namespace Persistence.Data.Configurations
             builder.Property(appointment => appointment.DepositAmount).HasColumnType("decimal(18,2)");
             builder.Property(appointment => appointment.RemainingAmount).HasColumnType("decimal(18,2)");
 
+            builder.Property(appointment => appointment.GuestPatientName)
+                   .HasColumnType("varchar")
+                   .HasMaxLength(100)
+                   .IsRequired(false);
+
+            builder.Property(appointment => appointment.GuestPatientPhone)
+                   .HasColumnType("varchar")
+                   .HasMaxLength(11)
+                   .IsRequired(false);
+
             builder.HasIndex(appointment => appointment.AppointmentSlotId)
                    .IsUnique()
-                   .HasFilter("[Status] IN (1, 2)");
+                   .HasFilter("[Status] IN (1, 2, 3)");
 
             builder.Property(appointment => appointment.RowVersion)
                    .IsRowVersion()
