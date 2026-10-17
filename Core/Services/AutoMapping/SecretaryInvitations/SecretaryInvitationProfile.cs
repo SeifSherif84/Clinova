@@ -20,7 +20,7 @@ namespace Services.AutoMapping.SecretaryInvitations
 
 
             CreateMap<SecretaryInvitation, ReceivedSecretaryInvitationResponse>()
-                .ForMember(dest => dest.SenderName, config => config.MapFrom(src => $"{src.DoctorSender.FirstName} {src.DoctorSender.LastName}"))
+                .ForMember(dest => dest.SenderName, config => config.MapFrom(src => $"Dr. {src.DoctorSender.FirstName} {src.DoctorSender.LastName}"))
                 .ForMember(dest => dest.ClinicName, config => config.MapFrom(src => src.Clinic.Name))
                 .ForMember(dest => dest.Status, config => config.MapFrom(src => src.Status.ToString()));
         }

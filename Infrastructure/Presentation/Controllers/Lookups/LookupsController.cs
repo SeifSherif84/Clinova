@@ -15,7 +15,7 @@ namespace Presentation.Controllers.Enums
     [Route("api/lookups")]
     public class LookupsController(IServiceManager _serviceManager)  : ControllerBase
     {
-        [Authorize(Roles = "Doctor")]
+        [Authorize]
         [HttpGet("genders")] // Get api/lookups/genders
         public IActionResult GetGenders()
         {

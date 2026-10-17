@@ -84,23 +84,40 @@ namespace Services.ClinicOnlinePaymentAccounts
             if (existingOnlinePaymentAccount.Provider != OnlinePaymentProvider.Paymob)
                 throw new BadRequestException("The specified account is not a Paymob account.");
 
+            bool hasChanges = false;
 
             if (!string.IsNullOrWhiteSpace(request.PublicKey) && existingOnlinePaymentAccount.PublicKey != request.PublicKey)
+            {
                 existingOnlinePaymentAccount.PublicKey = request.PublicKey.Trim();
+                hasChanges = true;
+            }
+                
 
             if (!string.IsNullOrWhiteSpace(request.SecretKey) && existingOnlinePaymentAccount.SecretKey != request.SecretKey)
+            {
                 existingOnlinePaymentAccount.SecretKey = _credentialProtector.Encrypt(request.SecretKey.Trim());
+                hasChanges = true;
+            }
+
 
             if (!string.IsNullOrWhiteSpace(request.HmacSecret) && existingOnlinePaymentAccount.HmacSecret != request.HmacSecret)
+            {
                 existingOnlinePaymentAccount.HmacSecret = _credentialProtector.Encrypt(request.HmacSecret.Trim());
+                hasChanges = true;
+            }
+            
 
             if (!string.IsNullOrWhiteSpace(request.ApiKey) && existingOnlinePaymentAccount.ApiKey != request.ApiKey)
+            {
                 existingOnlinePaymentAccount.ApiKey = _credentialProtector.Encrypt(request.ApiKey.Trim());
+                hasChanges = true;
+            }
 
 
-            // Any credential change requires verification again.
-            if(existingOnlinePaymentAccount.Status != OnlinePaymentAccountStatus.PendingVerification)
-                existingOnlinePaymentAccount.Status = OnlinePaymentAccountStatus.PendingVerification;
+            if (!hasChanges)
+                return "No changes were made to the Paymob account credentials.";
+
+            existingOnlinePaymentAccount.Status = OnlinePaymentAccountStatus.PendingVerification;
 
             int result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
