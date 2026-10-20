@@ -39,6 +39,12 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("BookingSource")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookingType")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ConsultationFee")
                         .HasColumnType("decimal(18,2)");
 
@@ -86,7 +92,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("AppointmentSlotId")
                         .IsUnique()
-                        .HasFilter("[Status] IN (1, 2)");
+                        .HasFilter("[Status] IN (1, 2, 3)");
 
                     b.HasIndex("PatientId");
 
@@ -482,6 +488,9 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("ManualPaymentProofUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("MethodType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
@@ -552,6 +561,9 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("ManualRefundTransactionReference")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("Method")
+                        .HasColumnType("int");
 
                     b.Property<string>("OriginalTransactionId")
                         .HasMaxLength(100)

@@ -150,14 +150,14 @@ namespace Services.ClinicManualPaymentMethods
 
         public async Task<string> DeleteManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
             var specification = ClinicManualPaymentMethodSpecifications.ByIdWithPayments(paymentMethodId);
             var paymentMethod = await paymentMethodRepo.GetByIdAsync(specification);
 
             if (paymentMethod is null)
                 throw new NotFoundException("The payment method you are trying to delete does not exist.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, paymentMethod.ClinicId);
 
             if (paymentMethod.ClinicId != clinicId)
                 throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");

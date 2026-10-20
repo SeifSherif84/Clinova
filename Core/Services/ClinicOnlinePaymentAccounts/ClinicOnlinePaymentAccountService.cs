@@ -70,13 +70,13 @@ namespace Services.ClinicOnlinePaymentAccounts
                     "Please provide at least one field to update.");
             }
 
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
             var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(accountId);
 
             if (existingOnlinePaymentAccount is null)
                 throw new NotFoundException("The specified online payment account was not found.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, existingOnlinePaymentAccount.ClinicId);
 
             if (existingOnlinePaymentAccount.ClinicId != clinicId)
                 throw new BadRequestException("The specified online payment account does not belong to this clinic.");
@@ -160,23 +160,19 @@ namespace Services.ClinicOnlinePaymentAccounts
 
         public async Task<string> DeletePaymentAccountAsync(string userId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
             var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ByIdWithPaymentsAndIntegrations(accountId);
             var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
             if (existingOnlinePaymentAccount is null)
                 throw new NotFoundException("The specified payment account was not found.");
 
+            await GetDoctorOwnedClinicAccessAsync(userId, existingOnlinePaymentAccount.ClinicId);
+
             if (existingOnlinePaymentAccount.ClinicId != clinicId)
                 throw new BadRequestException("The specified payment account does not belong to this clinic.");
 
-
             if (existingOnlinePaymentAccount.Payments.Any())
-            {
-                throw new BadRequestException(
-                    "This payment account cannot be deleted because it has existing payments. Please deactivate it instead.");
-            }
+                throw new BadRequestException("This payment account cannot be deleted because it has existing payments. Please deactivate it instead.");
 
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
             foreach (var integration in existingOnlinePaymentAccount.PaymentIntegrations)
@@ -196,8 +192,6 @@ namespace Services.ClinicOnlinePaymentAccounts
 
         public async Task<string> ActivatePaymentAccountAsync(string userId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
             var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ById(accountId);
             var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
@@ -205,9 +199,10 @@ namespace Services.ClinicOnlinePaymentAccounts
             if (existingOnlinePaymentAccount is null)
                 throw new NotFoundException("The specified payment account was not found.");
 
+            await GetDoctorOwnedClinicAccessAsync(userId, existingOnlinePaymentAccount.ClinicId);
+
             if (existingOnlinePaymentAccount.ClinicId != clinicId)
                 throw new BadRequestException("The specified payment account does not belong to this clinic.");
-
 
             if (existingOnlinePaymentAccount.IsActive)
                 return "The payment account is already active.";
@@ -226,20 +221,26 @@ namespace Services.ClinicOnlinePaymentAccounts
 
         public async Task<string> DeactivatePaymentAccountAsync(string userId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
-            var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ById(accountId);
+            var onlinePaymentAccountSpec = ClinicOnlinePaymentAccountSpecifications.ByIdWithIntegrations(accountId);
             var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(onlinePaymentAccountSpec);
 
             if (existingOnlinePaymentAccount is null)
                 throw new NotFoundException("The specified payment account was not found.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, existingOnlinePaymentAccount.ClinicId);
 
             if (existingOnlinePaymentAccount.ClinicId != clinicId)
                 throw new BadRequestException("The specified payment account does not belong to this clinic.");
 
             if (!existingOnlinePaymentAccount.IsActive)
                 return "The payment account is already inactive.";
+
+            var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
+            foreach (var integration in existingOnlinePaymentAccount.PaymentIntegrations)
+            {
+                integration.IsActive = false;
+            }
 
             existingOnlinePaymentAccount.IsActive = false;
 

@@ -29,7 +29,7 @@ namespace Presentation.Controllers.Payments
 
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("clinics/{clinicId}/configuration")]
+        [HttpGet("configuration/clinics/{clinicId}")]
         public async Task<IActionResult> GetPaymentConfigurationStatus([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

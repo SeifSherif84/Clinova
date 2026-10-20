@@ -12,8 +12,12 @@ namespace Shared.Dtos.Appointments
     public class ConfirmManualRefundRequest
     {
         [Required]
+        [EnumDataType(typeof(ManualRefundMethod))]
+        public ManualRefundMethod ManualRefundMethod { get; set; }
+
+
         [AllowedImage]
-        public IFormFile ManualRefundProof { get; set; } = null!;
+        public IFormFile? ManualRefundProof { get; set; }
 
 
         [StringLength(100)]

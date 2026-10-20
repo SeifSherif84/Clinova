@@ -13,8 +13,8 @@ namespace Services.Abstractions.Appointments
         Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request);
         Task<IEnumerable<PatientAppointmentResponse>> GetPatientAppointmentsAsync(string userId);
         Task<PatientAppointmentDetailsResponse> GetPatientAppointmentDetailsAsync(string userId, int appointmentId);
-        Task<CancelAppointmentResponse> CancelAppointmentByPatientAsync(string userId, int appointmentId);
-        CancellationPolicyResponse GetCancellationPolicyAsync();
+        Task<string> CancelAppointmentByPatientAsync(string userId, int appointmentId);
+        CancellationPolicyResponse GetCancellationPolicy();
 
         Task ExpirePendingAppointmentsAsync();
 
@@ -25,7 +25,15 @@ namespace Services.Abstractions.Appointments
         Task<string> PatientSubmitManualPaymentProofAsync(string userId, int appointmentId, SubmitManualPaymentProofRequest request);
         Task<string> ApproveManualPaymentAsync(string userId, int appointmentId);
         Task<string> RejectManualPaymentAsync(string userId, int appointmentId, RejectManualPaymentRequest request);
-        Task<CancelAppointmentResponse> CancelAppointmentBySecretaryAsync(string secretaryId, int appointmentId);
+
+
+
+        Task<string> CancelAppointmentBySecretaryRequestedByClinicOrDoctorAsync(string secretaryId, int appointmentId);
+        Task<string> CancelAppointmentBySecretaryRequestedByPatientAsync(string secretaryId, int appointmentId, CancelGuestAppointmentBySecretaryRequestedByPatientRequest request);
+        
+
+
+
         Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId);
         Task<string> SecretaryMarkAppointmentNoShowAsync(string secretaryId, int appointmentId);
         Task<string> SecretaryConfirmManualRefundAsync(string secretaryId, int appointmentId, ConfirmManualRefundRequest request);
@@ -33,6 +41,10 @@ namespace Services.Abstractions.Appointments
 
         Task<GuestAppointmentReservationCheckout> SecretaryCreateGuestReservationAsync(string secretaryId, int appointmentSlotId, CreateGuestReservationRequest request);
         Task<string> SecretaryConfirmGuestReservationPaymentAsync(string secretaryId, int appointmentId, ConfirmGuestReservationPaymentRequest request);
-        Task<string> SecretaryCancelPendingGuestReservationAsync(string secretaryId, int appointmentId);
+        Task<string> SecretaryCancelPendingGuestReservationBeforePaymentAsync(string secretaryId, int appointmentId);
+
+
+        Task<string> RescheduleAppointmentByPatientAsync(string userId, int appointmentId, RescheduleAppointmentRequest request);
+        Task<string> RescheduleAppointmentBySecretaryAsync(string userId, int appointmentId, RescheduleAppointmentRequest request);
     }
 }

@@ -284,8 +284,6 @@ namespace Services.Payments
 
 
 
-
-
         public async Task HandlePaymobTransactionCallbackAsync(PaymobTransactionCallbackRequest request, string hmac)
         {
             // --------------------------------------------------
@@ -431,7 +429,6 @@ namespace Services.Payments
 
 
 
-
         private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(Payment payment, RefundReason reason)
         {
             var refundResult = await _refundService.RefundPaymentAsync(payment.Id, reason);
@@ -450,7 +447,6 @@ namespace Services.Payments
 
             throw new InternalServerErrorException(refundResult.ErrorMessage ?? "The payment was successful, but the refund could not be completed.");
         }
-
 
 
 
@@ -484,6 +480,7 @@ namespace Services.Payments
 
             payment.Status = PaymentStatus.Paid;
             payment.PaidAt = DateTime.UtcNow;
+            payment.MethodType = PaymentMethodType.Paymob;
             payment.ProviderTransactionId = transaction.Id.ToString();
             payment.TransactionReference = transaction.Id.ToString();
 
@@ -573,7 +570,6 @@ namespace Services.Payments
 
 
 
-
         private async Task HandleFailedPaymentAsync(Payment payment, PaymobTransactionCallbackObject transaction)
         {
             // --------------------------------------------------
@@ -650,9 +646,6 @@ namespace Services.Payments
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
 
-
-            // Only clinic owner can manage/view
-            // the clinic payment configuration.
             await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
 

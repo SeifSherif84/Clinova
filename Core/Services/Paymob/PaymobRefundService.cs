@@ -194,6 +194,7 @@ namespace Services.Paymob
                 {
                     existingRefund.Status = RefundStatus.Processing;
                     existingRefund.Reason = reason;
+                    existingRefund.Method = RefundMethod.Paymob;
                     existingRefund.Amount = refundAmount;
                     existingRefund.OriginalTransactionId = payment.ProviderTransactionId;
                     existingRefund.RequestedAt = DateTime.UtcNow;
@@ -218,6 +219,7 @@ namespace Services.Paymob
                     PaymentId = payment.Id,
                     IdempotencyKey = $"refund-payment-{payment.Id}",
                     Reason = reason,
+                    Method = RefundMethod.Paymob,
                     Status = RefundStatus.Processing,
                     Amount = refundAmount,
                     OriginalTransactionId = payment.ProviderTransactionId,

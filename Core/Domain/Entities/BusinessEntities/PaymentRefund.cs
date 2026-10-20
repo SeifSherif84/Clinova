@@ -22,8 +22,8 @@ namespace Domain.Entities.BusinessEntities
 
 
         public RefundReason Reason { get; set; }
-
         public RefundStatus Status { get; set; }
+        public RefundMethod? Method { get; set; }
 
 
         /// <summary>
@@ -54,8 +54,9 @@ namespace Domain.Entities.BusinessEntities
 
 
         // Manual refund evidence
-        public string? ManualRefundTransactionReference { get; set; }
         public string? ManualRefundProofUrl { get; set; }
+        public string? ManualRefundTransactionReference { get; set; }
+
 
 
         /// <summary>

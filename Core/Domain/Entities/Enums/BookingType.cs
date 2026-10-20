@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Dtos.Appointments
+namespace Domain.Entities.Enums
 {
-    public enum GuestBookingType
+    public enum BookingType
     {
         Advance = 1,
         WalkIn = 2

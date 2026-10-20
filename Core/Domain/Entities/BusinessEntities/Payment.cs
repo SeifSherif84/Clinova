@@ -13,6 +13,8 @@ namespace Domain.Entities.BusinessEntities
         // Payment Amount
         public decimal Amount { get; set; }
 
+        public PaymentMethodType? MethodType { get; set; }
+
 
         // Payment Information
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -13,6 +13,9 @@ namespace Domain.Entities.BusinessEntities
         // Booking Information
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
 
+        public BookingSource BookingSource { get; set; }
+        public BookingType BookingType { get; set; }
+
 
         // Appointment Status
         public AppointmentStatus Status { get; set; } = AppointmentStatus.PendingPayment;

@@ -18,15 +18,18 @@ namespace Services.Abstractions.AppointmentSlots
 
 
 
-        //Task<IEnumerable<AvailableAppointmentSlotResponse>> GetAvailableAppointmentSlotsAsync(string userId,
-        //                                                                                      string doctorId,
-        //                                                                                      int clinicId,
-        //                                                                                      GetAvailableAppointmentSlotRequest request);
+        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotForPatientAppointmentAsync(string userId, string doctorId, int clinicId, DoctorDaysWhichHaveAvailableSlotRequest request);
+        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDayForPatientAppointmentAsync(string userId, string doctorId, int clinicId, DoctorAvailableAppointmentSlotsExistInSpecificDayRequest request);
+
+        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotForGuestReservationAsync(string userId, string doctorId, DoctorDaysWhichHaveAvailableSlotRequest request);
+        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDayForGuestReservationAsync(string userId, string doctorId, DoctorAvailableAppointmentSlotsExistInSpecificDayRequest request);
 
 
 
-        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotAsync(string userId, string doctorId, DoctorDaysWhichHaveAvailableSlotRequest request);
+        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotForPatientRescheduleAsync(string userId, int appointmentId, DoctorDaysWhichHaveAvailableSlotRequest request);
+        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDayForPatientRescheduleAsync(string userId, int appointmentId, DoctorAvailableAppointmentSlotsExistInSpecificDayRequest request);
 
-        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDateAsync(string userId, string doctorId, AvailableAppointmentSlotsExistInSpecificDateRequest request);
+        Task<IEnumerable<DoctorDaysWhichHaveAvailableSlotResponse>> GetDoctorDaysWhichHaveAvailableSlotForSecretaryRescheduleAsync(string userId, int appointmentId, DoctorDaysWhichHaveAvailableSlotRequest request);
+        Task<IEnumerable<AvailableAppointmentSlotsExistInSpecificDateResponse>> GetAvailableAppointmentSlotsExistInSpecificDayForSecretaryRescheduleAsync(string userId, int appointmentId, DoctorAvailableAppointmentSlotsExistInSpecificDayRequest request);
     }
 }

@@ -51,7 +51,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Patient")]
-        [HttpPatch("{appointmentId}/patient-cancel")] // Patch: /api/appointments/{appointmentId}/patient-cancel
+        [HttpPatch("{appointmentId}/cancel")] // Patch: /api/appointments/{appointmentId}/cancel
         public async Task<IActionResult> CancelAppointmentByPatient([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -74,14 +74,14 @@ namespace Presentation.Controllers.Appointments
         [HttpGet("cancellation-policy")] // Get: /api/appointments/cancellation-policy
         public IActionResult GetCancellationPolicy()
         {
-            var response = _serviceManager.AppointmentService.GetCancellationPolicyAsync();
+            var response = _serviceManager.AppointmentService.GetCancellationPolicy();
             return Ok(response);
         }
 
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpGet("management")] // Get: /api/appointments?date=2024-06-01&status=Pending&pageNumber=1&pageSize=10
+        [HttpGet("management")] // Get: /api/appointments/management
         public async Task<IActionResult> GetClinicAppointmentsForSecretary([FromQuery] SecretaryAppointmentQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -92,7 +92,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpGet("{appointmentId}/management")] // Get: /api/appointments/{appointmentId}
+        [HttpGet("{appointmentId}/management")] // Get: /api/appointments/{appointmentId}/management
         public async Task<IActionResult> GetClinicAppointmentDetailsForSecretary([FromRoute] int appointmentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -135,11 +135,22 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/secretary-cancel")] // Patch: /api/appointments/{appointmentId}/secretary-cancel
-        public async Task<IActionResult> CancelAppointmentBySecretary([FromRoute] int appointmentId)
+        [HttpPatch("{appointmentId}/cancellation/clinic-request")] 
+        public async Task<IActionResult> CancelAppointmentBySecretaryRequestedByClinicOrDoctor([FromRoute] int appointmentId)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.CancelAppointmentBySecretaryAsync(secretaryId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.CancelAppointmentBySecretaryRequestedByClinicOrDoctorAsync(secretaryId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/cancellation/patient-request")]
+        public async Task<IActionResult> CancelAppointmentBySecretaryRequestedByPatient([FromRoute] int appointmentId,
+                                                                                        [FromBody] CancelGuestAppointmentBySecretaryRequestedByPatientRequest request)
+        {
+            var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.CancelAppointmentBySecretaryRequestedByPatientAsync(secretaryId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
 
@@ -188,7 +199,8 @@ namespace Presentation.Controllers.Appointments
 
         [Authorize(Roles = "Secretary")]
         [HttpPost("{appointmentId}/guest-checkout/confirm-payment")]
-        public async Task<IActionResult> SecretaryConfirmGuestReservationPayment([FromRoute] int appointmentId, [FromBody] ConfirmGuestReservationPaymentRequest request)
+        public async Task<IActionResult> SecretaryConfirmGuestReservationPayment([FromRoute] int appointmentId,
+                                                                                 [FromBody] ConfirmGuestReservationPaymentRequest request)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.AppointmentService.SecretaryConfirmGuestReservationPaymentAsync(secretaryId ?? string.Empty, appointmentId, request);
@@ -198,11 +210,32 @@ namespace Presentation.Controllers.Appointments
 
         [Authorize(Roles = "Secretary")]
         [HttpDelete("{appointmentId}/guest-checkout/Cancel-payment")]
-        public async Task<IActionResult> SecretaryCancelPendingGuestReservation([FromRoute] int appointmentId)
+        public async Task<IActionResult> SecretaryCancelPendingGuestReservationWithoutPayment([FromRoute] int appointmentId)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.SecretaryCancelPendingGuestReservationAsync(secretaryId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.SecretaryCancelPendingGuestReservationBeforePaymentAsync(secretaryId ?? string.Empty, appointmentId);
             return Ok(response);
+        }
+
+
+
+        [Authorize(Roles = "Patient")]
+        [HttpPatch("{appointmentId}/reschedule")]
+        public async Task<IActionResult> RescheduleAppointmentByPatient([FromRoute] int appointmentId, [FromBody] RescheduleAppointmentRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.RescheduleAppointmentByPatientAsync(userId ?? string.Empty, appointmentId, request);
+            return Ok(new { message = response });
+        }
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/management/reschedule")]
+        public async Task<IActionResult> RescheduleAppointmentBySecretary([FromRoute] int appointmentId, [FromBody] RescheduleAppointmentRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.RescheduleAppointmentBySecretaryAsync(userId ?? string.Empty, appointmentId, request);
+            return Ok(new { message = response });
         }
 
     }

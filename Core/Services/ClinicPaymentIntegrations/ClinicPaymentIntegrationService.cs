@@ -24,10 +24,6 @@ namespace Services.ClinicPaymentIntegrations
         {
             await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
 
-            if (!Enum.IsDefined<OnlinePaymentMethod>(request.PaymentMethod))
-                throw new BadRequestException("Invalid online payment method.");
-
-
             var onlinePaymentAccountRepo = _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>();
             var existingOnlinePaymentAccount = await onlinePaymentAccountRepo.GetByIdAsync(accountId);
 
@@ -42,7 +38,6 @@ namespace Services.ClinicPaymentIntegrations
 
             if (existingOnlinePaymentAccount.Provider != OnlinePaymentProvider.Paymob)
                 throw new BadRequestException("The specified account is not a Paymob account.");
-
 
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
             var existingIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(existingOnlinePaymentAccount.Id, request.PaymentMethod);
@@ -62,7 +57,6 @@ namespace Services.ClinicPaymentIntegrations
             await paymentIntegrationRepo.AddAsync(paymentIntegration);
 
             int result = await _unitOfWork.SaveChangesAsync();
-
             if (result == 0)
                 throw new InternalServerErrorException("Failed to add the Paymob payment integration.");
 
@@ -71,15 +65,15 @@ namespace Services.ClinicPaymentIntegrations
 
         public async Task<string> UpdatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId, UpdateClinicPaymentIntegrationRequest request)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByIdWithAccount(integrationId);
             var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
             if (existingIntegration is null)
                 throw new NotFoundException("The specified payment integration was not found.");
 
-            if(existingIntegration.ClinicOnlinePaymentAccountId != accountId)
+            await GetDoctorOwnedClinicAccessAsync(userId, existingIntegration.ClinicOnlinePaymentAccount.ClinicId);
+
+            if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
                 throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
 
             if (existingIntegration.ClinicOnlinePaymentAccount is null)
@@ -105,13 +99,13 @@ namespace Services.ClinicPaymentIntegrations
 
         public async Task<string> DeletePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByIdWithAccount(integrationId);
             var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
             if (existingIntegration is null)
                 throw new NotFoundException("The specified payment integration was not found.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, existingIntegration.ClinicOnlinePaymentAccount.ClinicId);
 
             if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
                 throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
@@ -132,13 +126,13 @@ namespace Services.ClinicPaymentIntegrations
 
         public async Task<string> ActivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByIdWithAccount(integrationId);
             var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
             if (existingIntegration is null)
                 throw new NotFoundException("The specified payment integration was not found.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, existingIntegration.ClinicOnlinePaymentAccount.ClinicId);
 
             if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
                 throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");
@@ -152,6 +146,9 @@ namespace Services.ClinicPaymentIntegrations
             if (existingIntegration.IsActive)
                 return "The specified payment integration is already active.";
 
+            if (!existingIntegration.ClinicOnlinePaymentAccount.IsActive)
+                throw new BadRequestException("The associated online payment account is not active. Please activate the online payment account first.");
+
             existingIntegration.IsActive = true;
             int result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -162,13 +159,13 @@ namespace Services.ClinicPaymentIntegrations
 
         public async Task<string> DeactivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
         {
-            await GetDoctorOwnedClinicAccessAsync(userId, clinicId);
-
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ById(integrationId);
+            var paymentIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByIdWithAccount(integrationId);
             var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(paymentIntegrationSpec);
             if (existingIntegration is null)
                 throw new NotFoundException("The specified payment integration was not found.");
+
+            await GetDoctorOwnedClinicAccessAsync(userId, existingIntegration.ClinicOnlinePaymentAccount.ClinicId);
 
             if (existingIntegration.ClinicOnlinePaymentAccountId != accountId)
                 throw new BadRequestException("The specified payment integration does not belong to the specified online payment account.");

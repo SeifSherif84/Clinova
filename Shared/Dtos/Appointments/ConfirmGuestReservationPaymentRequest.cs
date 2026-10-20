@@ -9,7 +9,12 @@ namespace Shared.Dtos.Appointments
 {
     public class ConfirmGuestReservationPaymentRequest
     {
+        [Required]
+        [EnumDataType(typeof(GuestReservationPaymentMethod))]
+        public GuestReservationPaymentMethod GuestReservationPaymentMethod { get; set; }
+
+
         [Range(1, int.MaxValue)]
-        public int ClinicManualPaymentMethodId { get; set; }
+        public int? ClinicManualPaymentMethodId { get; set; }
     }
 }

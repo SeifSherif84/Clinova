@@ -72,7 +72,7 @@ namespace Services
         public IDoctorInvitationService InvitationService { get; } = new DoctorInvitationService(_userManager, _unitOfWork, _mapper, _notificationService);
         public INotificationService NotificationService { get; } = new NotificationService(_unitOfWork, _mapper, _notificationPublisher);
         public IWorkingHourService WorkingHourService { get; } = new WorkingHourService(_unitOfWork, _mapper, _appointmentSlotService);
-        public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration, _mapper);
+        public IAppointmentSlotService AppointmentSlotService { get; } = new AppointmentSlotService(_unitOfWork, _configuration);
         public IPatientService PatientService { get; } = new PatientService(_unitOfWork, _mapper);
         public IClinicManualPaymentMethodService ClinicManualPaymentMethodService { get; } = new ClinicManualPaymentMethodService(_unitOfWork, _mapper);
         public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _cancellationPolicy, _paymobRefundService, _notificationService);

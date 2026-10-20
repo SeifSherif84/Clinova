@@ -1,4 +1,5 @@
-﻿using Shared.Attributes;
+﻿using Domain.Entities.Enums;
+using Shared.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,8 +12,8 @@ namespace Shared.Dtos.Appointments
     public class CreateGuestReservationRequest
     {
         [Required]
-        [EnumDataType(typeof(GuestBookingType))]
-        public GuestBookingType BookingType { get; set; }
+        [EnumDataType(typeof(BookingType))]
+        public BookingType BookingType { get; set; }
 
 
         [Required]

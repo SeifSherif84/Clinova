@@ -139,6 +139,7 @@ namespace Services.Specifications.Appointments
 
         public static AppointmentSpecifications ForClinicSecretary(int clinicId,
                                                                    string? doctorName,
+                                                                   string? patientSearch,
                                                                    DateOnly? slotDate,
                                                                    AppointmentStatus? appointmentStatus,
                                                                    PaymentStatus? paymentStatus,
@@ -146,8 +147,6 @@ namespace Services.Specifications.Appointments
                                                                    int pageSize,
                                                                    bool applyPagination)
         {
-            var normalizedDoctorName = string.IsNullOrWhiteSpace(doctorName) ? null : doctorName.Trim();
-
             var specification = new AppointmentSpecifications
             {
                 Criteria = appointment => appointment.AppointmentSlot.ClinicId == clinicId &&
@@ -161,10 +160,22 @@ namespace Services.Specifications.Appointments
                      appointment.Payment.Status == PaymentStatus.Refunded) &&
 
 
-                    (normalizedDoctorName == null || EF.Functions.Like(appointment.AppointmentSlot.Doctor.FirstName +
-                                                                          " " +
-                                                                          appointment.AppointmentSlot.Doctor.LastName,
-                                                                          $"%{normalizedDoctorName}%")) &&
+                    (doctorName == null || EF.Functions.Like(appointment.AppointmentSlot.Doctor.FirstName + " " +
+                                                             appointment.AppointmentSlot.Doctor.LastName,
+                                                             $"%{doctorName}%")) &&
+
+
+                    (patientSearch == null ||
+                    (appointment.Patient != null && EF.Functions.Like(appointment.Patient.FirstName + " " +
+                                                                      appointment.Patient.LastName,
+                                                                      $"%{patientSearch}%")) ||
+
+                    (appointment.PatientId == null && EF.Functions.Like(appointment.GuestPatientName!,
+                                                                        $"%{patientSearch}%")) ||
+
+                    (appointment.PatientId == null && EF.Functions.Like(appointment.GuestPatientPhone!,
+                                                                        $"%{patientSearch}%"))) &&
+
 
                     (!slotDate.HasValue || appointment.AppointmentSlot.Date == slotDate.Value) &&
 

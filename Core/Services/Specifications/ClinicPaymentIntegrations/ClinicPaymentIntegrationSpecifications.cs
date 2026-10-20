@@ -24,7 +24,7 @@ namespace Services.Specifications.ClinicPaymentIntegrations
             };
         }
 
-        public static ClinicPaymentIntegrationSpecifications ById(int integrationId)
+        public static ClinicPaymentIntegrationSpecifications ByIdWithAccount(int integrationId)
         {
             var specification = new ClinicPaymentIntegrationSpecifications()
             {
