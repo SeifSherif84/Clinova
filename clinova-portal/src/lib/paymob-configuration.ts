@@ -12,6 +12,8 @@ export interface PaymobIntegration {
 export interface SavedPaymobConfiguration {
   accountId: number
   status: PaymobStatus
+  // Account-level permission flag; deactivating an account also deactivates its integrations.
+  isActive: boolean
   isReady: boolean
   storedFields: Record<keyof PaymobCredentials, boolean>
   integrations: PaymobIntegration[]
@@ -28,14 +30,14 @@ export function readSavedPaymobConfiguration(value: unknown): SavedPaymobConfigu
   const accounts = value.map(record).filter((item) => item?.provider === 'Paymob')
   if (!accounts.length) return null
   const account = accounts[0]
-  if (accounts.length !== 1 || !account || !positiveInt(account.id) || !paymobStatuses.includes(account.status as PaymobStatus) || typeof account.isReady !== 'boolean' || account.isReady !== (account.status === 'Ready') || !Array.isArray(account.integrations)) throw new Error('Payment settings unavailable')
+  if (accounts.length !== 1 || !account || !positiveInt(account.id) || !paymobStatuses.includes(account.status as PaymobStatus) || typeof account.isReady !== 'boolean' || typeof account.isActive !== 'boolean' || account.isReady !== (account.status === 'Ready') || !Array.isArray(account.integrations)) throw new Error('Payment settings unavailable')
   const integrations = account.integrations.map((value): PaymobIntegration => {
     const item = record(value)
     if (!item || !positiveInt(item.id) || !positiveInt(item.integrationId) || !['Card', 'Wallet'].includes(String(item.paymentMethod)) || typeof item.isActive !== 'boolean') throw new Error('Payment settings unavailable')
     return { id: item.id, paymentMethod: item.paymentMethod as PaymobPaymentMethod, integrationId: item.integrationId, isActive: item.isActive }
   })
   return {
-    accountId: account.id, status: account.status as PaymobStatus, isReady: account.isReady,
+    accountId: account.id, status: account.status as PaymobStatus, isReady: account.isReady, isActive: account.isActive,
     storedFields: { publicKey: true, secretKey: true, hmacSecret: true, apiKey: true }, integrations,
   }
 }
