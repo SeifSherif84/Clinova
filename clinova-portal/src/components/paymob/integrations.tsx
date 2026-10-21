@@ -12,6 +12,7 @@ import { useApi } from '@/hooks/use-api'
 import { paymobQueryKey } from '@/hooks/use-paymob-configuration'
 import { ApiError } from '@/lib/api'
 import type { PaymobPaymentMethod, SavedPaymobConfiguration } from '@/lib/paymob-configuration'
+import { PaymobIntegrationMenu } from './integration-menu'
 import { paymobButtonClass } from './setup-section'
 
 const methods: PaymobPaymentMethod[] = ['Card', 'Wallet']
@@ -115,6 +116,9 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
             <span dir="ltr" title={t('paymob.integrationId')} className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-start font-mono text-sm font-bold">
               <span className="truncate">{integration.integrationId}</span>
             </span>
+          </div>
+          <div className="ms-auto shrink-0">
+            <PaymobIntegrationMenu clinicId={clinicId} accountId={account.accountId} accountActive={account.isActive} integration={integration} refreshing={refreshing} />
           </div>
         </li>
       ))}</ul>

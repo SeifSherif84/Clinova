@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { BookOpen, CreditCard, Link2, PencilLine } from 'lucide-react'
+import { BookOpen, CreditCard, Link2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import type { SavedPaymobConfiguration } from '@/lib/paymob-configuration'
+import { PaymobAccountMenu } from './account-menu'
 import { paymobButtonClass } from './setup-section'
 
 export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: string; configuration: SavedPaymobConfiguration | null }) {
@@ -41,11 +42,12 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="flex items-center gap-3.5 font-sans text-xl font-bold"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><CreditCard className="size-5" /></span>Paymob</h2>
           <span className={'rounded-full border px-2.5 py-1 text-[10px] font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
+          {!configuration.isActive && <span className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{t('paymob.account.inactive')}</span>}
         </div>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('paymob.accountStatusDescription.' + status)}</p>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t(configuration.isActive ? 'paymob.accountStatusDescription.' + status : 'paymob.account.inactiveDescription')}</p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
-        <Button role="link" variant="outline" className={paymobButtonClass + ' border-transparent bg-muted text-foreground hover:bg-foreground/10'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/manage" params={{ clinicId }} />}><PencilLine />{t(status === 'NeedsAttention' ? 'paymob.reviewSettings' : 'paymob.manage')}</Button>
+        <PaymobAccountMenu clinicId={clinicId} account={configuration} />
         <Button role="link" variant="ghost" className={paymobButtonClass} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.setupGuide')}</Button>
       </div>
     </div>

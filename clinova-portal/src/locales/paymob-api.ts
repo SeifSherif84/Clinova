@@ -38,7 +38,7 @@ export const paymobApiEn = {
   "integrationsError": "The integration could not be added. Refresh settings and check that this method is not already configured before trying again.",
   "integrationsAccessError": "Only the clinic owner can add payment integrations.",
   "integrationsDisabled": "This Paymob account is disabled. New payment integrations cannot be added.",
-  "integrationsComplete": "Every supported payment method (Card and Wallet) is linked to this account. Existing integrations cannot be changed here.",
+  "integrationsComplete": "Every supported payment method (Card and Wallet) is linked to this account. Manage each integration from its menu.",
   "integrationsCount": "Integrations on this account: {{count}}",
   "integrationsEmptyTitle": "Your account is connected without an integration",
   "integrationsInactiveTitle": "No active integration on this account",
@@ -67,7 +67,47 @@ export const paymobApiEn = {
     "Find the integration for each payment method you want to accept, such as Card or Wallet.",
     "Copy its Integration ID, then add it from Online Payments in Clinova after your account is connected."
   ],
-  "required": "Complete all four fields and both confirmations before connecting."
+  "required": "Complete all four fields and both confirmations before connecting.",
+  "account": {
+    "edit": "Edit credentials",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete account",
+    "inactive": "Inactive",
+    "inactiveDescription": "This Paymob account is deactivated, so patients can't pay online. Activate it from Manage, then turn on the integrations you want to use.",
+    "keep": "Keep account",
+    "close": "Close",
+    "activated": "Paymob account activated. Turn on the integrations you want patients to use.",
+    "deactivated": "Paymob account deactivated. Its integrations were turned off too.",
+    "deleted": "Paymob account and its integrations deleted. You can connect Paymob again at any time.",
+    "deactivateTitle": "Deactivate this Paymob account?",
+    "deactivateDescription": "Patients won't be able to pay online, and every integration on this account will be turned off. Saved credentials are kept, and you can activate the account again later.",
+    "deleteTitle": "Delete this Paymob account?",
+    "deleteDescription": "This permanently removes the saved credentials and every linked payment integration (Card and Wallet). You'll need to connect Paymob again to accept online payments.",
+    "historyTitle": "Keep the history. Pause the account.",
+    "historyDescription": "This account has existing payments and cannot be deleted. Deactivate it instead to keep its payment history.",
+    "historyInactive": "This account has existing payments and cannot be deleted. It is already inactive, so its payment history is kept.",
+    "accessError": "Only the clinic owner can manage the Paymob account.",
+    "error": "We couldn't update the Paymob account right now. Refresh settings and try again."
+  },
+  "integration": {
+    "manage": "Manage {{method}} integration",
+    "edit": "Edit Integration ID",
+    "delete": "Delete integration",
+    "save": "Save Integration ID",
+    "editTitle": "Edit {{method}} Integration ID",
+    "editDescription": "Paste the new Integration ID from your Paymob dashboard. Changing it puts the account back into verification. To change the payment method, delete this integration and add a new one.",
+    "deleteTitle": "Delete the {{method}} integration?",
+    "deleteDescription": "This permanently removes the {{method}} integration from this account. You can add the method again later.",
+    "updated": "{{method}} Integration ID updated. The account is pending verification again.",
+    "activated": "{{method}} integration activated.",
+    "deactivated": "{{method}} integration deactivated.",
+    "deleted": "{{method}} integration deleted.",
+    "activateAccountFirst": "Activate the account first",
+    "accountInactive": "Activate the Paymob account before turning on its integrations.",
+    "accessError": "Only the clinic owner can manage payment integrations.",
+    "error": "We couldn't update the integration right now. Refresh settings and try again."
+  }
 }
 
 export const paymobApiAr = {
@@ -110,7 +150,7 @@ export const paymobApiAr = {
   "integrationsError": "تعذرت إضافة التكامل. حدّث الإعدادات وتأكد من عدم إعداد هذه الطريقة مسبقاً قبل المحاولة مجدداً.",
   "integrationsAccessError": "يمكن لمالك العيادة فقط إضافة تكاملات الدفع.",
   "integrationsDisabled": "حساب Paymob معطّل. لا يمكن إضافة تكاملات دفع جديدة.",
-  "integrationsComplete": "تم ربط كل طرق الدفع المدعومة (البطاقة والمحفظة) بهذا الحساب. لا يمكن تغيير التكاملات الحالية هنا.",
+  "integrationsComplete": "تم ربط كل طرق الدفع المدعومة (البطاقة والمحفظة) بهذا الحساب. يمكنك إدارة كل تكامل من قائمته.",
   "integrationsCount": "التكاملات على هذا الحساب: {{count}}",
   "integrationsEmptyTitle": "تم ربط حسابك دون أي تكامل",
   "integrationsInactiveTitle": "لا يوجد تكامل نشط على هذا الحساب",
@@ -139,5 +179,45 @@ export const paymobApiAr = {
     "ابحث عن التكامل الخاص بكل طريقة دفع تريد قبولها، مثل Card أو Wallet.",
     "انسخ Integration ID الخاص به، ثم أضفه من صفحة المدفوعات الإلكترونية في Clinova بعد ربط حسابك."
   ],
-  "required": "أكمل الحقول الأربعة وأكّد الموافقتين قبل الربط."
+  "required": "أكمل الحقول الأربعة وأكّد الموافقتين قبل الربط.",
+  "account": {
+    "edit": "تعديل بيانات الاعتماد",
+    "activate": "تفعيل",
+    "deactivate": "إيقاف",
+    "delete": "حذف الحساب",
+    "inactive": "غير نشط",
+    "inactiveDescription": "حساب Paymob هذا موقوف، لذا لا يمكن للمرضى الدفع إلكترونيًا. فعّله من قائمة الإدارة، ثم شغّل التكاملات التي تريد استخدامها.",
+    "keep": "الاحتفاظ بالحساب",
+    "close": "إغلاق",
+    "activated": "تم تفعيل حساب Paymob. شغّل التكاملات التي تريد أن يستخدمها المرضى.",
+    "deactivated": "تم إيقاف حساب Paymob وإيقاف تكاملاته أيضًا.",
+    "deleted": "تم حذف حساب Paymob وتكاملاته. يمكنك ربط Paymob مجددًا في أي وقت.",
+    "deactivateTitle": "إيقاف حساب Paymob هذا؟",
+    "deactivateDescription": "لن يتمكن المرضى من الدفع إلكترونيًا، وسيتم إيقاف كل تكاملات هذا الحساب. سيتم الاحتفاظ ببيانات الاعتماد، ويمكنك تفعيل الحساب لاحقًا.",
+    "deleteTitle": "حذف حساب Paymob هذا؟",
+    "deleteDescription": "سيؤدي ذلك إلى حذف بيانات الاعتماد المحفوظة وكل تكاملات الدفع المرتبطة (البطاقة والمحفظة) نهائيًا. ستحتاج إلى ربط Paymob مجددًا لقبول المدفوعات الإلكترونية.",
+    "historyTitle": "احتفظ بالسجل وأوقف الحساب.",
+    "historyDescription": "يحتوي هذا الحساب على مدفوعات سابقة ولا يمكن حذفه. أوقفه بدلًا من ذلك للاحتفاظ بسجل مدفوعاته.",
+    "historyInactive": "يحتوي هذا الحساب على مدفوعات سابقة ولا يمكن حذفه. الحساب غير نشط بالفعل، لذا تم الاحتفاظ بسجل مدفوعاته.",
+    "accessError": "يمكن لمالك العيادة فقط إدارة حساب Paymob.",
+    "error": "تعذّر تحديث حساب Paymob الآن. حدّث الإعدادات وحاول مرة أخرى."
+  },
+  "integration": {
+    "manage": "إدارة تكامل {{method}}",
+    "edit": "تعديل رقم التكامل",
+    "delete": "حذف التكامل",
+    "save": "حفظ رقم التكامل",
+    "editTitle": "تعديل رقم تكامل {{method}}",
+    "editDescription": "الصق رقم التكامل الجديد من لوحة تحكم Paymob. تغييره يعيد الحساب إلى مرحلة التحقق. لتغيير طريقة الدفع، احذف هذا التكامل وأضف تكاملًا جديدًا.",
+    "deleteTitle": "حذف تكامل {{method}}؟",
+    "deleteDescription": "سيؤدي ذلك إلى حذف تكامل {{method}} من هذا الحساب نهائيًا. يمكنك إضافة الطريقة مجددًا لاحقًا.",
+    "updated": "تم تحديث رقم تكامل {{method}}. الحساب بانتظار التحقق مجددًا.",
+    "activated": "تم تفعيل تكامل {{method}}.",
+    "deactivated": "تم إيقاف تكامل {{method}}.",
+    "deleted": "تم حذف تكامل {{method}}.",
+    "activateAccountFirst": "فعّل الحساب أولًا",
+    "accountInactive": "فعّل حساب Paymob قبل تشغيل تكاملاته.",
+    "accessError": "يمكن لمالك العيادة فقط إدارة تكاملات الدفع.",
+    "error": "تعذّر تحديث التكامل الآن. حدّث الإعدادات وحاول مرة أخرى."
+  }
 } satisfies Record<keyof typeof paymobApiEn, unknown>
