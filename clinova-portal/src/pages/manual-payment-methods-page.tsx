@@ -1,6 +1,6 @@
 ﻿import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Check, CircleCheck, Copy, Landmark, LoaderCircle, Pause, PencilLine, Plus, Power, RefreshCw, Save, ShieldCheck, Smartphone, Trash2, WalletCards, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, CircleCheck, Copy, Landmark, LoaderCircle, Pause, PencilLine, Plus, Power, PowerOff, RefreshCw, Save, ShieldCheck, Smartphone, Trash2, WalletCards, X } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -296,7 +296,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
                     {method.isActive && <span className="absolute inset-0 aspect-square animate-ping rounded-full bg-primary/50 motion-reduce:animate-none" />}
                     <span className={`aspect-square size-2 shrink-0 rounded-full ${method.isActive ? 'bg-primary' : 'bg-muted-foreground/50'}`} />
                   </span>
-                  <span className={method.isActive ? 'text-primary' : 'text-muted-foreground'}>{t(method.isActive ? 'manualPayments.active' : 'manualPayments.paused')}</span>
+                  <span className={method.isActive ? 'text-primary' : 'text-muted-foreground'}>{t(method.isActive ? 'manualPayments.active' : 'manualPayments.inactive')}</span>
                 </span>
               </div>
               <span dir="ltr" className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-start font-mono text-sm font-bold">
@@ -307,7 +307,9 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
           <div className="flex shrink-0 flex-wrap items-center gap-1 border-t border-border/60 pt-3 xl:border-t-0 xl:pt-0" role="group" aria-label={`${t(`manualPayments.${method.type}`)} ${method.accountIdentifier}`}>
             <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label={t('manualPayments.copy')} title={t('manualPayments.copy')} onClick={() => void copyAccount(method.accountIdentifier)}><Copy className="size-4" /></Button>
             <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label={t('manualPayments.edit')} title={t('manualPayments.edit')} disabled={!canChange} onClick={() => openEditor(method)}><PencilLine className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label={t(method.isActive ? 'manualPayments.pause' : 'manualPayments.activate')} title={t(method.isActive ? 'manualPayments.pause' : 'manualPayments.activate')} disabled={!canChange} onClick={() => act({ kind: 'toggle', method })}>{rowBusy ? <LoaderCircle className={spinnerClass} /> : method.isActive ? <Pause className="size-4" /> : <Power className="size-4" />}</Button>
+            <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label={t(method.isActive ? 'manualPayments.pause' : 'manualPayments.activate')} title={t(method.isActive ? 'manualPayments.pause' : 'manualPayments.activate')} disabled={!canChange} onClick={() => act({ kind: 'toggle', method })}>
+  {rowBusy ? <LoaderCircle className={spinnerClass} /> : method.isActive ? <PowerOff className="size-4" /> : <Power className="size-4" />}
+</Button>
             <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label={t('manualPayments.delete')} title={t('manualPayments.delete')} disabled={!canChange} onClick={() => { setError(''); setSuccess(''); setConfirmation({ method, hasHistory: false }) }}><Trash2 className="size-4" /></Button>
           </div>
         </li>

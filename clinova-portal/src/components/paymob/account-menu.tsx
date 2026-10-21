@@ -11,7 +11,7 @@ import { ApiError } from '@/lib/api'
 import type { SavedPaymobConfiguration } from '@/lib/paymob-configuration'
 import { paymobButtonClass } from './setup-section'
 
-export const paymobMenuItemClass = 'gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case tracking-normal'
+export const paymobMenuItemClass = 'gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case tracking-normal cursor-pointer'
 type Confirmation = 'deactivate' | 'delete' | 'history'
 
 export function PaymobAccountMenu({ clinicId, account }: { clinicId: string; account: SavedPaymobConfiguration }) {

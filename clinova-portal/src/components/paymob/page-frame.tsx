@@ -36,7 +36,7 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
   )
 
   return <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
-    <div className="mx-auto w-full min-w-0 max-w-6xl p-4 sm:p-6 lg:p-10">
+    <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
       {!valid ? <p className="text-sm text-muted-foreground">{t('clinicDetails.invalidId')}</p>
         : failed ? <><Notice message={t('common.genericError')} /><p role="alert" className="text-sm text-muted-foreground">{t('common.genericError')}</p><Button variant="outline" className={paymobButtonClass + ' mt-4'} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw />{t('errors.tryAgain')}</Button></>
         : clinic.isPending || members.isPending ? <div role="status" className="flex min-h-64 items-center justify-center gap-3 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('paymob.loading')}</div>

@@ -1,17 +1,15 @@
-import { ChevronDown, Hash, LoaderCircle, PencilLine, Power, PowerOff, Save, Settings2, Trash2, X } from 'lucide-react'
+import { Copy, Hash, LoaderCircle, PencilLine, Power, PowerOff, Save, Trash2, X } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import Notice from '@/components/notice'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { usePaymobIntegrationAction, type PaymobIntegrationAction } from '@/hooks/use-paymob-configuration'
 import { ApiError } from '@/lib/api'
 import type { PaymobIntegration } from '@/lib/paymob-configuration'
-import { paymobMenuItemClass } from './account-menu'
 import { paymobButtonClass } from './setup-section'
 
 const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
@@ -60,22 +58,37 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
   return <>
     {success && <Notice tone="success" message={success} />}
     {error && <Notice message={error} />}
-    <DropdownMenu>
-      <DropdownMenuTrigger disabled={busy || refreshing} aria-busy={busy} aria-label={t('paymob.integration.manage', { method })} render={<Button variant="outline" className={paymobButtonClass} />}>
-        {busy ? <LoaderCircle className={spinnerClass} /> : <Settings2 />}
-        <span className="hidden sm:inline">{t('paymob.manage')}</span>
-        <ChevronDown className="size-3.5" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5">
-        <DropdownMenuItem className={paymobMenuItemClass} onClick={openEditor}><PencilLine className="size-4 text-primary" />{t('paymob.integration.edit')}</DropdownMenuItem>
-        {integration.isActive
-          ? <DropdownMenuItem className={paymobMenuItemClass} onClick={() => run({ kind: 'deactivate' })}><PowerOff className="size-4 text-warm" />{t('paymob.account.deactivate')}</DropdownMenuItem>
-          // The backend only activates integrations on an active account.
-          : <DropdownMenuItem className={paymobMenuItemClass} disabled={!accountActive} onClick={() => run({ kind: 'activate' })}><Power className="size-4 text-primary" />{t(accountActive ? 'paymob.account.activate' : 'paymob.integration.activateAccountFirst')}</DropdownMenuItem>}
-        <DropdownMenuSeparator className="my-1.5" />
-        <DropdownMenuItem variant="destructive" className={paymobMenuItemClass} onClick={() => { setError(''); setConfirmDelete(true) }}><Trash2 className="size-4" />{t('paymob.integration.delete')}</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex shrink-0 flex-wrap items-center gap-1" role="group" aria-label="Actions">
+      <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Copy" title="Copy" onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(String(integration.integrationId));
+          setSuccess(t('manualPayments.copied'));
+          setError('');
+        } catch {
+          setError(t('manualPayments.copyError'));
+          setSuccess('');
+        }
+      }}>
+        <Copy className="size-4" />
+      </Button>
+      <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Edit" title="Edit" disabled={busy || refreshing} onClick={openEditor}>
+        <PencilLine className="size-4" />
+      </Button>
+      
+      {integration.isActive ? (
+        <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Deactivate" title="Deactivate" disabled={busy || refreshing} onClick={() => run({ kind: 'deactivate' })}>
+          {busy ? <LoaderCircle className={spinnerClass} /> : <PowerOff className="size-4" />}
+        </Button>
+      ) : (
+        <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Activate" title="Activate" disabled={!accountActive || busy || refreshing} onClick={() => run({ kind: 'activate' })}>
+          {busy ? <LoaderCircle className={spinnerClass} /> : <Power className="size-4" />}
+        </Button>
+      )}
+      
+      <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label="Delete" title="Delete" disabled={busy || refreshing} onClick={() => { setError(''); setConfirmDelete(true) }}>
+        <Trash2 className="size-4" />
+      </Button>
+    </div>
 
     <Dialog open={editing} onOpenChange={(next) => { if (!next && !busy) setEditing(false) }}>
       <DialogContent showCloseButton={false} className="rounded-3xl border border-border bg-card p-5 motion-reduce:animate-none sm:max-w-md sm:p-7">

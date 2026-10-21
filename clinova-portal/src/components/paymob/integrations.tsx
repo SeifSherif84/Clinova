@@ -1,9 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, CircleCheck, Hash, Info, Link2, LoaderCircle, Plus, TriangleAlert, WalletCards, X } from 'lucide-react'
+import { ArrowRight, Hash, Info, Link2, LoaderCircle, Plus, TriangleAlert, WalletCards, X } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription} from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -20,7 +20,7 @@ const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
 
 function MethodLogo({ method, className = '' }: { method: PaymobPaymentMethod; className?: string }) {
   return <span aria-hidden="true" className={`relative flex h-12 w-24 shrink-0 items-center justify-start ${className}`}>
-    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
   </span>
 }
 
@@ -93,14 +93,24 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
     </div>
 
     {disabled && <Alert role="note" className="mt-5 rounded-xl border-border bg-muted/40"><Info /><AlertDescription className="leading-6">{t('paymob.integrationsDisabled')}</AlertDescription></Alert>}
-    {!disabled && account.integrations.length > 0 && !activeCount && <Alert role="note" className="mt-5 rounded-xl border-warm/20 bg-warm/10"><TriangleAlert className="text-warm" /><AlertTitle className="font-bold">{t('paymob.integrationsInactiveTitle')}</AlertTitle><AlertDescription className="leading-6">{t('paymob.integrationsNeeded')}</AlertDescription></Alert>}
+    {!disabled && account.integrations.length > 0 && !activeCount && (
+      <div role="note" className="mt-5 flex flex-col gap-4 overflow-hidden rounded-2xl border border-warm/20 bg-gradient-to-br from-warm/10 via-card to-transparent p-5 shadow-sm sm:flex-row sm:items-center sm:gap-5">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-warm/15 text-warm">
+          <TriangleAlert className="size-6" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold text-foreground">{t('paymob.integrationsInactiveTitle')}</h3>
+          <p className="mt-1 text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsNeeded')}</p>
+        </div>
+      </div>
+    )}
     {error && !editorOpen && <Notice message={t('paymob.' + error)} />}
 
     {account.integrations.length ? <>
       <ul className="mt-5 grid gap-3">{account.integrations.map((integration) => (
         <li key={integration.id} className="group relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg motion-reduce:transition-none sm:p-5">
           <span aria-hidden="true" className="flex h-12 w-24 shrink-0 items-center justify-center">
-            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -122,7 +132,6 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
           </div>
         </li>
       ))}</ul>
-      {!disabled && !available.length && <p className="mt-4 flex items-start gap-2 text-xs leading-6 font-bold text-muted-foreground"><CircleCheck className="mt-1 size-3.5 shrink-0 text-primary" />{t('paymob.integrationsComplete')}</p>}
     </> : <div className="mt-5 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-muted/40 to-transparent">
       <div className={`grid gap-8 p-6 sm:p-10 ${disabled ? '' : 'lg:grid-cols-[1.1fr_1fr] lg:items-center'}`}>
         <div>
@@ -136,7 +145,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
         </div>
         {!disabled && <div className="grid gap-3 sm:grid-cols-2">{methods.map((value) => (
           <button key={value} type="button" disabled={busy || refreshing} onClick={() => openEditor(value)} aria-label={t('paymob.addMethodIntegration', { method: t('paymob.method.' + value) })} className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-5 text-start transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg disabled:pointer-events-none disabled:opacity-60">
-              <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet7'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
+              <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
             <div>
               <strong className="block text-sm font-bold">{t('paymob.method.' + value)}</strong>
               <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t('paymob.methodHint.' + value)}</span>

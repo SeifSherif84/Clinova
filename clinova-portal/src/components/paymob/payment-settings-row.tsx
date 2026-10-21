@@ -41,8 +41,8 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="flex items-center gap-3.5 font-sans text-xl font-bold"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><CreditCard className="size-5" /></span>Paymob</h2>
-          <span className={'rounded-full border px-2.5 py-1 text-[10px] font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
-          {!configuration.isActive && <span className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{t('paymob.account.inactive')}</span>}
+          <span className={'rounded-full border px-2.5 py-1 text-xs font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
+          {!configuration.isActive && <span className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs font-bold text-muted-foreground">{t('paymob.account.inactive')}</span>}
         </div>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{t(configuration.isActive ? 'paymob.accountStatusDescription.' + status : 'paymob.account.inactiveDescription')}</p>
       </div>

@@ -298,21 +298,21 @@ export default function ClinicDetailsPage() {
         <Settings2 />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56 rounded-xl p-1.5">
-        <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
+        <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
           <CalendarClock className="size-4 text-primary" />{t('dashboard.workingHours')}
         </DropdownMenuItem>
         {isOwner && (
-          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}>
+          <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payment-methods" params={{ clinicId }} />}>
             <WalletCards className="size-4 text-primary" />{t('manualPayments.navigation')}
           </DropdownMenuItem>
         )}
         {isOwner && (
-          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
+          <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
             <WalletCards className="size-4 text-primary" />{t('paymob.settingsTitle')}
           </DropdownMenuItem>
         )}
         {details.data.googleMapsUrl && (
-          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}>
+          <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<a href={details.data.googleMapsUrl} target="_blank" rel="noreferrer" />}>
             <MapPin className="size-4 text-primary" />{t('clinicDetails.openMap')}<ExternalLink className="ms-auto size-3.5 text-muted-foreground" />
           </DropdownMenuItem>
         )}
