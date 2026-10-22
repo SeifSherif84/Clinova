@@ -30,9 +30,9 @@ namespace Persistence.Data.Configurations
                    .OnDelete(DeleteBehavior.Restrict);
 
 
-            builder.HasOne(availableSlot => availableSlot.Appointment)
-                   .WithOne(Appointment => Appointment.AppointmentSlot)
-                   .HasForeignKey<Appointment>(Appointment => Appointment.AppointmentSlotId)
+            builder.HasMany(slot => slot.Appointments)
+                   .WithOne(appointment => appointment.AppointmentSlot)
+                   .HasForeignKey(appointment => appointment.AppointmentSlotId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

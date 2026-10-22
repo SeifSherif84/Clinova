@@ -1104,8 +1104,8 @@ namespace Persistence.Data.Migrations
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Appointment", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.AppointmentSlot", "AppointmentSlot")
-                        .WithOne("Appointment")
-                        .HasForeignKey("Domain.Entities.BusinessEntities.Appointment", "AppointmentSlotId")
+                        .WithMany("Appointments")
+                        .HasForeignKey("AppointmentSlotId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1479,7 +1479,7 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
                 {
-                    b.Navigation("Appointment");
+                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Clinic", b =>

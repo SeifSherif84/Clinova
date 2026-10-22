@@ -94,22 +94,54 @@ namespace Presentation.Controllers.Clinics
 
         [Authorize(Roles = "Doctor")]
         [HttpGet] // Get api/clinics
-        public async Task<IActionResult> GetAllClinics()
+        public async Task<IActionResult> GetAllClinicsForDoctor()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetAllClinicAsync(userId ?? string.Empty);
+            var response = await _serviceManager.ClinicService.GetAllClinicsForDoctorAsync(userId ?? string.Empty);
             return Ok(response);
         }
 
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("{clinicId}")] // Get api/clinics/{clinicId}
-        public async Task<IActionResult> GetClinicDetails([FromRoute] int clinicId)
+        public async Task<IActionResult> GetClinicDetailsForDoctor([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetClinicDetailsAsync(userId ?? string.Empty, clinicId);
+            var response = await _serviceManager.ClinicService.GetClinicDetailsForDoctorAsync(userId ?? string.Empty, clinicId);
             return Ok(response);
         }
+
+
+
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("my-clinic")] // Get api/clinics/my-clinic
+        public async Task<IActionResult> GetClinicForSecretary()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.ClinicService.GetClinicForSecretaryAsync(userId ?? string.Empty);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("my-clinic/details")] // Get api/clinics/my-clinic/details
+        public async Task<IActionResult> GetClinicDetailsForSecretary()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.ClinicService.GetClinicDetailsForSecretaryAsync(userId ?? string.Empty);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("members/management")] // Get api/clinics/members/management
+        public async Task<IActionResult> GetClinicMembersForSecretary()
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicService.GetClinicMembersForSecretaryAsync(userId ?? string.Empty);
+            return Ok(response);
+        }
+
+
 
 
 
@@ -144,15 +176,6 @@ namespace Presentation.Controllers.Clinics
         }
 
 
-        [Authorize(Roles = "Secretary")]
-        [HttpGet("{clinicId}/members/management")] // Get api/clinics/{clinicId}/members/management
-        public async Task<IActionResult> GetClinicMembersForSecretary([FromRoute] int clinicId)
-        {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetClinicMembersForSecretaryAsync(userId ?? string.Empty, clinicId);
-            return Ok(response);
-        }
-
 
 
         [Authorize(Roles = "Doctor")]
@@ -179,10 +202,10 @@ namespace Presentation.Controllers.Clinics
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("{clinicId}/secretaries")] // Get api/clinics/{clinicId}/secretaries
-        public async Task<IActionResult> GetClinicSecretaries([FromRoute] int clinicId)
+        public async Task<IActionResult> GetClinicSecretariesForDoctor([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetClinicSecretariesAsync(userId ?? string.Empty, clinicId);
+            var response = await _serviceManager.ClinicService.GetClinicSecretariesForDoctorAsync(userId ?? string.Empty, clinicId);
             return Ok(response);
         }
 
@@ -190,10 +213,10 @@ namespace Presentation.Controllers.Clinics
 
         [Authorize(Roles = "Patient")]
         [HttpGet("{clinicId}/booking-info")] // Get api/clinics/{clinicId}/booking-info
-        public async Task<IActionResult> GetClinicBookingInfo([FromRoute] int clinicId)
+        public async Task<IActionResult> GetClinicBookingInfoForPatientAsync([FromRoute] int clinicId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.ClinicService.GetClinicBookingInfoAsync(userId ?? string.Empty, clinicId);
+            var response = await _serviceManager.ClinicService.GetClinicBookingInfoForPatientAsync(userId ?? string.Empty, clinicId);
             return Ok(response);
         }
 

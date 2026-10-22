@@ -28,6 +28,6 @@ namespace Domain.Entities.BusinessEntities
         public Clinic Clinic { get; set; } = null!;
 
 
-        public Appointment? Appointment { get; set; }
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }

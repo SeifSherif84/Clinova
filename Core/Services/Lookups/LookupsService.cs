@@ -2,6 +2,7 @@
 using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
 using Services.Specifications.Regions;
+using Shared.Dtos.Appointments;
 using Shared.Dtos.Lookups;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,28 @@ namespace Services.Abstractions.Lookups
             {
                 Id = (int)day,
                 Name = day.ToString(),
+            });
+            return result;
+        }
+
+        public IEnumerable<LookupResponse> GetGuestReservationBookingTypesAsync()
+        {
+            var guestReservationBookingTypesList = Enum.GetValues<BookingType>().ToList();
+            var result = guestReservationBookingTypesList.Select(bookingType => new LookupResponse()
+            {
+                Id = (int)bookingType,
+                Name = bookingType.ToString(),
+            });
+            return result;
+        }
+
+        public IEnumerable<LookupResponse> GetGuestReservationPaymentMethodsAsync()
+        {
+            var guestReservationPaymentMethodsList = Enum.GetValues<GuestReservationPaymentMethod>().ToList();
+            var result = guestReservationPaymentMethodsList.Select(paymentMethod => new LookupResponse()
+            {
+                Id = (int)paymentMethod,
+                Name = paymentMethod.ToString(),
             });
             return result;
         }
@@ -80,6 +103,5 @@ namespace Services.Abstractions.Lookups
             });
             return result;
         }
-
     }
 }

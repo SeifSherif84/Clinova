@@ -32,6 +32,23 @@ namespace Presentation.Controllers.Enums
             return Ok(response);
         }
 
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("guest-reservation-booking-types")] // Get api/lookups/guest-booking-types
+        public IActionResult GetGuestReservationBookingTypes()
+        {
+            var response = _serviceManager.LookupsService.GetGuestReservationBookingTypesAsync();
+            return Ok(response);
+        }
+
+        [Authorize(Roles = "Secretary")]
+        [HttpGet("guest-reservation-payment-methods")] // Get api/lookups/guest-booking-payment-methods
+        public IActionResult GetGuestReservationPaymentMethods()
+        {
+            var response = _serviceManager.LookupsService.GetGuestReservationPaymentMethodsAsync();
+            return Ok(response);
+        }
+
+
 
         [Authorize]
         [HttpGet("manual-payment-methods")]

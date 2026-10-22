@@ -215,7 +215,7 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<IEnumerable<ClinicResponse>> GetAllClinicAsync(string userId)
+        public async Task<IEnumerable<ClinicResponse>> GetAllClinicsForDoctorAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -235,12 +235,84 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<ClinicDetailsResponse> GetClinicDetailsAsync(string userId, int clinicId)
+        public async Task<ClinicDetailsResponse> GetClinicDetailsForDoctorAsync(string userId, int clinicId)
         {
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(userId, clinicId, true, true, true);
             var clinicDetailsResponse = _mapper.Map<ClinicDetailsResponse>(doctorClinicAccess.Clinic);
             return clinicDetailsResponse;
         }
+
+
+
+
+
+        public async Task<ClinicResponse> GetClinicForSecretaryAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not assigned to any clinic.");
+            int clinicId = secretary.ClinicId.Value;
+
+            var clinicSpec = ClinicSpecifications.ByIdWithRegion(clinicId);
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicSpec);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
+
+            return _mapper.Map<ClinicResponse>(clinic);
+        }
+
+
+        public async Task<ClinicDetailsResponse> GetClinicDetailsForSecretaryAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not assigned to any clinic.");
+            int clinicId = secretary.ClinicId.Value;
+
+            var clinicSpec = ClinicSpecifications.ByIdWithDetails(clinicId);
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicSpec);
+            if (clinic is null)
+                throw new NotFoundException("The clinic you're trying to access could not be found.");
+
+            return _mapper.Map<ClinicDetailsResponse>(clinic);
+        }
+
+
+        public async Task<IEnumerable<ClinicMemberResponseForSecretary>> GetClinicMembersForSecretaryAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not assigned to any clinic.");
+            int clinicId = secretary.ClinicId.Value;
+
+            var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
+            var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
+            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponseForSecretary>>(members);
+
+            return clinicMembersResponse;
+        }
+
+
+
+
 
 
 
@@ -314,26 +386,6 @@ namespace Services.Abstractions.Clinics
             var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
             var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
             var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponseForDoctor>>(members);
-            return clinicMembersResponse;
-        }
-
-
-        public async Task<IEnumerable<ClinicMemberResponseForSecretary>> GetClinicMembersForSecretaryAsync(string userId, int clinicId)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(userId);
-            if (secretary is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            if (secretary.ClinicId != clinicId)
-                throw new ResourceAccessDeniedException("You are not authorized to view members for this clinic.");
-
-            var clinicDoctorsSpec = new DoctorSpecifications(clinicId, ClinicDoctorScope.AllMembers);
-            var members = await _unitOfWork.GetRepository<Doctor, string>().GetAllAsync(clinicDoctorsSpec);
-            var clinicMembersResponse = _mapper.Map<IEnumerable<ClinicMemberResponseForSecretary>>(members);
-
             return clinicMembersResponse;
         }
 
@@ -413,7 +465,7 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<IEnumerable<ClinicSecretaryResponse>> GetClinicSecretariesAsync(string userId, int clinicId)
+        public async Task<IEnumerable<ClinicSecretaryResponse>> GetClinicSecretariesForDoctorAsync(string userId, int clinicId)
         {
             await GetDoctorClinicAccessAsync(userId, clinicId);
             var clinicSecretariesSpec = SecretarySpecifications.GetSecretariesByClinicId(clinicId);
@@ -428,7 +480,7 @@ namespace Services.Abstractions.Clinics
 
 
 
-        public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoAsync(string userId, int clinicId)
+        public async Task<ClinicBookingInfoResponse> GetClinicBookingInfoForPatientAsync(string userId, int clinicId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -515,5 +567,6 @@ namespace Services.Abstractions.Clinics
 
             return doctorClinicAccess;
         }
+
     }
 }

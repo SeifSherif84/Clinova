@@ -86,7 +86,7 @@ namespace Services.Appointments
                 ConsultationFee = consultationFee,
                 DepositAmount = depositAmount,
                 RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(2),
                 FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
                 BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };
@@ -250,6 +250,18 @@ namespace Services.Appointments
             }
 
             await _unitOfWork.SaveChangesAsync();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.PatientId is not null)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId,
+                        "Appointment Expired",
+                        $"Your appointment reservation #{appointment.Id} has expired because the payment was not completed in time.",
+                        NotificationType.AppointmentExpired);
+                }
+            }
         }
 
 
@@ -599,6 +611,18 @@ namespace Services.Appointments
                     throw new InternalServerErrorException(
                         "You couldn't cancel your appointment right now. Please try again later.");
 
+                var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+                var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+                foreach (var secretary in secretaries)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        secretary.Id,
+                        "Appointment Cancelled",
+                        $"A patient has cancelled appointment #{appointment.Id}. The slot is now available.",
+                        NotificationType.AppointmentCancelled);
+                }
+
                 return "Your appointment has been cancelled. According to Clinova's cancellation policy, this payment is not eligible for a refund.";
             }
 
@@ -641,6 +665,20 @@ namespace Services.Appointments
                         "We couldn't save the cancellation and refund request. Please check the current appointment and refund status before retrying.");
                 }
 
+
+                var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+                var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+                foreach (var secretary in secretaries)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        secretary.Id,
+                        "Refund Request Requires Processing",
+                        $"Appointment #{appointment.Id} was cancelled by the patient. A full refund of {payment.Amount} requires manual processing.",
+                        NotificationType.ManualRefundRequested);
+                }
+
+
                 return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved and is awaiting manual processing by the clinic.";
             }
 
@@ -659,11 +697,24 @@ namespace Services.Appointments
 
                 var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.PatientCancellation);
 
+                var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+                var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+                foreach (var secretary in secretaries)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        secretary.Id,
+                        "Appointment Cancelled - Refund Eligible",
+                        $"A patient has cancelled appointment #{appointment.Id}. The patient is eligible for a refund according to Clinova's cancellation policy.",
+                        NotificationType.AppointmentCancelled);
+                }
+
                 if (refundResult.Succeeded)
                     return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved and processed successfully.";
 
                 if (refundResult.PendingVerification)
                     return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved and is awaiting confirmation.";
+
 
                 return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved, but it could not be processed at this time.";
             }
@@ -760,6 +811,15 @@ namespace Services.Appointments
                         "We couldn't save the cancellation and refund request. Please check the current appointment and refund status before retrying.");
                 }
 
+                if (appointment.PatientId is not null)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId,
+                        "Appointment Cancelled",
+                        $"Your appointment #{appointment.Id} has been cancelled by the clinic. Your refund is awaiting manual processing by the clinic.",
+                        NotificationType.AppointmentCancelledByClinic);
+                }
+
                 return "The appointment has been cancelled successfully. The patient's refund is awaiting manual processing by the clinic.";
             }
 
@@ -770,6 +830,15 @@ namespace Services.Appointments
                     throw new BadRequestException("The Paymob transaction ID is missing.");
 
                 var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.ClinicCancellation);
+
+                if (appointment.PatientId is not null)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId,
+                        "Appointment Cancelled",
+                        $"Your appointment #{appointment.Id} has been cancelled by the clinic. Your refund is being processed according to Clinova's cancellation policy.",
+                        NotificationType.AppointmentCancelledByClinic);
+                }
 
                 if (refundResult.Succeeded)
                     return "The appointment has been cancelled successfully. The patient's refund has been processed.";
@@ -841,7 +910,10 @@ namespace Services.Appointments
             appointment.Status = AppointmentStatus.Cancelled;
             appointment.AppointmentSlot.Status = SlotStatus.Available;
 
-            var isRefundEligible = isGuestReservation ? request.IsRefundDue : IsFullRefundEligible(appointment);
+            if (isGuestReservation && request.IsRefundDue is null)
+                throw new BadRequestException("IsRefundDue is required for guest reservations.");
+
+            var isRefundEligible = isGuestReservation ? request.IsRefundDue!.Value : IsFullRefundEligible(appointment);
 
             PaymentRefund? refund = null;
             var shouldProcessPaymobRefund = false;
@@ -865,6 +937,15 @@ namespace Services.Appointments
                 catch (DbUpdateException)
                 {
                     throw new InternalServerErrorException("We couldn't save the cancellation. Please check the appointment status before retrying.");
+                }
+
+                if(isRegisteredPatientReservation)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId!,
+                        "Appointment Cancelled",
+                        $"Your appointment #{appointment.Id} has been cancelled by the clinic. According to Clinova's cancellation policy, this payment is not eligible for a refund.",
+                        NotificationType.AppointmentCancelledByClinic);
                 }
 
                 return isGuestReservation
@@ -948,9 +1029,28 @@ namespace Services.Appointments
             }
 
 
+            if (isRegisteredPatientReservation && !shouldProcessPaymobRefund)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId!,
+                    "Appointment Cancelled - Refund Pending",
+                    $"Your appointment #{appointment.Id} has been cancelled by the clinic. Your refund is awaiting manual processing by the clinic.",
+                    NotificationType.AppointmentCancelledByClinic);
+            }
+
+
             if (shouldProcessPaymobRefund)
             {
                 var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.PatientCancellation);
+
+                if (isRegisteredPatientReservation)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId!,
+                        "Appointment Cancelled - Refund Eligible",
+                        $"Your appointment #{appointment.Id} has been cancelled by the clinic. Your refund is being processed according to Clinova's cancellation policy.",
+                        NotificationType.AppointmentCancelledByClinic);
+                }
 
                 if (refundResult.Succeeded)
                     return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved and processed successfully.";
@@ -1069,8 +1169,8 @@ namespace Services.Appointments
             {
                 await _notificationService.CreateAndSendAsync(
                     secretary.Id,
-                    "Pament Proof Submitted",
-                    "A patient has submitted payment proof for an appointment. Please review the payment.",
+                    "Payment Proof Submitted",
+                    $"Payment proof has been submitted for appointment #{appointment.Id}. Please review and verify the payment.",
                     NotificationType.ManualPaymentSubmitted);
             }
 
@@ -1129,12 +1229,14 @@ namespace Services.Appointments
                 throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
             }
 
-
-            await _notificationService.CreateAndSendAsync(
-                appointment.PatientId,
-                "Payment Approved",
-                "Your manual payment has been approved and your appointment is now confirmed.",
-                NotificationType.ManualPaymentApproved);
+            if (appointment.PatientId is not null)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Payment Approved",
+                    $"Your payment proof for appointment #{appointment.Id} has been approved, and your appointment is now confirmed.",
+                    NotificationType.ManualPaymentApproved);
+            }
 
             return "The manual payment has been approved and the appointment is confirmed.";
         }
@@ -1192,11 +1294,15 @@ namespace Services.Appointments
                 throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
             }
 
-            await _notificationService.CreateAndSendAsync(
-                appointment.PatientId,
-                "Payment Rejected",
-                $"Your manual payment has been rejected. Reason: {rejectionReason}",
-                NotificationType.ManualPaymentRejected);
+
+            if (appointment.PatientId is not null)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Payment Rejected",
+                    $"Your payment for appointment #{appointment.Id} has been rejected. Reason: {rejectionReason}. Your appointment has been cancelled.",
+                    NotificationType.ManualPaymentRejected);
+            }
 
             return "The manual payment has been rejected and the appointment has been cancelled.";
         }
@@ -1401,6 +1507,15 @@ namespace Services.Appointments
                 if (uploadedFileName is not null)
                     FileStorageHandler.Delete(uploadedFileName, "manualrefundproofs");
                 throw;
+            }
+
+            if (!string.IsNullOrWhiteSpace(appointment.PatientId))
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Refund Confirmed",
+                    $"Your refund for appointment #{appointment.Id} has been processed successfully.",
+                    NotificationType.ManualRefundConfirmed);
             }
 
             return "The manual refund has been confirmed successfully.";
@@ -1691,8 +1806,6 @@ namespace Services.Appointments
 
 
 
-
-
         public async Task<string> RescheduleAppointmentByPatientAsync(string userId, int appointmentId, RescheduleAppointmentRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -1713,7 +1826,22 @@ namespace Services.Appointments
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to reschedule this appointment.");
 
-            return await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+
+
+            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+            foreach (var secretary in secretaries)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    secretary.Id,
+                    "Appointment Rescheduled",
+                    $"The patient has rescheduled appointment #{appointment.Id}. Please review the updated appointment details.",
+                    NotificationType.AppointmentRescheduledByPatient);
+            }
+
+            return result;
         }
 
         public async Task<string> RescheduleAppointmentBySecretaryAsync(string userId, int appointmentId, RescheduleAppointmentRequest request)
@@ -1744,7 +1872,19 @@ namespace Services.Appointments
             if (appointment.AppointmentSlot.ClinicId != clinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to reschedule appointments outside your clinic.");
 
-            return await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+
+
+            if (!string.IsNullOrWhiteSpace(appointment.PatientId))
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Appointment Rescheduled",
+                    $"Your appointment #{appointment.Id} has been rescheduled by the clinic. Please check your updated appointment details.",
+                    NotificationType.AppointmentRescheduledBySecretary);
+            }
+
+            return result;
         }
 
         private async Task<string> RescheduleAppointmentCoreAsync(Appointment appointment, int newAppointmentSlotId)

@@ -13,6 +13,6 @@ namespace Shared.Dtos.Appointments
         // For registered patient bookings (BookingSource == BookingSource.Patient
         // and PatientId is not null or empty), the backend determines refund
         // eligibility automatically using Clinova's cancellation policy.
-        public bool IsRefundDue { get; set; }
+        public bool? IsRefundDue { get; set; }
     }
 }

@@ -24,5 +24,12 @@ namespace Domain.Entities.Enums
         ManualPaymentApproved,
         ManualPaymentRejected,
         ManualPaymentSubmitted,
+        AppointmentExpired,
+        AppointmentCancelled,
+        ManualRefundRequested,
+        AppointmentCancelledByClinic,
+        ManualRefundConfirmed,
+        AppointmentRescheduledByPatient,
+        AppointmentRescheduledBySecretary
     }
 }

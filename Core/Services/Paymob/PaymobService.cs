@@ -70,6 +70,7 @@ namespace Services.Paymob
             // Invalid integration configuration.
             if (statusCode == HttpStatusCode.BadRequest && ContainsAny(responseBody,
                                                                       "integration",
+                                                                      "Integration",
                                                                       "payment method",
                                                                       "payment_methods",
                                                                       "invalid integration"))

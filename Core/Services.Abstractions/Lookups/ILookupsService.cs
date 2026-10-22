@@ -17,5 +17,7 @@ namespace Services.Abstractions.Lookups
         Task<IEnumerable<LookupResponse>> GetMedicalSpecialtiesAsync();
         Task<IEnumerable<LookupResponse>> GetGovernoratesAsync();
         Task<IEnumerable<LookupResponse>> GetRegionsAsync(int governorateId);
+        IEnumerable<LookupResponse> GetGuestReservationBookingTypesAsync();
+        IEnumerable<LookupResponse> GetGuestReservationPaymentMethodsAsync();
     }
 }

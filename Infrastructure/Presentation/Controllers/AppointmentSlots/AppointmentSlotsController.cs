@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 namespace Presentation.Controllers.AppointmentSlots
 {
     [ApiController]
+    [Route("api/appointment-slots")]
     public class AppointmentSlotsController(IServiceManager _serviceManager) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
@@ -33,6 +34,10 @@ namespace Presentation.Controllers.AppointmentSlots
             var response = await _serviceManager.AppointmentSlotService.GetAvailableAppointmentSlotsExistInSpecificDayForPatientAppointmentAsync(userId ?? string.Empty, doctorId, clinicId, request);
             return Ok(response);
         }
+
+
+
+
 
 
         [Authorize(Roles = "Secretary")]
@@ -57,6 +62,11 @@ namespace Presentation.Controllers.AppointmentSlots
         }
 
 
+
+
+
+
+
         [Authorize(Roles = "Patient")]
         [HttpGet("patient-reschedule/appointments/{appointmentId}/available-days")]
         public async Task<IActionResult> GetDoctorDaysWhichHaveAvailableSlotForPatientReschedule([FromRoute] int appointmentId, 
@@ -79,6 +89,11 @@ namespace Presentation.Controllers.AppointmentSlots
         }
 
 
+
+
+
+
+
         [Authorize(Roles = "Secretary")]
         [HttpGet("secretary-reschedule/appointments/{appointmentId}/available-days")]
         public async Task<IActionResult> GetDoctorDaysWhichHaveAvailableSlotForSecretaryReschedule([FromRoute] int appointmentId, 
@@ -99,5 +114,12 @@ namespace Presentation.Controllers.AppointmentSlots
             var response = await _serviceManager.AppointmentSlotService.GetAvailableAppointmentSlotsExistInSpecificDayForSecretaryRescheduleAsync(userId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
+
+
+
+
+
+
+
     }
 }

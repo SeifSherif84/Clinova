@@ -80,6 +80,14 @@ namespace Presentation.Controllers.Appointments
 
 
 
+
+
+
+
+
+
+
+
         [Authorize(Roles = "Secretary")]
         [HttpGet("management")] // Get: /api/appointments/management
         public async Task<IActionResult> GetClinicAppointmentsForSecretary([FromQuery] SecretaryAppointmentQuery query)
@@ -135,7 +143,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/cancellation/clinic-request")] 
+        [HttpPatch("{appointmentId}/cancellation/clinic-request")]
         public async Task<IActionResult> CancelAppointmentBySecretaryRequestedByClinicOrDoctor([FromRoute] int appointmentId)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -145,7 +153,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/cancellation/patient-request")]
+        [HttpPatch("{appointmentId}/cancellation/patient-request")] // Patch: /api/appointments/{appointmentId}/cancellation/patient-request
         public async Task<IActionResult> CancelAppointmentBySecretaryRequestedByPatient([FromRoute] int appointmentId,
                                                                                         [FromBody] CancelGuestAppointmentBySecretaryRequestedByPatientRequest request)
         {
@@ -175,8 +183,8 @@ namespace Presentation.Controllers.Appointments
         }
 
 
-        [Authorize("Secretary")]
-        [HttpPatch("{appointmentId}/confirm-manual-refund")]
+        [Authorize(Roles = "Secretary")]
+        [HttpPatch("{appointmentId}/confirm-manual-refund")] // Patch: /api/appointments/{appointmentId}/confirm-manual-refund
         public async Task<IActionResult> SecretaryConfirmManualRefund([FromRoute] int appointmentId,
                                                                       [FromForm] ConfirmManualRefundRequest request)
         {
@@ -184,6 +192,17 @@ namespace Presentation.Controllers.Appointments
             var response = await _serviceManager.AppointmentService.SecretaryConfirmManualRefundAsync(secretaryId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
+
+
+
+
+
+
+
+
+
+
+
 
 
         [Authorize(Roles = "Secretary")]
@@ -219,8 +238,15 @@ namespace Presentation.Controllers.Appointments
 
 
 
+
+
+
+
+
+
+
         [Authorize(Roles = "Patient")]
-        [HttpPatch("{appointmentId}/reschedule")]
+        [HttpPatch("{appointmentId}/reschedule")] // https://localhost:7269/api/appointments/{appointmentId}/reschedule
         public async Task<IActionResult> RescheduleAppointmentByPatient([FromRoute] int appointmentId, [FromBody] RescheduleAppointmentRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -230,7 +256,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/management/reschedule")]
+        [HttpPatch("{appointmentId}/management/reschedule")] // https://localhost:7269/api/appointments/{appointmentId}/management/reschedule
         public async Task<IActionResult> RescheduleAppointmentBySecretary([FromRoute] int appointmentId, [FromBody] RescheduleAppointmentRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

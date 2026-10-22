@@ -9,6 +9,11 @@ namespace Services.Specifications.Clinics
 {
     public class ClinicSpecifications : BaseSpecifications<Clinic, int>
     {
+        public ClinicSpecifications() : base()
+        {
+
+        }
+
         // Constructor to get a specific clinic by its ID, with optional includes for related entities
         public ClinicSpecifications(int clinicId, 
                                     bool includeImages = false,
@@ -42,7 +47,27 @@ namespace Services.Specifications.Clinics
             Criteria = clinic => clinic.DoctorClinics.Any(dc => dc.DoctorId == userId);
         }
 
-
+        public static ClinicSpecifications ByIdWithRegion(int clinicId)
+        {
+            var specification = new ClinicSpecifications()
+            {
+                Criteria = clinic => clinic.Id == clinicId
+            };
+            specification.Includes.Add(clinic => clinic.Region);
+            return specification;
+        }
+        
+        public static ClinicSpecifications ByIdWithDetails(int clinicId)
+        {
+            var specification = new ClinicSpecifications()
+            {
+                Criteria = clinic => clinic.Id == clinicId
+            };
+            specification.Includes.Add(clinic => clinic.Images);
+            specification.Includes.Add(clinic => clinic.PhoneNumbers);
+            specification.Includes.Add(clinic => clinic.Region);
+            return specification;
+        }
 
 
         private void ApplyIncludes(bool includeImages,

@@ -43,6 +43,8 @@ using Services.Abstractions.Paymob;
 using Shared.Dtos.ClinovaSettings;
 using Services.AutoMapping.SecretaryInvitations;
 using Services.AutoMapping.Secretaries;
+using Microsoft.AspNetCore.Mvc;
+using Shared.Dtos.ErrorModels;
 
 
 namespace Web
@@ -193,6 +195,25 @@ namespace Web
                                                                                policy.BookingCancellationGracePeriodMinutes > 0,
                                                                   "Cancellation policy values must be greater than zero.")
                                                                      .ValidateOnStart();
+
+
+            builder.Services.Configure<ApiBehaviorOptions>(config =>
+            {
+                config.InvalidModelStateResponseFactory = (ActionContext) =>
+                {
+                    var errors = ActionContext.ModelState.Where(Field => Field.Value!.Errors.Any())
+                                                         .Select(Field => new ValidationError()
+                                                         {
+                                                             Field = Field.Key,
+                                                             Errors = Field.Value!.Errors.Select(Error => Error.ErrorMessage)
+                                                         }).ToList();
+                    var ResponseBody = new ValidationErrorResponse()
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(ResponseBody);
+                };
+            });
 
             // UserDefined Services End
 
