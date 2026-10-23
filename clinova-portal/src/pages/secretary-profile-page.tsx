@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useApi } from '@/hooks/use-api'
+import { useSecretaryClinic } from '@/hooks/use-secretary-clinic'
 import { getErrorMessage } from '@/lib/api'
 import type { LookupOption } from '@/types/auth'
 import type { Gender, SecretaryProfile, UpdateSecretaryProfileRequest } from '@/types/secretary'
@@ -40,6 +41,8 @@ export default function SecretaryProfilePage() {
   const { t } = useTranslation()
   const api = useApi()
   const profile = useQuery({ queryKey: profileKey, queryFn: () => api.request<SecretaryProfile>('/api/secretaries/me', {}, { notifyOnError: false }) })
+  // The profile has no clinic id; the secretary's clinic endpoint provides it for "Leave clinic".
+  const clinic = useSecretaryClinic()
 
   return (
     <DoctorWorkspaceShell active="secretary-profile">
@@ -70,7 +73,7 @@ export default function SecretaryProfilePage() {
             </Button>
           </Card>
         )}
-        {profile.data && <ProfileContent key={profile.data.id} profile={profile.data} />}
+        {profile.data && <ProfileContent key={profile.data.id} profile={{ ...profile.data, clinicId: profile.data.clinicId ?? clinic.data?.id ?? null }} />}
       </div>
     </DoctorWorkspaceShell>
   )

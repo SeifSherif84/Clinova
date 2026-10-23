@@ -66,8 +66,8 @@ export default function ApiProvider({ children }: { children: ReactNode }) {
   const request = useCallback(
     async <T,>(path: string, init: RequestInit = {}, config: ApiRequestConfig = {}) => {
       setActiveRequests((count) => count + 1)
+      const authenticated = config.authenticated ?? true
       try {
-        const authenticated = config.authenticated ?? true
         const response = await fetch(`${API_BASE_URL}${path}`, {
           ...init,
           headers: withHeaders(init, authenticated ? tokens?.accessToken : null),
@@ -87,7 +87,8 @@ export default function ApiProvider({ children }: { children: ReactNode }) {
         return await parseApiResponse<T>(retryResponse)
       } catch (error) {
         const normalizedError = normalizeApiError(error)
-        if (config.notifyOnError !== false || (normalizedError instanceof Error && 'status' in normalizedError && normalizedError.status === 401)) reportError(normalizedError)
+        // A 401 on a signed-in request means the session ended; sign-in calls handle their own 401s.
+        if (config.notifyOnError !== false || (authenticated && normalizedError instanceof Error && 'status' in normalizedError && normalizedError.status === 401)) reportError(normalizedError)
         throw normalizedError
       } finally {
         setActiveRequests((count) => Math.max(0, count - 1))

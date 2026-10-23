@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
 import PreferencesControls from '@/components/preferences-controls'
@@ -31,6 +31,8 @@ export default function DashboardPage() {
         <nav className="mt-12 grid gap-1">
           <a className={`${navItem} bg-sidebar-accent text-sidebar-foreground [&>svg]:text-sidebar-primary`} href="#overview"><Sparkles /> {t('dashboard.overview')}</a>
           {isSecretary ? <Link className={navItem} to="/secretary/appointments"><CalendarDays /> {t('dashboard.appointments')}</Link> : <a className={navItem} href="#appointments"><CalendarDays /> {t('dashboard.appointments')}</a>}
+          {isSecretary && <Link className={navItem} to="/secretary/guest-booking" search={{ doctorId: undefined }}><CalendarPlus /> {t('secretary.nav.guestBooking')}</Link>}
+          {isSecretary && <Link className={navItem} to="/secretary/clinic"><Building2 /> {t('secretary.nav.clinic')}</Link>}
           {isSecretary && <Link className={navItem} to="/secretary/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           {isDoctor && <Link className={navItem} to="/doctor/clinics"><Building2 /> {t('dashboard.clinics')}</Link>}
           {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}

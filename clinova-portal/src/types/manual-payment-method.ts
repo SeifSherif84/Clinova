@@ -11,3 +11,9 @@ export const manualPaymentTypeIds: Record<ManualPaymentMethodType, number> = {
   VodafoneCash: 1,
   InstaPay: 2,
 }
+
+export const manualPaymentProviders: readonly ManualPaymentMethodType[] = ['VodafoneCash', 'InstaPay']
+
+export function isManualPaymentProvider(type: string): type is ManualPaymentMethodType {
+  return (manualPaymentProviders as readonly string[]).includes(type)
+}

@@ -37,6 +37,15 @@ export interface ClinicMember {
   joinedAt: string
 }
 
+// Members as the clinic secretary sees them (GET /api/clinics/members/management).
+export interface SecretaryClinicMember {
+  id: string
+  fullName: string
+  profilePicture: string | null
+  medicalSpecialty: string
+  isOwner: boolean
+}
+
 export interface UpdateClinicRequest {
   name: string
   streetName: string

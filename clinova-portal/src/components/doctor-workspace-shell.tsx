@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/use-auth'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
 
-type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'secretary-appointments' | 'secretary-invitations' | 'secretary-profile'
+type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'secretary-appointments' | 'secretary-guest-booking' | 'secretary-clinic' | 'secretary-invitations' | 'secretary-profile'
 
 // Shared sidebar shell for clinic staff; the navigation follows the signed-in role.
 export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: WorkspaceSection; topBackLink?: ReactNode }) {
@@ -30,6 +30,8 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
         {isSecretary ? <nav className="mt-12 grid gap-1">
           <Link className={navItem} to="/dashboard"><Sparkles />{t('dashboard.overview')}</Link>
           <Link className={active === 'secretary-appointments' ? activeItem : navItem} to="/secretary/appointments"><CalendarDays />{t('dashboard.appointments')}</Link>
+          <Link className={active === 'secretary-guest-booking' ? activeItem : navItem} to="/secretary/guest-booking" search={{ doctorId: undefined }}><CalendarPlus />{t('secretary.nav.guestBooking')}</Link>
+          <Link className={active === 'secretary-clinic' ? activeItem : navItem} to="/secretary/clinic"><Building2 />{t('secretary.nav.clinic')}</Link>
           <Link className={active === 'secretary-invitations' ? activeItem : navItem} to="/secretary/invitations"><MailOpen />{t('dashboard.invitations')}</Link>
           <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
           <Link className={active === 'secretary-profile' ? activeItem : navItem} to="/secretary/profile"><UserRound />{t('dashboard.profile')}</Link>

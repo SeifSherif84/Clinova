@@ -137,6 +137,21 @@ const secretaryInvitationsRoute = createRoute({
   beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
   component: lazyRouteComponent(() => import('@/pages/secretary-invitations-page')),
 })
+const secretaryClinicRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/clinic',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/secretary-clinic-page')),
+})
+const secretaryGuestBookingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/guest-booking',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  validateSearch: (search: Record<string, unknown>): { doctorId?: string } => ({
+    doctorId: typeof search.doctorId === 'string' && search.doctorId ? search.doctorId : undefined,
+  }),
+  component: lazyRouteComponent(() => import('@/pages/secretary-guest-booking-page')),
+})
 const secretaryProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/secretary/profile',
@@ -255,6 +270,8 @@ const routeTree = rootRoute.addChildren([
   doctorInvitationsRoute,
   secretaryAppointmentsRoute,
   secretaryInvitationsRoute,
+  secretaryClinicRoute,
+  secretaryGuestBookingRoute,
   secretaryProfileRoute,
   doctorWorkingHoursRoute,
   doctorClinicsRoute,

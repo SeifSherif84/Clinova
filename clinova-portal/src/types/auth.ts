@@ -3,8 +3,15 @@ export interface ApiProblem {
   statusCode?: number
   title?: string
   message?: string
-  errors?: string[] | Record<string, string[]>
+  // Model-validation responses use errorMessage and a list of per-field errors.
+  errorMessage?: string
+  errors?: string[] | Record<string, string[]> | ApiFieldErrors[]
   traceId?: string
+}
+
+export interface ApiFieldErrors {
+  field: string
+  errors: string[]
 }
 
 export interface SessionTokens {
