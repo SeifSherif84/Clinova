@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { CalendarDays, ChevronLeft, ChevronRight, Clock3, Filter, LoaderCircle, RefreshCw, RotateCcw, Search, Stethoscope, TriangleAlert, UserRound } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock3, Filter, LoaderCircle, RefreshCw, RotateCcw, Search, Stethoscope, TriangleAlert, UserRound } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -56,9 +57,14 @@ export default function SecretaryAppointmentsPage() {
   return (
     <DoctorWorkspaceShell active="secretary-appointments">
       <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
-        <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarDays className="size-3" />{t('secretary.workspace')}</Badge>
-        <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.appointments.title')}</h1>
-        <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.appointments.description')}</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarDays className="size-3" />{t('secretary.workspace')}</Badge>
+            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.appointments.title')}</h1>
+            <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.appointments.description')}</p>
+          </div>
+          <Button className={outlineButton + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
+        </div>
 
         <Card className="mt-6 rounded-2xl border border-border bg-card">
           <CardHeader className="!pb-3 border-b border-border/40">

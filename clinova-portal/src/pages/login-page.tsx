@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, LoaderCircle, Mail } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import AuthShell from '@/components/auth-shell'
 import FormField from '@/components/form-field'
@@ -30,7 +30,6 @@ export default function LoginPage() {
 
   const login = useMutation({
     mutationFn: ({ credentials, persistent }: { credentials: { email: string; password: string }; persistent: boolean }) => auth.signIn(credentials, persistent),
-    onSuccess: () => navigate({ to: '/dashboard' }),
     onError: (error, variables) => {
       if (error instanceof ApiError && error.status === 403) {
         const reason = blockedReason(error)
@@ -38,6 +37,12 @@ export default function LoginPage() {
       }
     },
   })
+
+  // The new session reaches the router context on the next render; navigating straight from
+  // onSuccess would hit the dashboard guard with the old signed-out state and bounce back here.
+  useEffect(() => {
+    if (login.isSuccess && auth.isAuthenticated) void navigate({ to: '/dashboard' })
+  }, [login.isSuccess, auth.isAuthenticated, navigate])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,8 +60,8 @@ export default function LoginPage() {
           <div className="flex items-center gap-2"><Checkbox id="remember" className="rounded border-input data-checked:bg-primary" checked={remember} onCheckedChange={setRemember} /><Label htmlFor="remember" className="cursor-pointer text-xs font-normal text-muted-foreground">{t('login.remember')}</Label></div>
           <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:text-primary/75">{t('login.forgot')}</Link>
         </div>
-        <Button className="h-12 rounded-xl bg-primary text-sm font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={login.isPending}>
-          {login.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <>{t('login.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
+        <Button className="h-12 rounded-xl bg-primary text-sm font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={login.isPending || login.isSuccess}>
+          {login.isPending || login.isSuccess ?<LoaderCircle className="size-4 animate-spin" /> : <>{t('login.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
         </Button>
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3"><Separator /><span className="text-center text-[10px] tracking-widest text-muted-foreground uppercase">{t('login.newHere')}</span><Separator /></div>
         <p className="text-center text-xs text-muted-foreground">{t('login.newToClinova')} <Link to="/register" className="font-semibold text-primary hover:text-primary/75">{t('common.createAccount')}</Link></p>

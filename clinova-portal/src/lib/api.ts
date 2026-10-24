@@ -2,7 +2,7 @@ import type { ApiProblem, SessionTokens } from '@/types/auth'
 import i18n from '@/i18n'
 
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7269'
+  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5258'
 ).replace(/\/$/, '')
 
 export const STORAGE_KEYS = {
@@ -10,22 +10,30 @@ export const STORAGE_KEYS = {
   refreshToken: 'clinova.refresh-token',
 } as const
 
+// Flattens the backend's [{ field, errors }] validation list so callers only ever see messages.
+function normalizeErrors(errors: ApiProblem['errors']): string[] | Record<string, string[]> | undefined {
+  if (!Array.isArray(errors)) return errors
+  return errors.flatMap((item) => typeof item === 'string' ? [item] : item?.errors ?? [])
+}
+
 export class ApiError extends Error {
   status: number
   title: string
-  errors?: ApiProblem['errors']
+  errors?: string[] | Record<string, string[]>
 
   constructor(status: number, problem?: ApiProblem | string) {
+    const errors = typeof problem === 'string' ? undefined : normalizeErrors(problem?.errors)
+    const validation = errors ? (Array.isArray(errors) ? errors : Object.values(errors).flat()).slice(0, 3).join(' · ') : ''
     const message =
       typeof problem === 'string'
         ? problem
-        : problem?.message ?? problem?.title ?? i18n.t('common.genericError')
+        : problem?.message || validation || problem?.errorMessage || problem?.title || i18n.t('common.genericError')
 
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.title = typeof problem === 'string' ? 'Request failed' : (problem?.title ?? 'Request failed')
-    this.errors = typeof problem === 'string' ? undefined : problem?.errors
+    this.errors = errors
   }
 }
 

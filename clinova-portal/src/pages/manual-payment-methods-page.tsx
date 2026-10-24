@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import Notice from '@/components/notice'
+import ProviderLogo from '@/components/payment-provider-logo'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -15,11 +16,11 @@ import { useApi } from '@/hooks/use-api'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiError, getErrorMessage } from '@/lib/api'
 import type { ClinicDetails, ClinicMember } from '@/types/clinic'
-import { manualPaymentTypeIds, type ManualPaymentMethod, type ManualPaymentMethodType } from '@/types/manual-payment-method'
+import { manualPaymentProviders, manualPaymentTypeIds, type ManualPaymentMethod, type ManualPaymentMethodType } from '@/types/manual-payment-method'
 
 const buttonClass = 'h-11 rounded-xl text-sm font-bold normal-case'
 const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
-const providerTypes: ManualPaymentMethodType[] = ['VodafoneCash', 'InstaPay']
+const providerTypes = manualPaymentProviders
 type Editor = { id?: number; type: ManualPaymentMethodType; accountIdentifier: string; isActive: boolean }
 type Action =
   | { kind: 'save'; editor: Editor }
@@ -31,15 +32,6 @@ function normalizeIdentifier(editor: Editor) {
   return editor.type === 'VodafoneCash'
     ? editor.accountIdentifier.trim().replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - (digit.charCodeAt(0) >= 0x6f0 ? 0x6f0 : 0x660))).replace(/[\s()-]/g, '')
     : editor.accountIdentifier.trim()
-}
-
-function ProviderLogo({ type, className = '' }: { type: ManualPaymentMethodType; className?: string }) {
-  // Preserve original brand artwork on a white surface, including in dark mode.
-  return <span aria-hidden="true" className={`relative flex h-12 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ${className}`}>
-    {type === 'InstaPay'
-      ? <img src="/payment-providers/instapay.png" alt="" className="absolute w-32 max-w-none" />
-      : <img src="/payment-providers/vodafone.svg" alt="" className="size-9" />}
-  </span>
 }
 
 export default function ManualPaymentMethodsPage() {

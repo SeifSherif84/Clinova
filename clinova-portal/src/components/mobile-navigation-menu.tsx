@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, Clock3, MailOpen, Menu, Sparkles, Stethoscope, UserRound, X } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, MailOpen, Menu, Sparkles, Stethoscope, UserRound, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,8 @@ export default function MobileNavigationMenu() {
         {isSecretary
           ? <DropdownMenuItem className={pathname === '/secretary/appointments' ? activeClass : itemClass} render={<Link to="/secretary/appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>
           : <DropdownMenuItem className={itemClass} render={<a href="/dashboard#appointments" />}><CalendarDays />{t('dashboard.appointments')}</DropdownMenuItem>}
+        {isSecretary && <DropdownMenuItem className={pathname === '/secretary/guest-booking' ? activeClass : itemClass} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.nav.guestBooking')}</DropdownMenuItem>}
+        {isSecretary && <DropdownMenuItem className={pathname === '/secretary/clinic' ? activeClass : itemClass} render={<Link to="/secretary/clinic" />}><Building2 />{t('secretary.nav.clinic')}</DropdownMenuItem>}
         {isSecretary && <DropdownMenuItem className={pathname === '/secretary/invitations' ? activeClass : itemClass} render={<Link to="/secretary/invitations" />}><MailOpen />{t('dashboard.invitations')}</DropdownMenuItem>}
         {isDoctor && <DropdownMenuItem className={pathname.startsWith('/doctor/clinics') ? activeClass : itemClass} render={<Link to="/doctor/clinics" />}><Building2 />{t('dashboard.clinics')}</DropdownMenuItem>}
         {isDoctor && <DropdownMenuItem className={pathname === '/doctor/invitations' ? activeClass : itemClass} render={<Link to="/doctor/invitations" />}><MailOpen />{t('dashboard.invitations')}</DropdownMenuItem>}
