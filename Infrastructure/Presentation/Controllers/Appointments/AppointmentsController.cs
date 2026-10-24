@@ -81,6 +81,15 @@ namespace Presentation.Controllers.Appointments
 
 
 
+        [Authorize(Roles = "Patient")]
+        [HttpPost("{appointmentId}/payment-proof-submit")] // Post: /api/appointments/{appointmentId}/payment-proof-submit
+        public async Task<IActionResult> PatientSubmitManualPaymentProof([FromRoute] int appointmentId,
+                                                                         [FromForm] SubmitManualPaymentProofRequest request)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AppointmentService.PatientSubmitManualPaymentProofAsync(userId ?? string.Empty, appointmentId, request);
+            return Ok(response);
+        }
 
 
 
@@ -110,15 +119,6 @@ namespace Presentation.Controllers.Appointments
 
 
 
-        [Authorize(Roles = "Patient")]
-        [HttpPost("{appointmentId}/payment-proof-submit")] // Post: /api/appointments/{appointmentId}/payment-proof-submit
-        public async Task<IActionResult> PatientSubmitManualPaymentProof([FromRoute] int appointmentId,
-                                                                         [FromForm] SubmitManualPaymentProofRequest request)
-        {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.PatientSubmitManualPaymentProofAsync(userId ?? string.Empty, appointmentId, request);
-            return Ok(response);
-        }
 
 
         [Authorize(Roles = "Secretary")]

@@ -5,7 +5,7 @@ const initials = (name: string) => name.replace(/^dr\.?\s+/i, '').split(' ').fil
 // Falls back to initials when the doctor has no profile picture or it fails to load.
 export default function DoctorAvatar({ name, picture, className = 'size-11' }: { name: string; picture: string | null; className?: string }) {
   return <Avatar className={`${className} rounded-xl after:rounded-xl`}>
-    {picture && <AvatarImage className="rounded-xl" src={picture} alt="" />}
+    {picture && <AvatarImage className="rounded-xl object-cover object-top" src={picture} alt="" />}
     <AvatarFallback className="rounded-xl">{initials(name)}</AvatarFallback>
   </Avatar>
 }

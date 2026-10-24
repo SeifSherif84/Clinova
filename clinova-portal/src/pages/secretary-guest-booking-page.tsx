@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useSearch } from '@tanstack/react-router'
-import { ArrowLeftRight, Ban, Banknote, CalendarCheck2, CalendarDays, CalendarPlus, CircleCheckBig, Clock3, LoaderCircle, Phone, ReceiptText, RefreshCw, RotateCcw, Stethoscope, Timer, TriangleAlert, UserRound, Wallet } from 'lucide-react'
+import { useSearch } from '@tanstack/react-router'
+import { ArrowLeftRight, Ban, Banknote, CalendarCheck2, CalendarDays, CalendarPlus, CircleCheckBig, Clock3, LoaderCircle, Phone, ReceiptText, RefreshCw, RotateCcw, Stethoscope, TriangleAlert, UserRound, Wallet } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { arEG } from 'react-day-picker/locale'
+import { arEG } from "@daypicker/react/locale/ar-EG";
 import ClinicNotAssigned from '@/components/clinic-not-assigned'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorAvatar from '@/components/doctor-avatar'
@@ -14,9 +14,9 @@ import ProviderLogo from '@/components/payment-provider-logo'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent} from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Progress, ProgressLabel } from '@/components/ui/progress'
+import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useApi } from '@/hooks/use-api'
 import { useSecretaryClinic, useSecretaryClinicMembers } from '@/hooks/use-secretary-clinic'
@@ -33,7 +33,6 @@ const button = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
 const primaryButton = button + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'
 const spinner = <LoaderCircle className="animate-spin motion-reduce:animate-none" />
 // Selectable tile for radio options; the checked state comes from the Base UI radio inside it.
-const optionTile = 'flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-3 transition hover:border-primary/30 hover:bg-primary/5 has-[[data-checked]]:border-primary/40 has-[[data-checked]]:bg-primary/5 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60'
 const bookingTypeKey: Record<number, 'Advance' | 'WalkIn'> = { [BookingType.Advance]: 'Advance', [BookingType.WalkIn]: 'WalkIn' }
 const paymentMethodKey: Record<number, 'Cash' | 'ManualTransfer'> = { [GuestPaymentMethod.Cash]: 'Cash', [GuestPaymentMethod.ManualTransfer]: 'ManualTransfer' }
 
@@ -49,27 +48,17 @@ function useLocale() {
 
 function SectionCard({ icon, title, step, children }: { icon: ReactNode; title: string; step?: number; children: ReactNode }) {
   const { t } = useTranslation()
-  return <Card className="rounded-2xl border border-border bg-card">
-    <CardHeader className="!pb-3 border-b border-border/40">
-      <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
-        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">{icon}</span>
-        <span className="min-w-0">{title}</span>
-        {step && <span className="ms-auto rounded-full bg-muted px-2 py-0.5 text-xs font-bold text-muted-foreground">{t('secretary.guest.step', { number: step })}</span>}
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="grid gap-5">{children}</CardContent>
+  return <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
+    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+      <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+      <div className="relative flex items-center gap-3.5">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-6">{icon}</span>
+        <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{title}</h3>
+        {step && <span className="shrink-0 rounded-full bg-background/70 px-2.5 py-1 text-xs font-bold text-muted-foreground">{t('secretary.guest.step', { number: step })}</span>}
+      </div>
+    </div>
+    <CardContent className="grid gap-5 p-5">{children}</CardContent>
   </Card>
-}
-
-function SummaryRow({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
-  return <div className="flex min-w-0 items-center gap-3">
-    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary [&>svg]:size-4">{icon}</span>
-    <div className="min-w-0"><small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{label}</small><strong className="block truncate text-sm font-bold">{value}</strong></div>
-  </div>
-}
-
-function MiniStat({ label, value, tone = '' }: { label: string; value: string; tone?: string }) {
-  return <div className={`rounded-xl bg-background p-3 ${tone}`}><small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{label}</small><strong className="text-sm font-bold">{value}</strong></div>
 }
 
 function Hint({ icon, children }: { icon: ReactNode; children: ReactNode }) {
@@ -82,7 +71,6 @@ export default function SecretaryGuestBookingPage() {
   const clinic = useSecretaryClinic()
   const notAssigned = isNotAssignedError(clinic.error)
   const [held, setHeld] = useState<HeldReservation | null>(readHeldReservation)
-  const [confirmed, setConfirmed] = useState<HeldReservation | null>(null)
   const [notice, setNotice] = useState('')
 
   function hold(reservation: HeldReservation | null, message = '') {
@@ -106,11 +94,9 @@ export default function SecretaryGuestBookingPage() {
             <p className="text-sm font-bold text-destructive">{getErrorMessage(clinic.error)}</p>
             <Button variant="outline" className={button + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </Card>}
-          {clinic.data && (confirmed
-            ? <BookingConfirmed reservation={confirmed} onBookAnother={() => { setConfirmed(null); setNotice('') }} />
-            : held
-              ? <GuestCheckout key={held.checkout.appointmentId} reservation={held} onConfirmed={() => { setConfirmed(held); hold(null) }} onReleased={(message) => hold(null, message)} />
-              : <ReservationForm clinic={clinic.data} initialDoctorId={search.doctorId} onReserved={(reservation) => hold(reservation, t('secretary.guest.reserved'))} />)}
+          {clinic.data && (held
+            ? <GuestCheckout key={held.checkout.appointmentId} reservation={held} onConfirmed={() => hold(null, t('secretary.guest.successDescription', { name: held.checkout.guestPatientName, doctor: held.doctorName }))} onReleased={(message) => hold(null, message)} />
+            : <ReservationForm clinic={clinic.data} initialDoctorId={search.doctorId} onReserved={(reservation) => hold(reservation, t('secretary.guest.reserved'))} />)}
         </div>
       </div>
     </DoctorWorkspaceShell>
@@ -201,25 +187,29 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         </div>}
         {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noDoctors')}</p>}
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {members.data.map((member) => <label key={member.id} className={optionTile}>
-            <RadioGroupItem value={member.id} />
-            <DoctorAvatar name={member.fullName} picture={member.profilePicture} />
-            <span className="min-w-0 flex-1">
-              <strong className="block truncate text-sm font-bold">{member.fullName}</strong>
-              <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-                <span className="truncate">{member.medicalSpecialty}</span>
-                {member.isOwner && <Badge className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{t('secretary.myClinic.owner')}</Badge>}
+          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+            <RadioGroupItem value={member.id} className="pointer-events-none absolute size-px opacity-0" />
+            <DoctorAvatar className="size-14" name={member.fullName} picture={member.profilePicture} />
+            <span className="grid min-w-0 flex-1 gap-1">
+              <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <strong className="truncate text-base font-bold">{member.fullName}</strong>
+                {member.isOwner && <Badge className="shrink-0 rounded-full border border-primary/20 bg-primary px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary-foreground uppercase">{t('secretary.myClinic.owner')}</Badge>}
               </span>
+              <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-muted-foreground"><Stethoscope className="size-3.5 shrink-0 text-primary" /><span className="truncate">{member.medicalSpecialty}</span></span>
+            </span>
+            <span aria-hidden="true" className="relative grid size-6 shrink-0 place-items-center">
+              <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
+              <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
             </span>
           </label>)}
         </RadioGroup>}
       </SectionCard>
 
       <SectionCard icon={<CalendarDays className="size-5" />} title={t('secretary.guest.scheduleStep')} step={2}>
-        {!doctor ? <Hint icon={<Stethoscope className="text-primary" />}>{t('secretary.guest.pickDoctorFirst')}</Hint> : <div className="grid gap-5 lg:grid-cols-[auto_minmax(0,1fr)]">
-          <div className="grid content-start gap-2">
-            <Label className="text-xs font-semibold text-foreground/80">{t('secretary.guest.dayLabel')}</Label>
-            <div className="relative justify-self-start rounded-2xl border border-border/60 bg-background/45">
+        {!doctor ? <Hint icon={<Stethoscope className="text-primary" />}>{t('secretary.guest.pickDoctorFirst')}</Hint> : <div className="grid gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-0">
+          <div className="grid content-start gap-3 lg:pe-8">
+            <Label className="text-sm font-bold text-foreground">{t('secretary.guest.dayLabel')}</Label>
+            <div className="relative justify-self-start">
               <Calendar
                 mode="single"
                 selected={date ? parseSlotDate(date) ?? undefined : undefined}
@@ -232,25 +222,32 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
                 dir={i18n.dir()}
                 disabled={(day) => days.isFetching || !available.has(toIsoDate(day))}
                 modifiers={{ available: (day) => available.has(toIsoDate(day)) }}
-                modifiersClassNames={{ available: '[&>button]:bg-primary/10 [&>button]:text-primary' }}
+                modifiersClassNames={{ available: '[&>button]:bg-primary/10 [&>button]:font-bold [&>button]:text-primary' }}
               />
               {days.isFetching && <span role="status" className="absolute inset-0 grid place-items-center rounded-2xl bg-card/60 backdrop-blur-[1px]"><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingDays')}</span></span>}
             </div>
             {days.isError && <p role="alert" className="max-w-80 text-xs font-bold text-destructive">{getErrorMessage(days.error)}</p>}
-            {days.data && !days.data.length && !days.isFetching && <p className="max-w-80 text-xs leading-6 text-muted-foreground">{t('secretary.guest.noDays')}</p>}
+            {days.data && !days.data.length && !days.isFetching && <div className="flex max-w-80 items-center gap-3 rounded-2xl border border-warm/20 bg-warm/10 p-3.5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-warm/15 text-warm"><CalendarDays className="size-4" /></span>
+              <p className="min-w-0 flex-1 text-xs leading-5 font-semibold text-foreground/80">{t('secretary.guest.noDays')}</p>
+            </div>}
           </div>
-          <div className="grid min-w-0 content-start gap-2">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <Label className="text-xs font-semibold text-foreground/80">{t('secretary.guest.timeLabel')}</Label>
-              {date && <span className="text-xs font-bold text-primary">{formatDate(date)}</span>}
+          <div className="grid min-w-0 content-start gap-3 lg:border-s lg:border-border/50 lg:ps-8">
+            <div className="grid gap-1">
+              <Label className="text-sm font-bold text-foreground">{t('secretary.guest.timeLabel')}</Label>
+              {date && <span className="text-sm font-semibold text-primary">{formatDate(date)}</span>}
             </div>
-            {!date && <Hint icon={<CalendarDays className="text-primary" />}>{t('secretary.guest.pickDayFirst')}</Hint>}
+            {!date && <div className="grid min-h-56 place-content-center justify-items-center gap-3 text-center">
+              <span className="grid size-14 place-items-center rounded-full bg-primary/10 text-primary"><CalendarDays className="size-6" /></span>
+              <p className="max-w-56 text-sm font-semibold leading-6 text-muted-foreground">{t('secretary.guest.pickDayFirst')}</p>
+            </div>}
             {date && slots.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingSlots')}</p>}
             {date && slots.isError && <p role="alert" className="text-xs font-bold text-destructive">{getErrorMessage(slots.error)}</p>}
             {date && slots.data && !slots.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noSlots')}</p>}
-            {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-2">
-              {slots.data.map((item) => <label key={item.id} className="flex cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-background/45 px-3 py-2.5 text-sm font-bold whitespace-nowrap tabular-nums transition hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground">
-                <RadioGroupItem value={String(item.id)} className="sr-only" />
+            {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="mt-1 grid grid-cols-2 gap-2.5">
+              {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-2.5 py-3 text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:border-primary not-has-[[data-checked]]:hover:bg-primary/10 not-has-[[data-checked]]:hover:text-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
+                <RadioGroupItem value={String(item.id)} className="pointer-events-none absolute size-px opacity-0" />
+                <Clock3 aria-hidden="true" className="size-3.5 shrink-0 opacity-60" />
                 <span dir="ltr">{formatTime(item.startTime)} – {formatTime(item.endTime)}</span>
               </label>)}
             </RadioGroup>}
@@ -263,18 +260,22 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
           <FormField className="content-start" id="guestName" label={t('secretary.guest.name')} placeholder={t('secretary.guest.namePlaceholder')} value={name} maxLength={100} autoComplete="off" icon={<UserRound size={18} />} error={errors.name} onChange={(event) => { setName(event.target.value); setErrors((current) => ({ ...current, name: undefined })) }} />
           <FormField className="content-start" id="guestPhone" type="tel" dir="ltr" inputMode="numeric" label={t('secretary.guest.phone')} placeholder="01012345678" value={phone} maxLength={11} autoComplete="off" hint={t('secretary.guest.phoneHint')} icon={<Phone size={18} />} error={errors.phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, '')); setErrors((current) => ({ ...current, phone: undefined })) }} />
         </div>
-        <div className="grid gap-2">
-          <Label className="text-xs font-semibold text-foreground/80">{t('secretary.guest.bookingType')}</Label>
+        <div className="grid gap-3">
+          <Label className="text-sm font-bold text-foreground">{t('secretary.guest.bookingType')}</Label>
           <RadioGroup aria-label={t('secretary.guest.bookingType')} value={String(bookingType)} onValueChange={(value) => setBookingType(Number(value))} className="grid gap-3 sm:grid-cols-2">
             {typeOptions.map((option) => {
               const key = bookingTypeKey[option.id]
               const split = amounts(option.id)
-              return <label key={option.id} className={optionTile + ' items-start p-4'}>
-                <RadioGroupItem value={String(option.id)} className="mt-0.5" />
-                <span className="grid min-w-0 flex-1 gap-1">
-                  <strong className="text-sm font-bold">{key ? t(`secretary.guest.types.${key}`) : option.name}</strong>
-                  {key && <span className="text-xs leading-5 text-muted-foreground">{t(`secretary.guest.typeHints.${key}`)}</span>}
-                  <span className="mt-1 text-xs font-bold text-primary">{t('secretary.guest.collectNow')}: {money(split.now)}</span>
+              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-4 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+                <RadioGroupItem value={String(option.id)} className="pointer-events-none absolute size-px opacity-0" />
+                <span className="grid min-w-0 flex-1 gap-1.5">
+                  <strong className="text-base font-bold">{key ? t(`secretary.guest.types.${key}`) : option.name}</strong>
+                  {key && <span className="text-xs leading-5 font-medium text-muted-foreground">{t(`secretary.guest.typeHints.${key}`)}</span>}
+                  <span className="mt-2 inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">{t('secretary.guest.collectNow')}: {money(split.now)}</span>
+                </span>
+                <span aria-hidden="true" className="relative mt-0.5 grid size-6 shrink-0 place-items-center">
+                  <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
+                  <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
                 </span>
               </label>
             })}
@@ -284,22 +285,47 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
     </div>
 
     <div className="min-w-0">
-      <Card className="rounded-2xl border border-border bg-card xl:sticky xl:top-24">
-        <CardHeader className="!pb-3 border-b border-border/40">
-          <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
-            <span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><ReceiptText className="size-5" /></span>{t('secretary.guest.summaryTitle')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <SummaryRow icon={<Stethoscope />} label={t('secretary.guest.doctor')} value={doctor?.fullName ?? <span className="text-muted-foreground">{t('secretary.guest.notSelected')}</span>} />
-          <SummaryRow icon={<CalendarDays />} label={t('secretary.guest.date')} value={date ? formatDate(date) : <span className="text-muted-foreground">{t('secretary.guest.notSelected')}</span>} />
-          <SummaryRow icon={<Clock3 />} label={t('secretary.guest.time')} value={slot ? <span dir="ltr">{formatTime(slot.startTime)} – {formatTime(slot.endTime)}</span> : <span className="text-muted-foreground">{t('secretary.guest.notSelected')}</span>} />
-          <SummaryRow icon={<Banknote />} label={t('secretary.guest.fee')} value={money(clinic.consultationFee)} />
-          <div className="grid grid-cols-2 gap-3">
-            <MiniStat label={t('secretary.guest.collectNow')} value={money(selectedAmounts.now)} tone="ring-1 ring-primary/15" />
-            <MiniStat label={t('secretary.guest.later')} value={money(selectedAmounts.later)} />
+      <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border-2 border-dashed border-primary/25 bg-gradient-to-b from-primary/[0.07] via-primary/[0.03] to-card p-0 shadow-lg shadow-primary/10 xl:sticky xl:top-24">
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="relative flex items-center gap-3.5">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-6" /></span>
+            <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.guest.summaryTitle')}</h3>
           </div>
-          <Hint icon={<Timer className="text-warm" />}>{t('secretary.guest.holdNote')}</Hint>
+        </div>
+        <CardContent className="grid gap-3 p-5">
+          <div className="grid">
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Stethoscope className="size-4 text-primary/70" />{t('secretary.guest.doctor')}</span>
+              <span className="text-end text-sm font-bold">{doctor?.fullName ?? <span className="font-medium text-muted-foreground">{t('secretary.guest.notSelected')}</span>}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><CalendarDays className="size-4 text-primary/70" />{t('secretary.guest.date')}</span>
+              <span className="text-end text-sm font-bold">{date ? formatDate(date) : <span className="font-medium text-muted-foreground">{t('secretary.guest.notSelected')}</span>}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Clock3 className="size-4 text-primary/70" />{t('secretary.guest.time')}</span>
+              <span className="text-end text-sm font-bold">{slot ? <span dir="ltr">{formatTime(slot.startTime)} – {formatTime(slot.endTime)}</span> : <span className="font-medium text-muted-foreground">{t('secretary.guest.notSelected')}</span>}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Banknote className="size-4 text-primary/70" />{t('secretary.guest.fee')}</span>
+              <span dir="ltr" className="text-end text-sm font-bold">{money(clinic.consultationFee)}</span>
+            </div>
+          </div>
+
+          <div aria-hidden="true" className="-mt-3 border-t border-dashed border-border" />
+
+          <div className="grid gap-2">
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/5 px-3 py-2.5 ring-1 ring-primary/15">
+              <span className="text-xs font-bold tracking-wide text-primary uppercase">{t('secretary.guest.collectNow')}</span>
+              <span dir="ltr" className="font-mono text-lg font-bold tabular-nums text-primary">{money(selectedAmounts.now)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3 px-3">
+              <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{t('secretary.guest.later')}</span>
+              <span dir="ltr" className="font-mono text-sm font-bold tabular-nums text-muted-foreground">{money(selectedAmounts.later)}</span>
+            </div>
+          </div>
+
           <Button type="submit" className={primaryButton + ' w-full'} disabled={reserve.isPending}>{reserve.isPending ? spinner : <CalendarCheck2 />}{t('secretary.guest.reserve')}</Button>
         </CardContent>
       </Card>
@@ -381,24 +407,32 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
           <p className="flex items-center gap-2 text-sm font-bold text-destructive"><TriangleAlert className="size-4" />{t('secretary.guest.expiredTitle')}</p>
           <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.expiredDescription')}</p>
           <Button type="button" className={primaryButton} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>
-        </div> : <div className={`rounded-2xl border p-4 ${lowTime ? 'border-warm/20 bg-warm/10' : 'border-primary/15 bg-primary/5'}`}>
-          <Progress value={countdown.percent} aria-label={t('secretary.guest.expiresIn')} className={lowTime ? '[&_[data-slot=progress-indicator]]:bg-warm [&_[data-slot=progress-track]]:bg-warm/15' : ''}>
-            <ProgressLabel className="flex items-center gap-1.5"><Timer className="size-3.5" />{t('secretary.guest.expiresIn')}</ProgressLabel>
-            <span dir="ltr" className={`ms-auto font-sans text-2xl font-bold tabular-nums ${lowTime ? 'text-warm' : 'text-primary'}`} aria-live="off">{countdown.label}</span>
-          </Progress>
-          <p className="mt-2 text-[11px] font-bold text-muted-foreground">{t('secretary.guest.expiresAt', { time: expiresAt })}</p>
+        </div> : <div className={`overflow-hidden rounded-2xl border p-4 sm:p-5 ${lowTime ? 'border-warm/20 bg-warm/10' : 'border-primary/15 bg-primary/5'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <strong className="block text-sm font-bold tracking-wide text-foreground uppercase">{t('secretary.guest.expiresIn')}</strong>
+              <span className="text-[11px] font-bold text-muted-foreground">{t('secretary.guest.expiresAt', { time: expiresAt })}</span>
+            </div>
+            <span dir="ltr" className={`font-sans text-3xl font-bold tabular-nums ${lowTime ? 'text-warm' : 'text-primary'}`} aria-live="off">{countdown.label}</span>
+          </div>
+          <Progress value={countdown.percent} aria-label={t('secretary.guest.expiresIn')} className={`mt-4 ${lowTime ? '[&_[data-slot=progress-indicator]]:bg-warm [&_[data-slot=progress-track]]:bg-warm/15' : ''}`} />
         </div>}
 
         <div className="grid gap-2">
-          <Label className="text-xs font-semibold text-foreground/80">{t('secretary.guest.paymentMethod')}</Label>
+          <Label className="text-sm font-bold text-foreground">{t('secretary.guest.paymentMethod')}</Label>
           <RadioGroup aria-label={t('secretary.guest.paymentMethod')} value={method ? String(method) : ''} disabled={countdown.expired || busy} onValueChange={(value) => { setMethod(Number(value)); setAccountId(''); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
             {methodOptions.map((option) => {
               const key = paymentMethodKey[option.id]
-              return <label key={option.id} className={optionTile + ' items-start p-4'}>
-                <RadioGroupItem value={String(option.id)} className="mt-0.5" />
-                <span className="grid min-w-0 flex-1 gap-1">
-                  <strong className="flex items-center gap-2 text-sm font-bold">{option.id === GuestPaymentMethod.ManualTransfer ? <ArrowLeftRight className="size-4 text-primary" /> : <Banknote className="size-4 text-primary" />}{key ? t(`secretary.guest.methods.${key}`) : option.name}</strong>
-                  {key && <span className="text-xs leading-5 text-muted-foreground">{t(`secretary.guest.methodHints.${key}`)}</span>}
+              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+                <RadioGroupItem value={String(option.id)} className="pointer-events-none absolute size-px opacity-0" />
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">{option.id === GuestPaymentMethod.ManualTransfer ? <ArrowLeftRight className="size-4.5" /> : <Banknote className="size-4.5" />}</span>
+                <span className="grid min-w-0 flex-1 gap-0.5 pt-0.5">
+                  <strong className="text-sm font-bold">{key ? t(`secretary.guest.methods.${key}`) : option.name}</strong>
+                  {key && <span className="text-xs leading-5 font-medium text-muted-foreground">{t(`secretary.guest.methodHints.${key}`)}</span>}
+                </span>
+                <span aria-hidden="true" className="relative mt-0.5 grid size-6 shrink-0 place-items-center">
+                  <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
+                  <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
                 </span>
               </label>
             })}
@@ -414,45 +448,76 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
           </div>}
           {accounts.data && !accounts.data.length && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 p-3 text-xs leading-6 font-bold text-warm"><TriangleAlert className="mt-1 size-3.5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
           {accounts.data && accounts.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.account')} value={accountId} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
-            {accounts.data.map((account) => <label key={account.id} className={optionTile}>
-              <RadioGroupItem value={String(account.id)} />
+            {accounts.data.map((account) => <label key={account.id} className="group relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+              <RadioGroupItem value={String(account.id)} className="pointer-events-none absolute size-px opacity-0" />
               {isManualPaymentProvider(account.type)
-                ? <ProviderLogo type={account.type} className="shadow-sm" />
+                ? <ProviderLogo type={account.type} size="sm" className="shadow-sm" />
                 : <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Wallet className="size-4" /></span>}
               <span className="min-w-0 flex-1">
                 <small className="block truncate text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t(`manualPayments.${account.type}`, { defaultValue: account.type })}</small>
                 <strong dir="ltr" className="block truncate text-start text-sm font-bold">{account.accountIdentifier}</strong>
               </span>
+              <span aria-hidden="true" className="relative grid size-6 shrink-0 place-items-center">
+                <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
+                <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
+              </span>
             </label>)}
           </RadioGroup>}
         </div>}
 
-        {!countdown.expired && <div className="flex flex-wrap gap-2 border-t border-border/40 pt-4">
-          <Button type="button" className={primaryButton} disabled={busy} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig />}{t('secretary.guest.confirm')}</Button>
-          <Button type="button" variant="outline" className={button + ' border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive'} disabled={busy} onClick={() => { cancel.reset(); setConfirmCancel(true) }}>{cancel.isPending ? spinner : <Ban />}{t('secretary.guest.cancel')}</Button>
+        {!countdown.expired && <div className="flex flex-wrap gap-2.5 border-t border-border/50 pt-5">
+          <Button type="button" className={primaryButton + ' flex-1 sm:flex-none'} disabled={busy} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig />}{t('secretary.guest.confirm')}</Button>
+          <Button type="button" variant="outline" className={button + ' rounded-xl border-destructive/20 bg-destructive/5 text-destructive hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive'} disabled={busy} onClick={() => { cancel.reset(); setConfirmCancel(true) }}>{cancel.isPending ? spinner : <Ban />}{t('secretary.guest.cancel')}</Button>
           {failed && <Button type="button" variant="outline" className={button} disabled={busy} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>}
         </div>}
       </SectionCard>
     </div>
 
     <div className="min-w-0">
-      <Card className="rounded-2xl border border-border bg-card xl:sticky xl:top-24">
-        <CardHeader className="!pb-3 border-b border-border/40">
-          <CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal">
-            <span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><ReceiptText className="size-5" /></span>{t('secretary.guest.summaryTitle')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
+      <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border-2 border-dashed border-primary/25 bg-gradient-to-b from-primary/[0.07] via-primary/[0.03] to-card p-0 shadow-lg shadow-primary/10 xl:sticky xl:top-24">
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="relative flex items-center gap-3.5">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-6" /></span>
+            <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.guest.summaryTitle')}</h3>
+          </div>
+        </div>
+        <CardContent className="grid gap-3 p-5">
           {typeKey && <Badge className="justify-self-start rounded-full border border-warm/20 bg-warm/10 px-2.5 py-1 text-[10px] font-bold text-warm">{t(`secretary.guest.types.${typeKey}`)}</Badge>}
-          <SummaryRow icon={<UserRound />} label={t('secretary.guest.guest')} value={checkout.guestPatientName} />
-          <SummaryRow icon={<Phone />} label={t('secretary.guest.phone')} value={<span dir="ltr">{checkout.guestPatientPhone}</span>} />
-          <SummaryRow icon={<Stethoscope />} label={t('secretary.guest.doctor')} value={reservation.doctorName} />
-          <SummaryRow icon={<CalendarDays />} label={t('secretary.guest.date')} value={formatDate(reservation.date)} />
-          <SummaryRow icon={<Clock3 />} label={t('secretary.guest.time')} value={<span dir="ltr">{formatTime(reservation.startTime)} – {formatTime(reservation.endTime)}</span>} />
-          <div className="grid grid-cols-2 gap-3">
-            <MiniStat label={t('secretary.guest.fee')} value={money(checkout.consultationFee)} />
-            <MiniStat label={t('secretary.guest.collectNow')} value={money(checkout.paymentAmount)} tone="ring-1 ring-primary/15" />
-            <MiniStat label={t('secretary.guest.remainingAmount')} value={money(checkout.remainingAmount)} />
+          <div className="grid">
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><UserRound className="size-4 text-primary/70" />{t('secretary.guest.guest')}</span>
+              <span className="text-end text-sm font-bold">{checkout.guestPatientName}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Phone className="size-4 text-primary/70" />{t('secretary.guest.phone')}</span>
+              <span dir="ltr" className="text-end text-sm font-bold">{checkout.guestPatientPhone}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Stethoscope className="size-4 text-primary/70" />{t('secretary.guest.doctor')}</span>
+              <span className="text-end text-sm font-bold">{reservation.doctorName}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border/70 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><CalendarDays className="size-4 text-primary/70" />{t('secretary.guest.date')}</span>
+              <span className="text-end text-sm font-bold">{formatDate(reservation.date)}</span>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 py-3">
+              <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"><Clock3 className="size-4 text-primary/70" />{t('secretary.guest.time')}</span>
+              <span dir="ltr" className="text-end text-sm font-bold">{formatTime(reservation.startTime)} – {formatTime(reservation.endTime)}</span>
+            </div>
+          </div>
+
+          <div aria-hidden="true" className="-mt-3 border-t border-dashed border-border" />
+
+          <div className="grid gap-2">
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/5 px-3 py-2.5 ring-1 ring-primary/15">
+              <span className="text-xs font-bold tracking-wide text-primary uppercase">{t('secretary.guest.collectNow')}</span>
+              <span dir="ltr" className="font-mono text-lg font-bold tabular-nums text-primary">{money(checkout.paymentAmount)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3 px-3">
+              <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{t('secretary.guest.remainingAmount')}</span>
+              <span dir="ltr" className="font-mono text-sm font-bold tabular-nums text-muted-foreground">{money(checkout.remainingAmount)}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -473,28 +538,4 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
   </div>
 }
 
-function BookingConfirmed({ reservation, onBookAnother }: { reservation: HeldReservation; onBookAnother: () => void }) {
-  const { t } = useTranslation()
-  const { money, date: formatDate } = useLocale()
-  const { checkout } = reservation
-  return <Card className="relative overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
-    <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
-    <div className="relative grid gap-5">
-      <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary"><CircleCheckBig className="size-7" /></span>
-      <div>
-        <h2 className="font-sans text-2xl font-bold sm:text-3xl">{t('secretary.guest.successTitle')}</h2>
-        <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.successDescription', { name: checkout.guestPatientName, doctor: reservation.doctorName })}</p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <MiniStat label={t('secretary.guest.date')} value={formatDate(reservation.date)} />
-        <MiniStat label={t('secretary.guest.time')} value={`${formatTime(reservation.startTime)} – ${formatTime(reservation.endTime)}`} />
-        <MiniStat label={t('secretary.guest.collectNow')} value={money(checkout.paymentAmount)} />
-        <MiniStat label={t('secretary.guest.remainingAmount')} value={money(checkout.remainingAmount)} />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button className={primaryButton} onClick={onBookAnother}><CalendarPlus />{t('secretary.guest.bookAnother')}</Button>
-        <Button variant="outline" className={button} render={<Link to="/secretary/appointments" />}><CalendarDays />{t('secretary.guest.viewAppointments')}</Button>
-      </div>
-    </div>
-  </Card>
-}
+

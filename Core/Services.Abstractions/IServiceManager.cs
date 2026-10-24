@@ -19,6 +19,7 @@ using Services.Abstractions.ClinicPaymentIntegrations;
 using Services.Abstractions.Payments;
 using Services.Abstractions.SecretaryInvitations;
 using Services.Abstractions.Secretaries;
+using Services.Abstractions.Analytics;
 
 
 namespace Services.Abstractions
@@ -41,5 +42,6 @@ namespace Services.Abstractions
         IPaymentService PaymentService { get; }
         ISecretaryInvitationService SecretaryInvitationService { get; }
         ISecretaryService SecretaryService { get; }
+        IDoctorAnalyticsService DoctorAnalyticsService { get; }
     }
 }

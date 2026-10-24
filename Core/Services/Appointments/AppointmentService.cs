@@ -855,7 +855,7 @@ namespace Services.Appointments
 
 
         public async Task<string> CancelAppointmentBySecretaryRequestedByPatientAsync(string secretaryId, int appointmentId,
-                                                                                                          CancelGuestAppointmentBySecretaryRequestedByPatientRequest request)
+                                                                                      CancelGuestAppointmentBySecretaryRequestedByPatientRequest request)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1362,6 +1362,9 @@ namespace Services.Appointments
                 throw new BadRequestException("This appointment has already been marked as completed.");
 
             appointment.Status = AppointmentStatus.Completed;
+
+            if (appointment.RemainingAmount > 0)
+                appointment.RemainingAmountCollectedAt = DateTime.UtcNow;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)

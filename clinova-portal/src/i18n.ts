@@ -309,7 +309,7 @@ const resources = {
         emptyDescription: 'Add the location, fees, contact numbers, and photos patients and your care team will need.',
         createFirst: 'Create a clinic',
         connected: 'Connected',
-        consultation: 'Consultation',
+        consultation: 'Consultation fee',
         deposit: 'Deposit',
         openClinic: 'Open Clinic',
       },

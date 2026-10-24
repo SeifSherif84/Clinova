@@ -31,6 +31,7 @@ namespace Domain.Entities.BusinessEntities
         public decimal ConsultationFee { get; set; }
         public decimal DepositAmount { get; set; }
         public decimal RemainingAmount { get; set; }
+        public DateTime? RemainingAmountCollectedAt { get; set; }
 
 
         // Cancellation & Refund Policy Snapshot

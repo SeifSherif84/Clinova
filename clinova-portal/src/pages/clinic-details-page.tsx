@@ -10,7 +10,7 @@ import FormField from '@/components/form-field'
 import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -267,7 +267,7 @@ export default function ClinicDetailsPage() {
 
         {details.data && (
           <div className="mt-5 min-w-0 grid gap-5">
-<Card className="relative min-h-60 min-w-0 gap-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-0">
+<Card className="relative min-w-0 gap-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
   <div className="pointer-events-none absolute inset-0">
     <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
     <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
@@ -280,18 +280,18 @@ export default function ClinicDetailsPage() {
       <rect width="100%" height="100%" fill="url(#clinicGrid)" />
     </svg>
   </div>
-              <CardContent className="relative z-10 flex-1 p-6 sm:p-8">
+              <CardContent className="relative z-10 flex flex-wrap items-end justify-between gap-5 p-0">
+    <div className="min-w-0">
     <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
       <Building2 className="size-3" />
       {isOwner ? t('clinicDetails.owner') : t('clinicDetails.member')}
     </Badge>
     <h1 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{details.data.name}</h1>
-  </CardContent>
-  <CardFooter className="relative z-10 mt-auto flex-wrap items-center justify-between gap-3 px-6 py-4 [--card-spacing:--spacing(4)] sm:px-8">
-    <p className="flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
+    <p className="mt-3 flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
       <MapPin className="size-4 shrink-0 text-primary" />
       <span className="min-w-0 break-words">{details.data.buildingNumber} {details.data.streetName}, {details.data.regionName}{details.data.landmark ? ` · ${details.data.landmark}` : ''}</span>
     </p>
+    </div>
     <div className="flex flex-wrap gap-2">
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" />}>
@@ -324,7 +324,7 @@ export default function ClinicDetailsPage() {
       </Button>
     )}
     </div>
-  </CardFooter>
+  </CardContent>
 </Card>
 
             {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
@@ -453,8 +453,8 @@ export default function ClinicDetailsPage() {
   {members.isLoading && <LoaderCircle className="animate-spin text-primary" />}
   {members.error && <Notice message={getErrorMessage(members.error)} />}
   {members.data?.map((member) => (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-primary/15 bg-primary/[0.06] transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:[&:last-child:nth-child(odd)]:col-span-2" key={member.id}>
-      <div className="relative h-16">
+    <div className="group relative flex w-full max-w-80 flex-col justify-self-center overflow-hidden rounded-2xl border border-primary/15 bg-primary/[0.06] transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:[&:last-child:nth-child(odd)]:col-span-2" key={member.id}>
+      <div className="relative h-14">
         {isOwner && !member.isOwner && (
           <Button
             variant="destructive"
@@ -469,7 +469,7 @@ export default function ClinicDetailsPage() {
         )}
       </div>
 
-      <div className="-mt-10 flex flex-1 flex-col items-center gap-3 px-4 pb-5 text-center">
+      <div className="-mt-10 flex flex-1 flex-col items-center gap-2 px-4 pb-4 text-center">
         <div className="relative">
           <span className="grid size-20 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-primary/10 text-2xl font-bold text-primary shadow-md">
             {member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}

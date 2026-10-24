@@ -76,6 +76,9 @@ namespace Persistence.Data.Migrations
                     b.Property<decimal>("RemainingAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("RemainingAmountCollectedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("ReservationExpiresAt")
                         .HasColumnType("datetime2");
 
