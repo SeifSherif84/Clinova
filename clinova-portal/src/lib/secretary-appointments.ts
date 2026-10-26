@@ -1,7 +1,8 @@
-import type { SecretaryAppointment, SecretaryAppointmentDetails } from '@/types/secretary'
+import { API_BASE_URL } from '@/lib/api'
+import { appointmentStatuses, paymentStatuses, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
 
-const success = ['Confirmed', 'Completed', 'Paid']
-const pending = ['PendingPayment', 'PendingVerification', 'Pending']
+const success = ['Confirmed', 'Completed', 'Paid', 'Succeeded']
+const pending = ['PendingPayment', 'PendingVerification', 'Pending', 'Processing', 'PendingManualProcessing']
 const danger = ['Rejected', 'Failed', 'NoShow']
 
 export function statusTone(status: string) {
@@ -19,9 +20,40 @@ export function parseSlotDate(value: string) {
 
 export const formatTime = (value: string) => value.slice(0, 5)
 
-function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'endTime'>) {
+// Proof URLs may come back relative to the API host.
+export function resolveFileUrl(value: string) {
+  return /^https?:\/\//i.test(value) ? value : `${API_BASE_URL}/${value.replace(/^\//, '')}`
+}
+
+const text = (value: unknown) => typeof value === 'string' && value.trim() ? value.trim() : undefined
+const oneOf = <T extends string>(values: readonly T[], value: unknown) => values.includes(value as T) ? value as T : undefined
+
+// Keeps filters in the URL so returning from an appointment restores the same view.
+export function parseAppointmentFilters(search: Record<string, unknown>): SecretaryAppointmentFilters {
+  const pageIndex = Number(search.pageIndex)
+  const slotDate = text(search.slotDate)
+  return {
+    doctorName: text(search.doctorName),
+    patientSearch: text(search.patientSearch),
+    slotDate: slotDate && /^\d{4}-\d{2}-\d{2}$/.test(slotDate) ? slotDate : undefined,
+    appointmentStatus: oneOf(appointmentStatuses, search.appointmentStatus),
+    paymentStatus: oneOf(paymentStatuses, search.paymentStatus),
+    pageIndex: Number.isInteger(pageIndex) && pageIndex > 1 ? pageIndex : undefined,
+  }
+}
+
+export function toAppointmentsQuery(filters: SecretaryAppointmentFilters, pageSize: number) {
+  const params = new URLSearchParams({ pageIndex: String(filters.pageIndex ?? 1), pageSize: String(pageSize) })
+  for (const key of ['doctorName', 'patientSearch', 'slotDate', 'appointmentStatus', 'paymentStatus'] as const) {
+    const value = filters[key]
+    if (value) params.set(key, value)
+  }
+  return params.toString()
+}
+
+function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'slotEndTime'>) {
   const date = parseSlotDate(appointment.slotDate)
-  const [hours, minutes] = appointment.endTime.split(':').map(Number)
+  const [hours, minutes] = appointment.slotEndTime.split(':').map(Number)
   if (!date) return false
   date.setHours(hours || 0, minutes || 0)
   return date.getTime() <= Date.now()
@@ -29,7 +61,7 @@ function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'endTime'
 
 // Mirrors the backend rules so only actions that can succeed are offered.
 export function availableActions(details: SecretaryAppointmentDetails) {
-  const verifying = details.appointmentStatus === 'PendingVerification' && details.paymentStatus === 'PendingVerification' && details.paymentType === 'Manual' && Boolean(details.paymentProofUrl)
+  const verifying = details.appointmentStatus === 'PendingVerification' && details.paymentStatus === 'PendingVerification' && details.paymentCategory === 'Manual' && Boolean(details.manualPaymentProofUrl)
   const confirmedPaid = details.appointmentStatus === 'Confirmed' && details.paymentStatus === 'Paid'
   const ended = hasEnded(details)
   return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid && ended, noShow: confirmedPaid && ended }

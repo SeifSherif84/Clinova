@@ -1,6 +1,7 @@
 import { createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, redirect } from '@tanstack/react-router'
 import LoadingScreen from '@/components/loading-screen'
 import RootLayout from '@/components/root-layout'
+import { parseAppointmentFilters } from '@/lib/secretary-appointments'
 import type { AuthContextValue } from '@/providers/auth-context'
 import LandingPage from '@/pages/landing-page'
 import NotFoundPage from '@/pages/not-found-page'
@@ -129,7 +130,16 @@ const secretaryAppointmentsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/secretary/appointments',
   beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  validateSearch: parseAppointmentFilters,
   component: lazyRouteComponent(() => import('@/pages/secretary-appointments-page')),
+})
+const secretaryAppointmentDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/appointments/$appointmentId',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  // Carries the list filters so "back" returns to the same filtered page.
+  validateSearch: parseAppointmentFilters,
+  component: lazyRouteComponent(() => import('@/pages/secretary-appointment-details-page')),
 })
 const secretaryInvitationsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -269,6 +279,7 @@ const routeTree = rootRoute.addChildren([
   doctorProfileRoute,
   doctorInvitationsRoute,
   secretaryAppointmentsRoute,
+  secretaryAppointmentDetailsRoute,
   secretaryInvitationsRoute,
   secretaryClinicRoute,
   secretaryGuestBookingRoute,
