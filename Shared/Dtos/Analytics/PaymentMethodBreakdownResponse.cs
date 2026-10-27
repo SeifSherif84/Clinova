@@ -11,7 +11,7 @@ namespace Shared.Dtos.Analytics
         public string MethodType { get; set; } = null!;
         public string Category { get; set; } = null!;
         public decimal TotalCollected { get; set; }
-        public decimal PendingPayments { get; set; }
+        public decimal AwaitingVerificationPayments { get; set; }
         public decimal TotalRefunds { get; set; }
         public decimal NetCollected { get; set; }
     }

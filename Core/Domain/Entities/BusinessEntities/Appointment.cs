@@ -22,21 +22,21 @@ namespace Domain.Entities.BusinessEntities
         public DateTime ReservationExpiresAt { get; set; }
 
 
-        // Appointment Notes
-        public string? PatientNotes { get; set; }
-        public string? DoctorNotes { get; set; }
+        //// Appointment Notes
+        //public string? PatientNotes { get; set; }
+        //public string? DoctorNotes { get; set; }
 
 
         // Financial Snapshot
         public decimal ConsultationFee { get; set; }
-        public decimal DepositAmount { get; set; }
-        public decimal RemainingAmount { get; set; }
-        public DateTime? RemainingAmountCollectedAt { get; set; }
+        //public decimal RequiredDepositAmount { get; set; }
+        public decimal TotalPaidAmount { get; set; }
+        //public decimal RequiredRemainingAmount { get; set; }
 
 
-        // Cancellation & Refund Policy Snapshot
-        public int FullRefundCancellationWindowMinutes { get; set; }
-        public int BookingCancellationGracePeriodMinutes { get; set; }
+        // Cancellation & Refund Policy Snapshot for patient appointment not guest reservation
+        public int? FullRefundCancellationWindowMinutes { get; set; }
+        public int? BookingCancellationGracePeriodMinutes { get; set; }
 
 
         // Patient
@@ -53,8 +53,9 @@ namespace Domain.Entities.BusinessEntities
         public AppointmentSlot AppointmentSlot { get; set; } = null!;
 
 
-        // Payment
-        public Payment Payment { get; set; } = null!;
+        // Deposit Payment
+        public DepositPayment DepositPayment { get; set; } = null!;
+        public RemainingPayment? RemainingPayment { get; set; }
 
 
         // Appointment Related Data

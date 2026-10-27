@@ -17,6 +17,8 @@ namespace Persistence.Data.Configurations
 
             builder.Property(availableSlot => availableSlot.Id).UseIdentityColumn(1, 1);
 
+            builder.Property(slot => slot.Status)
+                   .HasConversion<string>();
 
             builder.HasOne(slot => slot.Doctor)
                    .WithMany()

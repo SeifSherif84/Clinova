@@ -10,7 +10,7 @@ namespace Services.Abstractions.Appointments
 {
     public interface IAppointmentService
     {
-        Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request);
+        Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId);
         Task<IEnumerable<PatientAppointmentResponse>> GetPatientAppointmentsAsync(string userId);
         Task<PatientAppointmentDetailsResponse> GetPatientAppointmentDetailsAsync(string userId, int appointmentId);
         Task<string> CancelAppointmentByPatientAsync(string userId, int appointmentId);
@@ -22,9 +22,9 @@ namespace Services.Abstractions.Appointments
 
         Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, SecretaryAppointmentQuery query);
         Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId);
-        Task<string> PatientSubmitManualPaymentProofAsync(string userId, int appointmentId, SubmitManualPaymentProofRequest request);
-        Task<string> ApproveManualPaymentAsync(string userId, int appointmentId);
-        Task<string> RejectManualPaymentAsync(string userId, int appointmentId, RejectManualPaymentRequest request);
+        Task<string> PatientSubmitManualDepositPaymentProofAsync(string userId, int appointmentId, SubmitManualDepositPaymentProofRequest request);
+        Task<string> ApproveManualDepositPaymentAsync(string userId, int appointmentId);
+        Task<string> RejectManualDepositPaymentAsync(string userId, int appointmentId, RejectManualDepositPaymentRequest request);
 
 
 
@@ -34,9 +34,9 @@ namespace Services.Abstractions.Appointments
 
 
 
-        Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId);
+        Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId, SecretaryMarkAppointmentCompletedRequest request);
         Task<string> SecretaryMarkAppointmentNoShowAsync(string secretaryId, int appointmentId);
-        Task<string> SecretaryConfirmManualRefundAsync(string secretaryId, int appointmentId, ConfirmManualRefundRequest request);
+        Task<string> SecretaryConfirmManualDepositRefundAsync(string secretaryId, int appointmentId, ConfirmManualDepositRefundRequest request);
 
 
         Task<GuestAppointmentReservationCheckout> SecretaryCreateGuestReservationAsync(string secretaryId, int appointmentSlotId, CreateGuestReservationRequest request);

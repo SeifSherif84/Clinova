@@ -45,7 +45,7 @@ namespace Services.Specifications.ClinicOnlinePaymentAccounts
             };
 
             specifications.Includes.Add(paymentAccount => paymentAccount.PaymentIntegrations);
-            specifications.Includes.Add(paymentAccount => paymentAccount.Payments);
+            specifications.Includes.Add(paymentAccount => paymentAccount.DepositPayments);
             return specifications;
         }
 

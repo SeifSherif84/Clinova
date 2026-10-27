@@ -184,7 +184,7 @@ namespace Web
             builder.Services.AddScoped<IPaymentCredentialEncryptor, PaymentCredentialEncryptor>();
             builder.Services.AddScoped<IPaymobService, PaymobService>();
             builder.Services.AddScoped<IPaymobHmacService, PaymobHmacService>();
-            builder.Services.AddScoped<IPaymobRefundService, PaymobRefundService>();
+            builder.Services.AddScoped<IPaymobDepositRefundService, PaymobDepositRefundService>();
 
             builder.Services.AddHostedService<RefundVerificationService>();
 

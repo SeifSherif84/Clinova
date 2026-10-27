@@ -162,7 +162,7 @@ namespace Services.ClinicManualPaymentMethods
             if (paymentMethod.ClinicId != clinicId)
                 throw new ResourceAccessDeniedException("This payment method does not belong to this clinic.");
 
-            if (paymentMethod.Payments.Any())
+            if (paymentMethod.DepositPayments.Any())
             {
                 throw new BadRequestException(
                     "This payment method cannot be deleted because it has existing payments. Please deactivate it instead.");

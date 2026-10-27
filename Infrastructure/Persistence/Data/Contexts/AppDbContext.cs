@@ -81,8 +81,9 @@ namespace Persistence.Data.Contexts
         public DbSet<ClinicManualPaymentMethod> ClinicManualPaymentMethods { get; set; }
         public DbSet<ClinicOnlinePaymentAccount> ClinicOnlinePaymentAccounts { get; set; }
         public DbSet<ClinicPaymentIntegration> ClinicPaymentIntegrations { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-        public DbSet<PaymentRefund> PaymentRefunds { get; set; }
+        public DbSet<DepositPayment> DepositPayments { get; set; }
+        public DbSet<RemainingPayment> RemainingPayments { get; set; }
+        public DbSet<DepositRefund> DepositRefunds { get; set; }
 
         public DbSet<DoctorInvitation> DoctorInvitations { get; set; }
         public DbSet<SecretaryInvitation> SecretaryInvitations { get; set; }

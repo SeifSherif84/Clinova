@@ -98,7 +98,7 @@ namespace Services.Paymob
 
 
 
-        public async Task<RefundResult> RefundAsync(string secretKey,
+        public async Task<DepositRefundResult> RefundAsync(string secretKey,
                                                     long transactionId,
                                                     long amountCents)
         {
@@ -122,7 +122,7 @@ namespace Services.Paymob
                 throw new BadRequestException("The refund amount must be greater than zero.");
 
 
-            var request = new PaymobRefundRequest
+            var request = new PaymobDepositRefundRequest
             {
                 TransactionId = transactionId,
                 AmountCents = amountCents
@@ -143,7 +143,7 @@ namespace Services.Paymob
             }
             catch (HttpRequestException ex)
             {
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
@@ -153,7 +153,7 @@ namespace Services.Paymob
             }
             catch (TaskCanceledException ex)
             {
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
@@ -172,7 +172,7 @@ namespace Services.Paymob
 
             if (!response.IsSuccessStatusCode)
             {
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = false,
                     PendingVerification = false,
@@ -186,12 +186,12 @@ namespace Services.Paymob
             // Parse provider response
             // ---------------------------------------------------------
 
-            PaymobRefundResponse? refundResponse;
+            PaymobDepositRefundResponse? refundResponse;
 
             try
             {
                 refundResponse =
-                    JsonSerializer.Deserialize<PaymobRefundResponse>(responseBody,new JsonSerializerOptions
+                    JsonSerializer.Deserialize<PaymobDepositRefundResponse>(responseBody,new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
@@ -205,7 +205,7 @@ namespace Services.Paymob
                  * safely determine the final refund state.
                  */
 
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
@@ -217,7 +217,7 @@ namespace Services.Paymob
 
             if (refundResponse is null)
             {
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = false,
                     PendingVerification = true,
@@ -242,7 +242,7 @@ namespace Services.Paymob
 
             if (refundConfirmed)
             {
-                return new RefundResult
+                return new DepositRefundResult
                 {
                     Succeeded = true,
                     PendingVerification = false,
@@ -270,7 +270,7 @@ namespace Services.Paymob
             // Provider accepted the request but final state is unclear
             // ---------------------------------------------------------
 
-            return new RefundResult
+            return new DepositRefundResult
             {
                 Succeeded = false,
                 PendingVerification = true,

@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Services.Abstractions.ClinicOnlinePaymentAccounts;
 using Services.Abstractions.ClinicPaymentIntegrations;
-using Services.Abstractions.Payments;
+using Services.Abstractions.DepositPayments;
 using Services.Abstractions.SecretaryInvitations;
 using Services.Abstractions.Secretaries;
 using Services.Abstractions.Analytics;
@@ -39,7 +39,7 @@ namespace Services.Abstractions
         IAppointmentService AppointmentService { get; }
         IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; }
         IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; }
-        IPaymentService PaymentService { get; }
+        IDepositPaymentService DepositPaymentService { get; }
         ISecretaryInvitationService SecretaryInvitationService { get; }
         ISecretaryService SecretaryService { get; }
         IDoctorAnalyticsService DoctorAnalyticsService { get; }

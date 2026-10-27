@@ -67,7 +67,7 @@ namespace Services.Specifications.ClinicManualPaymentMethods
                 Criteria = paymentMethod => paymentMethod.Id == paymentMethodId
             };
 
-            specification.Includes.Add(paymentMethod => paymentMethod.Payments);
+            specification.Includes.Add(paymentMethod => paymentMethod.DepositPayments);
 
             return specification;
         }

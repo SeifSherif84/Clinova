@@ -33,15 +33,15 @@ namespace Domain.Entities.BusinessEntities
         public string ApiKey { get; set; } = null!;
 
 
-        // Supported Paymob Integrations
-        public ICollection<ClinicPaymentIntegration> PaymentIntegrations { get; set; } = new List<ClinicPaymentIntegration>();
-
-
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = null!;
 
 
+
+        // Supported Paymob Integrations
+        public ICollection<ClinicPaymentIntegration> PaymentIntegrations { get; set; } = new List<ClinicPaymentIntegration>();
+
         // Payments processed through this account
-        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<DepositPayment> DepositPayments { get; set; } = new List<DepositPayment>();
     }
 }

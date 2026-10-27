@@ -12,7 +12,7 @@ namespace Shared.Dtos.Appointments
         public string? DoctorName { get; set; }
         public DateOnly? SlotDate { get; set; }
         public AppointmentStatus? AppointmentStatus { get; set; }
-        public PaymentStatus? PaymentStatus { get; set; }
+        public DepositPaymentStatus? DepositPaymentStatus { get; set; }
         public string? PatientSearch { get; set; }
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 10;

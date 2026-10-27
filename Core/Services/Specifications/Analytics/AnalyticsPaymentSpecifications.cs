@@ -8,7 +8,7 @@ using Domain.Entities.Enums;
 
 namespace Services.Specifications.Analytics
 {
-    public class AnalyticsPaymentSpecifications : BaseSpecifications<Payment, int>
+    public class AnalyticsPaymentSpecifications : BaseSpecifications<DepositPayment, int>
     {
         private AnalyticsPaymentSpecifications() : base()
         {
@@ -21,38 +21,38 @@ namespace Services.Specifications.Analytics
             {
                 Criteria = payment => payment.Appointment.AppointmentSlot.ClinicId == clinicId &&
                     (
-                        // Payments collected during the selected period.
-                        ((payment.Status == PaymentStatus.Paid || payment.Status == PaymentStatus.Refunded) &&
-                         payment.PaidAt.HasValue &&
+                        // Deposit payments collected during the selected period.
+                        ((payment.Status == DepositPaymentStatus.Paid || payment.Status == DepositPaymentStatus.Refunded) &&
+                         (payment.PaidAt.HasValue) &&
                          (!fromUtc.HasValue || payment.PaidAt.Value >= fromUtc.Value) &&
                          (!toUtcExclusive.HasValue || payment.PaidAt.Value < toUtcExclusive.Value))
                         ||
 
-                        // Manual payments awaiting verification.
-                        (payment.Status == PaymentStatus.PendingVerification &&
+                        // Manual deposit payments awaiting verification.
+                        ((payment.Status == DepositPaymentStatus.PendingVerification) &&
                          (!fromUtc.HasValue || payment.CreatedAt >= fromUtc.Value) &&
                          (!toUtcExclusive.HasValue || payment.CreatedAt < toUtcExclusive.Value))
                         ||
 
-                        // Successfully processed refunds during the selected period.
-                        (payment.Refund != null &&
-                         payment.Refund.Status == RefundStatus.Succeeded &&
-                         payment.Refund.ProcessedAt.HasValue &&
-                         (!fromUtc.HasValue || payment.Refund.ProcessedAt.Value >= fromUtc.Value) &&
-                         (!toUtcExclusive.HasValue || payment.Refund.ProcessedAt.Value < toUtcExclusive.Value))
+                        // Successfully processed deposit refunds during the selected period.
+                        ((payment.DepositRefund != null && payment.DepositRefund.Status == DepositRefundStatus.Succeeded) &&
+                         (payment.DepositRefund.ProcessedAt.HasValue) &&
+                         (!fromUtc.HasValue || payment.DepositRefund.ProcessedAt.Value >= fromUtc.Value) &&
+                         (!toUtcExclusive.HasValue || payment.DepositRefund.ProcessedAt.Value < toUtcExclusive.Value))
                         ||
 
-                        // Appointments whose remaining amount was collected during the selected period.
-                        (payment.Appointment.RemainingAmountCollectedAt.HasValue &&
-                        (!fromUtc.HasValue || payment.Appointment.RemainingAmountCollectedAt.Value >= fromUtc.Value) &&
-                        (!toUtcExclusive.HasValue || payment.Appointment.RemainingAmountCollectedAt.Value < toUtcExclusive.Value))
+                        // Remaining payments collected during the selected period.
+                        ((payment.Appointment.RemainingPayment != null && payment.Appointment.RemainingPayment.Status == RemainingPaymentStatus.Paid) &&
+                         (payment.Appointment.RemainingPayment.PaidAt.HasValue) &&
+                         (!fromUtc.HasValue || payment.Appointment.RemainingPayment.PaidAt.Value >= fromUtc.Value) &&
+                         (!toUtcExclusive.HasValue || payment.Appointment.RemainingPayment.PaidAt.Value < toUtcExclusive.Value))
                     )
             };
 
             specification.Includes.Add(payment => payment.Appointment);
             specification.Includes.Add(payment => payment.Appointment.AppointmentSlot);
-            specification.Includes.Add(payment => payment.Appointment.AppointmentSlot.Doctor);
-            specification.Includes.Add(payment => payment.Refund);
+            specification.Includes.Add(payment => payment.DepositRefund);
+            specification.Includes.Add(payment => payment.Appointment.RemainingPayment);
 
             return specification;
         }

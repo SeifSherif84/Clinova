@@ -20,11 +20,10 @@ namespace Presentation.Controllers.Appointments
     {
         [Authorize(Roles = "Patient")]
         [HttpPost("slots/{appointmentSlotId}")] // Post: /api/appointments/slots/{appointmentSlotId}
-        public async Task<IActionResult> PatientCreateAppointment([FromRoute] int appointmentSlotId,
-                                                           [FromBody] CreateAppointmentRequest request)
+        public async Task<IActionResult> PatientCreateAppointment([FromRoute] int appointmentSlotId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.PatientCreateAppointmentAsync(userId ?? string.Empty, appointmentSlotId, request);
+            var response = await _serviceManager.AppointmentService.PatientCreateAppointmentAsync(userId ?? string.Empty, appointmentSlotId);
             return Ok(response);
         }
 
@@ -83,11 +82,11 @@ namespace Presentation.Controllers.Appointments
 
         [Authorize(Roles = "Patient")]
         [HttpPost("{appointmentId}/payment-proof-submit")] // Post: /api/appointments/{appointmentId}/payment-proof-submit
-        public async Task<IActionResult> PatientSubmitManualPaymentProof([FromRoute] int appointmentId,
-                                                                         [FromForm] SubmitManualPaymentProofRequest request)
+        public async Task<IActionResult> PatientSubmitManualDepositPaymentProof([FromRoute] int appointmentId,
+                                                                         [FromForm] SubmitManualDepositPaymentProofRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.PatientSubmitManualPaymentProofAsync(userId ?? string.Empty, appointmentId, request);
+            var response = await _serviceManager.AppointmentService.PatientSubmitManualDepositPaymentProofAsync(userId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
 
@@ -126,7 +125,7 @@ namespace Presentation.Controllers.Appointments
         public async Task<IActionResult> ApproveManualPayment([FromRoute] int appointmentId)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.ApproveManualPaymentAsync(secretaryId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.ApproveManualDepositPaymentAsync(secretaryId ?? string.Empty, appointmentId);
             return Ok(response);
         }
 
@@ -134,10 +133,10 @@ namespace Presentation.Controllers.Appointments
         [Authorize(Roles = "Secretary")]
         [HttpPost("{appointmentId}/manual-payment/reject")] // Post: /api/appointments/{appointmentId}/manual-payment/reject
         public async Task<IActionResult> RejectManualPayment([FromRoute] int appointmentId,
-                                                             [FromBody] RejectManualPaymentRequest request)
+                                                             [FromBody] RejectManualDepositPaymentRequest request)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.RejectManualPaymentAsync(secretaryId ?? string.Empty, appointmentId, request);
+            var response = await _serviceManager.AppointmentService.RejectManualDepositPaymentAsync(secretaryId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
 
@@ -164,11 +163,11 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Secretary")]
-        [HttpPatch("{appointmentId}/mark-completed")]
-        public async Task<IActionResult> SecretaryMarkAppointmentCompleted([FromRoute] int appointmentId)
+        [HttpPatch("{appointmentId}/mark-completed")] // https://localhost:7269/api/appointments/{appointmentId}/mark-completed
+        public async Task<IActionResult> SecretaryMarkAppointmentCompleted([FromRoute] int appointmentId, SecretaryMarkAppointmentCompletedRequest request)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.SecretaryMarkAppointmentCompletedAsync(secretaryId ?? string.Empty, appointmentId);
+            var response = await _serviceManager.AppointmentService.SecretaryMarkAppointmentCompletedAsync(secretaryId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
 
@@ -186,20 +185,12 @@ namespace Presentation.Controllers.Appointments
         [Authorize(Roles = "Secretary")]
         [HttpPatch("{appointmentId}/confirm-manual-refund")] // Patch: /api/appointments/{appointmentId}/confirm-manual-refund
         public async Task<IActionResult> SecretaryConfirmManualRefund([FromRoute] int appointmentId,
-                                                                      [FromForm] ConfirmManualRefundRequest request)
+                                                                      [FromForm] ConfirmManualDepositRefundRequest request)
         {
             var secretaryId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = await _serviceManager.AppointmentService.SecretaryConfirmManualRefundAsync(secretaryId ?? string.Empty, appointmentId, request);
+            var response = await _serviceManager.AppointmentService.SecretaryConfirmManualDepositRefundAsync(secretaryId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
-
-
-
-
-
-
-
-
 
 
 

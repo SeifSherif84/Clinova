@@ -29,7 +29,7 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
-            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
 
             return specification;
         }
@@ -44,7 +44,7 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
-            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
 
             return specification;
         }
@@ -57,8 +57,9 @@ namespace Services.Specifications.Appointments
             };
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
-            specification.Includes.Add(appointment => appointment.Payment);
-            specification.Includes.Add(appointment => appointment.Payment.Refund);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
 
             return specification;
         }
@@ -74,7 +75,7 @@ namespace Services.Specifications.Appointments
             };
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
-            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
 
             return specification;
         }
@@ -89,7 +90,9 @@ namespace Services.Specifications.Appointments
             };
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
-            specification.Includes.Add(appointment => appointment.Payment);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.ClinicOnlinePaymentAccount);
 
             return specification;
         }
@@ -103,8 +106,9 @@ namespace Services.Specifications.Appointments
             };
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
-            specification.Includes.Add(appointment => appointment.Payment);
-            specification.Includes.Add(appointment => appointment.Payment.Refund);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
 
             return specification;
         }
@@ -119,19 +123,21 @@ namespace Services.Specifications.Appointments
                     // PaymentStatus.Pending means the patient has not completed
                     // the payment process yet, so this is not a real booking.
                     (
-                        appointment.Payment.Status == PaymentStatus.PendingVerification ||
-                        appointment.Payment.Status == PaymentStatus.Paid ||
-                        appointment.Payment.Status == PaymentStatus.Rejected ||
-                        appointment.Payment.Status == PaymentStatus.Refunded
+                        appointment.DepositPayment.Status == DepositPaymentStatus.PendingVerification ||
+                        appointment.DepositPayment.Status == DepositPaymentStatus.Paid ||
+                        appointment.DepositPayment.Status == DepositPaymentStatus.Rejected ||
+                        appointment.DepositPayment.Status == DepositPaymentStatus.Refunded
                     ) 
             };
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.Patient);
-            specification.Includes.Add(appointment => appointment.Payment);
-            specification.Includes.Add(appointment => appointment.Payment.ClinicManualPaymentMethod);
-            specification.Includes.Add(appointment => appointment.Payment.Refund);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.ClinicManualPaymentMethod);
+            specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
+
             return specification;
         }
 
@@ -142,7 +148,7 @@ namespace Services.Specifications.Appointments
                                                                    string? patientSearch,
                                                                    DateOnly? slotDate,
                                                                    AppointmentStatus? appointmentStatus,
-                                                                   PaymentStatus? paymentStatus,
+                                                                   DepositPaymentStatus? paymentStatus,
                                                                    int pageIndex,
                                                                    int pageSize,
                                                                    bool applyPagination)
@@ -154,10 +160,10 @@ namespace Services.Specifications.Appointments
                     // Hide temporary reservations.
                     // PaymentStatus.Pending means the patient has not completed
                     // the payment process yet, so this is not a real booking.
-                    (appointment.Payment.Status == PaymentStatus.PendingVerification ||
-                     appointment.Payment.Status == PaymentStatus.Paid ||
-                     appointment.Payment.Status == PaymentStatus.Rejected || 
-                     appointment.Payment.Status == PaymentStatus.Refunded) &&
+                    (appointment.DepositPayment.Status == DepositPaymentStatus.PendingVerification ||
+                     appointment.DepositPayment.Status == DepositPaymentStatus.Paid ||
+                     appointment.DepositPayment.Status == DepositPaymentStatus.Rejected || 
+                     appointment.DepositPayment.Status == DepositPaymentStatus.Refunded) &&
 
 
                     (doctorName == null || EF.Functions.Like(appointment.AppointmentSlot.Doctor.FirstName + " " +
@@ -181,7 +187,7 @@ namespace Services.Specifications.Appointments
 
                     (!appointmentStatus.HasValue || appointment.Status == appointmentStatus.Value) &&
 
-                    (!paymentStatus.HasValue || appointment.Payment.Status == paymentStatus.Value)
+                    (!paymentStatus.HasValue || appointment.DepositPayment.Status == paymentStatus.Value)
             };
 
 
@@ -202,8 +208,10 @@ namespace Services.Specifications.Appointments
                 specification.Includes.Add(appointment => appointment.AppointmentSlot);
                 specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
                 specification.Includes.Add(appointment => appointment.Patient);
-                specification.Includes.Add(appointment => appointment.Payment);
-                specification.Includes.Add(appointment => appointment.Payment.Refund);
+                specification.Includes.Add(appointment => appointment.DepositPayment);
+                specification.Includes.Add(appointment => appointment.RemainingPayment);
+                specification.Includes.Add(appointment => appointment.DepositPayment.ClinicManualPaymentMethod);
+                specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
             }
 
             return specification;

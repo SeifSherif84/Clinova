@@ -13,6 +13,9 @@ namespace Persistence.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<UserApp> builder)
         {
+            builder.Property(user => user.Gender)
+                   .HasConversion<string>();
+
             builder.Property(user => user.FirstName)
                    .HasColumnType("varchar")
                    .HasMaxLength(128)

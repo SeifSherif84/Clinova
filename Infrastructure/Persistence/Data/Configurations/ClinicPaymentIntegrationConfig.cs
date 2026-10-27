@@ -15,6 +15,9 @@ namespace Persistence.Data.Configurations
         {
             builder.HasKey(paymentIntegration => paymentIntegration.Id);
 
+            builder.Property(paymentIntegration => paymentIntegration.OnlinePaymentMethod)
+                   .HasConversion<string>();
+
             builder.Property(paymentIntegration => paymentIntegration.Id).UseIdentityColumn(1, 1);
 
             builder.HasOne(paymentIntegration => paymentIntegration.ClinicOnlinePaymentAccount)
@@ -25,7 +28,7 @@ namespace Persistence.Data.Configurations
             builder.HasIndex(paymentIntegration => new
             {
                 paymentIntegration.ClinicOnlinePaymentAccountId,
-                paymentIntegration.PaymentMethod
+                paymentIntegration.OnlinePaymentMethod
             }).IsUnique();
 
         }
