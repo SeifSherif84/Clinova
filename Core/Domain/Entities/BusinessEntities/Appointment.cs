@@ -22,16 +22,9 @@ namespace Domain.Entities.BusinessEntities
         public DateTime ReservationExpiresAt { get; set; }
 
 
-        //// Appointment Notes
-        //public string? PatientNotes { get; set; }
-        //public string? DoctorNotes { get; set; }
-
-
         // Financial Snapshot
         public decimal ConsultationFee { get; set; }
-        //public decimal RequiredDepositAmount { get; set; }
         public decimal TotalPaidAmount { get; set; }
-        //public decimal RequiredRemainingAmount { get; set; }
 
 
         // Cancellation & Refund Policy Snapshot for patient appointment not guest reservation
