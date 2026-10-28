@@ -16,7 +16,7 @@ namespace Presentation.Controllers.Analytics
     [Authorize(Roles = "Doctor")]
     public class DoctorAnalyticsController(IServiceManager _serviceManager) : ControllerBase
     {
-        [HttpGet("clinics/{clinicId}/financial-overview")]
+        [HttpGet("clinics/{clinicId}/financial-overview")] // https://localhost:7269/api/doctor-analytics/clinics/2/financial-overview?fromDate=2023-01-01&toDate=2023-12-31
         public async Task<IActionResult> GetFinancialOverview([FromRoute] int clinicId, [FromQuery] AnalyticsDateRangeQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -24,7 +24,7 @@ namespace Presentation.Controllers.Analytics
             return Ok(response);
         }
 
-        [HttpGet("clinics/{clinicId}/appointment-overview")]
+        [HttpGet("clinics/{clinicId}/appointment-overview")] // https://localhost:7269/api/doctor-analytics/clinics/2/appointment-overview?fromDate=2023-01-01&toDate=2023-12-31
         public async Task<IActionResult> GetAppointmentOverview([FromRoute] int clinicId, [FromQuery] AnalyticsDateRangeQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,7 +32,7 @@ namespace Presentation.Controllers.Analytics
             return Ok(response);
         }
 
-        [HttpGet("clinics/{clinicId}/doctor-performance-overview")]
+        [HttpGet("clinics/{clinicId}/doctor-performance-overview")] // https://localhost:7269/api/doctor-analytics/clinics/2/doctor-performance-overview?fromDate=2023-01-01&toDate=2023-12-31
         public async Task<IActionResult> GetDoctorPerformance([FromRoute] int clinicId, [FromQuery] AnalyticsDateRangeQuery query)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

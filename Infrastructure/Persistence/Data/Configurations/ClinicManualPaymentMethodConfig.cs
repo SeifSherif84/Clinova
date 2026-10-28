@@ -19,6 +19,7 @@ namespace Persistence.Data.Configurations
                    .UseIdentityColumn(1, 1);
 
             builder.Property(manualPaymentMethod => manualPaymentMethod.Type)
+                   .HasConversion<string>()
                    .IsRequired();
 
             builder.Property(manualPaymentMethod => manualPaymentMethod.AccountIdentifier)
@@ -35,9 +36,14 @@ namespace Persistence.Data.Configurations
                    .HasForeignKey(manualPaymentMethod => manualPaymentMethod.ClinicId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(manualPaymentMethod => manualPaymentMethod.Payments)
-                   .WithOne(payment => payment.ClinicManualPaymentMethod)
-                   .HasForeignKey(payment => payment.ClinicManualPaymentMethodId)
+            builder.HasMany(manualPaymentMethod => manualPaymentMethod.DepositPayments)
+                   .WithOne(Depositpayment => Depositpayment.ClinicManualPaymentMethod)
+                   .HasForeignKey(Depositpayment => Depositpayment.ClinicManualPaymentMethodId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(manualPaymentMethod => manualPaymentMethod.RemainingPayments)
+                   .WithOne(Remainingpayment => Remainingpayment.ClinicManualPaymentMethod)
+                   .HasForeignKey(Remainingpayment => Remainingpayment.ClinicManualPaymentMethodId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(manualPaymentMethod => new

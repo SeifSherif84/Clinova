@@ -381,7 +381,7 @@ namespace Services.AppointmentSlots
         private void CheckReschedulableAppointment(Appointment appointment)
         {
             var currentSlot = appointment.AppointmentSlot;
-            var payment = appointment.Payment;
+            var payment = appointment.DepositPayment;
 
             if (currentSlot is null)
                 throw new InternalServerErrorException("The current appointment slot could not be found.");
@@ -391,7 +391,7 @@ namespace Services.AppointmentSlots
 
             if (appointment.Status == AppointmentStatus.PendingPayment)
             {
-                if (payment.Status != PaymentStatus.Pending)
+                if (payment.Status != DepositPaymentStatus.Pending)
                     throw new BadRequestException("This appointment cannot be rescheduled with its current payment status.");
 
                 if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
@@ -402,7 +402,7 @@ namespace Services.AppointmentSlots
             }
             else if (appointment.Status == AppointmentStatus.Confirmed)
             {
-                if (payment.Status != PaymentStatus.Paid)
+                if (payment.Status != DepositPaymentStatus.Paid)
                     throw new BadRequestException("Only confirmed appointments with completed payment can be rescheduled.");
 
                 if (currentSlot.Status != SlotStatus.Booked)

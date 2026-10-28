@@ -18,6 +18,9 @@ namespace Persistence.Data.Configurations
             builder.Property(invitation => invitation.Id)
                    .UseIdentityColumn(1, 1);
 
+            builder.Property(invitation => invitation.Status)
+                   .HasConversion<string>();
+
             builder.Property(invitation => invitation.SecretaryReceiverEmail)
                    .HasColumnType("varchar")
                    .HasMaxLength(256)

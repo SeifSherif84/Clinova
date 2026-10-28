@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 
 namespace Persistence.Repositories
 {
-    public class GenericRepositiry<TEntity, TKey> :
-        IGenericRepository<TEntity, TKey> where TEntity : class
+    public class GenericRepositiry<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class
     {
         private readonly AppDbContext _context;
 

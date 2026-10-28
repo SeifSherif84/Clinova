@@ -32,33 +32,35 @@ namespace Shared.Dtos.Appointments
         public string PatientPhoneNumber { get; set; } = null!;
 
 
-        // Payment
-        public string PaymentStatus { get; set; } = null!;
+        // Deposit Payment
+        public decimal DepositPaymentAmount { get; set; }
+        public string DepositPaymentStatus { get; set; } = null!;
+        public string DepositPaymentMethodType { get; set; } = null!; // Paymob, ManualTransfer, CashAtClinic
+        public string? DepositClinicManualPaymentMethodType { get; set; } // The specific clinic-configured manual payment method
+        public string? ManualDepositPaymentProofUrl { get; set; }
+        public string? DepositPaymentTransactionReference { get; set; }
+        public string? DepositPaymentSecretaryRejectionReason { get; set; }
 
-        // Online or Manual
-        public string PaymentCategory { get; set; } = null!;
 
-        // Paymob, ManualTransfer, CashAtClinic
-        public string PaymentMethodType { get; set; } = null!;
+        // Remaining Payment
+        public decimal RemainingPaymentAmount { get; set; }
+        public string? RemainingPaymentStatus { get; set; }
+        public string? RemainingPaymentMethodType { get; set; }
+        public string? RemainingClinicManualPaymentMethodType { get; set; }
 
-        // The specific clinic-configured manual payment method
-        public string? ClinicManualPaymentMethodType { get; set; }
 
-        public string? PaymentSecretaryRejectionReason { get; set; }
-        public decimal PaymentAmount { get; set; }
-        public decimal RemainingAmount { get; set; }
-        public string? ManualPaymentProofUrl { get; set; }
-        public string? PaymentTransactionReference { get; set; }
+        // Total Paid Amount
+        public decimal TotalPaidAmount { get; set; }
 
 
         // Refund
-        public string? RefundStatus { get; set; }
-        public decimal? RefundAmount { get; set; }
-        public string? RefundMethod { get; set; }
-        public string? RefundReason { get; set; }
-        public string? RefundProcessedAt { get; set; }
-        public string? ManualRefundProofUrl { get; set; }
-        public string? ManualRefundTransactionReference { get; set; }
+        public decimal? RequestedDepositRefundAmount { get; set; }
+        public string? DepositRefundStatus { get; set; }
+        public string? DepositRefundMethodType { get; set; }
+        public string? DepositRefundReason { get; set; }
+        public DateTime? DepositRefundProcessedAt { get; set; }
+        public string? ManualDepositRefundProofUrl { get; set; }
+        public string? ManualDepositRefundTransactionReference { get; set; }
     }
 
 }

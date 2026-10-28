@@ -33,29 +33,24 @@ namespace Persistence.Data.Migrations
                     b.Property<int>("AppointmentSlotId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BookingCancellationGracePeriodMinutes")
+                    b.Property<int?>("BookingCancellationGracePeriodMinutes")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("BookingSource")
-                        .HasColumnType("int");
+                    b.Property<string>("BookingSource")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BookingType")
-                        .HasColumnType("int");
+                    b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ConsultationFee")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("DepositAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DoctorNotes")
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar");
-
-                    b.Property<int>("FullRefundCancellationWindowMinutes")
+                    b.Property<int?>("FullRefundCancellationWindowMinutes")
                         .HasColumnType("int");
 
                     b.Property<string>("GuestPatientName")
@@ -69,16 +64,6 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("PatientId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PatientNotes")
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar");
-
-                    b.Property<decimal>("RemainingAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("RemainingAmountCollectedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("ReservationExpiresAt")
                         .HasColumnType("datetime2");
 
@@ -88,14 +73,18 @@ namespace Persistence.Data.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalPaidAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AppointmentSlotId")
                         .IsUnique()
-                        .HasFilter("[Status] IN (1, 2, 3)");
+                        .HasFilter("[Status] IN ('PendingPayment', 'PendingVerification', 'Confirmed')");
 
                     b.HasIndex("PatientId");
 
@@ -126,8 +115,9 @@ namespace Persistence.Data.Migrations
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("WorkingHourId")
                         .HasColumnType("int");
@@ -217,8 +207,9 @@ namespace Persistence.Data.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -255,11 +246,12 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime?>("LastConfigurationIssueAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("LastConfigurationIssueCode")
-                        .HasColumnType("int");
+                    b.Property<string>("LastConfigurationIssueCode")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Provider")
-                        .HasColumnType("int");
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PublicKey")
                         .IsRequired()
@@ -269,8 +261,9 @@ namespace Persistence.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -297,12 +290,13 @@ namespace Persistence.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
+                    b.Property<string>("OnlinePaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClinicOnlinePaymentAccountId", "PaymentMethod")
+                    b.HasIndex("ClinicOnlinePaymentAccountId", "OnlinePaymentMethod")
                         .IsUnique();
 
                     b.ToTable("ClinicPaymentIntegrations");
@@ -328,6 +322,167 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId");
 
                     b.ToTable("ClinicPhoneNumbers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClinicManualPaymentMethodId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClinicOnlinePaymentAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ManualProofUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MethodType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProviderClientSecret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderOrderId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderPaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("RequiredAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SecretaryRejectionReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionReference")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicManualPaymentMethodId");
+
+                    b.HasIndex("ClinicOnlinePaymentAccountId");
+
+                    b.ToTable("DepositPayments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositRefund", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DepositPaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ManualProofUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ManualTransactionReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MethodType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalTransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProcessedBySecretaryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderRefundTransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ProviderResponse")
+                        .HasMaxLength(10000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequestedBySecretaryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("RequestedRefundAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepositPaymentId")
+                        .IsUnique();
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("ProcessedBySecretaryId");
+
+                    b.HasIndex("RequestedBySecretaryId");
+
+                    b.ToTable("DepositRefunds");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorClinic", b =>
@@ -376,8 +531,9 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -450,8 +606,9 @@ namespace Persistence.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserAppId")
                         .IsRequired()
@@ -462,154 +619,6 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("UserAppId");
 
                     b.ToTable("Notifications");
-                });
-
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ClinicManualPaymentMethodId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ClinicOnlinePaymentAccountId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ManualPaymentProofUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MethodType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProviderClientSecret")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProviderOrderId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProviderPaymentIntentId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProviderTransactionId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("SecretaryRejectionReason")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TransactionReference")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppointmentId")
-                        .IsUnique();
-
-                    b.HasIndex("ClinicManualPaymentMethodId");
-
-                    b.HasIndex("ClinicOnlinePaymentAccountId");
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.PaymentRefund", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("FailureReason")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("IdempotencyKey")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ManualRefundProofUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ManualRefundTransactionReference")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("Method")
-                        .HasColumnType("int");
-
-                    b.Property<string>("OriginalTransactionId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("PaymentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ProcessedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProviderRefundTransactionId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ProviderResponse")
-                        .HasMaxLength(10000)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Reason")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
-                    b.HasIndex("PaymentId")
-                        .IsUnique();
-
-                    b.ToTable("PaymentRefunds");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Prescription", b =>
@@ -666,6 +675,53 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("GovernorateId");
 
                     b.ToTable("Regions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.RemainingPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClinicManualPaymentMethodId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MethodType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("RequiredAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicManualPaymentMethodId");
+
+                    b.ToTable("RemainingPayments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Review", b =>
@@ -734,8 +790,9 @@ namespace Persistence.Data.Migrations
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -759,8 +816,9 @@ namespace Persistence.Data.Migrations
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Day")
-                        .HasColumnType("int");
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DoctorId")
                         .IsRequired()
@@ -841,8 +899,8 @@ namespace Persistence.Data.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar");
 
-                    b.Property<int?>("Gender")
-                        .HasColumnType("int");
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1046,8 +1104,9 @@ namespace Persistence.Data.Migrations
                 {
                     b.HasBaseType("Domain.Entities.Identity.UserApp");
 
-                    b.Property<int>("ApprovalStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("ApprovalStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Bio")
                         .HasColumnType("nvarchar(max)");
@@ -1082,8 +1141,8 @@ namespace Persistence.Data.Migrations
                 {
                     b.HasBaseType("Domain.Entities.Identity.UserApp");
 
-                    b.Property<int?>("BloodType")
-                        .HasColumnType("int");
+                    b.Property<string>("BloodType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.ToTable("Patients");
                 });
@@ -1203,6 +1262,56 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Clinic");
                 });
 
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositPayment", b =>
+                {
+                    b.HasOne("Domain.Entities.BusinessEntities.Appointment", "Appointment")
+                        .WithOne("DepositPayment")
+                        .HasForeignKey("Domain.Entities.BusinessEntities.DepositPayment", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", "ClinicManualPaymentMethod")
+                        .WithMany("DepositPayments")
+                        .HasForeignKey("ClinicManualPaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", "ClinicOnlinePaymentAccount")
+                        .WithMany("DepositPayments")
+                        .HasForeignKey("ClinicOnlinePaymentAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("ClinicManualPaymentMethod");
+
+                    b.Navigation("ClinicOnlinePaymentAccount");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositRefund", b =>
+                {
+                    b.HasOne("Domain.Entities.BusinessEntities.DepositPayment", "DepositPayment")
+                        .WithOne("DepositRefund")
+                        .HasForeignKey("Domain.Entities.BusinessEntities.DepositRefund", "DepositPaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.BusinessEntities.Secretary", "ProcessedBySecretary")
+                        .WithMany("ProcessedDepositRefunds")
+                        .HasForeignKey("ProcessedBySecretaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.BusinessEntities.Secretary", "RequestedBySecretary")
+                        .WithMany("RequestedDepositRefunds")
+                        .HasForeignKey("RequestedBySecretaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DepositPayment");
+
+                    b.Navigation("ProcessedBySecretary");
+
+                    b.Navigation("RequestedBySecretary");
+                });
+
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorClinic", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.Clinic", "Clinic")
@@ -1260,42 +1369,6 @@ namespace Persistence.Data.Migrations
                     b.Navigation("UserApp");
                 });
 
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.Payment", b =>
-                {
-                    b.HasOne("Domain.Entities.BusinessEntities.Appointment", "Appointment")
-                        .WithOne("Payment")
-                        .HasForeignKey("Domain.Entities.BusinessEntities.Payment", "AppointmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", "ClinicManualPaymentMethod")
-                        .WithMany("Payments")
-                        .HasForeignKey("ClinicManualPaymentMethodId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", "ClinicOnlinePaymentAccount")
-                        .WithMany("Payments")
-                        .HasForeignKey("ClinicOnlinePaymentAccountId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("ClinicManualPaymentMethod");
-
-                    b.Navigation("ClinicOnlinePaymentAccount");
-                });
-
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.PaymentRefund", b =>
-                {
-                    b.HasOne("Domain.Entities.BusinessEntities.Payment", "Payment")
-                        .WithOne("Refund")
-                        .HasForeignKey("Domain.Entities.BusinessEntities.PaymentRefund", "PaymentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Payment");
-                });
-
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Prescription", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.Appointment", "Appointment")
@@ -1316,6 +1389,24 @@ namespace Persistence.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Governorate");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.RemainingPayment", b =>
+                {
+                    b.HasOne("Domain.Entities.BusinessEntities.Appointment", "Appointment")
+                        .WithOne("RemainingPayment")
+                        .HasForeignKey("Domain.Entities.BusinessEntities.RemainingPayment", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", "ClinicManualPaymentMethod")
+                        .WithMany("RemainingPayments")
+                        .HasForeignKey("ClinicManualPaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("ClinicManualPaymentMethod");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Review", b =>
@@ -1472,10 +1563,12 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Appointment", b =>
                 {
-                    b.Navigation("Payment")
+                    b.Navigation("DepositPayment")
                         .IsRequired();
 
                     b.Navigation("Prescription");
+
+                    b.Navigation("RemainingPayment");
 
                     b.Navigation("Review");
                 });
@@ -1506,14 +1599,21 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicManualPaymentMethod", b =>
                 {
-                    b.Navigation("Payments");
+                    b.Navigation("DepositPayments");
+
+                    b.Navigation("RemainingPayments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
                 {
-                    b.Navigation("PaymentIntegrations");
+                    b.Navigation("DepositPayments");
 
-                    b.Navigation("Payments");
+                    b.Navigation("PaymentIntegrations");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositPayment", b =>
+                {
+                    b.Navigation("DepositRefund");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorClinic", b =>
@@ -1529,11 +1629,6 @@ namespace Persistence.Data.Migrations
             modelBuilder.Entity("Domain.Entities.BusinessEntities.MedicalSpecialty", b =>
                 {
                     b.Navigation("Doctors");
-                });
-
-            modelBuilder.Entity("Domain.Entities.BusinessEntities.Payment", b =>
-                {
-                    b.Navigation("Refund");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Region", b =>
@@ -1569,6 +1664,10 @@ namespace Persistence.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Secretary", b =>
                 {
+                    b.Navigation("ProcessedDepositRefunds");
+
+                    b.Navigation("RequestedDepositRefunds");
+
                     b.Navigation("SecretaryInvitationsReceived");
                 });
 #pragma warning restore 612, 618

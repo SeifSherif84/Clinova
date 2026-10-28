@@ -38,8 +38,6 @@ namespace Presentation.Controllers.AppointmentSlots
 
 
 
-
-
         [Authorize(Roles = "Secretary")]
         [HttpGet("guest-reservation/doctors/{doctorId}/available-days")]
         public async Task<IActionResult> GetDoctorDaysWhichHaveAvailableSlotForGuestReservation([FromRoute] string doctorId, 
@@ -60,9 +58,6 @@ namespace Presentation.Controllers.AppointmentSlots
             var response = await _serviceManager.AppointmentSlotService.GetAvailableAppointmentSlotsExistInSpecificDayForGuestReservationAsync(userId ?? string.Empty, doctorId, request);
             return Ok(response);
         }
-
-
-
 
 
 
@@ -91,9 +86,6 @@ namespace Presentation.Controllers.AppointmentSlots
 
 
 
-
-
-
         [Authorize(Roles = "Secretary")]
         [HttpGet("secretary-reschedule/appointments/{appointmentId}/available-days")]
         public async Task<IActionResult> GetDoctorDaysWhichHaveAvailableSlotForSecretaryReschedule([FromRoute] int appointmentId, 
@@ -114,12 +106,6 @@ namespace Presentation.Controllers.AppointmentSlots
             var response = await _serviceManager.AppointmentSlotService.GetAvailableAppointmentSlotsExistInSpecificDayForSecretaryRescheduleAsync(userId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
-
-
-
-
-
-
 
     }
 }

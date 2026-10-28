@@ -38,13 +38,13 @@ namespace Services.Appointments
     public class AppointmentService(IUnitOfWork _unitOfWork,
                                     IMapper _mapper,
                                     IOptions<CancellationPolicySettings> _cancellationPolicyOptions,
-                                    IPaymobRefundService _refundService,
+                                    IPaymobDepositRefundService _refundService,
                                     INotificationService _notificationService) : IAppointmentService
     {
         private readonly CancellationPolicySettings _cancellationPolicy = _cancellationPolicyOptions.Value;
 
 
-        public async Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId, CreateAppointmentRequest request)
+        public async Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -82,29 +82,35 @@ namespace Services.Appointments
                 BookingType = BookingType.Advance,
                 PatientId = userId,
                 AppointmentSlotId = appointmentSlotId,
-                PatientNotes = request.PatientNotes,
                 ConsultationFee = consultationFee,
-                DepositAmount = depositAmount,
-                RemainingAmount = remainingAmount,
-                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(2),
+                TotalPaidAmount = 0m,
+                ReservationExpiresAt = DateTime.UtcNow.AddMinutes(30),
                 FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
                 BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
             };
 
-            appointment.Payment = new Payment
+            appointment.DepositPayment = new DepositPayment
             {
-                Amount = depositAmount,
+                RequiredAmount = depositAmount,
                 CreatedAt = DateTime.UtcNow,
-                Status = PaymentStatus.Pending,
-                Appointment = appointment   
+                Status = DepositPaymentStatus.Pending,
+                Appointment = appointment
+            };
+
+            appointment.RemainingPayment = new RemainingPayment
+            {
+                RequiredAmount = remainingAmount,
+                CreatedAt = DateTime.UtcNow,
+                Status = RemainingPaymentStatus.Pending,
+                Appointment = appointment
             };
 
             slot.Status = SlotStatus.Reserved;
 
-            // Add Appointment & Payment
+            // Add Appointment & Payment(Deposit + Remaining)
             await _unitOfWork.GetRepository<Appointment, int>().AddAsync(appointment);
 
-            // Save Appointment + Payment + Slot change
+            // Save Appointment & Payment(Deposit, Remaining) & Slot change
             try
             {
                 var result = await _unitOfWork.SaveChangesAsync();
@@ -169,12 +175,18 @@ namespace Services.Appointments
         private static bool IsFullRefundEligible(Appointment appointment)
         {
             var nowUtc = DateTime.UtcNow;
-            var bookingGracePeriodEndsAtUtc = appointment.BookingDate.AddMinutes(appointment.BookingCancellationGracePeriodMinutes);
-            if (nowUtc <= bookingGracePeriodEndsAtUtc)
-                return true;
+            if (appointment.BookingCancellationGracePeriodMinutes.HasValue)
+            {
+                var bookingGracePeriodEndsAtUtc = appointment.BookingDate.AddMinutes(appointment.BookingCancellationGracePeriodMinutes.Value);
+                if (nowUtc <= bookingGracePeriodEndsAtUtc)
+                    return true;
+            }
+
+            if (!appointment.FullRefundCancellationWindowMinutes.HasValue)
+                return false;
 
             var appointmentStartUtc = GetAppointmentStartUtc(appointment);
-            var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes);
+            var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes.Value);
             return nowUtc <= fullRefundDeadlineUtc;
         }
 
@@ -242,8 +254,8 @@ namespace Services.Appointments
             {
                 appointment.Status = AppointmentStatus.Expired;
 
-                if (appointment.Payment.Status is PaymentStatus.Pending or PaymentStatus.Failed)
-                    appointment.Payment.Status = PaymentStatus.Expired;
+                if (appointment.DepositPayment.Status is DepositPaymentStatus.Pending or DepositPaymentStatus.Failed)
+                    appointment.DepositPayment.Status = DepositPaymentStatus.Expired;
 
                 if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
                     appointment.AppointmentSlot.Status = SlotStatus.Available;
@@ -477,7 +489,7 @@ namespace Services.Appointments
                                                                                   patientSearch,
                                                                                   query.SlotDate,
                                                                                   query.AppointmentStatus,
-                                                                                  query.PaymentStatus,
+                                                                                  query.DepositPaymentStatus,
                                                                                   pageIndex,
                                                                                   pageSize,
                                                                                   applyPagination: false);
@@ -493,7 +505,7 @@ namespace Services.Appointments
                                                                                  patientSearch,
                                                                                  query.SlotDate,
                                                                                  query.AppointmentStatus,
-                                                                                 query.PaymentStatus,
+                                                                                 query.DepositPaymentStatus,
                                                                                  pageIndex,
                                                                                  pageSize,
                                                                                  applyPagination: true);
@@ -574,27 +586,35 @@ namespace Services.Appointments
             if (appointment.Status == AppointmentStatus.Expired)
                 throw new BadRequestException("This appointment has already expired.");
 
+            if (appointment.Status == AppointmentStatus.PendingVerification)
+                throw new BadRequestException("This appointment is pendind verification and waiting clinic response. It cannot be cancelled at this time.");
+
             if (appointment.Status != AppointmentStatus.PendingPayment && appointment.Status != AppointmentStatus.Confirmed)
                 throw new BadRequestException("This appointment cannot be cancelled at its current status.");
 
 
-            var payment = appointment.Payment;
+            var depositPayment = appointment.DepositPayment;
 
-            if (payment is null)
+            if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
-            var isPaymentPaid = payment.Status == PaymentStatus.Paid;
-            var isFullRefundEligible = isPaymentPaid && IsFullRefundEligible(appointment);
+            var isDepositPaymentPaid = depositPayment.Status == DepositPaymentStatus.Paid;
+            var isFullRefundEligible = isDepositPaymentPaid && IsFullRefundEligible(appointment);
 
             appointment.Status = AppointmentStatus.Cancelled;
+
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
+
 
             if (appointment.AppointmentSlot.Status == SlotStatus.Reserved || appointment.AppointmentSlot.Status == SlotStatus.Booked)
                 appointment.AppointmentSlot.Status = SlotStatus.Available;
 
 
-            if (!isPaymentPaid)
+            if (!isDepositPaymentPaid)
             {
-                payment.Status = PaymentStatus.Cancelled;
+                depositPayment.Status = DepositPaymentStatus.Cancelled;
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result == 0)
                     throw new InternalServerErrorException(
@@ -626,26 +646,24 @@ namespace Services.Appointments
                 return "Your appointment has been cancelled. According to Clinova's cancellation policy, this payment is not eligible for a refund.";
             }
 
-
-            var hasPaymobTransaction = payment.MethodType == PaymentMethodType.Paymob;
-            var hasManualPaymentMethod = payment.MethodType == PaymentMethodType.ManualTransfer;
-
+            var hasPaymobTransaction = depositPayment.MethodType == DepositPaymentMethodType.Paymob;
+            var hasManualPaymentMethod = depositPayment.MethodType == DepositPaymentMethodType.ManualTransfer;
 
             if (hasManualPaymentMethod)
             {
-                var paymentRefund = new PaymentRefund
+                var depositRefund = new DepositRefund
                 {
-                    PaymentId = payment.Id,
-                    Reason = RefundReason.PatientCancellation,
-                    Status = RefundStatus.PendingManualProcessing,
-                    Amount = payment.Amount,
+                    DepositPaymentId = depositPayment.Id,
+                    Reason = DepositRefundReason.PatientCancellation,
+                    Status = DepositRefundStatus.PendingManualProcessing,
+                    RequestedRefundAmount = depositPayment.RequiredAmount,
                     RequestedAt = DateTime.UtcNow,
                     ProcessedAt = null,
-                    IdempotencyKey = $"manual-refund-payment-{payment.Id}"
+                    IdempotencyKey = $"manual-refund-deposit-payment-{depositPayment.Id}"
                 };
 
-                var paymentRefundRepo = _unitOfWork.GetRepository<PaymentRefund, int>();
-                await paymentRefundRepo.AddAsync(paymentRefund);
+                var depositRefundRepo = _unitOfWork.GetRepository<DepositRefund, int>();
+                await depositRefundRepo.AddAsync(depositRefund);
 
                 try
                 {
@@ -674,7 +692,7 @@ namespace Services.Appointments
                     await _notificationService.CreateAndSendAsync(
                         secretary.Id,
                         "Refund Request Requires Processing",
-                        $"Appointment #{appointment.Id} was cancelled by the patient. A full refund of {payment.Amount} requires manual processing.",
+                        $"Appointment #{appointment.Id} was cancelled by the patient. A full refund of {depositPayment.RequiredAmount} requires manual processing.",
                         NotificationType.ManualRefundRequested);
                 }
 
@@ -692,10 +710,10 @@ namespace Services.Appointments
 
             if (hasPaymobTransaction)
             {
-                if (string.IsNullOrWhiteSpace(payment.ProviderTransactionId))
+                if (string.IsNullOrWhiteSpace(depositPayment.ProviderTransactionId))
                     throw new BadRequestException("The Paymob transaction ID is missing.");
 
-                var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.PatientCancellation);
+                var refundResult = await _refundService.RefundPaymentAsync(depositPayment.Id, DepositRefundReason.PatientCancellation);
 
                 var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
                 var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
@@ -756,11 +774,11 @@ namespace Services.Appointments
                 throw new BadRequestException("Only confirmed appointments can be cancelled.");
 
 
-            var payment = appointment.Payment;
-            if (payment is null)
+            var depositPayment = appointment.DepositPayment;
+            if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
-            if (payment.Status != PaymentStatus.Paid)
+            if (depositPayment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be cancelled.");
 
 
@@ -768,30 +786,34 @@ namespace Services.Appointments
                 throw new BadRequestException("The appointment slot is not currently booked.");
 
 
-            var hasPaymobTransaction = payment.MethodType == PaymentMethodType.Paymob;
-            var hasManualPaymentMethod = payment.MethodType == PaymentMethodType.ManualTransfer;
-            var hasCashPaymentMethod = payment.MethodType == PaymentMethodType.CashAtClinic;
+            var hasPaymobTransaction = depositPayment.MethodType == DepositPaymentMethodType.Paymob;
+            var hasManualPaymentMethod = depositPayment.MethodType == DepositPaymentMethodType.ManualTransfer;
+            var hasCashPaymentMethod = depositPayment.MethodType == DepositPaymentMethodType.CashAtClinic;
 
 
             appointment.Status = AppointmentStatus.Cancelled;
             appointment.AppointmentSlot.Status = SlotStatus.Available;
 
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
             if (hasManualPaymentMethod || hasCashPaymentMethod)
             {
-                var paymentRefund = new PaymentRefund
+                var depositRefund = new DepositRefund
                 {
-                    PaymentId = payment.Id,
-                    Reason = RefundReason.ClinicCancellation,
-                    Status = RefundStatus.PendingManualProcessing,
-                    Amount = payment.Amount,
+                    DepositPaymentId = depositPayment.Id,
+                    Reason = DepositRefundReason.ClinicCancellation,
+                    Status = DepositRefundStatus.PendingManualProcessing,
+                    RequestedRefundAmount = depositPayment.RequiredAmount,
                     RequestedAt = DateTime.UtcNow,
                     ProcessedAt = null,
-                    IdempotencyKey = $"manual-refund-payment-{payment.Id}"
+                    IdempotencyKey = $"manual-refund-deposit-payment-{depositPayment.Id}",
+                    RequestedBySecretaryId = secretaryId
                 };
 
-                var paymentRefundRepo = _unitOfWork.GetRepository<PaymentRefund, int>();
-                await paymentRefundRepo.AddAsync(paymentRefund);
+                var depositRefundRepo = _unitOfWork.GetRepository<DepositRefund, int>();
+                await depositRefundRepo.AddAsync(depositRefund);
 
                 try
                 {
@@ -826,10 +848,10 @@ namespace Services.Appointments
 
             if (hasPaymobTransaction)
             {
-                if (string.IsNullOrWhiteSpace(payment.ProviderTransactionId))
+                if (string.IsNullOrWhiteSpace(depositPayment.ProviderTransactionId))
                     throw new BadRequestException("The Paymob transaction ID is missing.");
 
-                var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.ClinicCancellation);
+                var refundResult = await _refundService.RefundPaymentAsync(depositPayment.Id, DepositRefundReason.ClinicCancellation);
 
                 if (appointment.PatientId is not null)
                 {
@@ -884,18 +906,18 @@ namespace Services.Appointments
             if (appointment.Status != AppointmentStatus.Confirmed)
                 throw new BadRequestException("Only confirmed appointments can be cancelled.");
 
-            var payment = appointment.Payment;
+            var depositPayment = appointment.DepositPayment;
 
-            if (payment is null)
+            if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
-            if (payment.Status != PaymentStatus.Paid)
+            if (depositPayment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be cancelled.");
 
             if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
                 throw new BadRequestException("The appointment slot is not currently booked.");
 
-            if (payment.Refund is not null)
+            if (depositPayment.DepositRefund is not null)
                 throw new BadRequestException("A refund already exists for this payment.");
 
 
@@ -910,12 +932,16 @@ namespace Services.Appointments
             appointment.Status = AppointmentStatus.Cancelled;
             appointment.AppointmentSlot.Status = SlotStatus.Available;
 
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
+
             if (isGuestReservation && request.IsRefundDue is null)
                 throw new BadRequestException("IsRefundDue is required for guest reservations.");
 
             var isRefundEligible = isGuestReservation ? request.IsRefundDue!.Value : IsFullRefundEligible(appointment);
 
-            PaymentRefund? refund = null;
+            DepositRefund? refund = null;
             var shouldProcessPaymobRefund = false;
 
 
@@ -959,21 +985,22 @@ namespace Services.Appointments
             // ---------------------------------------------------------
             if (isRefundEligible && isGuestReservation)
             {
-                if (payment.MethodType != PaymentMethodType.ManualTransfer && payment.MethodType != PaymentMethodType.CashAtClinic)
+                if (depositPayment.MethodType != DepositPaymentMethodType.ManualTransfer && depositPayment.MethodType != DepositPaymentMethodType.CashAtClinic)
                     throw new BadRequestException("The payment method is not supported for guest reservation refunds.");
 
-                refund = new PaymentRefund
+                refund = new DepositRefund
                 {
-                    PaymentId = payment.Id,
-                    Reason = RefundReason.PatientCancellation,
-                    Status = RefundStatus.PendingManualProcessing,
-                    Amount = payment.Amount,
+                    DepositPaymentId = depositPayment.Id,
+                    Reason = DepositRefundReason.PatientCancellation,
+                    Status = DepositRefundStatus.PendingManualProcessing,
+                    RequestedRefundAmount = depositPayment.RequiredAmount,
                     RequestedAt = DateTime.UtcNow,
                     ProcessedAt = null,
-                    IdempotencyKey = $"guest-patient-cancel-refund-{payment.Id}"
+                    IdempotencyKey = $"manual-refund-deposit-payment-{depositPayment.Id}",
+                    RequestedBySecretaryId = secretaryId
                 };
 
-                await _unitOfWork.GetRepository<PaymentRefund, int>().AddAsync(refund);
+                await _unitOfWork.GetRepository<DepositRefund, int>().AddAsync(refund);
             }
 
 
@@ -982,26 +1009,27 @@ namespace Services.Appointments
             // ---------------------------------------------------------
             else if (isRefundEligible && isRegisteredPatientReservation)
             {
-                if (payment.MethodType != PaymentMethodType.Paymob && payment.MethodType != PaymentMethodType.ManualTransfer)
+                if (depositPayment.MethodType != DepositPaymentMethodType.Paymob && depositPayment.MethodType != DepositPaymentMethodType.ManualTransfer)
                     throw new BadRequestException("The payment method is not supported for patient registered reservation refunds.");
 
-                if (payment.MethodType == PaymentMethodType.Paymob)
+                if (depositPayment.MethodType == DepositPaymentMethodType.Paymob)
                     shouldProcessPaymobRefund = true;
 
-                else if(payment.MethodType == PaymentMethodType.ManualTransfer)
+                else if(depositPayment.MethodType == DepositPaymentMethodType.ManualTransfer)
                 {
-                    refund = new PaymentRefund
+                    refund = new DepositRefund
                     {
-                        PaymentId = payment.Id,
-                        Reason = RefundReason.PatientCancellation,
-                        Status = RefundStatus.PendingManualProcessing,
-                        Amount = payment.Amount,
+                        DepositPaymentId = depositPayment.Id,
+                        Reason = DepositRefundReason.PatientCancellation,
+                        Status = DepositRefundStatus.PendingManualProcessing,
+                        RequestedRefundAmount = depositPayment.RequiredAmount,
                         RequestedAt = DateTime.UtcNow,
                         ProcessedAt = null,
-                        IdempotencyKey = $"manual-refund-payment-{payment.Id}"
+                        IdempotencyKey = $"manual-refund-deposit-payment-{depositPayment.Id}",
+                        RequestedBySecretaryId = secretaryId
                     };
 
-                    await _unitOfWork.GetRepository<PaymentRefund, int>().AddAsync(refund);
+                    await _unitOfWork.GetRepository<DepositRefund, int>().AddAsync(refund);
                 }
 
                 else
@@ -1041,7 +1069,7 @@ namespace Services.Appointments
 
             if (shouldProcessPaymobRefund)
             {
-                var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.PatientCancellation);
+                var refundResult = await _refundService.RefundPaymentAsync(depositPayment.Id, DepositRefundReason.PatientCancellation);
 
                 if (isRegisteredPatientReservation)
                 {
@@ -1072,7 +1100,7 @@ namespace Services.Appointments
 
 
 
-        public async Task<string> PatientSubmitManualPaymentProofAsync(string userId, int appointmentId, SubmitManualPaymentProofRequest request)
+        public async Task<string> PatientSubmitManualDepositPaymentProofAsync(string userId, int appointmentId, SubmitManualDepositPaymentProofRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1095,10 +1123,10 @@ namespace Services.Appointments
             if (appointment.Status != AppointmentStatus.PendingPayment)
                 throw new BadRequestException("Payment proof can only be submitted for appointments awaiting payment.");
 
-            if (appointment.Payment is null)
+            if (appointment.DepositPayment is null)
                 throw new BadRequestException("Payment information for this appointment was not found.");
 
-            if (appointment.Payment.Status != PaymentStatus.Pending)
+            if (appointment.DepositPayment.Status != DepositPaymentStatus.Pending)
                 throw new BadRequestException("Payment proof can only be submitted when the payment is pending.");
 
             if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
@@ -1109,8 +1137,6 @@ namespace Services.Appointments
 
             if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
                 throw new BadRequestException("The appointment slot is no longer reserved. Please book another available slot.");
-
-
 
             var manualPaymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId);
 
@@ -1123,21 +1149,18 @@ namespace Services.Appointments
             if (manualPaymentMethod.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new BadRequestException("The selected payment method does not belong to this appointment's clinic.");
 
-
-
             if (request.TransactionReference is not null)
                 request.TransactionReference = request.TransactionReference.Trim();
-
 
             string? uploadedFileName = null;
             try
             {
                 uploadedFileName = await FileStorageHandler.UploadAsync(request.PaymentProof, "manualpaymentproofs");
-                appointment.Payment.ManualPaymentProofUrl = uploadedFileName;
-                appointment.Payment.ClinicManualPaymentMethodId = manualPaymentMethod.Id;
-                appointment.Payment.MethodType = PaymentMethodType.ManualTransfer;
-                appointment.Payment.TransactionReference = request.TransactionReference;
-                appointment.Payment.Status = PaymentStatus.PendingVerification;
+                appointment.DepositPayment.ManualProofUrl = uploadedFileName;
+                appointment.DepositPayment.ClinicManualPaymentMethodId = manualPaymentMethod.Id;
+                appointment.DepositPayment.MethodType = DepositPaymentMethodType.ManualTransfer;
+                appointment.DepositPayment.TransactionReference = request.TransactionReference;
+                appointment.DepositPayment.Status = DepositPaymentStatus.PendingVerification;
                 appointment.Status = AppointmentStatus.PendingVerification;
 
 
@@ -1178,7 +1201,7 @@ namespace Services.Appointments
         }
 
 
-        public async Task<string> ApproveManualPaymentAsync(string secretaryId, int appointmentId)
+        public async Task<string> ApproveManualDepositPaymentAsync(string secretaryId, int appointmentId)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1196,27 +1219,28 @@ namespace Services.Appointments
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
 
-            if (appointment.Payment is null)
+            if (appointment.DepositPayment is null)
                 throw new BadRequestException("Payment information for this appointment was not found.");
 
-            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.Payment.Status != PaymentStatus.PendingVerification)
+            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
                 throw new BadRequestException("This appointment is no longer awaiting payment verification.");
 
-
-            if (!appointment.Payment.ClinicManualPaymentMethodId.HasValue)
+            if (appointment.DepositPayment.MethodType is not DepositPaymentMethodType.ManualTransfer)
                 throw new BadRequestException("This appointment does not use manual payment.");
 
-            if (string.IsNullOrWhiteSpace(appointment.Payment.ManualPaymentProofUrl))
+            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
                 throw new BadRequestException("No payment proof was submitted for this appointment.");
 
             if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
                 throw new BadRequestException("The appointment slot is no longer reserved.");
 
-            appointment.Payment.Status = PaymentStatus.Paid;
-            appointment.Payment.PaidAt = DateTime.UtcNow;
-            appointment.Payment.SecretaryRejectionReason = null;
+            appointment.DepositPayment.Status = DepositPaymentStatus.Paid;
+
+            appointment.DepositPayment.PaidAt = DateTime.UtcNow;
+            appointment.DepositPayment.SecretaryRejectionReason = null;
             appointment.Status = AppointmentStatus.Confirmed;
             appointment.AppointmentSlot.Status = SlotStatus.Booked;
+            appointment.TotalPaidAmount += appointment.DepositPayment.RequiredAmount;
 
             try
             {
@@ -1242,7 +1266,7 @@ namespace Services.Appointments
         }
 
 
-        public async Task<string> RejectManualPaymentAsync(string secretaryId, int appointmentId, RejectManualPaymentRequest request)
+        public async Task<string> RejectManualDepositPaymentAsync(string secretaryId, int appointmentId, RejectManualDepositPaymentRequest request)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1262,26 +1286,30 @@ namespace Services.Appointments
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
 
-            if (appointment.Payment is null)
+            if (appointment.DepositPayment is null)
                 throw new BadRequestException("Payment information for this appointment was not found.");
 
-            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.Payment.Status != PaymentStatus.PendingVerification)
+            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
                 throw new BadRequestException("This appointment is no longer awaiting payment verification.");
 
 
-            if (!appointment.Payment.ClinicManualPaymentMethodId.HasValue)
+            if (!appointment.DepositPayment.ClinicManualPaymentMethodId.HasValue)
                 throw new BadRequestException("This appointment does not use manual payment.");
 
-            if (string.IsNullOrWhiteSpace(appointment.Payment.ManualPaymentProofUrl))
+            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
                 throw new BadRequestException("No payment proof was submitted for this appointment.");
 
             if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
                 throw new BadRequestException("The appointment slot is no longer reserved.");
 
-            appointment.Payment.Status = PaymentStatus.Rejected;
-            appointment.Payment.SecretaryRejectionReason = rejectionReason;
+            appointment.DepositPayment.Status = DepositPaymentStatus.Rejected;
+            appointment.DepositPayment.SecretaryRejectionReason = rejectionReason;
             appointment.Status = AppointmentStatus.Cancelled;
             appointment.AppointmentSlot.Status = SlotStatus.Available;
+
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
             try
             {
@@ -1311,7 +1339,7 @@ namespace Services.Appointments
 
 
 
-        public async Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId)
+        public async Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId, SecretaryMarkAppointmentCompletedRequest request)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1336,6 +1364,9 @@ namespace Services.Appointments
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to access this appointment.");
 
+            if (appointment.Status == AppointmentStatus.Completed)
+                throw new BadRequestException("This appointment has already been marked as completed.");
+
             if (appointment.Status != AppointmentStatus.Confirmed)
                 throw new BadRequestException("Only confirmed appointments can be marked as completed.");
 
@@ -1343,28 +1374,59 @@ namespace Services.Appointments
                 throw new BadRequestException("The appointment slot is not currently booked.");
 
 
-            var payment = appointment.Payment;
+            var payment = appointment.DepositPayment;
             if (payment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
-            if (payment.Status != PaymentStatus.Paid)
+            if (payment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be marked as completed.");
 
 
             var nowUtc = DateTime.UtcNow;
-            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
-            var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-            if (nowUtc < appointmentEndUtc)
-                throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
+            //var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            //var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
+            //var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+            //if (nowUtc < appointmentEndUtc)
+            //    throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
 
-            if (appointment.Status == AppointmentStatus.Completed)
-                throw new BadRequestException("This appointment has already been marked as completed.");
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.RequiredAmount > 0)
+            {
+                if (remainingPayment.Status != RemainingPaymentStatus.Pending)
+                    throw new BadRequestException("The remaining payment is no longer awaiting payment.");
+
+                switch (request.RemainingPaymentMethodType)
+                {
+                    case RemainingPaymentMethodType.CashAtClinic:
+                        if (request.ClinicManualPaymentMethodId.HasValue)
+                            throw new BadRequestException("A manual payment method must not be provided for cash payments.");
+
+                        remainingPayment.MethodType = RemainingPaymentMethodType.CashAtClinic;
+                        remainingPayment.ClinicManualPaymentMethodId = null;
+                        break;
+
+                    case RemainingPaymentMethodType.ManualTransfer:
+                        if (!request.ClinicManualPaymentMethodId.HasValue)
+                            throw new BadRequestException("Please select a manual payment method.");
+
+                        var paymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId.Value);
+                        if (paymentMethod is null || paymentMethod.ClinicId != secretary.ClinicId.Value || !paymentMethod.IsActive)
+                            throw new BadRequestException("The selected payment method is invalid or inactive.");
+
+                        remainingPayment.MethodType = RemainingPaymentMethodType.ManualTransfer;
+                        remainingPayment.ClinicManualPaymentMethodId = paymentMethod.Id;
+                        break;
+
+                    default:
+                        throw new BadRequestException("The selected payment method is invalid.");
+                }
+
+                remainingPayment.Status = RemainingPaymentStatus.Paid;
+                remainingPayment.PaidAt = nowUtc;
+                appointment.TotalPaidAmount += remainingPayment.RequiredAmount;
+            }
 
             appointment.Status = AppointmentStatus.Completed;
-
-            if (appointment.RemainingAmount > 0)
-                appointment.RemainingAmountCollectedAt = DateTime.UtcNow;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -1400,6 +1462,9 @@ namespace Services.Appointments
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to access this appointment.");
 
+            if (appointment.Status == AppointmentStatus.NoShow)
+                throw new BadRequestException("The appointment has already been marked as no-show.");
+
             if (appointment.Status != AppointmentStatus.Confirmed)
                 throw new BadRequestException("Only confirmed appointments can be marked as no-show.");
 
@@ -1407,11 +1472,11 @@ namespace Services.Appointments
                 throw new BadRequestException("The appointment slot is not currently booked.");
 
 
-            var payment = appointment.Payment;
-            if (payment is null)
+            var depositPayment = appointment.DepositPayment;
+            if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
-            if (payment.Status != PaymentStatus.Paid)
+            if (depositPayment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be marked as no-show.");
 
 
@@ -1422,10 +1487,10 @@ namespace Services.Appointments
             if (nowUtc < appointmentEndUtc)
                 throw new BadRequestException("The appointment cannot be marked as no-show before its scheduled end time.");
 
-            if(appointment.Status == AppointmentStatus.NoShow)
-                throw new BadRequestException("The appointment has already been marked as no-show.");
-
             appointment.Status = AppointmentStatus.NoShow;
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -1436,7 +1501,7 @@ namespace Services.Appointments
         }
 
 
-        public async Task<string> SecretaryConfirmManualRefundAsync(string secretaryId, int appointmentId, ConfirmManualRefundRequest request)
+        public async Task<string> SecretaryConfirmManualDepositRefundAsync(string secretaryId, int appointmentId, ConfirmManualDepositRefundRequest request)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -1447,7 +1512,6 @@ namespace Services.Appointments
 
             if (secretary.ClinicId is null)
                 throw new BadRequestException("You are not associated with any clinic.");
-
 
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
             var appointmentSpec = AppointmentSpecifications.ByIdWithRefund(appointmentId);
@@ -1464,23 +1528,23 @@ namespace Services.Appointments
             if (appointment.Status != AppointmentStatus.Cancelled)
                 throw new BadRequestException("Only cancelled appointments can have their refunds confirmed.");
 
-            if (appointment.Payment is null)
+            if (appointment.DepositPayment is null)
                 throw new NotFoundException("The payment associated with this appointment could not be found.");
 
-            if (appointment.Payment.Status != PaymentStatus.Paid)
+            if (appointment.DepositPayment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only paid payments can have their refunds confirmed.");
 
-            if (appointment.Payment.MethodType != PaymentMethodType.ManualTransfer && appointment.Payment.MethodType != PaymentMethodType.CashAtClinic)
+            if (appointment.DepositPayment.MethodType != DepositPaymentMethodType.ManualTransfer && appointment.DepositPayment.MethodType != DepositPaymentMethodType.CashAtClinic)
                 throw new BadRequestException("Manual refund confirmation is only available for manual transfers and cash payments.");
 
 
-            if (appointment.Payment.Refund is null)
+            if (appointment.DepositPayment.DepositRefund is null)
                 throw new NotFoundException("No refund request was found for this payment.");
 
-            if (appointment.Payment.Refund.Status != RefundStatus.PendingManualProcessing)
+            if (appointment.DepositPayment.DepositRefund.Status != DepositRefundStatus.PendingManualProcessing)
                 throw new BadRequestException("This refund is not awaiting manual processing.");
 
-            if (request.ManualRefundMethod == ManualRefundMethod.ManualTransfer && request.ManualRefundProof is null)
+            if (request.ManualDepositRefundMethodType == ManualDepositRefundMethodType.ManualTransfer && request.ManualRefundProof is null)
                 throw new BadRequestException("A refund proof image is required for manual transfers.");
 
 
@@ -1488,12 +1552,15 @@ namespace Services.Appointments
             try
             {
                 uploadedFileName = request.ManualRefundProof is not null ? await FileStorageHandler.UploadAsync(request.ManualRefundProof, "manualrefundproofs") : null;
-                appointment.Payment.Refund.ManualRefundProofUrl = uploadedFileName;
-                appointment.Payment.Refund.ManualRefundTransactionReference = request.ManualRefundTransactionReference;
-                appointment.Payment.Refund.Status = RefundStatus.Succeeded;
-                appointment.Payment.Refund.ProcessedAt = DateTime.UtcNow;
-                appointment.Payment.Refund.Method = request.ManualRefundMethod == ManualRefundMethod.ManualTransfer ? RefundMethod.ManualTransfer : RefundMethod.Cash;
-                appointment.Payment.Status = PaymentStatus.Refunded;
+                appointment.DepositPayment.DepositRefund.ManualProofUrl = uploadedFileName;
+                appointment.DepositPayment.DepositRefund.ManualTransactionReference = request.ManualRefundTransactionReference;
+                appointment.DepositPayment.DepositRefund.Status = DepositRefundStatus.Succeeded;
+                appointment.DepositPayment.DepositRefund.ProcessedAt = DateTime.UtcNow;
+                appointment.DepositPayment.DepositRefund.ProcessedBySecretaryId = secretaryId;
+                appointment.DepositPayment.DepositRefund.MethodType = request.ManualDepositRefundMethodType == ManualDepositRefundMethodType.ManualTransfer ? DepositRefundMethodType.ManualTransfer : DepositRefundMethodType.CashAtClinic;
+                appointment.DepositPayment.Status = DepositPaymentStatus.Refunded;
+                if (appointment.RemainingPayment is not null && appointment.RemainingPayment.Status == RemainingPaymentStatus.Pending)
+                    appointment.RemainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 if (result == 0)
@@ -1556,9 +1623,7 @@ namespace Services.Appointments
             if (slot.Status != SlotStatus.Available)
                 throw new BadRequestException("The selected appointment slot is no longer available.");
 
-
             var slotLocalDateTime = slot.Date.ToDateTime(slot.StartTime);
-
 
             var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
             var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptTimeZone);
@@ -1567,9 +1632,7 @@ namespace Services.Appointments
                 throw new BadRequestException("You cannot book a past appointment slot.");
 
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(slot.DoctorId, slot.ClinicId);
-
             var clinic = doctorClinicAccess.Clinic;
-
             var consultationFee = clinic.ConsultationFee;
             var depositPercentage = clinic.DepositPercentage;
 
@@ -1590,9 +1653,7 @@ namespace Services.Appointments
             };
 
             var remainingAmount = consultationFee - depositAmount;
-
             var paymentAmount = depositAmount;
-
             if (paymentAmount <= 0 || remainingAmount < 0)
                 throw new BadRequestException("The calculated reservation amounts are invalid.");
 
@@ -1610,20 +1671,30 @@ namespace Services.Appointments
                 GuestPatientPhone = guestPhone,
                 AppointmentSlotId = slot.Id,
                 ConsultationFee = consultationFee,
-                DepositAmount = depositAmount,
-                RemainingAmount = remainingAmount,
+                TotalPaidAmount = 0m,
                 ReservationExpiresAt = reservationExpiresAt,
-                FullRefundCancellationWindowMinutes = _cancellationPolicy.FullRefundCancellationWindowMinutes,
-                BookingCancellationGracePeriodMinutes = _cancellationPolicy.BookingCancellationGracePeriodMinutes
+                FullRefundCancellationWindowMinutes = null,
+                BookingCancellationGracePeriodMinutes = null
             };
 
-            appointment.Payment = new Payment
+            appointment.DepositPayment = new DepositPayment
             {
                 CreatedAt = nowUtc,
-                Amount = paymentAmount,
-                Status = PaymentStatus.Pending,
+                RequiredAmount = paymentAmount,
+                Status = DepositPaymentStatus.Pending,
                 Appointment = appointment
             };
+
+            if (remainingAmount > 0)
+            {
+                appointment.RemainingPayment = new RemainingPayment
+                {
+                    CreatedAt = nowUtc,
+                    RequiredAmount = remainingAmount,
+                    Status = RemainingPaymentStatus.Pending,
+                    Appointment = appointment
+                };
+            }
 
             slot.Status = SlotStatus.Reserved;
 
@@ -1678,19 +1749,19 @@ namespace Services.Appointments
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
-            if (appointment.PatientId is not null || string.IsNullOrWhiteSpace(appointment.GuestPatientName))
+            if (appointment.PatientId is not null || appointment.BookingSource == BookingSource.Patient)
                 throw new BadRequestException("This operation is only available for guest appointments.");
 
             var slot = appointment.AppointmentSlot;
-            var payment = appointment.Payment;
+            var depositPayment = appointment.DepositPayment;
 
-            if (slot is null || payment is null)
+            if (slot is null || depositPayment is null)
                 throw new InternalServerErrorException("The appointment payment information is incomplete.");
 
             if (slot.ClinicId != secretary.ClinicId.Value)
                 throw new ResourceAccessDeniedException("You are not authorized to confirm payment for this appointment.");
 
-            if (appointment.Status != AppointmentStatus.PendingPayment || payment.Status != PaymentStatus.Pending)
+            if (appointment.Status != AppointmentStatus.PendingPayment || depositPayment.Status != DepositPaymentStatus.Pending)
                 throw new BadRequestException("This reservation is no longer awaiting payment confirmation.");
 
             if (slot.Status != SlotStatus.Reserved)
@@ -1701,35 +1772,35 @@ namespace Services.Appointments
                 throw new BadRequestException("This reservation has expired. Please create a new reservation.");
 
 
-            switch (request.GuestReservationPaymentMethod)
+            switch (request.GuestReservationPaymentMethodType)
             {
-                case GuestReservationPaymentMethod.Cash:
+                case GuestReservationPaymentMethodType.CashAtClinic:
                     if (request.ClinicManualPaymentMethodId.HasValue)
                         throw new BadRequestException("A manual payment method must not be provided for cash payments.");
 
-                    payment.MethodType = PaymentMethodType.CashAtClinic;
-                    payment.ClinicManualPaymentMethodId = null;
+                    depositPayment.MethodType = DepositPaymentMethodType.CashAtClinic;
+                    depositPayment.ClinicManualPaymentMethodId = null;
                     break;
 
-                case GuestReservationPaymentMethod.ManualTransfer:
+                case GuestReservationPaymentMethodType.ManualTransfer:
                     if (!request.ClinicManualPaymentMethodId.HasValue)
                         throw new BadRequestException("Please select a manual payment method.");
 
                     var paymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId.Value);
-
                     if (paymentMethod is null || paymentMethod.ClinicId != secretary.ClinicId.Value || !paymentMethod.IsActive)
                         throw new BadRequestException("The selected payment method is invalid or inactive.");
 
-                    payment.MethodType = PaymentMethodType.ManualTransfer;
-                    payment.ClinicManualPaymentMethodId = paymentMethod.Id;
+                    depositPayment.MethodType = DepositPaymentMethodType.ManualTransfer;
+                    depositPayment.ClinicManualPaymentMethodId = paymentMethod.Id;
                     break;
 
                 default:
                     throw new BadRequestException("The selected payment method is invalid.");
             }
 
-            payment.Status = PaymentStatus.Paid;
-            payment.PaidAt = nowUtc;
+            depositPayment.Status = DepositPaymentStatus.Paid;
+            depositPayment.PaidAt = nowUtc;
+            appointment.TotalPaidAmount += depositPayment.RequiredAmount;
             appointment.Status = AppointmentStatus.Confirmed;
             slot.Status = SlotStatus.Booked;
 
@@ -1770,7 +1841,7 @@ namespace Services.Appointments
                 throw new BadRequestException("This operation is only available for guest reservations.");
 
             var slot = appointment.AppointmentSlot;
-            var payment = appointment.Payment;
+            var payment = appointment.DepositPayment;
 
             if (slot is null || payment is null)
                 throw new InternalServerErrorException("The appointment information is incomplete.");
@@ -1778,7 +1849,7 @@ namespace Services.Appointments
             if (slot.ClinicId != secretary.ClinicId.Value)
                 throw new ResourceAccessDeniedException("You are not authorized to cancel this reservation.");
 
-            if (appointment.Status != AppointmentStatus.PendingPayment || payment.Status != PaymentStatus.Pending)
+            if (appointment.Status != AppointmentStatus.PendingPayment || payment.Status != DepositPaymentStatus.Pending)
                 throw new BadRequestException("This reservation is no longer awaiting payment and cannot be cancelled through this operation.");
 
             if (slot.Status != SlotStatus.Reserved)
@@ -1790,8 +1861,12 @@ namespace Services.Appointments
 
 
             appointment.Status = AppointmentStatus.Cancelled;
-            payment.Status = PaymentStatus.Cancelled;
+            payment.Status = DepositPaymentStatus.Cancelled;
             slot.Status = SlotStatus.Available;
+
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
             try
             {
@@ -1806,6 +1881,7 @@ namespace Services.Appointments
 
             return "Guest reservation cancelled successfully.";
         }
+
 
 
 
@@ -1829,8 +1905,10 @@ namespace Services.Appointments
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to reschedule this appointment.");
 
-            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
 
+            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
 
             var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
             var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
@@ -1892,18 +1970,18 @@ namespace Services.Appointments
 
         private async Task<string> RescheduleAppointmentCoreAsync(Appointment appointment, int newAppointmentSlotId)
         {
-            var payment = appointment.Payment;
+            var depositpayment = appointment.DepositPayment;
             var currentSlot = appointment.AppointmentSlot;
 
             if (currentSlot is null)
                 throw new InternalServerErrorException("The current appointment slot could not be found.");
 
-            if (payment is null)
+            if (depositpayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
             if (appointment.Status == AppointmentStatus.PendingPayment)
             {
-                if (payment.Status != PaymentStatus.Pending)
+                if (depositpayment.Status != DepositPaymentStatus.Pending)
                     throw new BadRequestException("Only appointments with pending payment can be rescheduled before confirmation.");
 
                 if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
@@ -1914,7 +1992,7 @@ namespace Services.Appointments
             }
             else if (appointment.Status == AppointmentStatus.Confirmed)
             {
-                if (payment.Status != PaymentStatus.Paid)
+                if (depositpayment.Status != DepositPaymentStatus.Paid)
                     throw new BadRequestException("Only confirmed appointments with completed payment can be rescheduled.");
 
                 if (currentSlot.Status != SlotStatus.Booked)

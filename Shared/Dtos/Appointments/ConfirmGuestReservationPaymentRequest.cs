@@ -10,8 +10,8 @@ namespace Shared.Dtos.Appointments
     public class ConfirmGuestReservationPaymentRequest
     {
         [Required]
-        [EnumDataType(typeof(GuestReservationPaymentMethod))]
-        public GuestReservationPaymentMethod GuestReservationPaymentMethod { get; set; }
+        [EnumDataType(typeof(GuestReservationPaymentMethodType))]
+        public GuestReservationPaymentMethodType GuestReservationPaymentMethodType { get; set; }
 
 
         [Range(1, int.MaxValue)]

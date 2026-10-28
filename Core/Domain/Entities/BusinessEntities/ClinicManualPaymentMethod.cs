@@ -19,6 +19,7 @@ namespace Domain.Entities.BusinessEntities
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; } = null!;
 
-        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<DepositPayment> DepositPayments { get; set; } = new List<DepositPayment>();
+        public ICollection<RemainingPayment> RemainingPayments { get; set; } = new List<RemainingPayment>();
     }
 }

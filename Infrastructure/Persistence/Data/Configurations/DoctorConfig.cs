@@ -13,6 +13,9 @@ namespace Persistence.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Doctor> builder)
         {
+            builder.Property(doctor => doctor.ApprovalStatus)
+                   .HasConversion<string>();
+
             builder.HasMany(doctor => doctor.DoctorClinics)
                    .WithOne(doctorClinic => doctorClinic.Doctor)
                    .HasForeignKey(doctorClinic => doctorClinic.DoctorId)

@@ -148,7 +148,7 @@ namespace Services.ClinicOnlinePaymentAccounts
                 Integrations = account.PaymentIntegrations.Select(integration => new ClinicPaymentIntegrationResponse()
                 {
                     Id = integration.Id,
-                    PaymentMethod = integration.PaymentMethod.ToString(),
+                    PaymentMethod = integration.OnlinePaymentMethod.ToString(),
                     IntegrationId = integration.IntegrationId,
                     IsActive = integration.IsActive,
                 }).ToList()
@@ -171,7 +171,7 @@ namespace Services.ClinicOnlinePaymentAccounts
             if (existingOnlinePaymentAccount.ClinicId != clinicId)
                 throw new BadRequestException("The specified payment account does not belong to this clinic.");
 
-            if (existingOnlinePaymentAccount.Payments.Any())
+            if (existingOnlinePaymentAccount.DepositPayments.Any())
                 throw new BadRequestException("This payment account cannot be deleted because it has existing payments. Please deactivate it instead.");
 
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();

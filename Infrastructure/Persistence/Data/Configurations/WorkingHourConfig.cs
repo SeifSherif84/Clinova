@@ -17,6 +17,9 @@ namespace Persistence.Data.Configurations
 
             builder.Property(workingHours => workingHours.Id).UseIdentityColumn(1, 1);
 
+            builder.Property(workingHour => workingHour.Day)
+                   .HasConversion<string>();
+
             builder.HasMany(workingHours => workingHours.AppointmentSlots)
                    .WithOne(availableSlot => availableSlot.WorkingHour)
                    .HasForeignKey(availableSlot => availableSlot.WorkingHourId)

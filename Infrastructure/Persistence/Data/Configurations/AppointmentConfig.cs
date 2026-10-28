@@ -14,15 +14,18 @@ namespace Persistence.Data.Configurations
         public void Configure(EntityTypeBuilder<Appointment> builder)
         {
             builder.HasKey(appointment => appointment.Id);
-
             builder.Property(appointment => appointment.Id).UseIdentityColumn(1, 1);
-
-            builder.Property(appointment => appointment.DoctorNotes).HasColumnType("varchar").HasMaxLength(512);
-            builder.Property(appointment => appointment.PatientNotes).HasColumnType("varchar").HasMaxLength(512);
-
             builder.Property(appointment => appointment.ConsultationFee).HasColumnType("decimal(18,2)");
-            builder.Property(appointment => appointment.DepositAmount).HasColumnType("decimal(18,2)");
-            builder.Property(appointment => appointment.RemainingAmount).HasColumnType("decimal(18,2)");
+            builder.Property(appointment => appointment.TotalPaidAmount).HasColumnType("decimal(18,2)");
+
+            builder.Property(appointment => appointment.Status)
+                   .HasConversion<string>();
+
+            builder.Property(appointment => appointment.BookingSource)
+                   .HasConversion<string>();
+
+            builder.Property(appointment => appointment.BookingType)
+                   .HasConversion<string>();
 
             builder.Property(appointment => appointment.GuestPatientName)
                    .HasColumnType("varchar")
@@ -36,7 +39,7 @@ namespace Persistence.Data.Configurations
 
             builder.HasIndex(appointment => appointment.AppointmentSlotId)
                    .IsUnique()
-                   .HasFilter("[Status] IN (1, 2, 3)");
+                   .HasFilter("[Status] IN ('PendingPayment', 'PendingVerification', 'Confirmed')");
 
             builder.Property(appointment => appointment.RowVersion)
                    .IsRowVersion()

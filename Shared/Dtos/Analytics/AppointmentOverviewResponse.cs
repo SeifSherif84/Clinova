@@ -8,9 +8,11 @@ namespace Shared.Dtos.Analytics
 {
     public class AppointmentOverviewResponse
     {
-        public int TotalAppointments { get; set; }
+        public int ConfirmedAppointments { get; set; }
         public int CompletedAppointments { get; set; }
         public int CancelledAppointments { get; set; }
         public int NoShowAppointments { get; set; }
+        public int PendingVerificationAppointments { get; set; }
     }
+
 }

@@ -14,12 +14,12 @@ namespace Services.AutoMapping.Appointments
     {
         public string? Resolve(Appointment source, SecretaryAppointmentDetailsResponse destination, string? destMember, ResolutionContext context)
         {
-            if (string.IsNullOrEmpty(source.Payment.ManualPaymentProofUrl))
+            if (string.IsNullOrEmpty(source.DepositPayment.ManualProofUrl))
                 return null;
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:ManualPaymentProofsPath"];
-            destMember = $"{baseUrl}/{imagesFolderPath}/{source.Payment.ManualPaymentProofUrl}";
+            destMember = $"{baseUrl}/{imagesFolderPath}/{source.DepositPayment.ManualProofUrl}";
             return destMember;
         }
     }

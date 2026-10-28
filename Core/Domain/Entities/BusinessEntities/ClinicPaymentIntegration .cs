@@ -10,7 +10,7 @@ namespace Domain.Entities.BusinessEntities
 {
     public class ClinicPaymentIntegration : BaseEntity<int>
     {
-        public OnlinePaymentMethod PaymentMethod { get; set; }
+        public OnlinePaymentMethod OnlinePaymentMethod { get; set; }
 
         // Paymob Integration ID
         public int IntegrationId { get; set; }

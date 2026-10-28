@@ -18,7 +18,7 @@ namespace Services.Background
                 try
                 {
                     using var scope = serviceScopeFactory.CreateScope();
-                    var refundService = scope.ServiceProvider.GetRequiredService<IPaymobRefundService>();
+                    var refundService = scope.ServiceProvider.GetRequiredService<IPaymobDepositRefundService>();
                     await refundService.VerifyPendingRefundsAsync();
                 }
                 catch

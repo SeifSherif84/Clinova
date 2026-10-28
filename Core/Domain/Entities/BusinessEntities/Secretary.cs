@@ -16,5 +16,8 @@ namespace Domain.Entities.BusinessEntities
         public Clinic? Clinic { get; set; }
 
         public ICollection<SecretaryInvitation> SecretaryInvitationsReceived { get; set; } = new List<SecretaryInvitation>();
+        public ICollection<DepositRefund> RequestedDepositRefunds { get; set; } = new List<DepositRefund>();
+        public ICollection<DepositRefund> ProcessedDepositRefunds { get; set; } = new List<DepositRefund>();
+
     }
 }

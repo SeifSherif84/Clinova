@@ -38,8 +38,8 @@ using Services.Abstractions.ClinicOnlinePaymentAccounts;
 using Services.ClinicOnlinePaymentAccounts;
 using Services.Abstractions.ClinicPaymentIntegrations;
 using Services.ClinicPaymentIntegrations;
-using Services.Abstractions.Payments;
-using Services.Payments;
+using Services.Abstractions.DepositPayments;
+using Services.DepositPayments;
 using Services.Abstractions.Paymob;
 using Services.Abstractions.DataProtection;
 using Shared.Dtos.ClinovaSettings;
@@ -64,7 +64,7 @@ namespace Services
                                 IPaymobService _paymobService,
                                 IPaymobHmacService _paymobHmacService,
                                 IPaymentCredentialEncryptor _paymentCredentialEncryptor,
-                                IPaymobRefundService _paymobRefundService,
+                                IPaymobDepositRefundService _paymobRefundService,
                                 IOptions<CancellationPolicySettings> _cancellationPolicy) : IServiceManager
     {
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions, _unitOfWork);
@@ -80,7 +80,7 @@ namespace Services
         public IAppointmentService AppointmentService { get; } = new AppointmentService(_unitOfWork, _mapper, _cancellationPolicy, _paymobRefundService, _notificationService);
         public IClinicOnlinePaymentAccountService ClinicOnlinePaymentAccountService { get; } = new ClinicOnlinePaymentAccountService(_unitOfWork, _paymentCredentialEncryptor);
         public IClinicPaymentIntegrationService ClinicPaymentIntegrationService { get; } = new ClinicPaymentIntegrationService(_unitOfWork);
-        public IPaymentService PaymentService { get; } = new PaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService, _paymobRefundService);
+        public IDepositPaymentService DepositPaymentService { get; } = new DepositPaymentService(_unitOfWork, _paymobService, _paymobHmacService, _paymentCredentialEncryptor, _notificationService, _paymobRefundService);
         public ISecretaryInvitationService SecretaryInvitationService { get; } = new SecretaryInvitationService(_unitOfWork, _userManager, _configuration, _mailService, _notificationService, _mapper);
         public ISecretaryService SecretaryService { get; } = new SecretaryService(_unitOfWork, _mapper);
         public IDoctorAnalyticsService DoctorAnalyticsService { get; } = new DoctorAnalyticsService(_unitOfWork);

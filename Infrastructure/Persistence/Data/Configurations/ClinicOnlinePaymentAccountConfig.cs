@@ -18,7 +18,13 @@ namespace Persistence.Data.Configurations
             builder.Property(onlinePaymentAccount => onlinePaymentAccount.Id).UseIdentityColumn(1, 1);
 
             builder.Property(account => account.Provider)
-                   .IsRequired();
+                   .HasConversion<string>();
+
+            builder.Property(account => account.Status)
+                   .HasConversion<string>();
+
+            builder.Property(account => account.LastConfigurationIssueCode)
+                   .HasConversion<string>();
 
             builder.Property(onlinePaymentAccount => onlinePaymentAccount.IsActive)
                    .IsRequired()
@@ -31,7 +37,7 @@ namespace Persistence.Data.Configurations
                    .OnDelete(DeleteBehavior.Restrict);
 
 
-            builder.HasMany(onlinePaymentAccount => onlinePaymentAccount.Payments)
+            builder.HasMany(onlinePaymentAccount => onlinePaymentAccount.DepositPayments)
                    .WithOne(payment => payment.ClinicOnlinePaymentAccount)
                    .HasForeignKey(payment => payment.ClinicOnlinePaymentAccountId)
                    .OnDelete(DeleteBehavior.Restrict);

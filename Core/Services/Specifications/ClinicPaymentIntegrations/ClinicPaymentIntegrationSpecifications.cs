@@ -20,7 +20,7 @@ namespace Services.Specifications.ClinicPaymentIntegrations
             return new ClinicPaymentIntegrationSpecifications()
             {
                 Criteria = paymentIntegration => paymentIntegration.ClinicOnlinePaymentAccountId == accountId &&
-                                                 paymentIntegration.PaymentMethod == paymentMethod,
+                                                 paymentIntegration.OnlinePaymentMethod == paymentMethod,
             };
         }
 

@@ -17,6 +17,9 @@ namespace Persistence.Data.Configurations
 
             builder.Property(invitation => invitation.Id).UseIdentityColumn(1, 1);
 
+            builder.Property(invitation => invitation.Status)
+                   .HasConversion<string>();
+
             builder.HasOne(invitation => invitation.DoctorSender)
                    .WithMany(doctor => doctor.DoctorInvitationsSent)
                    .HasForeignKey(invitation => invitation.DoctorSenderId)

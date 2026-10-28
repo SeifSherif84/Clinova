@@ -17,6 +17,9 @@ namespace Persistence.Data.Configurations
 
             builder.Property(noti => noti.Id).UseIdentityColumn(1, 1);
 
+            builder.Property(notification => notification.Type)
+                   .HasConversion<string>();
+
             builder.HasOne(noti => noti.UserApp)
                    .WithMany(userApp => userApp.Notifications)
                    .HasForeignKey(noti => noti.UserAppId)

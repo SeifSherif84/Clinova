@@ -49,7 +49,7 @@ namespace Services.Abstractions.Lookups
 
         public IEnumerable<LookupResponse> GetGuestReservationPaymentMethodsAsync()
         {
-            var guestReservationPaymentMethodsList = Enum.GetValues<GuestReservationPaymentMethod>().ToList();
+            var guestReservationPaymentMethodsList = Enum.GetValues<GuestReservationPaymentMethodType>().ToList();
             var result = guestReservationPaymentMethodsList.Select(paymentMethod => new LookupResponse()
             {
                 Id = (int)paymentMethod,
