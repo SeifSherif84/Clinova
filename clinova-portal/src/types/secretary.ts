@@ -1,7 +1,11 @@
-export const appointmentStatuses = ['PendingPayment', 'PendingVerification', 'Confirmed', 'Cancelled', 'Completed', 'NoShow', 'Expired'] as const
+// The backend has not published the full AppointmentStatus enum; these are the values an appointment visible to a secretary can hold.
+export const appointmentStatuses = ['PendingVerification', 'Confirmed', 'Completed', 'NoShow', 'Cancelled'] as const
 export type AppointmentStatus = typeof appointmentStatuses[number]
-export const paymentStatuses = ['Pending', 'PendingVerification', 'Paid', 'Failed', 'Rejected', 'Refunded', 'Cancelled', 'Expired'] as const
-export type PaymentStatus = typeof paymentStatuses[number]
+// Reservations still awaiting payment never reach the management endpoints, so these are the only deposit statuses a secretary sees.
+export const depositPaymentStatuses = ['PendingVerification', 'Paid', 'Rejected', 'Refunded'] as const
+export type DepositPaymentStatus = typeof depositPaymentStatuses[number]
+export type PaymentMethodType = 'Paymob' | 'ManualTransfer' | 'CashAtClinic'
+export type RemainingPaymentStatus = 'Pending' | 'Paid' | 'Cancelled'
 
 // Gender is serialized as its numeric enum value (Male = 1, Female = 2).
 export type Gender = 1 | 2
@@ -30,45 +34,60 @@ export interface UpdateSecretaryProfileRequest {
 export interface SecretaryAppointment {
   appointmentId: number
   slotDate: string
-  startTime: string
-  endTime: string
+  slotStartTime: string
+  slotEndTime: string
   appointmentStatus: AppointmentStatus | string
   doctorName: string
   patientName: string
-  paymentStatus: PaymentStatus | string
-  paymentType: string
+  depositPaymentStatus: DepositPaymentStatus | string
+  // The DTO marks it required, but the mapping sends null when no method was chosen.
+  depositPaymentMethodType: PaymentMethodType | string | null
+  depositClinicManualPaymentMethodType: string | null
+  remainingPaymentStatus: RemainingPaymentStatus | string | null
   requiresManualRefundAction: boolean
 }
 
 export interface SecretaryAppointmentDetails {
   appointmentId: number
   slotDate: string
-  startTime: string
-  endTime: string
+  slotStartTime: string
+  slotEndTime: string
   appointmentStatus: AppointmentStatus | string
+  bookingSource: string
+  bookingType: string
   doctorName: string
   patientName: string
   patientPhoneNumber: string
-  paymentStatus: PaymentStatus | string
-  paymentType: string
-  manualPaymentMethodType: string | null
-  paymentRejectionReason: string | null
-  paymentAmount: number
-  remainingAmount: number
-  paymentProofUrl: string | null
-  transactionReference: string | null
-  refundStatus: string | null
-  refundAmount: number | null
-  refundReason: string | null
-  refundProcessedAt: string | null
+  depositPaymentAmount: number
+  depositPaymentStatus: DepositPaymentStatus | string
+  depositPaymentMethodType: PaymentMethodType | string | null
+  depositClinicManualPaymentMethodType: string | null
+  manualDepositPaymentProofUrl: string | null
+  depositPaymentTransactionReference: string | null
+  depositPaymentSecretaryRejectionReason: string | null
+  remainingPaymentAmount: number
+  remainingPaymentStatus: RemainingPaymentStatus | string | null
+  remainingPaymentMethodType: PaymentMethodType | string | null
+  remainingClinicManualPaymentMethodType: string | null
+  totalPaidAmount: number
+  requestedDepositRefundAmount: number | null
+  depositRefundStatus: string | null
+  depositRefundMethodType: PaymentMethodType | string | null
+  depositRefundReason: string | null
+  // ISO 8601 date-time.
+  depositRefundProcessedAt: string | null
+  manualDepositRefundProofUrl: string | null
+  manualDepositRefundTransactionReference: string | null
 }
 
+// Mirrors the list page's URL search params; a missing key means that filter is off.
 export interface SecretaryAppointmentFilters {
-  doctorName: string
-  slotDate: string
-  appointmentStatus: AppointmentStatus | ''
-  paymentStatus: PaymentStatus | ''
-  pageIndex: number
+  doctorName?: string
+  patientSearch?: string
+  slotDate?: string
+  appointmentStatus?: AppointmentStatus
+  depositPaymentStatus?: DepositPaymentStatus
+  pageIndex?: number
 }
 
 export interface PaginatedResult<T> {
