@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useApi } from '@/hooks/use-api'
 import { getErrorMessage } from '@/lib/api'
 import { formatTime, parseSlotDate, statusTone, toAppointmentsQuery } from '@/lib/secretary-appointments'
-import { appointmentStatuses, paymentStatuses, type PaginatedResult, type SecretaryAppointment, type SecretaryAppointmentFilters } from '@/types/secretary'
+import { appointmentStatuses, depositPaymentStatuses, type PaginatedResult, type SecretaryAppointment, type SecretaryAppointmentFilters } from '@/types/secretary'
 
 const pageSize = 12
 const debounceMs = 400
@@ -60,10 +60,10 @@ export default function SecretaryAppointmentsPage() {
     placeholderData: keepPreviousData,
   })
   const page = appointments.data
-  const activeFilters = [search.doctorName, search.patientSearch, search.slotDate, search.appointmentStatus, search.paymentStatus].filter(Boolean).length
+  const activeFilters = [search.doctorName, search.patientSearch, search.slotDate, search.appointmentStatus, search.depositPaymentStatus].filter(Boolean).length
   const status = (value: string) => t('secretary.status.' + value, { defaultValue: value })
   const appointmentItems = [{ value: 'all', label: t('secretary.appointments.all') }, ...appointmentStatuses.map((value) => ({ value, label: status(value) }))]
-  const paymentOptions = [{ value: undefined, label: t('secretary.appointments.all') }, ...paymentStatuses.map((value) => ({ value, label: status(value) }))]
+  const paymentOptions = [{ value: undefined, label: t('secretary.appointments.all') }, ...depositPaymentStatuses.map((value) => ({ value, label: status(value) }))]
 
   const today = new Date()
   const relativeDays: Record<string, string> = {
@@ -123,12 +123,12 @@ export default function SecretaryAppointmentsPage() {
               </div>
             </div>
             <div className="grid gap-2">
-              <span id="secretaryPaymentFilter" className="text-xs font-semibold text-foreground/80">{t('secretary.appointments.paymentStatus')}</span>
+              <span id="secretaryPaymentFilter" className="text-xs font-semibold text-foreground/80">{t('secretary.appointments.depositStatus')}</span>
               <div role="radiogroup" aria-labelledby="secretaryPaymentFilter" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
                 <div className="flex shrink-0 gap-1 rounded-full border border-border bg-card/70 p-1.5">
                   {paymentOptions.map((option) => {
-                    const selected = search.paymentStatus === option.value
-                    return <button key={option.label} type="button" role="radio" aria-checked={selected} onClick={() => setFilters({ paymentStatus: option.value })} className={`h-9 shrink-0 rounded-full px-4 text-sm font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/5 hover:text-foreground'}`}>{option.label}</button>
+                    const selected = search.depositPaymentStatus === option.value
+                    return <button key={option.label} type="button" role="radio" aria-checked={selected} onClick={() => setFilters({ depositPaymentStatus: option.value })} className={`h-9 shrink-0 rounded-full px-4 text-sm font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/5 hover:text-foreground'}`}>{option.label}</button>
                   })}
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default function SecretaryAppointmentsPage() {
                     {group.items.map((appointment) => <Link key={appointment.appointmentId} to="/secretary/appointments/$appointmentId" params={{ appointmentId: String(appointment.appointmentId) }} search={search} className="group grid gap-4 rounded-2xl border border-border bg-card p-5 text-start transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                       <div className="flex items-start justify-between gap-3">
                         <span className="flex items-center gap-2 font-sans text-lg font-bold"><Clock3 className="size-4 text-primary" /><span dir="ltr">{formatTime(appointment.slotStartTime)} – {formatTime(appointment.slotEndTime)}</span></span>
-                        <Badge className={`${badgeClass} ${statusTone(appointment.paymentStatus)}`}>{status(appointment.paymentStatus)}</Badge>
+                        <Badge className={`${badgeClass} ${statusTone(appointment.depositPaymentStatus)}`}>{t('secretary.appointments.deposit')}: {status(appointment.depositPaymentStatus)}</Badge>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"><UserRound className="size-5" /></span>
@@ -193,7 +193,8 @@ export default function SecretaryAppointmentsPage() {
                       </div>
                       <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
                         <Badge className={`${badgeClass} ${statusTone(appointment.appointmentStatus)}`}>{status(appointment.appointmentStatus)}</Badge>
-                        <Badge className={`${badgeClass} border-border bg-background text-muted-foreground`}>{t('secretary.paymentType.' + appointment.paymentCategory, { defaultValue: appointment.paymentCategory })}</Badge>
+                        {appointment.depositPaymentMethodType && <Badge className={`${badgeClass} border-border bg-background text-muted-foreground`}>{t('secretary.paymentMethod.' + appointment.depositPaymentMethodType, { defaultValue: appointment.depositPaymentMethodType })}</Badge>}
+                        {appointment.remainingPaymentStatus && <Badge className={`${badgeClass} ${statusTone(appointment.remainingPaymentStatus)}`}>{t('secretary.appointments.remaining')}: {status(appointment.remainingPaymentStatus)}</Badge>}
                         {appointment.requiresManualRefundAction && <Badge className={`${badgeClass} border-warm/20 bg-warm/10 text-warm`}><TriangleAlert className="size-3" />{t('secretary.appointments.refundAction')}</Badge>}
                       </div>
                     </Link>)}

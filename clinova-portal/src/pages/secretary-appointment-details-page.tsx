@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams, useSearch } from '@tanstack/react-router'
-import { ArrowLeft, Ban, BadgeCheck, CalendarDays, CircleCheckBig, CircleDollarSign, ClipboardCheck, Clock3, Copy, ExternalLink, Hash, Landmark, LoaderCircle, Phone, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TicketCheck, Undo2, UserRound, UserX, WalletCards, X, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Ban, BadgeCheck, CalendarDays, CircleCheckBig, CircleDollarSign, ClipboardCheck, Coins, Clock3, Copy, ExternalLink, Hash, Landmark, LoaderCircle, Phone, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TicketCheck, Undo2, UserRound, UserX, WalletCards, X, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -112,7 +112,8 @@ export default function SecretaryAppointmentDetailsPage() {
   const data = details.data
   const allowed = data ? availableActions(data) : null
   const date = data ? parseSlotDate(data.slotDate) : null
-  const refundedAt = data?.refundProcessedAt ? new Date(data.refundProcessedAt) : null
+  const refundedAt = data?.depositRefundProcessedAt ? new Date(data.depositRefundProcessedAt) : null
+  const remainingDue = data ? data.remainingPaymentAmount > 0 && data.remainingPaymentStatus !== 'Paid' : false
 
   return (
     <DoctorWorkspaceShell active="secretary-appointments" topBackLink={backLink}>
@@ -150,7 +151,8 @@ export default function SecretaryAppointmentDetailsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><Hash className="size-3" />{t('secretary.appointments.number', { id: data.appointmentId })}</Badge>
                 <Badge className={`${badgeClass} ${statusTone(data.appointmentStatus)}`}>{status(data.appointmentStatus)}</Badge>
-                <Badge className={`${badgeClass} ${statusTone(data.paymentStatus)}`}>{t('secretary.appointments.payment')}: {status(data.paymentStatus)}</Badge>
+                <Badge className={`${badgeClass} ${statusTone(data.depositPaymentStatus)}`}>{t('secretary.appointments.deposit')}: {status(data.depositPaymentStatus)}</Badge>
+                {data.remainingPaymentStatus && <Badge className={`${badgeClass} ${statusTone(data.remainingPaymentStatus)}`}>{t('secretary.appointments.remaining')}: {status(data.remainingPaymentStatus)}</Badge>}
               </div>
               <div className="min-w-0">
                 <h1 className="break-words font-sans text-3xl font-bold sm:text-5xl">{data.patientName}</h1>
@@ -177,33 +179,42 @@ export default function SecretaryAppointmentDetailsPage() {
               </SectionCard>
 
               <SectionCard icon={WalletCards} title={t('secretary.appointments.paymentSection')}>
-                <div className="grid grid-cols-2 gap-3">
-                  <StatTile label={t('secretary.appointments.amount')} value={money(data.paymentAmount)} />
-                  <StatTile label={t('secretary.appointments.remaining')} value={money(data.remainingAmount)} tone={data.remainingAmount > 0 ? 'text-warm' : ''} />
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <StatTile label={t('secretary.appointments.totalPaid')} value={money(data.totalPaidAmount)} tone="text-primary" />
+                  <StatTile label={t('secretary.appointments.deposit')} value={money(data.depositPaymentAmount)} />
+                  <StatTile label={t('secretary.appointments.remaining')} value={money(data.remainingPaymentAmount)} tone={remainingDue ? 'text-warm' : ''} />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Tile icon={<CircleDollarSign />} label={t('secretary.appointments.paymentStatus')} value={status(data.paymentStatus)} />
-                  <Tile icon={<ReceiptText />} label={t('secretary.appointments.paymentType')} value={t('secretary.paymentType.' + data.paymentCategory, { defaultValue: data.paymentCategory })} />
-                  <Tile icon={<WalletCards />} label={t('secretary.appointments.paymentMethod')} value={label('paymentMethod', data.paymentMethodType)} />
-                  {data.clinicManualPaymentMethodType && <Tile icon={<Landmark />} label={t('secretary.appointments.transferMethod')} value={label('paymentMethod', data.clinicManualPaymentMethodType)} />}
-                  {data.paymentTransactionReference && <Tile icon={<Hash />} label={t('secretary.appointments.reference')} value={<span dir="ltr" className="font-mono">{data.paymentTransactionReference}</span>} action={copyButton(data.paymentTransactionReference)} />}
+                  <Tile icon={<CircleDollarSign />} label={t('secretary.appointments.depositStatus')} value={status(data.depositPaymentStatus)} />
+                  {data.depositPaymentMethodType && <Tile icon={<WalletCards />} label={t('secretary.appointments.depositMethod')} value={label('paymentMethod', data.depositPaymentMethodType)} />}
+                  {data.depositClinicManualPaymentMethodType && <Tile icon={<Landmark />} label={t('secretary.appointments.transferMethod')} value={label('paymentMethod', data.depositClinicManualPaymentMethodType)} />}
+                  {data.depositPaymentTransactionReference && <Tile icon={<Hash />} label={t('secretary.appointments.reference')} value={<span dir="ltr" className="font-mono">{data.depositPaymentTransactionReference}</span>} action={copyButton(data.depositPaymentTransactionReference)} />}
                 </div>
-                {data.paymentStatus === 'Rejected' && data.paymentSecretaryRejectionReason && <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs leading-6 text-destructive sm:text-sm">
-                  <strong className="block font-bold">{t('secretary.appointments.rejectionReason')}</strong>{data.paymentSecretaryRejectionReason}
+                {data.depositPaymentStatus === 'Rejected' && data.depositPaymentSecretaryRejectionReason && <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs leading-6 text-destructive sm:text-sm">
+                  <strong className="block font-bold">{t('secretary.appointments.rejectionReason')}</strong>{data.depositPaymentSecretaryRejectionReason}
                 </div>}
-                {data.manualPaymentProofUrl && <Button variant="outline" className={buttonClass + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewProof')}<ExternalLink className="size-3.5" /></Button>}
+                {data.manualDepositPaymentProofUrl && <Button variant="outline" className={buttonClass + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualDepositPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewProof')}<ExternalLink className="size-3.5" /></Button>}
               </SectionCard>
 
-              {data.refundStatus && <SectionCard icon={Undo2} title={t('secretary.appointments.refundSection')}>
-                <div className="flex flex-wrap items-center gap-2"><Badge className={`${badgeClass} ${statusTone(data.refundStatus)}`}>{status(data.refundStatus)}</Badge></div>
+              {data.remainingPaymentStatus && <SectionCard icon={Coins} title={t('secretary.appointments.remainingSection')}>
+                <div className="flex flex-wrap items-center gap-2"><Badge className={`${badgeClass} ${statusTone(data.remainingPaymentStatus)}`}>{status(data.remainingPaymentStatus)}</Badge></div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {data.refundAmount != null && <Tile icon={<CircleDollarSign />} label={t('secretary.appointments.refundAmount')} value={money(data.refundAmount)} />}
-                  {data.refundMethod && <Tile icon={<WalletCards />} label={t('secretary.appointments.refundMethod')} value={label('paymentMethod', data.refundMethod)} />}
-                  {data.refundProcessedAt && <Tile icon={<CalendarDays />} label={t('secretary.appointments.refundProcessedAt')} value={refundedAt && !Number.isNaN(refundedAt.getTime()) ? refundedAt.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) : data.refundProcessedAt} />}
-                  {data.manualRefundTransactionReference && <Tile icon={<Hash />} label={t('secretary.appointments.reference')} value={<span dir="ltr" className="font-mono">{data.manualRefundTransactionReference}</span>} action={copyButton(data.manualRefundTransactionReference)} />}
+                  <Tile icon={<CircleDollarSign />} label={t('secretary.appointments.amount')} value={money(data.remainingPaymentAmount)} />
+                  {data.remainingPaymentMethodType && <Tile icon={<WalletCards />} label={t('secretary.appointments.paymentMethod')} value={label('paymentMethod', data.remainingPaymentMethodType)} />}
+                  {data.remainingClinicManualPaymentMethodType && <Tile icon={<Landmark />} label={t('secretary.appointments.transferMethod')} value={label('paymentMethod', data.remainingClinicManualPaymentMethodType)} />}
                 </div>
-                {data.refundReason && <p className="rounded-xl border border-border/60 bg-background/45 p-3 text-xs leading-6 text-muted-foreground sm:text-sm"><strong className="block font-bold text-foreground">{t('secretary.appointments.refundReason')}</strong>{data.refundReason}</p>}
-                {data.manualRefundProofUrl && <Button variant="outline" className={buttonClass + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualRefundProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewRefundProof')}<ExternalLink className="size-3.5" /></Button>}
+              </SectionCard>}
+
+              {data.depositRefundStatus && <SectionCard icon={Undo2} title={t('secretary.appointments.refundSection')}>
+                <div className="flex flex-wrap items-center gap-2"><Badge className={`${badgeClass} ${statusTone(data.depositRefundStatus)}`}>{status(data.depositRefundStatus)}</Badge></div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {data.requestedDepositRefundAmount != null && <Tile icon={<CircleDollarSign />} label={t('secretary.appointments.refundAmount')} value={money(data.requestedDepositRefundAmount)} />}
+                  {data.depositRefundMethodType && <Tile icon={<WalletCards />} label={t('secretary.appointments.refundMethod')} value={label('paymentMethod', data.depositRefundMethodType)} />}
+                  {refundedAt && !Number.isNaN(refundedAt.getTime()) && <Tile icon={<CalendarDays />} label={t('secretary.appointments.refundProcessedAt')} value={refundedAt.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })} />}
+                  {data.manualDepositRefundTransactionReference && <Tile icon={<Hash />} label={t('secretary.appointments.reference')} value={<span dir="ltr" className="font-mono">{data.manualDepositRefundTransactionReference}</span>} action={copyButton(data.manualDepositRefundTransactionReference)} />}
+                </div>
+                {data.depositRefundReason && <p className="rounded-xl border border-border/60 bg-background/45 p-3 text-xs leading-6 text-muted-foreground sm:text-sm"><strong className="block font-bold text-foreground">{t('secretary.appointments.refundReason')}</strong>{label('refundReason', data.depositRefundReason)}</p>}
+                {data.manualDepositRefundProofUrl && <Button variant="outline" className={buttonClass + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualDepositRefundProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewRefundProof')}<ExternalLink className="size-3.5" /></Button>}
               </SectionCard>}
             </div>
 
@@ -224,7 +235,7 @@ export default function SecretaryAppointmentDetailsPage() {
                     <Button variant="destructive" className={buttonClass} disabled={action.isPending} onClick={submitRejection}>{busy('reject') ? spinner : <X />}{t('secretary.appointments.reject')}</Button>
                   </div>
                 </div> : <div className="grid gap-2">
-                  {data.manualPaymentProofUrl && <Button variant="outline" className={buttonClass} render={<a href={resolveFileUrl(data.manualPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewProof')}<ExternalLink className="size-3.5" /></Button>}
+                  {data.manualDepositPaymentProofUrl && <Button variant="outline" className={buttonClass} render={<a href={resolveFileUrl(data.manualDepositPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewProof')}<ExternalLink className="size-3.5" /></Button>}
                   <Button className={primaryButton} disabled={action.isPending} onClick={() => action.mutate('approve')}>{busy('approve') ? spinner : <BadgeCheck />}{t('secretary.appointments.approve')}</Button>
                   <Button variant="outline" className={buttonClass + ' border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive'} disabled={action.isPending} onClick={() => { action.reset(); setRejecting(true) }}><X />{t('secretary.appointments.reject')}</Button>
                 </div>)}

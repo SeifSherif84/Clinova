@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@/lib/api'
-import { appointmentStatuses, paymentStatuses, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
+import { appointmentStatuses, depositPaymentStatuses, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
 
 const success = ['Confirmed', 'Completed', 'Paid', 'Succeeded']
 const pending = ['PendingPayment', 'PendingVerification', 'Pending', 'Processing', 'PendingManualProcessing']
@@ -37,14 +37,14 @@ export function parseAppointmentFilters(search: Record<string, unknown>): Secret
     patientSearch: text(search.patientSearch),
     slotDate: slotDate && /^\d{4}-\d{2}-\d{2}$/.test(slotDate) ? slotDate : undefined,
     appointmentStatus: oneOf(appointmentStatuses, search.appointmentStatus),
-    paymentStatus: oneOf(paymentStatuses, search.paymentStatus),
+    depositPaymentStatus: oneOf(depositPaymentStatuses, search.depositPaymentStatus),
     pageIndex: Number.isInteger(pageIndex) && pageIndex > 1 ? pageIndex : undefined,
   }
 }
 
 export function toAppointmentsQuery(filters: SecretaryAppointmentFilters, pageSize: number) {
   const params = new URLSearchParams({ pageIndex: String(filters.pageIndex ?? 1), pageSize: String(pageSize) })
-  for (const key of ['doctorName', 'patientSearch', 'slotDate', 'appointmentStatus', 'paymentStatus'] as const) {
+  for (const key of ['doctorName', 'patientSearch', 'slotDate', 'appointmentStatus', 'depositPaymentStatus'] as const) {
     const value = filters[key]
     if (value) params.set(key, value)
   }
@@ -59,10 +59,13 @@ function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'slotEndT
   return date.getTime() <= Date.now()
 }
 
+// The API no longer sends an Online/Manual category; anything but the Paymob gateway is a manual payment.
+const isManualPayment = (methodType: string | null) => Boolean(methodType) && methodType !== 'Paymob'
+
 // Mirrors the backend rules so only actions that can succeed are offered.
 export function availableActions(details: SecretaryAppointmentDetails) {
-  const verifying = details.appointmentStatus === 'PendingVerification' && details.paymentStatus === 'PendingVerification' && details.paymentCategory === 'Manual' && Boolean(details.manualPaymentProofUrl)
-  const confirmedPaid = details.appointmentStatus === 'Confirmed' && details.paymentStatus === 'Paid'
+  const verifying = details.appointmentStatus === 'PendingVerification' && details.depositPaymentStatus === 'PendingVerification' && isManualPayment(details.depositPaymentMethodType) && Boolean(details.manualDepositPaymentProofUrl)
+  const confirmedPaid = details.appointmentStatus === 'Confirmed' && details.depositPaymentStatus === 'Paid'
   const ended = hasEnded(details)
   return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid && ended, noShow: confirmedPaid && ended }
 }
