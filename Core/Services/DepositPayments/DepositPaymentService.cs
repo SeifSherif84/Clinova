@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.Specifications.Secretaries;
 
 namespace Services.DepositPayments
 {
@@ -515,9 +516,16 @@ namespace Services.DepositPayments
                 if (appointment.Status == AppointmentStatus.PendingPayment)
                     appointment.Status = AppointmentStatus.Expired;
 
-                // Release the slot because the reservation is no longer valid.
                 if (appointment.AppointmentSlot is not null && appointment.AppointmentSlot.Status == SlotStatus.Reserved)
-                    appointment.AppointmentSlot.Status = SlotStatus.Available;
+                {
+                    var appointmentRepository = _unitOfWork.GetRepository<Appointment, int>();
+
+                    var anotherActiveAppointmentSpec = AppointmentSpecifications.AnotherActiveAppointmentForSlot(appointment.AppointmentSlotId, appointment.Id);
+                    var hasAnotherActiveAppointment = await appointmentRepository.CountAsync(anotherActiveAppointmentSpec) > 0;
+                    if (!hasAnotherActiveAppointment)
+                        appointment.AppointmentSlot.Status = SlotStatus.Available;
+                }
+
 
                 try
                 {
@@ -566,6 +574,21 @@ namespace Services.DepositPayments
             {
                 throw new InternalServerErrorException("The appointment or payment was modified by another operation. Please try again.");
             }
+
+
+            // Notify clinic secretaries after the successful payment and appointment confirmation are saved.
+            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+            foreach (var secretary in secretaries)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    secretary.Id,
+                    "Appointment Payment Successful",
+                    $"The deposit payment of {payment.RequiredAmount} EGP for appointment #{appointment.Id} was successful, and the appointment is now confirmed.",
+                    NotificationType.DepositPaymentSuccessful);
+            }
+
         }
 
 

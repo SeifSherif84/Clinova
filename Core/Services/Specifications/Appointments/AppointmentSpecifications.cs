@@ -81,6 +81,19 @@ namespace Services.Specifications.Appointments
         }
 
 
+        public static AppointmentSpecifications AnotherActiveAppointmentForSlot(int appointmentSlotId,
+                                                                                int excludedAppointmentId)
+        {
+            return new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.AppointmentSlotId == appointmentSlotId &&
+                                          appointment.Id != excludedAppointmentId &&
+                                          (appointment.Status == AppointmentStatus.PendingPayment ||
+                                           appointment.Status == AppointmentStatus.PendingVerification ||
+                                           appointment.Status == AppointmentStatus.Confirmed)
+            };
+        }
+
 
         public static AppointmentSpecifications ById(int appointmentId)
         {

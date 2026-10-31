@@ -62,6 +62,14 @@ namespace Services.Appointments
             if (slot.Status != SlotStatus.Available)
                 throw new BadRequestException("The selected appointment slot is no longer available.");
 
+            if (slot.WorkingHourId is null)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
+            var workingHour = await _unitOfWork.GetRepository<WorkingHour, int>().GetByIdAsync(slot.WorkingHourId.Value);
+
+            if (workingHour is null || !workingHour.IsActive)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
             var slotDateTime = slot.Date.ToDateTime(slot.StartTime);
             var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time"));
             if (slotDateTime <= nowInEgypt)
@@ -570,6 +578,9 @@ namespace Services.Appointments
 
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
 
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
@@ -1216,6 +1227,9 @@ namespace Services.Appointments
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
+
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
 
@@ -1283,6 +1297,9 @@ namespace Services.Appointments
             if (appointment is null)
                 throw new NotFoundException("The appointment was not found.");
 
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
+
             if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
                 throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
 
@@ -1291,7 +1308,6 @@ namespace Services.Appointments
 
             if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
                 throw new BadRequestException("This appointment is no longer awaiting payment verification.");
-
 
             if (!appointment.DepositPayment.ClinicManualPaymentMethodId.HasValue)
                 throw new BadRequestException("This appointment does not use manual payment.");
@@ -1383,11 +1399,11 @@ namespace Services.Appointments
 
 
             var nowUtc = DateTime.UtcNow;
-            //var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            //var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
-            //var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-            //if (nowUtc < appointmentEndUtc)
-            //    throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
+            var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+            if (nowUtc < appointmentEndUtc)
+                throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
 
             var remainingPayment = appointment.RemainingPayment;
             if (remainingPayment is not null && remainingPayment.RequiredAmount > 0)
@@ -1623,6 +1639,14 @@ namespace Services.Appointments
             if (slot.Status != SlotStatus.Available)
                 throw new BadRequestException("The selected appointment slot is no longer available.");
 
+            if (slot.WorkingHourId is null)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
+            var workingHour = await _unitOfWork.GetRepository<WorkingHour, int>().GetByIdAsync(slot.WorkingHourId.Value);
+
+            if (workingHour is null || !workingHour.IsActive)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
             var slotLocalDateTime = slot.Date.ToDateTime(slot.StartTime);
 
             var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
@@ -1768,7 +1792,7 @@ namespace Services.Appointments
                 throw new BadRequestException("The appointment slot is no longer reserved for this appointment.");
 
             var nowUtc = DateTime.UtcNow;
-            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
+            if (appointment.ReservationExpiresAt <= nowUtc)
                 throw new BadRequestException("This reservation has expired. Please create a new reservation.");
 
 
@@ -1856,7 +1880,7 @@ namespace Services.Appointments
                 throw new BadRequestException("The slot is no longer reserved for this appointment.");
 
             var nowUtc = DateTime.UtcNow;
-            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
+            if (appointment.ReservationExpiresAt <= nowUtc)
                 throw new BadRequestException("This reservation has expired. Please refresh and try again.");
 
 
@@ -2014,6 +2038,13 @@ namespace Services.Appointments
             if (newSlot.Status != SlotStatus.Available)
                 throw new BadRequestException("The selected appointment slot is no longer available.");
 
+            if (newSlot.WorkingHourId is null)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
+            var workingHour = await _unitOfWork.GetRepository<WorkingHour, int>().GetByIdAsync(newSlot.WorkingHourId.Value);
+            if (workingHour is null || !workingHour.IsActive)
+                throw new BadRequestException("The selected appointment slot is no longer available.");
+
             if (newSlot.DoctorId != currentSlot.DoctorId || newSlot.ClinicId != currentSlot.ClinicId)
                 throw new BadRequestException("The new appointment slot must belong to the same doctor and clinic.");
 
@@ -2051,9 +2082,6 @@ namespace Services.Appointments
                 ? "Your appointment has been rescheduled successfully. Please complete the payment before your reservation expires."
                 : "Your appointment has been rescheduled successfully.";
         }
-
-
-
 
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string doctorId, int clinicId)

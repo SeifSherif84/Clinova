@@ -34,7 +34,7 @@ const primaryButton = button + ' bg-primary px-5 text-primary-foreground hover:b
 const spinner = <LoaderCircle className="animate-spin motion-reduce:animate-none" />
 // Selectable tile for radio options; the checked state comes from the Base UI radio inside it.
 const bookingTypeKey: Record<number, 'Advance' | 'WalkIn'> = { [BookingType.Advance]: 'Advance', [BookingType.WalkIn]: 'WalkIn' }
-const paymentMethodKey: Record<number, 'Cash' | 'ManualTransfer'> = { [GuestPaymentMethod.Cash]: 'Cash', [GuestPaymentMethod.ManualTransfer]: 'ManualTransfer' }
+const paymentMethodKey: Record<number, 'CashAtClinic' | 'ManualTransfer'> = { [GuestPaymentMethod.CashAtClinic]: 'CashAtClinic', [GuestPaymentMethod.ManualTransfer]: 'ManualTransfer' }
 
 function useLocale() {
   const { i18n } = useTranslation()
@@ -49,12 +49,12 @@ function useLocale() {
 function SectionCard({ icon, title, step, children }: { icon: ReactNode; title: string; step?: number; children: ReactNode }) {
   const { t } = useTranslation()
   return <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
       <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-      <div className="relative flex items-center gap-3.5">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-6">{icon}</span>
-        <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{title}</h3>
-        {step && <span className="shrink-0 rounded-full bg-background/70 px-2.5 py-1 text-xs font-bold text-muted-foreground">{t('secretary.guest.step', { number: step })}</span>}
+      <div className="relative flex items-center gap-2.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
+        <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{title}</h3>
+        {step && <span className="shrink-0 rounded-full bg-background/70 px-2 py-1 text-xs font-bold text-muted-foreground">{t('secretary.guest.step', { number: step })}</span>}
       </div>
     </div>
     <CardContent className="grid gap-5 p-5">{children}</CardContent>
@@ -187,7 +187,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         </div>}
         {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noDoctors')}</p>}
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
             <RadioGroupItem value={member.id} className="pointer-events-none absolute size-px opacity-0" />
             <DoctorAvatar className="size-14" name={member.fullName} picture={member.profilePicture} />
             <span className="grid min-w-0 flex-1 gap-1">
@@ -286,11 +286,11 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
 
     <div className="min-w-0">
       <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border-2 border-dashed border-primary/25 bg-gradient-to-b from-primary/[0.07] via-primary/[0.03] to-card p-0 shadow-lg shadow-primary/10 xl:sticky xl:top-24">
-        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
           <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex items-center gap-3.5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-6" /></span>
-            <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.guest.summaryTitle')}</h3>
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-4.5" /></span>
+            <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.guest.summaryTitle')}</h3>
           </div>
         </div>
         <CardContent className="grid gap-3 p-5">
@@ -393,8 +393,8 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
     if (method === GuestPaymentMethod.ManualTransfer && !accountId) return setFormError(t('secretary.guest.accountRequired'))
     setFormError('')
     confirm.mutate(method === GuestPaymentMethod.ManualTransfer
-      ? { guestReservationPaymentMethod: GuestPaymentMethod.ManualTransfer, clinicManualPaymentMethodId: Number(accountId) }
-      : { guestReservationPaymentMethod: GuestPaymentMethod.Cash })
+      ? { guestReservationPaymentMethodType: GuestPaymentMethod.ManualTransfer, clinicManualPaymentMethodId: Number(accountId) }
+      : { guestReservationPaymentMethodType: GuestPaymentMethod.CashAtClinic })
   }
 
   return <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Persistence.Data.Configurations
 {
-    public class AvailableSlotConfig : IEntityTypeConfiguration<AppointmentSlot>
+    public class AppointmentSlotConfig : IEntityTypeConfiguration<AppointmentSlot>
     {
         public void Configure(EntityTypeBuilder<AppointmentSlot> builder)
         {

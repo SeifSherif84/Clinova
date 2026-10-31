@@ -133,11 +133,11 @@ export default function DoctorInvitationsPage() {
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('invitations.description')}</p>
           </div>
 <div className="grid justify-items-center gap-2">
-  <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/70 p-2" role="group" aria-label={t('invitations.viewLabel')}>
+  <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-card/70 p-1.5" role="group" aria-label={t('invitations.viewLabel')}>
     <Button
       type="button"
       variant={view === 'received' ? 'default' : 'ghost'}
-      className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
+      className="h-9 rounded-full px-4 text-[13px] font-bold normal-case tracking-normal cursor-pointer"
       aria-pressed={view === 'received'}
       onClick={() => {
         setView('received')
@@ -152,7 +152,7 @@ export default function DoctorInvitationsPage() {
     <Button
       type="button"
       variant={view === 'sent' || view === 'secretaries' ? 'default' : 'ghost'}
-      className="h-11 rounded-full px-5 text-sm font-bold normal-case tracking-normal cursor-pointer"
+      className="h-9 rounded-full px-4 text-[13px] font-bold normal-case tracking-normal cursor-pointer"
       aria-pressed={view === 'sent' || view === 'secretaries'}
       onClick={() => {
         if (view !== 'sent' && view !== 'secretaries') setView('sent')
@@ -166,7 +166,7 @@ export default function DoctorInvitationsPage() {
     </Button>
   </div>
 
-  <div className={`inline-flex w-fit items-center gap-0.5 rounded-full bg-muted/60 p-1 ${view === 'sent' || view === 'secretaries' ? '' : 'invisible'}`} role="group" aria-label={t('secretary.invitations.doctorTab')}>
+  <div className={`inline-flex w-fit items-center gap-0.5 rounded-full border border-border bg-muted/60 p-1 ${view === 'sent' || view === 'secretaries' ? '' : 'invisible'}`} role="group" aria-label={t('secretary.invitations.doctorTab')}>
       <button
         type="button"
         aria-pressed={view === 'sent'}
@@ -175,10 +175,10 @@ export default function DoctorInvitationsPage() {
           setSuccess('')
           action.reset()
         }}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'sent' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'sent' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
       >
         {t('secretary.invitations.doctorChip')}
-        <span className="text-[10px] tabular-nums text-muted-foreground">{sent.data?.length ?? 0}</span>
+        <span className={`text-[10px] tabular-nums ${view === 'sent' ? 'text-primary' : 'text-muted-foreground'}`}>{sent.data?.length ?? 0}</span>
       </button>
       <button
         type="button"
@@ -188,10 +188,10 @@ export default function DoctorInvitationsPage() {
           setSuccess('')
           action.reset()
         }}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'secretaries' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'secretaries' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
       >
         {t('secretary.invitations.doctorTab')}
-        <span className="text-[10px] tabular-nums text-muted-foreground">{secretariesSent.data?.length ?? 0}</span>
+        <span className={`text-[10px] tabular-nums ${view === 'secretaries' ? 'text-primary' : 'text-muted-foreground'}`}>{secretariesSent.data?.length ?? 0}</span>
       </button>
   </div>
 </div>
@@ -228,19 +228,18 @@ export default function DoctorInvitationsPage() {
     </div>
 
     <div className="relative">
-      <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
-      <span className="relative grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
-        {view === 'received' ? <Inbox className="size-10" /> : view === 'sent' ? <Send className="size-10" /> : <UserRoundPlus className="size-10" />}
+      <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
+      <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
+        {view === 'received' ? <Inbox className="size-8 motion-safe:animate-bounce [animation-duration:2.4s]" /> : view === 'sent' ? <Send className="size-8 motion-safe:animate-bounce [animation-duration:2.4s]" /> : <UserRoundPlus className="size-8 motion-safe:animate-bounce [animation-duration:2.4s]" />}
       </span>
-      <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
-      <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
-      <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
+      <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-pulse" />
+      <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse [animation-delay:200ms]" />
+      <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
     </div>
 
-    <h2 className="mt-10 font-heading text-3xl font-bold sm:text-5xl">
+    <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">
       {t(view === 'received' ? 'invitations.emptyReceivedTitle' : view === 'sent' ? 'invitations.emptySentTitle' : 'secretary.invitations.emptySentTitle')}
     </h2>
-    <span className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent" />
     <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">
       {t(view === 'received' ? 'invitations.emptyReceivedDescription' : view === 'sent' ? 'invitations.emptySentDescription' : 'secretary.invitations.emptySentDescription')}
     </p>

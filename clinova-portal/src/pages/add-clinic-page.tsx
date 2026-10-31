@@ -110,13 +110,13 @@ export default function AddClinicPage() {
           {(formError || createClinic.error) && <Notice message={formError || getErrorMessage(createClinic.error)} />}
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <Building2 className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <Building2 className="size-4.5" />
       </span>
-      <h3 className="truncate font-sans text-xl font-bold">{t('clinicForm.identityTitle')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.identityTitle')}</h3>
     </div>
   </div>
   <CardContent className="grid gap-5 p-5 sm:grid-cols-2">
@@ -129,13 +129,13 @@ export default function AddClinicPage() {
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <MapPin className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <MapPin className="size-4.5" />
       </span>
-      <h3 className="truncate font-sans text-xl font-bold">{t('clinicForm.locationTitle')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.locationTitle')}</h3>
     </div>
   </div>
   <CardContent className="grid gap-5 p-5 sm:grid-cols-2">
@@ -145,63 +145,69 @@ export default function AddClinicPage() {
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <CircleDollarSign className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <CircleDollarSign className="size-4.5" />
       </span>
-      <h3 className="truncate font-sans text-xl font-bold">{t('clinicForm.billingTitle')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.billingTitle')}</h3>
     </div>
   </div>
   <CardContent className="grid gap-5 p-5 sm:grid-cols-2"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
 </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <Phone className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <Phone className="size-4.5" />
       </span>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate font-sans text-xl font-bold">{t('clinicForm.phonesTitle')}</h3>
-        <p className="mt-0.5 text-xs font-bold leading-5 text-muted-foreground sm:text-sm">{t('clinicForm.phonesHint')}</p>
+        <h3 className="truncate font-sans text-base font-bold">{t('clinicForm.phonesTitle')}</h3>
+        <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">{t('clinicForm.phonesHint')}</p>
       </div>
     </div>
   </div>
   <CardContent className="grid gap-3 p-5">
               {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="outline" size="icon" className="mb-0.5 rounded-xl" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
-              <Button type="button" variant="outline" className="h-11 w-fit rounded-xl text-sm font-bold normal-case" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus />{t('clinicForm.addPhone')}</Button>
+              <Button type="button" variant="outline" className="h-10 w-fit rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal shadow-md shadow-black/5 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none motion-reduce:transition-none dark:shadow-black/30" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus className="size-4" />{t('clinicForm.addPhone')}</Button>
             </CardContent>
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <FileImage className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <FileImage className="size-4.5" />
       </span>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate font-sans text-xl font-bold">{t('clinicForm.imagesTitle')}</h3>
-        <p className="mt-0.5 text-xs font-bold leading-5 text-muted-foreground sm:text-sm">{t('clinicForm.imagesHint')}</p>
+        <h3 className="truncate font-sans text-base font-bold">{t('clinicForm.imagesTitle')}</h3>
+        <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">{t('clinicForm.imagesHint')}</p>
       </div>
     </div>
   </div>
   <CardContent className="p-5">
-  <Label className="group flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/4 p-6 text-center transition hover:border-primary/50 hover:bg-primary/8" htmlFor="clinicImages">
+  <Label className={`group flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center normal-case tracking-normal transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary/[0.06] hover:shadow-md motion-reduce:transition-none ${images.length ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03]'}`} htmlFor="clinicImages">
     <Input className="sr-only" id="clinicImages" name="Images" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={handleImages} />
-    <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+    <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
       <Upload className="size-6" />
     </span>
-    <strong className="text-sm font-bold">{images.length ? t('clinicForm.imagesSelected', { count: images.length }) : t('clinicForm.chooseImages')}</strong>
-    <small className="text-xs font-bold text-muted-foreground">{images.length ? images.map((image) => image.name).join(', ') : t('clinicForm.imageRules')}</small>
+    <strong className="text-sm font-bold normal-case tracking-normal">{images.length ? t('clinicForm.imagesSelected', { count: images.length }) : t('clinicForm.chooseImages')}</strong>
+    {images.length ? (
+      <span className="flex max-w-full flex-wrap justify-center gap-1.5">
+        {images.map((image, index) => <span key={`${image.name}-${index}`} className="max-w-48 truncate rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[11px] font-bold normal-case tracking-normal text-primary">{image.name}</span>)}
+      </span>
+    ) : (
+      <small className="text-xs font-semibold normal-case tracking-normal text-muted-foreground">{t('clinicForm.imageRules')}</small>
+    )}
   </Label>
 </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-2"><Button type="button" variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicForm.create')}</Button></div>
+          <div className="flex justify-end gap-2"><Button type="button" variant="outline" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicForm.create')}</Button></div>
         </form>
       </div>
     </DoctorWorkspaceShell>

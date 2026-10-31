@@ -9,7 +9,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { usePaymobAccountAction, type PaymobAccountAction } from '@/hooks/use-paymob-configuration'
 import { ApiError } from '@/lib/api'
 import type { SavedPaymobConfiguration } from '@/lib/paymob-configuration'
-import { paymobButtonClass } from './setup-section'
 
 export const paymobMenuItemClass = 'gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case tracking-normal cursor-pointer'
 type Confirmation = 'deactivate' | 'delete' | 'history'
@@ -53,8 +52,8 @@ export function PaymobAccountMenu({ clinicId, account }: { clinicId: string; acc
     {success && <Notice tone="success" message={success} />}
     {error && <Notice message={error} />}
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={busy} aria-busy={busy} render={<Button variant="outline" className={paymobButtonClass + ' border-transparent bg-muted text-foreground hover:bg-foreground/10'} />}>
-        {busy ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Settings2 />}
+      <DropdownMenuTrigger disabled={busy} aria-busy={busy} render={<Button variant="outline" className="h-10 rounded-xl border-transparent bg-muted px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" />}>
+        {busy ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Settings2 className="size-4" />}
         {t(account.status === 'NeedsAttention' ? 'paymob.reviewSettings' : 'paymob.manage')}
         <ChevronDown className="size-3.5" />
       </DropdownMenuTrigger>

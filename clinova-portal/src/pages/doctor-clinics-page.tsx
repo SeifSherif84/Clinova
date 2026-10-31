@@ -24,7 +24,7 @@ export default function DoctorClinicsPage() {
   <Building2 className="size-3" />
   {t('clinics.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinics.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinics.description')}</p></div>
-          <Button className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
+          <Button className="h-10 rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" /><p className="text-xs text-muted-foreground">{t('clinics.loading')}</p></Card>}
@@ -55,23 +55,23 @@ export default function DoctorClinicsPage() {
         {clinics.data && clinics.data.length > 0 && (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {clinics.data.map((clinic) => (
-<Card key={clinic.id} className="group rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+<Card key={clinic.id} className="group relative rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
   <CardContent className="grid h-full gap-5">
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-center gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Building2 className="size-6" /></span>
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none"><Building2 className="size-6" /></span>
         <div>
           <h2 className="font-sans text-lg font-bold leading-tight">{clinic.name}</h2>
-          <Badge className="mt-1 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-bold tracking-wider text-primary uppercase">{t('clinics.connected')}</Badge>
+          <Badge className="absolute end-4 top-4 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-bold tracking-wider text-primary uppercase">{t('clinics.connected')}</Badge>
         </div>
       </div>
     </div>
     <p className="flex items-start gap-2 text-xs leading-5 font-semibold text-muted-foreground"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
     <div className="grid grid-cols-2 gap-3">
-      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-foreground/60 uppercase"><CircleDollarSign className="size-4" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
-      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[9px] font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-4" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
+      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 whitespace-nowrap text-[10.5px] font-bold tracking-normal text-foreground/60 uppercase"><CircleDollarSign className="size-[18px] shrink-0" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
+      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-[18px]" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
     </div>
-    <Button className="mt-auto w-full rounded-xl bg-primary normal-case font-bold text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
+    <Button className="mt-auto w-full rounded-xl bg-primary text-sm normal-case font-bold text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
   </CardContent>
 </Card>
             ))}

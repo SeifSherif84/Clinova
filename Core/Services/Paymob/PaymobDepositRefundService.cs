@@ -20,8 +20,8 @@ using System.Threading.Tasks;
 namespace Services.Paymob
 {
     public class PaymobDepositRefundService(IUnitOfWork _unitOfWork,
-                                     IPaymobService _paymobService,
-                                     IPaymentCredentialEncryptor _credentialProtector) : IPaymobDepositRefundService
+                                            IPaymobService _paymobService,
+                                            IPaymentCredentialEncryptor _credentialProtector) : IPaymobDepositRefundService
     {
         public async Task<DepositRefundResult> RefundPaymentAsync(int depositPaymentId, DepositRefundReason reason)
         {

@@ -19,7 +19,9 @@ namespace Services.Specifications.AppointmentSlots
         
         public AppointmentSlotSpecifications(int workinghourId, SlotStatus status) : base()
         {
-            Criteria = slot => slot.WorkingHourId == workinghourId && slot.Status == status;
+            Criteria = slot => slot.WorkingHourId == workinghourId && 
+                               slot.Status == status &&
+                               !slot.Appointments.Any();
         }
 
         public AppointmentSlotSpecifications(int workinghourId, 
@@ -29,6 +31,7 @@ namespace Services.Specifications.AppointmentSlots
         {
             Criteria = slot => slot.WorkingHourId == workinghourId &&
                                slot.Status == status &&
+                               !slot.Appointments.Any()&&
                                ((slot.Date > todayDate) || (slot.Date == todayDate && slot.EndTime > currentTime));
         }
 
@@ -42,7 +45,9 @@ namespace Services.Specifications.AppointmentSlots
                                slot.DoctorId == doctorId &&
                                slot.Status == SlotStatus.Available &&
                                slot.Date >= from &&
-                               slot.Date <= to;
+                               slot.Date <= to &&
+                               slot.WorkingHour != null &&
+                               slot.WorkingHour.IsActive;
         }
 
 
@@ -53,7 +58,9 @@ namespace Services.Specifications.AppointmentSlots
             Criteria = slot => slot.ClinicId == clinicId &&
                                slot.DoctorId == doctorId &&
                                slot.Status == SlotStatus.Available &&
-                               slot.Date == date;
+                               slot.Date == date &&
+                               slot.WorkingHour != null &&
+                               slot.WorkingHour.IsActive;
         }
 
     }

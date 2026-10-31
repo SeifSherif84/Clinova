@@ -30,6 +30,7 @@ namespace Domain.Entities.Enums
         AppointmentCancelledByClinic,
         ManualRefundConfirmed,
         AppointmentRescheduledByPatient,
-        AppointmentRescheduledBySecretary
+        AppointmentRescheduledBySecretary,
+        DepositPaymentSuccessful
     }
 }

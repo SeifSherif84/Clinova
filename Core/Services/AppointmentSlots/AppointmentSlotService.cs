@@ -25,7 +25,7 @@ namespace Services.AppointmentSlots
     public class AppointmentSlotService(IUnitOfWork _unitOfWork, 
                                         IConfiguration _configuration) : IAppointmentSlotService
     {
-        public async Task GenerateAppointmentSlotsAsync(WorkingHour workingHour)
+        public async Task GenerateAppointmentSlotsAsync(WorkingHour workingHour, List<int> deletedSlotIds)
         {
             if (!workingHour.IsActive)
                 return;
@@ -37,7 +37,6 @@ namespace Services.AppointmentSlots
                 throw new BadRequestException(
                     "The working hours are too short to create at least one appointment slot.");
 
-
             var slotGenerationDays = Convert.ToInt32(_configuration["SlotGenerationDays"]);
 
             var todayDate = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -47,9 +46,14 @@ namespace Services.AppointmentSlots
             var appointmentSlotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
 
             var appointmentSlotSpec = new AppointmentSlotSpecifications(workingHour.Id);
-            var existingSlots = await appointmentSlotRepo.GetAllAsync(appointmentSlotSpec);
+            var existingSlots = (await appointmentSlotRepo.GetAllAsync(appointmentSlotSpec))
+                                                          .Where(slot => !deletedSlotIds.Contains(slot.Id))
+                                                          .ToList();
+                                                       
 
-            var bookedSlots = existingSlots.Where(slot => slot.Status == SlotStatus.Booked).ToList();
+            var occupiedSlots = existingSlots
+                .Where(slot => slot.Status is SlotStatus.Booked or SlotStatus.Reserved)
+                .ToList();
 
 
             for (var currentDate = todayDate; currentDate <= endDate; currentDate = currentDate.AddDays(1))
@@ -79,7 +83,7 @@ namespace Services.AppointmentSlots
 
                     // Check whether a booked slot already occupies
                     // or overlaps this time period.
-                    var hasBookedConflict = bookedSlots.Any(slot =>
+                    var hasOccupiedConflict = occupiedSlots.Any(slot =>
                         slot.Date == currentDate &&
                         slot.StartTime < slotEndTime &&
                         slot.EndTime > slotStartTime);
@@ -87,7 +91,7 @@ namespace Services.AppointmentSlots
 
                     // Only create an Available slot if it does not
                     // conflict with an existing booked slot.
-                    if (!hasBookedConflict && !slotAlreadyExists)
+                    if (!hasOccupiedConflict && !slotAlreadyExists)
                     {
                         var slot = new AppointmentSlot()
                         {
@@ -113,9 +117,9 @@ namespace Services.AppointmentSlots
 
         public async Task ReconcileAppointmentSlotsAsync(WorkingHour workingHour)
         {
-            await DeleteFutureAvailableSlotsAsync(workingHour);
+            List<int> deletedSlotIds =  await DeleteFutureAvailableSlotsAsync(workingHour);
 
-            await GenerateAppointmentSlotsAsync(workingHour);
+            await GenerateAppointmentSlotsAsync(workingHour, deletedSlotIds);
         }
 
 
@@ -133,7 +137,7 @@ namespace Services.AppointmentSlots
         }
 
 
-        public async Task DeleteFutureAvailableSlotsAsync(WorkingHour workingHour)
+        public async Task<List<int>> DeleteFutureAvailableSlotsAsync(WorkingHour workingHour)
         {
             var appointmentSlotRepo = _unitOfWork.GetRepository<AppointmentSlot, int>();
 
@@ -147,10 +151,15 @@ namespace Services.AppointmentSlots
 
             var futureAvailableSlots = await appointmentSlotRepo.GetAllAsync(appointmentSlotSpec);
 
+            List<int> deletedSlotIds = new List<int>();
+
             foreach (var slot in futureAvailableSlots)
             {
                 appointmentSlotRepo.Delete(slot);
+                deletedSlotIds.Add(slot.Id);
             }
+
+            return deletedSlotIds;
         }
 
 

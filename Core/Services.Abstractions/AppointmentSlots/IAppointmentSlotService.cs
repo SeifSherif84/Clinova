@@ -11,10 +11,10 @@ namespace Services.Abstractions.AppointmentSlots
 {
     public interface IAppointmentSlotService
     {
-        Task GenerateAppointmentSlotsAsync(WorkingHour workingHour);
+        Task GenerateAppointmentSlotsAsync(WorkingHour workingHour, List<int> deletedSlotIds);
         Task ReconcileAppointmentSlotsAsync(WorkingHour workingHour);
         Task DeleteAvailableAppointmentSlotsAsync(WorkingHour workingHour);
-        Task DeleteFutureAvailableSlotsAsync(WorkingHour workingHour);
+        Task<List<int>> DeleteFutureAvailableSlotsAsync(WorkingHour workingHour);
 
 
 

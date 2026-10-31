@@ -47,7 +47,7 @@ namespace Services.WorkingHours
             workingHour.IsActive = true;
             await workingHourRepo.AddAsync(workingHour);
 
-            await _appointmentSlotService.GenerateAppointmentSlotsAsync(workingHour);
+            await _appointmentSlotService.GenerateAppointmentSlotsAsync(workingHour, new List<int>());
 
             var result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)
@@ -89,14 +89,12 @@ namespace Services.WorkingHours
                 throw new BadRequestException("Please choose a valid Slot duration.");
 
 
-            var hasChanges = (request.StartTime.HasValue && request.StartTime.Value != ExistingworkingHour.StartTime)
-                          || (request.EndTime.HasValue && request.EndTime.Value != ExistingworkingHour.EndTime)
-                          || (request.SlotDurationMinutes.HasValue && request.SlotDurationMinutes.Value != ExistingworkingHour.SlotDurationMinutes);
+            var hasChanges = (request.StartTime.HasValue && request.StartTime.Value != ExistingworkingHour.StartTime) ||
+                             (request.EndTime.HasValue && request.EndTime.Value != ExistingworkingHour.EndTime) ||
+                             (request.SlotDurationMinutes.HasValue && request.SlotDurationMinutes.Value != ExistingworkingHour.SlotDurationMinutes);
 
             if (!hasChanges)
                 return "Your working hours are already up to date.";
-
-
 
             if (request.StartTime.HasValue)
                 ExistingworkingHour.StartTime = request.StartTime.Value;
@@ -177,7 +175,7 @@ namespace Services.WorkingHours
 
             ExistingworkingHour.IsActive = true;
 
-            await _appointmentSlotService.GenerateAppointmentSlotsAsync(ExistingworkingHour);
+            await _appointmentSlotService.GenerateAppointmentSlotsAsync(ExistingworkingHour, new List<int>());
 
             int result = await _unitOfWork.SaveChangesAsync();
             if (result == 0)

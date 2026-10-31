@@ -155,7 +155,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
     <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><WalletCards className="size-3" />{t('manualPayments.eyebrow')}</Badge>
     <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
       <div><h1 className="font-sans text-3xl font-bold sm:text-4xl">{t('manualPayments.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('manualPayments.description')}</p></div>
-      <Button className={buttonClass} disabled={!canChange} onClick={() => openEditor()}>{busy || methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <Plus />}{t('manualPayments.add')}</Button>
+      <Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={!canChange} onClick={() => openEditor()}>{busy || methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('manualPayments.add')}</Button>
     </div>
     <section className="relative isolate mt-6 overflow-hidden rounded-3xl border border-primary/10 bg-card p-6 sm:p-10" aria-label={t('manualPayments.eyebrow')}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
@@ -235,7 +235,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
     {methods.isLoading ? <LoadingState /> : methods.isError ? <div className="mt-6 grid justify-items-start gap-3 rounded-2xl border border-destructive/20 bg-card p-6"><Notice message={getErrorMessage(methods.error)} /><p className="text-sm font-bold">{t(methods.data ? 'manualPayments.refreshError' : 'manualPayments.loadError')}</p><Button variant="outline" className={buttonClass} disabled={methods.isFetching} onClick={() => void methods.refetch()}>{methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <RefreshCw />}{t('manualPayments.retry')}</Button></div> : <section className="mt-8" aria-labelledby="receiving-accounts">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><WalletCards className="size-5" /></span>
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
           <div>
             <h2 id="receiving-accounts" className="font-sans text-xl font-bold">{t('manualPayments.accounts')}</h2>
             <p className="mt-0.5 text-sm leading-6 font-medium text-muted-foreground">{t('manualPayments.accountsDescription')}</p>
@@ -358,13 +358,13 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
 
     <Dialog open={Boolean(editor)} onOpenChange={(open) => { if (!open && !busy) { setEditor(null); setError('') } }}>
       <DialogContent showCloseButton={false} className="max-h-[90dvh] overflow-y-auto rounded-3xl border border-border bg-card p-5 motion-reduce:animate-none sm:max-w-2xl sm:p-7">
-        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/60 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5 sm:-m-7 sm:mb-0 sm:p-7">
+        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0">
           <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex items-center gap-3.5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-6" /></span>
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t(editor?.id === undefined ? 'manualPayments.createTitle' : 'manualPayments.editTitle')}</DialogTitle>
-              <DialogDescription className="mt-0.5 text-xs leading-5 sm:text-sm">{t(editor?.id === undefined ? 'manualPayments.createDescription' : 'manualPayments.editDescription')}</DialogDescription>
+              <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(editor?.id === undefined ? 'manualPayments.createTitle' : 'manualPayments.editTitle')}</DialogTitle>
+              <DialogDescription className="mt-0.5 text-start text-xs leading-5">{t(editor?.id === undefined ? 'manualPayments.createDescription' : 'manualPayments.editDescription')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -413,15 +413,15 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
 
               <div className="grid gap-2">
                 <Label htmlFor="payment-identifier" className="text-xs font-semibold text-foreground/80">{t(editor.type === 'VodafoneCash' ? 'manualPayments.phoneLabel' : 'manualPayments.addressLabel')}</Label>
-                <div className="relative">
-                  <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-muted-foreground">{editor.type === 'VodafoneCash' ? <Smartphone className="size-4" /> : <Landmark className="size-4" />}</span>
-                  <Input ref={inputRef} id="payment-identifier" autoFocus dir="ltr" autoComplete="off" spellCheck={false} inputMode={editor.type === 'VodafoneCash' ? 'tel' : 'text'} value={editor.accountIdentifier} maxLength={100} disabled={busy} aria-invalid={formInvalid} aria-describedby="payment-identifier-hint" className="h-12 rounded-xl bg-background/40 ps-11 focus-visible:border-primary/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20" placeholder={t(editor.type === 'VodafoneCash' ? 'manualPayments.phonePlaceholder' : 'manualPayments.addressPlaceholder')} onChange={(event) => { setEditor({ ...editor, accountIdentifier: event.target.value }); setFormInvalid(false); setError('') }} />
+                <div className="group relative">
+                  <span className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">{editor.type === 'VodafoneCash' ? <Smartphone className="size-4" /> : <Landmark className="size-4" />}</span>
+                  <Input ref={inputRef} id="payment-identifier" autoFocus dir="ltr" autoComplete="off" spellCheck={false} inputMode={editor.type === 'VodafoneCash' ? 'tel' : 'text'} value={editor.accountIdentifier} maxLength={100} disabled={busy} aria-invalid={formInvalid} aria-describedby="payment-identifier-hint" className="h-12 rounded-xl bg-background/40 ps-11 transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20" placeholder={t(editor.type === 'VodafoneCash' ? 'manualPayments.phonePlaceholder' : 'manualPayments.addressPlaceholder')} onChange={(event) => { setEditor({ ...editor, accountIdentifier: event.target.value }); setFormInvalid(false); setError('') }} />
                 </div>
                 <p id="payment-identifier-hint" className="text-xs leading-6 font-semibold text-muted-foreground">{t(editor.type === 'VodafoneCash' ? 'manualPayments.phoneHint' : 'manualPayments.addressHint')}</p>
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="outline" className={buttonClass} disabled={busy} onClick={() => { setEditor(null); setError('') }}><X />{t('manualPayments.cancel')}</Button><Button type="submit" className={buttonClass} disabled={!canChange || unchanged}>{busy ? <LoaderCircle className={spinnerClass} /> : editor.id === undefined ? <Plus /> : <Save />}{t(editor.id === undefined ? 'manualPayments.create' : 'manualPayments.save')}</Button></div>
+          <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="outline" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={busy} onClick={() => { setEditor(null); setError('') }}><X className="size-4" />{t('manualPayments.cancel')}</Button><Button type="submit" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={!canChange || unchanged}>{busy ? <LoaderCircle className={spinnerClass} /> : editor.id === undefined ? <Plus className="size-4" /> : <Save className="size-4" />}{t(editor.id === undefined ? 'manualPayments.create' : 'manualPayments.save')}</Button></div>
         </form>}
       </DialogContent>
     </Dialog>

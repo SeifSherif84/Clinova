@@ -19,8 +19,8 @@ const methods: PaymobPaymentMethod[] = ['Card', 'Wallet']
 const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
 
 function MethodLogo({ method, className = '' }: { method: PaymobPaymentMethod; className?: string }) {
-  return <span aria-hidden="true" className={`relative flex h-12 w-24 shrink-0 items-center justify-start ${className}`}>
-    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+  return <span aria-hidden="true" className={`relative flex h-14 w-24 shrink-0 items-center justify-start ${className}`}>
+    <img src={`/payment-integration-method/${method === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${method === 'Card' ? 'h-8' : 'size-14'} max-w-full object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal`} />
   </span>
 }
 
@@ -81,7 +81,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
     {success && <Notice tone="success" message={success} />}
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="flex min-w-0 items-start gap-3.5">
-        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25"><WalletCards className="size-5" /></span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 id="paymob-integrations-title" tabIndex={-1} className="font-sans text-xl font-bold normal-case tracking-normal">{t('paymob.integrationsTitle')}</h2>
@@ -89,7 +89,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
           <p className="mt-1 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsDescription')}</p>
         </div>
       </div>
-      {canAdd && account.integrations.length > 0 && <Button className={paymobButtonClass} disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus />}{t('paymob.addIntegration')}</Button>}
+      {canAdd && account.integrations.length > 0 && <Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
     </div>
 
     {disabled && <Alert role="note" className="mt-5 rounded-xl border-border bg-muted/40"><Info /><AlertDescription className="leading-6">{t('paymob.integrationsDisabled')}</AlertDescription></Alert>}
@@ -109,8 +109,8 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
     {account.integrations.length ? <>
       <ul className="mt-5 grid gap-3">{account.integrations.map((integration) => (
         <li key={integration.id} className="group relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg motion-reduce:transition-none sm:p-5">
-          <span aria-hidden="true" className="flex h-12 w-24 shrink-0 items-center justify-center">
-            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'h-16'} max-w-full object-contain mix-blend-multiply dark:rounded-lg dark:mix-blend-normal`} />
+          <span aria-hidden="true" className="flex h-14 w-24 shrink-0 items-center justify-center">
+            <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'size-14'} max-w-full object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal`} />
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -158,13 +158,13 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
 
     <Dialog open={editorOpen} onOpenChange={(next) => { if (!next) closeEditor() }}>
       <DialogContent showCloseButton={false} className="max-h-[90dvh] overflow-y-auto rounded-3xl border border-border bg-card p-5 motion-reduce:animate-none sm:max-w-2xl sm:p-7">
-        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/60 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5 sm:-m-7 sm:mb-0 sm:p-7">
-          <span aria-hidden="true" className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex items-center gap-3.5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-primary/10"><Link2 className="size-6" /></span>
+        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Link2 className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t(account.integrations.length ? 'paymob.addAnotherIntegrationTitle' : 'paymob.addFirstIntegrationTitle')}</DialogTitle>
-              <DialogDescription className="mt-0.5 text-xs leading-5 sm:text-sm">{t('paymob.addIntegrationDescription')}</DialogDescription>
+              <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(account.integrations.length ? 'paymob.addAnotherIntegrationTitle' : 'paymob.addFirstIntegrationTitle')}</DialogTitle>
+              <DialogDescription className="mt-0.5 text-start text-[13px] leading-5">{t('paymob.addIntegrationDescription')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>

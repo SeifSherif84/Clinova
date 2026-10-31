@@ -52,8 +52,8 @@ namespace Services.AutoMapping.Appointments
                 .ForMember(dest => dest.PatientName, options => options.MapFrom(src => src.Patient != null ? $"{src.Patient.FirstName} {src.Patient.LastName}" : src.GuestPatientName))
                 .ForMember(dest => dest.DepositPaymentStatus, options => options.MapFrom(src => src.DepositPayment.Status.ToString()))
                 .ForMember(dest => dest.DepositPaymentMethodType, options => options.MapFrom(src => src.DepositPayment.MethodType.HasValue ? src.DepositPayment.MethodType.Value.ToString() : null))
-                .ForMember(dest => dest.DepositClinicManualPaymentMethodType, options => options.MapFrom(src => src.DepositPayment.ClinicManualPaymentMethod != null ? src.DepositPayment.ClinicManualPaymentMethod.Type.ToString() : null))
-                .ForMember(dest => dest.RemainingPaymentStatus, options => options.MapFrom(src => src.RemainingPayment != null ? src.RemainingPayment.Status.ToString() : null))
+                //.ForMember(dest => dest.DepositClinicManualPaymentMethodType, options => options.MapFrom(src => src.DepositPayment.ClinicManualPaymentMethod != null ? src.DepositPayment.ClinicManualPaymentMethod.Type.ToString() : null))
+                //.ForMember(dest => dest.RemainingPaymentStatus, options => options.MapFrom(src => src.RemainingPayment != null ? src.RemainingPayment.Status.ToString() : null))
                 .ForMember(dest => dest.RequiresManualRefundAction, options => options.MapFrom(src => src.DepositPayment.DepositRefund != null ? src.DepositPayment.DepositRefund.Status == DepositRefundStatus.PendingManualProcessing : false));
 
 

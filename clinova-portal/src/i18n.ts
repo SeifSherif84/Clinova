@@ -448,7 +448,7 @@ const resources = {
         notConfigured: 'Not configured',
         start: 'Starts',
         end: 'Ends',
-        slotDuration: '{{count}}-minute appointment slots',
+        slotDuration: '{{count}}-minute slot',
         edit: 'Edit',
         activate: 'Activate',
         deactivate: 'Deactivate',

@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '@/lib/api'
 import { appointmentStatuses, depositPaymentStatuses, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
 
-const success = ['Confirmed', 'Completed', 'Paid', 'Succeeded']
+const success = ['Confirmed', 'Completed', 'Paid', 'Succeeded', 'Refunded']
 const pending = ['PendingPayment', 'PendingVerification', 'Pending', 'Processing', 'PendingManualProcessing']
 const danger = ['Rejected', 'Failed', 'NoShow']
 

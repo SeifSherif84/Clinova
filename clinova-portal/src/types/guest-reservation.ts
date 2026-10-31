@@ -2,7 +2,7 @@
 export const BookingType = { Advance: 1, WalkIn: 2 } as const
 export type BookingType = typeof BookingType[keyof typeof BookingType]
 
-export const GuestPaymentMethod = { Cash: 1, ManualTransfer: 2 } as const
+export const GuestPaymentMethod = { CashAtClinic: 1, ManualTransfer: 2 } as const
 export type GuestPaymentMethod = typeof GuestPaymentMethod[keyof typeof GuestPaymentMethod]
 
 export interface AvailableDay {
@@ -40,7 +40,7 @@ export interface GuestCheckoutAccount {
 }
 
 export interface ConfirmGuestPaymentRequest {
-  guestReservationPaymentMethod: GuestPaymentMethod
+  guestReservationPaymentMethodType: GuestPaymentMethod
   clinicManualPaymentMethodId?: number
 }
 

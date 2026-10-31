@@ -18,11 +18,11 @@ namespace Shared.Dtos.Appointments
         public string DoctorName { get; set; } = null!;
         public string PatientName { get; set; } = null!;
 
-        public string DepositPaymentStatus { get; set; } = null!;
+        public string DepositPaymentStatus { get; set; } = null!; // Paid, Pending, Refunded, Failed
         public string DepositPaymentMethodType { get; set; } = null!; // Paymob, ManualTransfer, CashAtClinic
-        public string? DepositClinicManualPaymentMethodType { get; set; } // The specific clinic-configured manual payment method
 
-        public string? RemainingPaymentStatus { get; set; }
+        //public string? DepositClinicManualPaymentMethodType { get; set; } // The specific clinic-configured manual payment method
+        //public string? RemainingPaymentStatus { get; set; }
 
         public bool RequiresManualRefundAction { get; set; }
     }

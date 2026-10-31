@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TriangleAlert, UploadCloud, UserMinus, UsersRound, WalletCards} from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, MoreHorizontal, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, UploadCloud, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClinicSecretariesCard, { SecretaryInviteCard } from '@/components/clinic-secretaries-card'
@@ -268,18 +268,7 @@ export default function ClinicDetailsPage() {
         {details.data && (
           <div className="mt-5 min-w-0 grid gap-5">
 <Card className="relative min-w-0 gap-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
-  <div className="pointer-events-none absolute inset-0">
-    <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
-    <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
-    <svg className="absolute inset-0 size-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="clinicGrid" width="28" height="28" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1.4" fill="currentColor" className="text-primary" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#clinicGrid)" />
-    </svg>
-  </div>
+  <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
               <CardContent className="relative z-10 flex flex-wrap items-end justify-between gap-5 p-0">
     <div className="min-w-0">
     <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
@@ -294,7 +283,7 @@ export default function ClinicDetailsPage() {
     </div>
     <div className="flex flex-wrap gap-2">
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal rounded-xl text-sm font-bold normal-case sm:w-auto" />}>
+      <DropdownMenuTrigger render={<Button variant="outline" className="h-10 w-full cursor-pointer rounded-xl px-4 text-sm font-bold normal-case sm:w-auto" />}>
         <Settings2 />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56 rounded-xl p-1.5">
@@ -319,9 +308,48 @@ export default function ClinicDetailsPage() {
       </DropdownMenuContent>
     </DropdownMenu>
     {isOwner && !isEditing && (
-      <Button className="h-auto min-h-11 w-full cursor-pointer whitespace-normal rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
+      <Button className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
         <PencilLine />{t('clinicDetails.edit')}
       </Button>
+    )}
+    {currentMember && (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+        >
+          {(isOwner ? deleteClinic.isPending : leaveClinic.isPending) ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" sideOffset={10} className="w-72 overflow-hidden rounded-2xl border border-border bg-popover p-0 shadow-2xl ring-1 ring-black/5">
+          <div className="flex items-center gap-3 border-b border-border/60 bg-gradient-to-br from-primary/10 via-primary/[0.03] to-transparent px-4 py-3.5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/65 text-primary-foreground">
+              <Building2 className="size-5" />
+            </span>
+            <span className="grid min-w-0 gap-0.5 text-start">
+              <strong className="truncate text-sm font-bold">{details.data.name}</strong>
+              <small className="truncate text-[11px] font-semibold text-muted-foreground">{details.data.buildingNumber} {details.data.streetName} · {details.data.regionName}</small>
+            </span>
+          </div>
+
+          <div className="grid gap-0.5 px-1.5 py-1">
+            <DropdownMenuItem
+              className="group/item cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-start normal-case tracking-normal outline-none transition focus:bg-destructive/10 data-[highlighted]:bg-destructive/10"
+              disabled={isOwner ? deleteClinic.isPending : leaveClinic.isPending}
+              onClick={() => {
+                if (isOwner) { deleteClinic.reset(); setConfirmation({ type: 'delete-clinic' }) }
+                else { leaveClinic.reset(); setConfirmation({ type: 'leave-clinic' }) }
+              }}
+            >
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive transition group-hover/item:bg-destructive/15">
+                {isOwner ? <Trash2 className="size-4" /> : <ArrowLeft className="size-4 rtl:rotate-180" />}
+              </span>
+              <span className="grid min-w-0 flex-1 gap-0.5">
+                <span className="truncate text-[13px] font-semibold text-destructive">{isOwner ? t('clinicDetails.deleteClinic') : t('clinicDetails.leaveClinic')}</span>
+                <span className="text-[11px] leading-4 font-semibold text-muted-foreground">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</span>
+              </span>
+            </DropdownMenuItem>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     )}
     </div>
   </CardContent>
@@ -333,13 +361,13 @@ export default function ClinicDetailsPage() {
             <div className="min-w-0 grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">
               <div className="min-w-0 grid gap-5">
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <Building2 className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <Building2 className="size-4.5" />
       </span>
-      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.information')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicDetails.information')}</h3>
     </div>
   </div>
                   <CardContent className="p-5">
@@ -347,19 +375,19 @@ export default function ClinicDetailsPage() {
                       <form className="grid gap-5" onSubmit={submitEdit}><div className="grid min-w-0 gap-5 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-5"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[13px] font-semibold text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2 border-t border-border/50 pt-5"><Button type="button" variant="outline" className="rounded-xl normal-case cursor-pointer" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="rounded-xl normal-case cursor-pointer" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicDetails.save')}</Button></div></form>
                     ) : (
                       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><MapPin className="size-4.5" /></span>
     <span className="grid gap-0.5"><small className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('clinicForm.region')}</small><strong className="text-sm">{details.data.regionName}</strong></span>
   </div>
-  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Landmark className="size-4.5" /></span>
     <span className="grid gap-0.5"><small className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('clinicForm.landmark')}</small><strong className="text-sm">{details.data.landmark || '—'}</strong></span>
   </div>
-  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><CircleDollarSign className="size-4.5" /></span>
     <span className="grid gap-0.5"><small className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('clinics.consultation')}</small><strong className="text-sm">{money.format(details.data.consultationFee)}</strong></span>
   </div>
-  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><WalletCards className="size-4.5" /></span>
     <span className="grid gap-0.5"><small className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('clinics.deposit')}</small><strong className="text-sm">{details.data.depositPercentage}%</strong></span>
   </div>
@@ -369,13 +397,13 @@ export default function ClinicDetailsPage() {
                 </Card>
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <Camera className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <Camera className="size-4.5" />
       </span>
-      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.gallery')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicDetails.gallery')}</h3>
       <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">{details.data.images.length}/6</Badge>
     </div>
   </div>
@@ -415,22 +443,22 @@ export default function ClinicDetailsPage() {
         onDragOver={(event) => { event.preventDefault(); setIsDragging(true) }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-4 py-4 transition ${isDragging ? 'border-primary bg-primary/10' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/5'}`}
+        className={`group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-4 py-4 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${isDragging ? 'border-primary bg-primary/10' : newImages.length ? 'border-primary/50 bg-primary/[0.05] hover:border-primary/60 hover:bg-primary/[0.06]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
       >
         <Input className="sr-only" id="addClinicImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={selectImages} />
-        <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-4 ring-primary/5">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
           <UploadCloud className="size-6" />
         </span>
         <span className="grid min-w-0 flex-1 gap-0.5">
-          <strong className="truncate text-sm font-bold">{newImages.length ? t('clinicForm.imagesSelected', { count: newImages.length }) : t('clinicDetails.addImages')}</strong>
-          <small className="truncate text-[11px] text-muted-foreground">{t('clinicForm.imageRules')}</small>
+          <strong className="truncate text-sm font-bold normal-case tracking-normal">{newImages.length ? t('clinicForm.imagesSelected', { count: newImages.length }) : t('clinicDetails.addImages')}</strong>
+          <small className="truncate text-xs font-semibold normal-case tracking-normal text-muted-foreground">{t('clinicForm.imageRules')}</small>
         </span>
-        <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <span className="shrink-0 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold tabular-nums text-primary">
           {newImages.length}/{6 - details.data.images.length}
         </span>
       </Label>
 
-      <Button className="h-10 w-fit rounded-xl bg-primary px-5 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 cursor-pointer" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>
+      <Button className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>
         {addImages.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Plus />}
         {t('clinicDetails.uploadImages')}
       </Button>
@@ -439,71 +467,64 @@ export default function ClinicDetailsPage() {
 </CardContent></Card>
 
 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <UsersRound className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <UsersRound className="size-4.5" />
       </span>
-      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.members')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicDetails.members')}</h3>
       <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">{members.data?.length ?? 0}</Badge>
     </div>
   </div>
-<CardContent className="grid gap-4 p-5 sm:grid-cols-2">
+<CardContent className="grid gap-3 p-5">
   {members.isLoading && <LoaderCircle className="animate-spin text-primary" />}
   {members.error && <Notice message={getErrorMessage(members.error)} />}
   {members.data?.map((member) => (
-    <div className="group relative flex w-full max-w-80 flex-col justify-self-center overflow-hidden rounded-2xl border border-primary/15 bg-primary/[0.06] transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:[&:last-child:nth-child(odd)]:col-span-2" key={member.id}>
-      <div className="relative h-14">
-        {isOwner && !member.isOwner && (
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute end-3 top-3 size-9 cursor-pointer rounded-full border border-foreground/15 bg-foreground/10 text-foreground shadow-sm transition hover:border-[#c98a82]/50 hover:bg-[#f6e6e3] hover:text-[#b5645a] dark:hover:border-[#c98a82]/30 dark:hover:bg-[#c98a82]/15 dark:hover:text-[#d9968d]"
-            aria-label={t('clinicDetails.removeMember')}
-            disabled={removeMember.isPending}
-            onClick={() => { removeMember.reset(); setSuccess(''); setConfirmation({ type: 'remove-member', memberId: member.id, memberName: member.fullName }) }}
-          >
-            {removeMember.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <UserMinus className="size-4" />}
-          </Button>
+    <div className="group relative flex min-w-0 items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md motion-reduce:transition-none" key={member.id}>
+      <div className="relative shrink-0">
+        <span className="grid size-16 place-items-center overflow-hidden rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm ring-2 ring-primary/15">
+          {member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}
+        </span>
+        {member.isOwner && (
+          <span className="absolute -end-1.5 -bottom-1.5 grid size-6 place-items-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow">
+            <Crown className="size-3" />
+          </span>
         )}
       </div>
 
-      <div className="-mt-10 flex flex-1 flex-col items-center gap-2 px-4 pb-4 text-center">
-        <div className="relative">
-          <span className="grid size-20 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-primary/10 text-2xl font-bold text-primary shadow-md">
-            {member.profilePicture ? <img className="size-full object-cover" src={member.profilePicture} alt="" /> : member.fullName.charAt(0)}
-          </span>
-          {member.isOwner && (
-            <span className="absolute -end-2 -bottom-2 grid size-7 place-items-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow">
-              <Crown className="size-3.5" />
-            </span>
-          )}
-        </div>
-
-        <div className="min-w-0 max-w-full">
-          <strong className="block truncate text-base font-bold">{member.fullName}</strong>
-          <small className="mt-0.5 block min-h-4 truncate text-xs font-semibold text-muted-foreground">{member.title}</small>
-        </div>
-
-        <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-          <Stethoscope className="size-3.5 shrink-0" />
-          <span className="truncate">{member.medicalSpecialty}</span>
-        </span>
-
-        <div className="mt-auto pt-1">
+      <div className="grid min-w-0 flex-1 gap-1.5 text-start">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <strong className="min-w-0 truncate text-[15px] leading-tight font-bold">{member.fullName}</strong>
           {member.isOwner ? (
-            <Badge className="rounded-full border border-primary/20 bg-primary px-3 py-1 text-[10px] font-bold tracking-wider text-primary-foreground uppercase [&>svg]:size-3.5!">
+            <Badge className="shrink-0 rounded-full border border-primary/20 bg-primary px-3 py-1 text-[10px] font-bold tracking-wider text-primary-foreground uppercase [&>svg]:size-3.5!">
               <BadgeCheck />
               {t('clinicDetails.owner')}
             </Badge>
           ) : (
-            <Badge className="rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+            <Badge className="shrink-0 rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
               {t('clinicDetails.member')}
             </Badge>
           )}
         </div>
+        <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+          <Stethoscope className="size-3.5 shrink-0 text-primary" />
+          <span className="break-words">{member.medicalSpecialty}</span>
+        </span>
       </div>
+
+      {isOwner && !member.isOwner && (
+        <Button
+          variant="destructive"
+          size="icon"
+          className="size-9 shrink-0 cursor-pointer self-center rounded-full border border-foreground/15 bg-foreground/10 text-foreground shadow-sm transition hover:border-[#c98a82]/50 hover:bg-[#f6e6e3] hover:text-[#b5645a] dark:hover:border-[#c98a82]/30 dark:hover:bg-[#c98a82]/15 dark:hover:text-[#d9968d]"
+          aria-label={t('clinicDetails.removeMember')}
+          disabled={removeMember.isPending}
+          onClick={() => { removeMember.reset(); setSuccess(''); setConfirmation({ type: 'remove-member', memberId: member.id, memberName: member.fullName }) }}
+        >
+          {removeMember.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <UserMinus className="size-4" />}
+        </Button>
+      )}
     </div>
   ))}
 </CardContent></Card>
@@ -514,13 +535,13 @@ export default function ClinicDetailsPage() {
               <div className="min-w-0 grid gap-5">
                 {isOwner && (
                   <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-primary/15 bg-card p-0">
-                    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                       <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                      <div className="relative flex items-center gap-3.5">
-                        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                          <MailPlus className="size-6" />
+                      <div className="relative flex items-center gap-2.5">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                          <MailPlus className="size-4.5" />
                         </span>
-                        <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.inviteTitle')}</h3>
+                        <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicDetails.inviteTitle')}</h3>
                       </div>
                     </div>
                     <CardContent className="grid gap-4 p-5">
@@ -539,20 +560,20 @@ export default function ClinicDetailsPage() {
                 {isOwner && <SecretaryInviteCard clinicId={numericClinicId} />}
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-        <Phone className="size-6" />
+    <div className="relative flex items-center gap-2.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+        <Phone className="size-4.5" />
       </span>
-      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.phones')}</h3>
+      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicDetails.phones')}</h3>
       <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">{details.data.phoneNumbers.length}/6</Badge>
     </div>
   </div>
 <CardContent className="grid gap-3 p-5">
   {details.data.phoneNumbers.length ? details.data.phoneNumbers.map((phone) => (
-    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border/60 bg-background/40 p-2 transition hover:-translate-y-0.5 has-[>a:hover]:border-primary/25 has-[>a:hover]:bg-primary/5" key={phone.id}>
-      <a className="flex min-w-0 flex-1 items-center gap-3.5 rounded-xl px-2 py-2 text-sm font-bold" href={'tel:' + phone.phoneNumber}>
+    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border/60 bg-background/40 px-2 py-1 transition hover:-translate-y-0.5 has-[>a:hover]:border-primary/25 has-[>a:hover]:bg-primary/5" key={phone.id}>
+      <a className="flex min-w-0 flex-1 items-center gap-3.5 rounded-xl px-2 py-1 text-sm font-bold" href={'tel:' + phone.phoneNumber}>
         <span className="hidden size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:grid"><Phone className="size-4" /></span>
         <span className="truncate">{phone.phoneNumber}</span>
       </a>
@@ -585,44 +606,6 @@ export default function ClinicDetailsPage() {
     </form>
   )}
 </CardContent></Card>
-
-{currentMember && <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-destructive/25 bg-card p-0">
-  <div className="relative overflow-hidden border-b border-destructive/15 bg-gradient-to-br from-destructive/15 via-destructive/[0.05] to-transparent p-5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-destructive/10 blur-2xl" />
-    <div className="relative flex items-center gap-3.5">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-destructive/10 text-destructive shadow-lg ring-4 shadow-destructive/30 ring-destructive/10">
-        <TriangleAlert className="size-6" />
-      </span>
-      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('clinicDetails.accessTitle')}</h3>
-    </div>
-  </div>
-  <CardContent className="grid gap-4 p-5">
-    <p className="text-xs leading-6 font-semibold text-muted-foreground sm:text-sm">{isOwner ? t('clinicDetails.deleteDescription') : t('clinicDetails.leaveDescription')}</p>
-    {isOwner ? (
-      <Button
-        type="button"
-        variant="destructive"
-        className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
-        disabled={deleteClinic.isPending}
-        onClick={() => { deleteClinic.reset(); setConfirmation({ type: 'delete-clinic' }) }}
-      >
-        {deleteClinic.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Trash2 />}
-        {t('clinicDetails.deleteClinic')}
-      </Button>
-    ) : (
-      <Button
-        type="button"
-        variant="destructive"
-        className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
-        disabled={leaveClinic.isPending}
-        onClick={() => { leaveClinic.reset(); setConfirmation({ type: 'leave-clinic' }) }}
-      >
-        {leaveClinic.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <ArrowLeft className="rtl:rotate-180" />}
-        {t('clinicDetails.leaveClinic')}
-      </Button>
-    )}
-  </CardContent>
-</Card>}
               </div>
             </div>
           </div>

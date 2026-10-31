@@ -37,13 +37,13 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
 
   return (
     <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-      <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+      <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
         <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-        <div className="relative flex items-center gap-3.5">
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-            <UserRoundCog className="size-6" />
+        <div className="relative flex items-center gap-2.5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+            <UserRoundCog className="size-4.5" />
           </span>
-          <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.clinic.inviteTitle')}</h3>
+          <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.clinic.inviteTitle')}</h3>
         </div>
       </div>
       <CardContent className="grid gap-4 p-5">
@@ -86,13 +86,13 @@ export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }
   return (
     <>
       <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
           <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex items-center gap-3.5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-              <UserRoundCog className="size-6" />
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+              <UserRoundCog className="size-4.5" />
             </span>
-            <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.clinic.title')}</h3>
+            <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.clinic.title')}</h3>
             <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">{secretaries.data?.length ?? 0}</Badge>
           </div>
         </div>
@@ -102,8 +102,8 @@ export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }
           {secretaries.error && <Notice message={getErrorMessage(secretaries.error)} />}
           {secretaries.isSuccess && !secretaries.data.length && <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">{t('secretary.clinic.empty')}</p>}
           {secretaries.data?.map((secretary) => (
-            <div key={secretary.id} className="group flex min-w-0 items-center gap-3 rounded-2xl border border-primary/15 bg-primary/[0.06] p-3 transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
-              <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-card bg-primary/10 text-xl font-bold text-primary shadow-md">
+            <div key={secretary.id} className="group flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-3 py-1.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md motion-reduce:transition-none">
+              <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm ring-2 ring-primary/15">
                 {secretary.profilePicture ? <img className="size-full object-cover" src={secretary.profilePicture} alt="" /> : secretary.fullName.charAt(0)}
               </span>
               <strong className="min-w-0 flex-1 truncate text-sm font-bold">{secretary.fullName}</strong>

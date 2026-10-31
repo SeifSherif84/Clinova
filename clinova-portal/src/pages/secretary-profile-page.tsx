@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { BadgeCheck, Camera, ExternalLink, FileText, LoaderCircle, LogOut, Mail, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Trash2, TriangleAlert, UserRound, X } from 'lucide-react'
+import { BadgeCheck, Camera, ChevronRight, ExternalLink, FileText, LoaderCircle, Mail, MoreHorizontal, PencilLine, Phone, RefreshCw, Save, ShieldCheck, Trash2, UserRound, X } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -10,6 +10,7 @@ import Notice from '@/components/notice'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,7 +26,7 @@ const maxImageSize = 5 * 1024 * 1024
 
 function ReadOnlyField({ icon, label, value, ltr = false }: { icon: ReactNode; label: string; value?: string | null; ltr?: boolean }) {
   return (
-    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
         {icon}
       </span>
@@ -91,7 +92,6 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
   const [isEditing, setIsEditing] = useState(false)
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
-  const [confirmLeave, setConfirmLeave] = useState(false)
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
   const [pictureFile, setPictureFile] = useState<File | null>(null)
   const [pictureModalOpen, setPictureModalOpen] = useState(false)
@@ -112,10 +112,6 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
   const upload = useMutation({
     mutationFn: (file: File) => { const body = new FormData(); body.set('ProfilePicture', file); return api.request<string>('/api/secretaries/me/profile-picture', { method: 'PATCH', body }, { notifyOnError: false }) },
     onSuccess: async () => { setPictureSuccess(t('secretary.profile.pictureSaved')); setPictureFile(null); await refresh() },
-  })
-  const leave = useMutation({
-    mutationFn: (clinicId: number) => api.request<string>(`/api/clinics/${clinicId}/secretaries/me`, { method: 'DELETE' }, { notifyOnError: false }),
-    onSuccess: async () => { setConfirmLeave(false); await queryClient.invalidateQueries({ queryKey: ['secretary'] }); navigate({ to: '/secretary/invitations' }) },
   })
   const deleteAccount = useMutation({
     mutationFn: () => api.request<string>('/api/auth/account', { method: 'DELETE' }, { notifyOnError: false }),
@@ -171,8 +167,7 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
   const initials = `${profile.firstName[0] ?? ''}${profile.lastName[0] ?? ''}`.toUpperCase()
   const errorMessage = formError || (save.error ? getErrorMessage(save.error) : '')
   const activePicture = picturePreview ?? profile.profilePicture
-  const inClinic = typeof profile.clinicId === 'number'
-  const hasSide = Boolean(profile.nationalIdImageUrl) || inClinic
+  const hasSide = Boolean(profile.nationalIdImageUrl)
   const shown = isEditing
     ? { firstName, lastName, dateOfBirth, gender }
     : { firstName: profile.firstName, lastName: profile.lastName, dateOfBirth: profile.dateOfBirth ?? '', gender: profile.gender }
@@ -180,18 +175,7 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
   return (
     <div className="min-w-0 grid gap-5">
       <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
-        <div className="pointer-events-none absolute inset-0">
-          <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
-          <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
-          <svg className="absolute inset-0 size-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="secretaryProfileGrid" width="28" height="28" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.4" fill="currentColor" className="text-primary" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#secretaryProfileGrid)" />
-          </svg>
-        </div>
+        <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
 
         <div className="relative z-10 min-w-0 grid items-center gap-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
           <Label htmlFor="secretaryProfilePicture" className="group relative mx-auto grid cursor-pointer justify-items-center gap-2 sm:mx-0" title={t('doctorProfile.pictureRules')}>
@@ -214,12 +198,66 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
             <h2 className="break-words font-sans text-3xl leading-tight font-bold sm:text-5xl">{fullName}</h2>
           </div>
 
-          {!isEditing && (
-            <Button className="mx-auto h-11 cursor-pointer self-end rounded-xl text-sm font-bold normal-case sm:mx-0" onClick={startEditing}>
-              <PencilLine />
-              {t('doctorProfile.edit')}
-            </Button>
-          )}
+          <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
+            {!isEditing && (
+              <Button className="h-10 cursor-pointer rounded-xl px-4 text-sm font-bold normal-case" onClick={startEditing}>
+                <PencilLine />
+                {t('doctorProfile.edit')}
+              </Button>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+              >
+                {deleteAccount.isPending ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={10} className="w-72 overflow-hidden rounded-2xl border border-border bg-popover p-0 shadow-2xl ring-1 ring-black/5">
+                <div className="flex items-center gap-3 border-b border-border/60 bg-gradient-to-br from-primary/10 via-primary/[0.03] to-transparent px-4 py-3.5">
+                  <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/65 text-xs font-bold text-primary-foreground">
+                    {activePicture ? <img className="size-full object-cover" src={activePicture} alt="" /> : initials}
+                  </span>
+                  <span className="grid min-w-0 gap-0.5 text-start">
+                    <strong className="truncate text-sm font-bold">{fullName}</strong>
+                    <small dir="ltr" className="truncate text-start text-[11px] font-semibold text-muted-foreground">{profile.email}</small>
+                  </span>
+                </div>
+
+                <div className="grid gap-0.5 px-1.5 py-1">
+                  <DropdownMenuItem
+                    className="group/item cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-start normal-case tracking-normal outline-none transition focus:bg-primary/8 data-[highlighted]:bg-primary/8"
+                    onClick={() => document.getElementById('secretaryProfilePicture')?.click()}
+                  >
+                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary transition group-hover/item:bg-primary/15">
+                      <Camera className="size-4" />
+                    </span>
+                    <span className="grid min-w-0 flex-1 gap-0.5">
+                      <span className="truncate text-[13px] font-semibold">{t('doctorProfile.choosePicture')}</span>
+                      <span className="text-[11px] leading-4 font-semibold text-muted-foreground">{t('secretary.profile.changePictureShort', { defaultValue: 'JPG, PNG or WebP, up to 5 MB' })}</span>
+                    </span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground/40 transition group-hover/item:text-primary rtl:rotate-180" />
+                  </DropdownMenuItem>
+                </div>
+
+                <div role="separator" className="mx-3 h-px bg-border/70" />
+
+                <div className="grid gap-0.5 px-1.5 py-1">
+                  <DropdownMenuItem
+                    className="group/item cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-start normal-case tracking-normal outline-none transition focus:bg-destructive/10 data-[highlighted]:bg-destructive/10"
+                    disabled={deleteAccount.isPending}
+                    onClick={handleDeleteAccount}
+                  >
+                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive transition group-hover/item:bg-destructive/15">
+                      <Trash2 className="size-4" />
+                    </span>
+                    <span className="grid min-w-0 flex-1 gap-0.5">
+                      <span className="truncate text-[13px] font-semibold text-destructive">{t('doctorProfile.deleteAccount')}</span>
+                      <span className="text-[11px] leading-4 font-semibold text-muted-foreground">{t('secretary.profile.deleteAccountShort')}</span>
+                    </span>
+                  </DropdownMenuItem>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {(pictureError || upload.error) && <Notice message={pictureError || getErrorMessage(upload.error)} />}
@@ -231,13 +269,13 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
       <div className={'min-w-0 grid items-start gap-5 ' + (hasSide ? 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)]' : '')}>
         <div className="min-w-0 grid content-start gap-5">
           <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
               <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-              <div className="relative flex items-center gap-3.5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                  <UserRound className="size-6" />
+              <div className="relative flex items-center gap-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                  <UserRound className="size-4.5" />
                 </span>
-                <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.profile.personalTitle')}</h3>
+                <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.profile.personalTitle')}</h3>
               </div>
             </div>
             <CardContent className="p-5">
@@ -284,62 +322,38 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
           </Card>
 
           <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
               <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-              <div className="relative flex items-center gap-3.5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                  <UserRound className="size-6" />
+              <div className="relative flex items-center gap-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                  <UserRound className="size-4.5" />
                 </span>
-                <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('doctorProfile.accountTitle')}</h3>
+                <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('doctorProfile.accountTitle')}</h3>
               </div>
             </div>
             <CardContent className="grid min-w-0 gap-3 p-5 sm:grid-cols-2">
               <ReadOnlyField icon={<Mail className="size-4" />} label={t('fields.email')} value={profile.email} ltr />
-              <ReadOnlyField icon={<Phone className="size-4" />} label={t('fields.phone')} value={profile.phoneNumber} ltr />
+              <ReadOnlyField icon={<Phone className="size-4" />} label={t('secretary.profile.phoneNumber', { defaultValue: 'Phone number' })} value={profile.phoneNumber} ltr />
             </CardContent>
           </Card>
 
-          <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-destructive/25 bg-card p-0">
-            <div className="relative overflow-hidden border-b border-destructive/15 bg-gradient-to-br from-destructive/15 via-destructive/[0.05] to-transparent p-5">
-              <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-destructive/10 blur-2xl" />
-              <div className="relative flex items-center gap-3.5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-destructive/10 text-destructive shadow-lg ring-4 shadow-destructive/30 ring-destructive/10">
-                  <TriangleAlert className="size-6" />
-                </span>
-                <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('doctorProfile.dangerTitle')}</h3>
-              </div>
-            </div>
-            <CardContent className="grid gap-4 p-5">
-              <p className="text-xs leading-6 font-medium text-muted-foreground sm:text-sm">{t('doctorProfile.deleteAccountDescription')}</p>
-              <Button
-                type="button"
-                variant="destructive"
-                className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
-                disabled={deleteAccount.isPending}
-                onClick={handleDeleteAccount}
-              >
-                {deleteAccount.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Trash2 />}
-                {t('doctorProfile.deleteAccount')}
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
         {hasSide && (
           <div className="min-w-0 grid content-start gap-5">
             {profile.nationalIdImageUrl && (
               <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                   <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                  <div className="relative flex items-center gap-3.5">
-                    <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                      <ShieldCheck className="size-6" />
+                  <div className="relative flex items-center gap-2.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                      <ShieldCheck className="size-4.5" />
                     </span>
-                    <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('doctorProfile.verificationTitle')}</h3>
+                    <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('doctorProfile.verificationTitle')}</h3>
                   </div>
                 </div>
                 <CardContent className="grid grid-cols-1 gap-3 p-5">
-                  <a className="group flex min-h-20 items-center gap-3.5 rounded-2xl border border-border bg-background/35 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg" href={profile.nationalIdImageUrl} target="_blank" rel="noreferrer">
+                  <a className="group flex items-center gap-3.5 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg" href={profile.nationalIdImageUrl} target="_blank" rel="noreferrer">
                     <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
                       <FileText className="size-5" />
                     </span>
@@ -347,33 +361,6 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
                     <ExternalLink className="size-4 shrink-0 text-muted-foreground/50 transition group-hover:text-primary" />
                   </a>
                   <p className="text-xs font-bold leading-4 text-muted-foreground">{t('doctorProfile.documentsHint')}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {inClinic && (
-              <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-destructive/25 bg-card p-0">
-                <div className="relative overflow-hidden border-b border-destructive/15 bg-gradient-to-br from-destructive/15 via-destructive/[0.05] to-transparent p-5">
-                  <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-destructive/10 blur-2xl" />
-                  <div className="relative flex items-center gap-3.5">
-                    <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-destructive/10 text-destructive shadow-lg ring-4 shadow-destructive/30 ring-destructive/10">
-                      <TriangleAlert className="size-6" />
-                    </span>
-                    <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.profile.leaveTitle')}</h3>
-                  </div>
-                </div>
-                <CardContent className="grid gap-4 p-5">
-                  <p className="text-xs leading-6 font-medium text-muted-foreground sm:text-sm">{t('secretary.profile.leaveDescription')}</p>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
-                    disabled={leave.isPending}
-                    onClick={() => { leave.reset(); setConfirmLeave(true) }}
-                  >
-                    {leave.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <LogOut className="rtl:rotate-180" />}
-                    {t('secretary.profile.leave')}
-                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -421,19 +408,6 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
           </div>
         </div>
       )}
-
-      <ConfirmationDialog
-        open={confirmLeave}
-        title={t('secretary.profile.leaveConfirmTitle')}
-        description={t('secretary.profile.leaveConfirm')}
-        confirmLabel={t('secretary.profile.leave')}
-        cancelLabel={t('invitations.keepPending')}
-        destructive
-        pending={leave.isPending}
-        error={leave.error ? getErrorMessage(leave.error) : undefined}
-        onConfirm={() => typeof profile.clinicId === 'number' && leave.mutate(profile.clinicId)}
-        onOpenChange={(open) => { if (!open && !leave.isPending) setConfirmLeave(false) }}
-      />
 
       <ConfirmationDialog
         open={deleteConfirmationOpen}

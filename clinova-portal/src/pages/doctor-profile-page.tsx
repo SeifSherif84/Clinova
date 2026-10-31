@@ -13,6 +13,7 @@ import {
   LoaderCircle,
   Mail,
   MapPin,
+  MoreHorizontal,
   PencilLine,
   Phone,
   RefreshCw,
@@ -20,7 +21,6 @@ import {
   ShieldCheck,
   Stethoscope,
   Trash2,
-  TriangleAlert,
   UserRound,
   X,
 } from "lucide-react";
@@ -40,7 +40,13 @@ import Notice from "@/components/notice";
 import PasswordField from "@/components/password-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -98,7 +104,7 @@ function ReadOnlyField({
   value?: string | null;
 }) {
   return (
-    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
         {icon}
       </span>
@@ -376,18 +382,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
         {profile.data && (
           <div className="min-w-0 grid gap-5">
             <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
-              <div className="pointer-events-none absolute inset-0">
-                <span className="absolute -top-16 -right-10 size-64 rounded-full bg-primary/10 blur-2xl" />
-                <span className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-warm/8 blur-3xl" />
-                <svg className="absolute inset-0 size-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id="profileGrid" width="28" height="28" patternUnits="userSpaceOnUse">
-                      <circle cx="2" cy="2" r="1.4" fill="currentColor" className="text-primary" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#profileGrid)" />
-                </svg>
-              </div>
+              <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
 
               <div className="relative z-10 min-w-0 grid items-center gap-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
                 <Label
@@ -429,14 +424,14 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                     {fullName}
                   </h2>
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <Badge className="max-w-full rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
-                      <Stethoscope className="size-3.5 shrink-0" />
+                    <Badge className="h-auto max-w-full rounded-full border border-primary/15 bg-primary/10 px-3.5 py-1.5 text-xs font-bold tracking-wider text-primary uppercase">
+                      <Stethoscope className="size-4 shrink-0" />
                       <span className="truncate">
                         {profile.data.medicalSpecialtyName}
                       </span>
                     </Badge>
                     <Badge
-                      className={`rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wider uppercase [&>svg]:size-3.5! ${isApproved ? "border-primary/20 bg-primary/10 text-primary" : "border-warm/20 bg-warm/10 text-warm"}`}
+                      className={`h-auto rounded-full border px-3.5 py-1.5 text-xs font-bold tracking-wider uppercase [&>svg]:size-4! ${isApproved ? "border-primary/20 bg-primary/10 text-primary" : "border-warm/20 bg-warm/10 text-warm"}`}
                     >
                       <BadgeCheck />
                       {approvalStatus}
@@ -444,15 +439,66 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                   </div>
                 </div>
 
-                {!isEditing && (
-                  <Button
-                    className="mx-auto h-11 self-end rounded-xl text-sm font-bold normal-case sm:mx-0 cursor-pointer"
-                    onClick={startEditing}
-                  >
-                    <PencilLine />
-                    {t("doctorProfile.edit")}
-                  </Button>
-                )}
+                <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
+                  {!isEditing && (
+                    <Button className="h-10 cursor-pointer rounded-xl px-4 text-sm font-bold normal-case" onClick={startEditing}>
+                      <PencilLine />
+                      {t("doctorProfile.edit")}
+                    </Button>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={<button type="button" aria-label={t("secretary.profile.moreActions")} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+                    >
+                      {deleteAccount.isPending ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" sideOffset={10} className="w-72 overflow-hidden rounded-2xl border border-border bg-popover p-0 shadow-2xl ring-1 ring-black/5">
+                      <div className="flex items-center gap-3 border-b border-border/60 bg-gradient-to-br from-primary/10 via-primary/[0.03] to-transparent px-4 py-3.5">
+                        <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/65 text-xs font-bold text-primary-foreground">
+                          {activePicture ? <img className="size-full object-cover" src={activePicture} alt="" /> : initials}
+                        </span>
+                        <span className="grid min-w-0 gap-0.5 text-start">
+                          <strong className="truncate text-sm font-bold">{fullName}</strong>
+                          <small dir="ltr" className="truncate text-start text-[11px] font-semibold text-muted-foreground">{profile.data.email}</small>
+                        </span>
+                      </div>
+
+                      <div className="grid gap-0.5 px-1.5 py-1">
+                        <DropdownMenuItem
+                          className="group/item cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-start normal-case tracking-normal outline-none transition focus:bg-primary/8 data-[highlighted]:bg-primary/8"
+                          onClick={() => document.getElementById("profilePicture")?.click()}
+                        >
+                          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary transition group-hover/item:bg-primary/15">
+                            <Camera className="size-4" />
+                          </span>
+                          <span className="grid min-w-0 flex-1 gap-0.5">
+                            <span className="truncate text-[13px] font-semibold">{t("doctorProfile.choosePicture")}</span>
+                            <span className="text-[11px] leading-4 font-semibold text-muted-foreground">{t("secretary.profile.changePictureShort", { defaultValue: "JPG, PNG or WebP, up to 5 MB" })}</span>
+                          </span>
+                          <ChevronRight className="size-4 shrink-0 text-muted-foreground/40 transition group-hover/item:text-primary rtl:rotate-180" />
+                        </DropdownMenuItem>
+                      </div>
+
+                      <div role="separator" className="mx-3 h-px bg-border/70" />
+
+                      <div className="grid gap-0.5 px-1.5 py-1">
+                        <DropdownMenuItem
+                          className="group/item cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 text-start normal-case tracking-normal outline-none transition focus:bg-destructive/10 data-[highlighted]:bg-destructive/10"
+                          disabled={deleteAccount.isPending}
+                          onClick={handleDeleteAccount}
+                        >
+                          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-destructive/10 text-destructive transition group-hover/item:bg-destructive/15">
+                            <Trash2 className="size-4" />
+                          </span>
+                          <span className="grid min-w-0 flex-1 gap-0.5">
+                            <span className="truncate text-[13px] font-semibold text-destructive">{t("doctorProfile.deleteAccount")}</span>
+                            <span className="text-[11px] leading-4 font-semibold text-muted-foreground">{t("secretary.profile.deleteAccountShort")}</span>
+                          </span>
+                        </DropdownMenuItem>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {(pictureError || updatePicture.error) && (
@@ -468,21 +514,21 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
             <div className="min-w-0 grid items-start gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)]">
               <div className="min-w-0 grid content-start gap-5">
                 <Card className="min-w-0 gap-0 overflow-visible rounded-2xl border border-border bg-card p-0">
-                  <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                  <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                        <BriefcaseMedical className="size-6" />
+                    <div className="relative flex items-center gap-2.5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <BriefcaseMedical className="size-4.5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-sans text-xl font-bold">
+                        <h3 className="truncate font-sans text-base font-bold">
                           {t("doctorProfile.professionalTitle")}
                         </h3>
-                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground sm:text-sm">
-                          {isEditing
-                            ? t("doctorProfile.editingHint")
-                            : t("doctorProfile.professionalDescription")}
-                        </p>
+                        {isEditing && (
+                          <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
+                            {t("doctorProfile.editingHint")}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -643,13 +689,13 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                 </Card>
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                        <UserRound className="size-6" />
+                    <div className="relative flex items-center gap-2.5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <UserRound className="size-4.5" />
                       </span>
-                      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">
+                      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">
                         {t("doctorProfile.accountTitle")}
                       </h3>
                     </div>
@@ -682,13 +728,13 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                 </Card>
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                        <ShieldCheck className="size-6" />
+                    <div className="relative flex items-center gap-2.5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <ShieldCheck className="size-4.5" />
                       </span>
-                      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">
+                      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">
                         {t("doctorProfile.verificationTitle")}
                       </h3>
                     </div>
@@ -696,7 +742,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                   <CardContent className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
                     <a
                     
-                      className="group flex min-h-20 items-center gap-3.5 rounded-2xl border border-border bg-background/35 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg"
+                      className="group flex items-center gap-3.5 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg"
                       href={profile.data.syndicateCardImageUrl}
                       target="_blank"
                       rel="noreferrer"
@@ -711,7 +757,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                     </a>
                     <a
                     
-                      className="group flex min-h-20 items-center gap-3.5 rounded-2xl border border-border bg-background/35 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg"
+                      className="group flex items-center gap-3.5 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg"
                       href={profile.data.nationalIdImageUrl}
                       target="_blank"
                       rel="noreferrer"
@@ -733,13 +779,13 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
 
               <div className="min-w-0 grid content-start gap-5">
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                        <Building2 className="size-6" />
+                    <div className="relative flex items-center gap-2.5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <Building2 className="size-4.5" />
                       </span>
-                      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">
+                      <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">
                         {t("doctorProfile.clinicsTitle")}
                       </h3>
                       <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">
@@ -753,7 +799,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                     )}
                     {clinics.data?.slice(0, 3).map((clinic) => (
                       <Link
-                        className="group flex items-center gap-3 rounded-2xl border border-border bg-background/35 px-4 py-3.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md"
+                        className="group flex items-center gap-3 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md"
                         key={clinic.id}
                         to="/doctor/clinics/$clinicId"
                         params={{ clinicId: String(clinic.id) }}
@@ -786,17 +832,17 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                 </Card>
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
+                  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
                     <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
-                        <KeyRound className="size-6" />
+                    <div className="relative flex items-center gap-2.5">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <KeyRound className="size-4.5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-sans text-xl font-bold">
+                        <h3 className="truncate font-sans text-base font-bold">
                           {t("doctorProfile.securityTitle")}
                         </h3>
-                        <p className="mt-0.5 text-xs leading-5 text-muted-foreground sm:text-sm">
+                        <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
                           {t("doctorProfile.securityDescription")}
                         </p>
                       </div>
@@ -871,40 +917,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </Button>
                     </form>
                   </CardContent>
-                </Card>
-                
-                              <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-destructive/25 bg-card p-0">
-                  <div className="relative overflow-hidden border-b border-destructive/15 bg-gradient-to-br from-destructive/15 via-destructive/[0.05] to-transparent p-5">
-                    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-destructive/10 blur-2xl" />
-                    <div className="relative flex items-center gap-3.5">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-destructive/10 text-destructive shadow-lg ring-4 shadow-destructive/30 ring-destructive/10">
-                        <TriangleAlert className="size-6" />
-                      </span>
-                      <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">
-                        {t("doctorProfile.dangerTitle")}
-                      </h3>
-                    </div>
-                  </div>
-                  <CardContent className="grid gap-4 p-5">
-                    <p className="text-xs leading-6 font-medium text-muted-foreground sm:text-sm">
-                      {t("doctorProfile.deleteAccountDescription")}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      className="h-11 cursor-pointer rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-bold normal-case text-destructive shadow-md shadow-destructive/25 transition-all hover:bg-destructive/15 hover:text-destructive hover:shadow-lg hover:shadow-destructive/30 disabled:cursor-not-allowed dark:shadow-none dark:hover:shadow-md dark:hover:shadow-destructive/25"
-                      disabled={deleteAccount.isPending}
-                      onClick={handleDeleteAccount}
-                    >
-                      {deleteAccount.isPending ? (
-                        <LoaderCircle className="animate-spin motion-reduce:animate-none" />
-                      ) : (
-                        <Trash2 />
-                      )}
-                      {t("doctorProfile.deleteAccount")}
-                    </Button>
-                  </CardContent>
-                </Card>
+                </Card>              
               </div>
             </div>
 

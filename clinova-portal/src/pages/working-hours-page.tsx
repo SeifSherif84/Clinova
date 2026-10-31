@@ -259,21 +259,21 @@ export default function WorkingHoursPage() {
             {success && <Notice tone="success" message={success} />}
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><Clock3 className="size-5 sm:size-6" /></span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.weeklyHours')}</small>
                   <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{t('workingHours.hoursValue', { count: Math.round((weeklyMinutes / 60) * 10) / 10 })}</strong>
                 </div>
               </Card>
               <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><CalendarClock className="size-5 sm:size-6" /></span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CalendarClock className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.activeSchedules')}</small>
                   <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{activeCount}</strong>
                 </div>
               </Card>
               <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary sm:size-12"><Building2 className="size-5 sm:size-6" /></span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Building2 className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.connectedClinics')}</small>
                   <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{clinics.data.length}</strong>
@@ -314,7 +314,7 @@ export default function WorkingHoursPage() {
                       <div className="hidden max-h-[46rem] max-w-full overflow-auto [scrollbar-width:thin] lg:block" dir="ltr">
                         <div className="min-w-[70rem]">
                           <div className="sticky top-0 z-20 grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] border-b border-border bg-card">
-                            <div className="grid min-h-20 place-items-center border-e border-border/60 bg-muted/40 text-primary"><Clock3 className="size-5" /></div>
+                            <div className="grid min-h-20 place-items-center border-e border-border/60 bg-muted/40"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span></div>
                             {orderedDays.map((day) => {
                               const isToday = day.name.toLowerCase() === todayName
                               const count = visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase()).length
@@ -322,7 +322,7 @@ export default function WorkingHoursPage() {
                                 <div className={`flex min-w-0 items-center justify-between gap-2 border-e border-border/60 px-3 py-3 last:border-e-0 ${isToday ? 'bg-primary/10' : 'bg-muted/40'}`} key={day.id}>
                                   <div className="min-w-0" dir="auto">
                                     <strong className={`block truncate text-sm font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>{dayLabel(day.name)}</strong>
-                                    <small className="mt-0.5 block text-[10px] font-medium text-muted-foreground">{count} {t('workingHours.schedules')}</small>
+                                    <small className="mt-0.5 block text-xs font-semibold text-muted-foreground">{count} {t('workingHours.schedules')}</small>
                                   </div>
                                   <Button type="button" variant="outline" size="icon" className="size-8 shrink-0 rounded-lg border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground" aria-label={t('workingHours.addForDay', { day: dayLabel(day.name) })} onClick={() => startCreating(day)}><Plus className="size-4" /></Button>
                                 </div>
@@ -331,7 +331,7 @@ export default function WorkingHoursPage() {
                           </div>
                           <div className="relative grid grid-cols-[4.5rem_repeat(7,minmax(0,1fr))]" style={{ height: calendarHeight }}>
                             <div className="relative border-e border-border/60 bg-muted/40">
-                              {calendarHours.map((hour, index) => <span className="absolute inset-x-0 translate-y-2 pe-3 text-end text-[11px] font-semibold tabular-nums text-muted-foreground" key={hour} style={{ top: index * calendarHourHeight }}>{String(hour).padStart(2, '0')}:00</span>)}
+                              {calendarHours.map((hour, index) => <span className="absolute inset-x-0 translate-y-2 pe-3 text-end text-xs font-semibold tabular-nums text-foreground/70" key={hour} style={{ top: index * calendarHourHeight }}>{String(hour).padStart(2, '0')}:00</span>)}
                             </div>
                             {orderedDays.map((day) => {
                               const dayEntries = visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase())
@@ -355,17 +355,19 @@ export default function WorkingHoursPage() {
   onClick={() => startEditing(entry)}
 >
   <span className="flex min-w-0 items-center gap-2">
-    <span className={`size-2 shrink-0 rounded-full ${entry.workingHour.isActive ? 'bg-primary shadow-[0_0_0_3px] shadow-primary/20' : 'bg-warm shadow-[0_0_0_3px] shadow-warm/20'}`} />
+    <span className="relative inline-flex aspect-square size-2 shrink-0 items-center justify-center">
+      {entry.workingHour.isActive && <span className="absolute inset-0 aspect-square animate-ping rounded-full bg-primary/50 motion-reduce:animate-none" />}
+      <span className={`aspect-square size-2 shrink-0 rounded-full ${entry.workingHour.isActive ? 'bg-primary' : 'bg-warm'}`} />
+    </span>
     <strong className="min-w-0 flex-1 truncate text-xs font-bold text-foreground" dir="auto">{entry.clinic.name}</strong>
     {!entry.workingHour.isActive && <PowerOff className="size-3 shrink-0 text-warm" />}
   </span>
   {entry.height >= 56 && (
-    <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-md bg-background/70 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-foreground/80 shadow-sm" dir="ltr">
-      <Clock3 className="size-3 shrink-0 text-primary" />
+    <span className="inline-flex w-fit max-w-full items-center rounded-md bg-background/70 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-foreground/80 shadow-sm" dir="ltr">
       <span className="truncate">{toInputTime(entry.workingHour.startTime)} - {toInputTime(entry.workingHour.endTime)}</span>
     </span>
   )}
-  {entry.height >= 80 && <span className="mt-auto flex items-center gap-1 truncate text-[10px] font-medium text-muted-foreground"><Timer className="size-3 shrink-0" />{t('workingHours.slotDuration', { count: entry.workingHour.slotDurationMinutes })}</span>}
+  {entry.height >= 80 && <span className="mt-auto flex items-center gap-1.5 truncate text-xs font-semibold text-muted-foreground"><Timer className="size-4 shrink-0" />{t('workingHours.slotDuration', { count: entry.workingHour.slotDurationMinutes })}</span>}
 </button>
                                   ))}
                                 </div>
@@ -382,7 +384,7 @@ export default function WorkingHoursPage() {
                           return (
                             <section className="overflow-hidden rounded-2xl border border-border/60 bg-background/35" key={day.id}>
                               <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-3">
-                                <div><h3 className="text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-[10px] text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
+                                <div><h3 className="text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-xs font-semibold text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
                                 <Button type="button" variant="outline" className="h-10 rounded-xl px-3 text-xs font-bold normal-case" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
                               </div>
                               <div className="grid gap-2 p-3">
@@ -416,18 +418,17 @@ export default function WorkingHoursPage() {
           toggleWorkingHour.reset()
         }
       }}>
-<DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-2xl sm:max-w-2xl">
+<DialogContent showCloseButton={false} className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-2xl sm:max-w-2xl">
   {editor && (
     <>
-      <DialogHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/15 via-primary/[0.06] to-transparent p-6 pe-16 text-start">
-        <span className="pointer-events-none absolute -end-10 -top-10 size-40 rounded-full bg-primary/10 blur-2xl" />
-        <div className="relative flex items-start gap-4">
-          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-7" /></span>
+      <DialogHeader className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 pe-14 text-start">
+        <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative flex items-center gap-2.5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span>
           <div className="min-w-0 flex-1">
-            <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal sm:text-2xl">{t(editor.mode === 'create' ? 'workingHours.newAvailability' : 'workingHours.editAvailability')}</DialogTitle>
-            <DialogDescription className="mt-1 text-start text-xs leading-6 sm:text-sm">{t('workingHours.editorDescription')}</DialogDescription>
+            <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(editor.mode === 'create' ? 'workingHours.newAvailability' : 'workingHours.editAvailability')}</DialogTitle>
+            <DialogDescription className="mt-0.5 text-start text-xs leading-5">{t('workingHours.editorDescription')}</DialogDescription>
           </div>
-
         </div>
       </DialogHeader>
 
@@ -481,7 +482,7 @@ export default function WorkingHoursPage() {
                   key={minutes}
                   aria-pressed={editor.slotDurationMinutes === String(minutes)}
                   onClick={() => updateEditor('slotDurationMinutes', String(minutes))}
-                  className={`h-10 min-w-12 cursor-pointer rounded-full border px-3.5 text-xs font-bold tabular-nums transition-all ${editor.slotDurationMinutes === String(minutes) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background/40 text-muted-foreground hover:border-primary/40 hover:text-primary'}`}
+                  className={`h-10 min-w-12 cursor-pointer rounded-full border px-3.5 text-xs font-bold tabular-nums transition-all ${editor.slotDurationMinutes === String(minutes) ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25' : 'border-border bg-background/40 text-muted-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:text-primary'}`}
                 >
                   {minutes}
                 </button>
@@ -514,7 +515,10 @@ export default function WorkingHoursPage() {
                   className={`flex h-12 items-center justify-between gap-3 rounded-xl border px-3.5 transition-colors ${selectedEntry.workingHour.isActive ? 'border-primary/20 bg-primary/5' : 'border-warm/30 bg-warm/10'}`}
                 >
                   <span className="flex min-w-0 items-center gap-2.5 text-sm font-bold">
-                    <span className={`size-2 shrink-0 rounded-full ${selectedEntry.workingHour.isActive ? 'bg-primary shadow-[0_0_0_3px] shadow-primary/20' : 'bg-warm shadow-[0_0_0_3px] shadow-warm/20'}`} />
+                    <span className="relative inline-flex aspect-square size-2 shrink-0 items-center justify-center">
+                      {selectedEntry.workingHour.isActive && <span className="absolute inset-0 aspect-square animate-ping rounded-full bg-primary/50 motion-reduce:animate-none" />}
+                      <span className={`aspect-square size-2 shrink-0 rounded-full ${selectedEntry.workingHour.isActive ? 'bg-primary' : 'bg-warm'}`} />
+                    </span>
                     <span className="truncate">{selectedEntry.workingHour.isActive ? t('workingHours.statusActive', { defaultValue: 'Active' }) : t('workingHours.statusInactive', { defaultValue: 'Inactive' })}</span>
                   </span>
                   <button
