@@ -52,14 +52,14 @@ namespace Presentation.Controllers.ClinicManualPaymentMethods
 
 
 
-        //[Authorize(Roles = "Patient")]
-        //[HttpGet("clinics/{clinicId}")]
-        //public async Task<IActionResult> GetManualPaymentMethodsForPatient([FromRoute] int clinicId)
-        //{
-        //    var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    var response = await _serviceManager.ClinicManualPaymentMethodService.GetManualPaymentMethodsForPatientAsync(userId ?? string.Empty, clinicId);
-        //    return Ok(response);
-        //}
+        [Authorize(Roles = "Patient")]
+        [HttpGet("appointments/{appointmentId}")] // https://localhost:7269/api/manual-payment-methods/appointments/1
+        public async Task<IActionResult> GetClinicManualPaymentMethodsForPatient([FromRoute] int appointmentId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ClinicManualPaymentMethodService.GetClinicManualPaymentMethodsForPatientAsync(userId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
 
 
 

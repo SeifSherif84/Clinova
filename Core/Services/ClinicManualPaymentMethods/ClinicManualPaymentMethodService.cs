@@ -8,6 +8,7 @@ using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
 using Services.Abstractions.ClinicManualPaymentMethods;
 using Services.Commen;
+using Services.Specifications.Appointments;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Shared.Dtos.ClinicManualPaymentMethods;
 using Shared.Dtos.DoctorInvitations;
@@ -46,7 +47,6 @@ namespace Services.ClinicManualPaymentMethods
 
             return "Your payment method has been added successfully.";
         }
-
 
 
         public async Task<string> UpdateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId, UpdateClinicManualPaymentMethodRequest request)
@@ -93,7 +93,6 @@ namespace Services.ClinicManualPaymentMethods
         }
 
 
-
         public async Task<string> ActivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
@@ -120,7 +119,6 @@ namespace Services.ClinicManualPaymentMethods
         }
 
 
-
         public async Task<string> DeactivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
         {
             var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
@@ -145,7 +143,6 @@ namespace Services.ClinicManualPaymentMethods
 
             return "The payment method has been deactivated successfully.";
         }
-
 
 
         public async Task<string> DeleteManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId)
@@ -182,29 +179,51 @@ namespace Services.ClinicManualPaymentMethods
 
 
 
+        public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetClinicManualPaymentMethodsForPatientAsync(string userId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
 
-        //public async Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(userId))
-        //        throw new BadRequestException("We couldn't identify your account.");
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
 
-        //    var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
-        //    if (patient is null)
-        //        throw new NotFoundException("We couldn't find your account.");
+            var appointmentSpec = AppointmentSpecifications.ByIdWithSlotAndDepositPayment(appointmentId);
 
-        //    var clinicRepo = _unitOfWork.GetRepository<Clinic, int>();
-        //    var clinic = await clinicRepo.GetByIdAsync(clinicId);
-        //    if (clinic is null)
-        //        throw new NotFoundException("The clinic you are trying to access does not exist.");
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(appointmentSpec);
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
 
-        //    var paymentMethodRepo = _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>();
-        //    var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
-        //    var paymentMethods = await paymentMethodRepo.GetAllAsync(specification);
-        //    if (!paymentMethods.Any())
-        //        return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
+            if (appointment.PatientId != userId)
+                throw new ResourceAccessDeniedException("You are not authorized to access this appointment.");
 
-        //    return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
-        //}
+            if (appointment.Status != AppointmentStatus.PendingPayment)
+                throw new BadRequestException("Manual payment methods are not available for this appointment.");
+
+            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
+                throw new BadRequestException("This appointment reservation has expired.");
+
+            if (appointment.DepositPayment is null)
+                throw new NotFoundException("The deposit payment for this appointment was not found.");
+
+            if (appointment.DepositPayment.Status != DepositPaymentStatus.Pending && appointment.DepositPayment.Status != DepositPaymentStatus.Failed)
+                throw new BadRequestException("Manual payment methods are not available for this deposit payment.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new NotFoundException("The appointment slot for this appointment was not found.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("Manual payment methods are not available for this appointment slot.");
+
+            var clinicId = appointment.AppointmentSlot.ClinicId;
+
+            var specification = ClinicManualPaymentMethodSpecifications.ActiveByClinic(clinicId);
+            var paymentMethods = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetAllAsync(specification);
+            if (!paymentMethods.Any())
+                return Enumerable.Empty<ClinicManualPaymentMethodResponseForPatient>();
+
+            return _mapper.Map<IEnumerable<ClinicManualPaymentMethodResponseForPatient>>(paymentMethods);
+        }
 
 
 

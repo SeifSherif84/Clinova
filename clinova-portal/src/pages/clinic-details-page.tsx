@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, MoreHorizontal, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, UploadCloud, UserMinus, UsersRound, WalletCards } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, MoreHorizontal, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TrendingUp, UploadCloud, UserMinus, UsersRound, WalletCards } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClinicSecretariesCard, { SecretaryInviteCard } from '@/components/clinic-secretaries-card'
@@ -298,6 +298,11 @@ export default function ClinicDetailsPage() {
         {isOwner && (
           <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}>
             <WalletCards className="size-4 text-primary" />{t('paymob.settingsTitle')}
+          </DropdownMenuItem>
+        )}
+                {isOwner && (
+          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/analytics" params={{ clinicId }} />}>
+            <TrendingUp className="size-4 text-primary" />{t('analytics.navigation')}
           </DropdownMenuItem>
         )}
         {details.data.googleMapsUrl && (

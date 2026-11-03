@@ -18,7 +18,6 @@ namespace Services.Analytics
 {
     public class DoctorAnalyticsService(IUnitOfWork _unitOfWork) : IDoctorAnalyticsService
     {
-
         public async Task<FinancialOverviewResponse> GetFinancialOverviewAsync(string doctorId, int clinicId, AnalyticsDateRangeQuery query)
         {
             await GetDoctorOwnedClinicAccessAsync(doctorId, clinicId);
@@ -208,7 +207,6 @@ namespace Services.Analytics
         }
 
 
-
         public async Task<DoctorPerformanceResponse> GetDoctorPerformanceAsync(string doctorId, int clinicId, AnalyticsDateRangeQuery query)
         {
             await GetDoctorOwnedClinicAccessAsync(doctorId, clinicId);
@@ -272,7 +270,7 @@ namespace Services.Analytics
                 return new DoctorPerformanceItemResponse
                 {
                     DoctorId = doctor.Id,
-                    DoctorName = $"{doctor.FirstName} {doctor.LastName}".Trim(),
+                    DoctorName = $"Dr. {doctor.FirstName} {doctor.LastName}".Trim(),
                     ConfirmedAppointments = doctorAppointmentsInDateRange.Count(appointment => (appointment.Status == AppointmentStatus.Confirmed)),
                     CompletedAppointments = doctorAppointmentsInDateRange.Count(appointment => (appointment.Status == AppointmentStatus.Completed)),
                     CollectedAmount = collectedAmount,
@@ -288,7 +286,6 @@ namespace Services.Analytics
                 Doctors = doctorPerformance
             };
         }
-
 
 
         private static void ValidateDateRange(AnalyticsDateRangeQuery query)
@@ -318,7 +315,5 @@ namespace Services.Analytics
             if (!doctorClinic.IsOwner)
                 throw new ResourceAccessDeniedException("Only the clinic owner can access analytics.");
         }
-
-
     }
 }

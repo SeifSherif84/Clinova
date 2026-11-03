@@ -70,5 +70,21 @@ namespace Services.Specifications.ClinicOnlinePaymentAccounts
             specifications.Includes.Add(paymentAccount => paymentAccount.PaymentIntegrations);
             return specifications;
         }
+
+
+        public static ClinicOnlinePaymentAccountSpecifications AvailableForPatientByClinic(int clinicId)
+        {
+            var specifications = new ClinicOnlinePaymentAccountSpecifications
+            {
+                Criteria = paymentAccount => paymentAccount.ClinicId == clinicId &&
+                                             paymentAccount.Provider == OnlinePaymentProvider.Paymob &&
+                                             paymentAccount.IsActive &&
+                                            (paymentAccount.Status == OnlinePaymentAccountStatus.Ready || paymentAccount.Status == OnlinePaymentAccountStatus.PendingVerification)
+            };
+
+            specifications.Includes.Add(paymentAccount => paymentAccount.PaymentIntegrations);
+
+            return specifications;
+        }
     }
 }

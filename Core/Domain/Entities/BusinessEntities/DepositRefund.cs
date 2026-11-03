@@ -28,8 +28,6 @@ namespace Domain.Entities.BusinessEntities
         public DepositRefundMethodType? MethodType { get; set; } 
 
 
-
-
         /// <summary>
         /// Paymob transaction ID of the original successful payment.
         /// </summary>

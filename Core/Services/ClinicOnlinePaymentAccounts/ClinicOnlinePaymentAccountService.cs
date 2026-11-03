@@ -9,6 +9,7 @@ using Domain.Exceptions.NotFound;
 using Services.Abstractions.ClinicOnlinePaymentAccounts;
 using Services.Abstractions.DataProtection;
 using Services.Commen;
+using Services.Specifications.Appointments;
 using Services.Specifications.ClinicManualPaymentMethods;
 using Services.Specifications.ClinicOnlinePaymentAccounts;
 using Services.Specifications.ClinicPaymentIntegrations;
@@ -148,7 +149,7 @@ namespace Services.ClinicOnlinePaymentAccounts
                 Integrations = account.PaymentIntegrations.Select(integration => new ClinicPaymentIntegrationResponse()
                 {
                     Id = integration.Id,
-                    PaymentMethod = integration.OnlinePaymentMethod.ToString(),
+                    PaymentMethod = integration.OnlinePaymentMethodType.ToString(),
                     IntegrationId = integration.IntegrationId,
                     IsActive = integration.IsActive,
                 }).ToList()
@@ -252,6 +253,58 @@ namespace Services.ClinicOnlinePaymentAccounts
         }
 
 
+        public async Task<IEnumerable<ClinicOnlinePaymentMethodResponseForPatient>> GetClinicOnlinePaymentMethodsForPatientAsync(string userId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var appointmentSpec = AppointmentSpecifications.ByIdWithSlotAndDepositPayment(appointmentId);
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(appointmentSpec);
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.PatientId != userId)
+                throw new ResourceAccessDeniedException("You are not authorized to access this appointment.");
+
+            if (appointment.Status != AppointmentStatus.PendingPayment)
+                throw new BadRequestException("Online payment methods are not available for this appointment.");
+
+            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
+                throw new BadRequestException("This appointment reservation has expired.");
+
+            if (appointment.DepositPayment is null)
+                throw new NotFoundException("The deposit payment for this appointment was not found.");
+
+            if (appointment.DepositPayment.Status is not (DepositPaymentStatus.Pending or DepositPaymentStatus.Failed))
+                throw new BadRequestException("Online payment methods are not available for this deposit payment.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new NotFoundException("The appointment slot for this appointment was not found.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("Online payment methods are not available for this appointment slot.");
+
+            var clinicId = appointment.AppointmentSlot.ClinicId;
+
+            var accountSpec = ClinicOnlinePaymentAccountSpecifications.AvailableForPatientByClinic(clinicId);
+            var paymentAccount = await _unitOfWork.GetRepository<ClinicOnlinePaymentAccount, int>().GetByIdAsync(accountSpec);
+            if (paymentAccount is null)
+                return Enumerable.Empty<ClinicOnlinePaymentMethodResponseForPatient>();
+
+            var availableOnlinePaymentMethods = paymentAccount.PaymentIntegrations.Where(integration => integration.IsActive)
+                                                                                  .Select(integration => new ClinicOnlinePaymentMethodResponseForPatient()
+                                                                                  {
+                                                                                      Id = integration.Id,
+                                                                                      OnlinePaymentMethodType = integration.OnlinePaymentMethodType.ToString()
+                                                                                  }).ToList();
+
+            return availableOnlinePaymentMethods;
+        }
+
 
         private async Task<DoctorClinicContext> GetDoctorOwnedClinicAccessAsync(string userId, int clinicId)
         {
@@ -284,7 +337,6 @@ namespace Services.ClinicOnlinePaymentAccounts
                 IsOwner = doctorClinic.IsOwner,
             };
         }
-
 
     }
 }

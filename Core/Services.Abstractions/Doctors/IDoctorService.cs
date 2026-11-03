@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Shared.Dtos.Appointments;
 using Shared.Dtos.Doctors;
+using Shared.Dtos.Patients;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +15,6 @@ namespace Services.Abstractions.Doctors
         Task<DoctorProfileResponse> GetProfileAsync(string userId);
         Task<string> UpdateProfileAsync(string userId, UpdateDoctorProfileRequest request);
         Task<string> UpdateProfilePictureAsync(string userId, UpdateDoctorProfilePictureRequest request);
+        Task<PaginatedResult<PatientDoctorResponse>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query);
     }
 }

@@ -10,9 +10,9 @@ namespace Shared.Dtos.Appointments
 {
     public class SecretaryMarkAppointmentCompletedRequest
     {
-        [Required]
         [EnumDataType(typeof(RemainingPaymentMethodType))]
-        public RemainingPaymentMethodType RemainingPaymentMethodType { get; set; }
+        public RemainingPaymentMethodType? RemainingPaymentMethodType { get; set; }
+
 
         [Range(1, int.MaxValue)]
         public int? ClinicManualPaymentMethodId { get; set; }

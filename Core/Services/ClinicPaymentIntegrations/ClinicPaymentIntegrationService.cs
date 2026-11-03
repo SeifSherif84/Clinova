@@ -40,15 +40,15 @@ namespace Services.ClinicPaymentIntegrations
                 throw new BadRequestException("The specified account is not a Paymob account.");
 
             var paymentIntegrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var existingIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(existingOnlinePaymentAccount.Id, request.PaymentMethod);
+            var existingIntegrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(existingOnlinePaymentAccount.Id, request.OnlinePaymentMethodType);
             var existingIntegration = await paymentIntegrationRepo.GetByIdAsync(existingIntegrationSpec);
 
             if (existingIntegration is not null)
-                throw new BadRequestException($"A {request.PaymentMethod} payment integration is already configured for this clinic.");
+                throw new BadRequestException($"A {request.OnlinePaymentMethodType} payment integration is already configured for this clinic.");
 
             var paymentIntegration = new ClinicPaymentIntegration
             {
-                OnlinePaymentMethod = request.PaymentMethod,
+                OnlinePaymentMethodType = request.OnlinePaymentMethodType,
                 IntegrationId = request.IntegrationId,
                 IsActive = true,
                 ClinicOnlinePaymentAccount = existingOnlinePaymentAccount
@@ -60,7 +60,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to add the Paymob payment integration.");
 
-            return $"A {request.PaymentMethod} payment integration is configured for this Paymob account.";
+            return $"A {request.OnlinePaymentMethodType} payment integration is configured for this Paymob account.";
         }
 
         public async Task<string> UpdatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId, UpdateClinicPaymentIntegrationRequest request)
@@ -83,7 +83,7 @@ namespace Services.ClinicPaymentIntegrations
                 throw new BadRequestException("The specified payment integration does not belong to this clinic.");
 
             if (existingIntegration.IntegrationId == request.IntegrationId)
-                return $"The {existingIntegration.OnlinePaymentMethod} payment integration is already configured with the this integration ID.";
+                return $"The {existingIntegration.OnlinePaymentMethodType} payment integration is already configured with the this integration ID.";
 
             existingIntegration.IntegrationId = request.IntegrationId;
             if(existingIntegration.ClinicOnlinePaymentAccount.Status != OnlinePaymentAccountStatus.PendingVerification)
@@ -94,7 +94,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to update the Paymob payment integration.");
 
-            return $"The {existingIntegration.OnlinePaymentMethod} payment integration has been updated successfully.";
+            return $"The {existingIntegration.OnlinePaymentMethodType} payment integration has been updated successfully.";
         }
 
         public async Task<string> DeletePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
@@ -121,7 +121,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to delete the Paymob payment integration.");
 
-            return $"The {existingIntegration.OnlinePaymentMethod} payment integration has been deleted successfully.";
+            return $"The {existingIntegration.OnlinePaymentMethodType} payment integration has been deleted successfully.";
         }
 
         public async Task<string> ActivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
@@ -154,7 +154,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to activate the Paymob payment integration.");
 
-            return $"The {existingIntegration.OnlinePaymentMethod} payment integration has been activated successfully.";
+            return $"The {existingIntegration.OnlinePaymentMethodType} payment integration has been activated successfully.";
         }
 
         public async Task<string> DeactivatePaymentIntegrationAsync(string userId, int integrationId, int accountId, int clinicId)
@@ -184,7 +184,7 @@ namespace Services.ClinicPaymentIntegrations
             if (result == 0)
                 throw new InternalServerErrorException("Failed to deactivate the Paymob payment integration.");
 
-            return $"The {existingIntegration.OnlinePaymentMethod} payment integration has been deactivated successfully.";
+            return $"The {existingIntegration.OnlinePaymentMethodType} payment integration has been deactivated successfully.";
         }
 
 

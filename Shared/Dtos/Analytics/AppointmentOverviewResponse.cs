@@ -14,5 +14,4 @@ namespace Shared.Dtos.Analytics
         public int NoShowAppointments { get; set; }
         public int PendingVerificationAppointments { get; set; }
     }
-
 }

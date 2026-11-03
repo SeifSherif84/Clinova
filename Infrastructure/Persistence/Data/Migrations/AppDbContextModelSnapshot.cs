@@ -290,13 +290,13 @@ namespace Persistence.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("OnlinePaymentMethod")
+                    b.Property<string>("OnlinePaymentMethodType")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClinicOnlinePaymentAccountId", "OnlinePaymentMethod")
+                    b.HasIndex("ClinicOnlinePaymentAccountId", "OnlinePaymentMethodType")
                         .IsUnique();
 
                     b.ToTable("ClinicPaymentIntegrations");

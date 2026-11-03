@@ -40,6 +40,15 @@ namespace Services.AutoMapping.Doctors
                 .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<ClinicMemberResponseForSecretary>(_configuration)))
                 .ForMember(dest => dest.MedicalSpecialty, config => config.MapFrom(src => src.MedicalSpecialty.Name))
                 .ForMember(dest => dest.IsOwner, config => config.MapFrom(src => src.DoctorClinics.FirstOrDefault().IsOwner));
+
+
+            CreateMap<Doctor, PatientDoctorResponse>()
+                .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => $"Dr. {src.FirstName} {src.LastName}"))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.ExperienceYears, opt => opt.MapFrom(src => src.ExperienceYears))
+                .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio))
+                .ForMember(dest => dest.MedicalSpecialtyName, opt => opt.MapFrom(src => src.MedicalSpecialty.Name));
         }
     }
 }

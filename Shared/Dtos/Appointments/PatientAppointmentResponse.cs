@@ -11,16 +11,27 @@ namespace Shared.Dtos.Appointments
     {
         public int AppointmentId { get; set; }
 
+        // Doctor & Clinic
         public string DoctorName { get; set; } = null!;
         public string ClinicName { get; set; } = null!;
 
-        public DateOnly AppointmentSlotDate { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        // Appointment Slot
+        public DateOnly SlotDate { get; set; }
+        public TimeOnly SlotStartTime { get; set; }
+        public TimeOnly SlotEndTime { get; set; }
 
+        // Appointment Status
         public string AppointmentStatus { get; set; } = null!;
-        public string PaymentStatus { get; set; } = null!;
 
-        public DateTime ReservationExpiresAt { get; set; }
+        // Deposit Payment
+        public decimal DepositAmount { get; set; }
+        public string DepositPaymentStatus { get; set; } = null!;
+
+        // Refund
+        public string? DepositRefundStatus { get; set; }
+        public decimal? RequestedDepositRefundAmount { get; set; }
+
+        // Reservation
+        public DateTime? ReservationExpiresAt { get; set; }
     }
 }

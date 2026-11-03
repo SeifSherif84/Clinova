@@ -29,5 +29,7 @@ namespace Services.Abstractions.Clinics
         Task<string> SecretaryLeaveClinicAsync(string userId, int clinicId);
         Task<IEnumerable<ClinicSecretaryResponse>> GetClinicSecretariesForDoctorAsync(string userId, int clinicId);
 
+        Task<IEnumerable<DoctorClinicForPatientResponse>> GetDoctorClinicsForPatientAsync(string userId, string doctorId);
+        Task<ClinicDetailsResponse> GetDoctorClinicDetailsForPatientAsync(string userId, int clinicId, string doctorId);
     }
 }

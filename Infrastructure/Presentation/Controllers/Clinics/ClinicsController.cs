@@ -220,5 +220,26 @@ namespace Presentation.Controllers.Clinics
             return Ok(response);
         }
 
+
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("doctors/{doctorId}")] // Get api/clinics/doctors/{doctorId}
+        public async Task<IActionResult> GetDoctorClinics(string doctorId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.ClinicService.GetDoctorClinicsForPatientAsync(userId ?? string.Empty, doctorId);
+            return Ok(result);
+        }
+
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("{clinicId}/doctors/{doctorId}")]
+        public async Task<IActionResult> GetDoctorClinicDetailsForPatient(int clinicId, string doctorId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.ClinicService.GetDoctorClinicDetailsForPatientAsync(userId ?? string.Empty, clinicId, doctorId);
+            return Ok(result);
+        }
+
     }
 }

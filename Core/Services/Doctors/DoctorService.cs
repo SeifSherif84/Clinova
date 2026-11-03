@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Services.Abstractions.Doctors;
 using Services.FileStorage;
 using Services.Specifications.Doctors;
+using Shared.Dtos.Appointments;
 using Shared.Dtos.Doctors;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,56 @@ namespace Services.Doctors
     public class DoctorService(IUnitOfWork _unitOfWork,
                                IMapper _mapper) : IDoctorService
     {
+        public async Task<PaginatedResult<PatientDoctorResponse>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100);
+
+            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim();
+            var medicalSpecialtyId = query.MedicalSpecialtyId;
+            var governorateId = query.GovernorateId;
+            var regionId = query.RegionId;
+
+            var countSpecification = DoctorSpecifications.GetDoctorsForPatient(doctorName,
+                                                                               medicalSpecialtyId,
+                                                                               governorateId,
+                                                                               regionId,
+                                                                               pageIndex,
+                                                                               pageSize,
+                                                                               applyPagination: false);
+
+            var doctorRepo = _unitOfWork.GetRepository<Doctor, string>();
+            var totalCount = await doctorRepo.CountAsync(countSpecification);
+
+            var dataSpecification = DoctorSpecifications.GetDoctorsForPatient(doctorName,
+                                                                              medicalSpecialtyId,
+                                                                              governorateId,
+                                                                              regionId,
+                                                                              pageIndex,
+                                                                              pageSize,
+                                                                              applyPagination: true);
+
+            var doctors = await doctorRepo.GetAllAsync(dataSpecification);
+
+            var items = _mapper.Map<List<PatientDoctorResponse>>(doctors);
+
+            return new PaginatedResult<PatientDoctorResponse>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = items
+            };
+        }
+
         public async Task<DoctorProfileResponse> GetProfileAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -35,7 +86,6 @@ namespace Services.Doctors
             var doctorResponse = _mapper.Map<DoctorProfileResponse>(doctor);
             return doctorResponse;
         }
-
 
 
         public async Task<string> UpdateProfileAsync(string userId, UpdateDoctorProfileRequest request)
@@ -74,7 +124,6 @@ namespace Services.Doctors
 
             return "Your profile has been updated successfully.";
         }
-
 
 
         public async Task<string> UpdateProfilePictureAsync(string userId, UpdateDoctorProfilePictureRequest request)

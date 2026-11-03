@@ -24,6 +24,7 @@ namespace Presentation.Controllers.Analytics
             return Ok(response);
         }
 
+
         [HttpGet("clinics/{clinicId}/appointment-overview")] // https://localhost:7269/api/doctor-analytics/clinics/2/appointment-overview?fromDate=2023-01-01&toDate=2023-12-31
         public async Task<IActionResult> GetAppointmentOverview([FromRoute] int clinicId, [FromQuery] AnalyticsDateRangeQuery query)
         {
@@ -31,6 +32,7 @@ namespace Presentation.Controllers.Analytics
             var response = await _serviceManager.DoctorAnalyticsService.GetAppointmentOverviewAsync(userId ?? string.Empty, clinicId, query);
             return Ok(response);
         }
+
 
         [HttpGet("clinics/{clinicId}/doctor-performance-overview")] // https://localhost:7269/api/doctor-analytics/clinics/2/doctor-performance-overview?fromDate=2023-01-01&toDate=2023-12-31
         public async Task<IActionResult> GetDoctorPerformance([FromRoute] int clinicId, [FromQuery] AnalyticsDateRangeQuery query)

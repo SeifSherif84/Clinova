@@ -15,5 +15,6 @@ namespace Services.Abstractions.ClinicOnlinePaymentAccounts
         Task<string> DeletePaymentAccountAsync(string userId, int accountId, int clinicId);
         Task<string> ActivatePaymentAccountAsync(string userId, int accountId, int clinicId);
         Task<string> DeactivatePaymentAccountAsync(string userId, int accountId, int clinicId);
+        Task<IEnumerable<ClinicOnlinePaymentMethodResponseForPatient>> GetClinicOnlinePaymentMethodsForPatientAsync(string userId, int appointmentId);
     }
 }

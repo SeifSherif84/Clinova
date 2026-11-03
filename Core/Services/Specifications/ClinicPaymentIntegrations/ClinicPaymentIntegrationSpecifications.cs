@@ -15,12 +15,12 @@ namespace Services.Specifications.ClinicPaymentIntegrations
 
         }
 
-        public static ClinicPaymentIntegrationSpecifications ByAccountAndPaymentMethod(int accountId, OnlinePaymentMethod paymentMethod)
+        public static ClinicPaymentIntegrationSpecifications ByAccountAndPaymentMethod(int accountId, OnlinePaymentMethodType OnlinePaymentMethodType)
         {
             return new ClinicPaymentIntegrationSpecifications()
             {
                 Criteria = paymentIntegration => paymentIntegration.ClinicOnlinePaymentAccountId == accountId &&
-                                                 paymentIntegration.OnlinePaymentMethod == paymentMethod,
+                                                 paymentIntegration.OnlinePaymentMethodType == OnlinePaymentMethodType,
             };
         }
 

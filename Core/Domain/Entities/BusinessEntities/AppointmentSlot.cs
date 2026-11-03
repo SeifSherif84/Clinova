@@ -20,7 +20,7 @@ namespace Domain.Entities.BusinessEntities
 
 
         // Snapshot of the doctor and clinic this slot belongs to.
-        // These values remain available even after the WorkingHour is deleted.
+        // These values remain available even after the WorkingHour is deleted in case when WorkingHour is deleted or deactivated, the booked and reserved can't deleted then we want to keep the doctor and clinic information for the booked and reserved slots after deletion of the WorkingHour.
         public string DoctorId { get; set; } = null!;
         public Doctor Doctor { get; set; } = null!;
 

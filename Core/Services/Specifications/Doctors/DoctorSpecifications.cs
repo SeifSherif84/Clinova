@@ -1,4 +1,6 @@
 ﻿using Domain.Entities.BusinessEntities;
+using Domain.Entities.Enums;
+using Microsoft.EntityFrameworkCore;
 using Services.Clinics;
 using System;
 using System.Collections.Generic;
@@ -10,6 +12,12 @@ namespace Services.Specifications.Doctors
 {
     public class DoctorSpecifications : BaseSpecifications<Doctor, string>
     {
+        public DoctorSpecifications()
+        {
+            
+        }
+
+
         // constructor to get doctor by id and include medical specialty
         public DoctorSpecifications(string doctorId) : base()
         {
@@ -47,6 +55,44 @@ namespace Services.Specifications.Doctors
         {
             ApplyIncludes();
             Includes.Add(doctor => doctor.DoctorClinics.Where(dc => dc.ClinicId == clinicId));
+        }
+
+
+        public static DoctorSpecifications GetDoctorsForPatient(string? doctorName,
+                                                                int? medicalSpecialtyId,
+                                                                int? governorateId,
+                                                                int? regionId,
+                                                                int pageIndex,
+                                                                int pageSize,
+                                                                bool applyPagination)
+        {
+            var specification = new DoctorSpecifications()
+            {
+                Criteria = doctor => doctor.ApprovalStatus == DoctorApprovalStatus.Approved &&
+
+                doctor.DoctorClinics.Any(dc => !dc.Clinic.IsDeleted) &&
+
+                (doctorName == null || EF.Functions.Like(doctor.FirstName + " " + doctor.LastName,
+                                                         $"%{doctorName}%")) &&
+
+                (!medicalSpecialtyId.HasValue || doctor.MedicalSpecialtyId == medicalSpecialtyId.Value) &&
+
+                (!governorateId.HasValue || doctor.DoctorClinics.Any(dc => !dc.Clinic.IsDeleted && dc.Clinic.Region.GovernorateId == governorateId.Value)) &&
+                (!regionId.HasValue || doctor.DoctorClinics.Any(dc => !dc.Clinic.IsDeleted && dc.Clinic.RegionId == regionId.Value))
+            };
+
+            specification.OrderBy = doctor => doctor.FirstName;
+            specification.ThenBy = doctor => doctor.LastName;
+
+            if (applyPagination)
+            {
+                specification.IsPaginationEnabled = true;
+                specification.Skip = (pageIndex - 1) * pageSize;
+                specification.Take = pageSize;
+                specification.Includes.Add(doctor => doctor.MedicalSpecialty);
+            }
+
+            return specification;
         }
     }
 }

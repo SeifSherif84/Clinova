@@ -263,6 +263,16 @@ const paymobTutorialRoute = createRoute({
   component: lazyRouteComponent(() => import('@/pages/paymob-tutorial-page')),
 })
 
+const clinicAnalyticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/clinics/$clinicId/analytics',
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: location.pathname } })
+    requireDoctor(context)
+  },
+  component: lazyRouteComponent(() => import('@/pages/clinic-analytics-page')),
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -295,6 +305,7 @@ const routeTree = rootRoute.addChildren([
   managePaymobRoute,
   paymobHelpRoute,
   paymobTutorialRoute,
+  clinicAnalyticsRoute,
 ])
 
 export const router = createRouter({

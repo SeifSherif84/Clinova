@@ -12,7 +12,7 @@ namespace Domain.Entities.BusinessEntities
     {
         public OnlinePaymentProvider Provider { get; set; }
 
-        public OnlinePaymentAccountStatus Status { get; set; } = OnlinePaymentAccountStatus.NotConfigured;
+        public OnlinePaymentAccountStatus Status { get; set; }
 
         public PaymentConfigurationIssueCode? LastConfigurationIssueCode { get; set; }
         public DateTime? LastConfigurationIssueAt { get; set; }

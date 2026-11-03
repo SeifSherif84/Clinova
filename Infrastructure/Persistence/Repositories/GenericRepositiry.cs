@@ -43,9 +43,7 @@ namespace Persistence.Repositories
             _context.Set<TEntity>().Remove(entity);
         }
 
-
-        
-
+       
 
         public async Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications)
         {

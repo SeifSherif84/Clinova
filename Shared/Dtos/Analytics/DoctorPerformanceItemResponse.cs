@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos.Analytics
 {
-
     public class DoctorPerformanceItemResponse
     {
         public string DoctorId { get; set; } = null!;
@@ -16,5 +15,4 @@ namespace Shared.Dtos.Analytics
         public decimal CollectedAmount { get; set; }
         public decimal ExpectedAmount { get; set; }
     }
-
 }

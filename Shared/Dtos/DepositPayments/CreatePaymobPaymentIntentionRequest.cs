@@ -11,6 +11,7 @@ namespace Shared.Dtos.DepositPayments
     public class CreatePaymobPaymentIntentionRequest
     {
         [Required]
-        public OnlinePaymentMethod PaymentMethod { get; set; }
+        [Range(1, int.MaxValue)]
+        public int ClinicPaymentIntegrationId { get; set; }
     }
 }

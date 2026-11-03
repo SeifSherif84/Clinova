@@ -43,7 +43,7 @@ namespace Services.Appointments
     {
         private readonly CancellationPolicySettings _cancellationPolicy = _cancellationPolicyOptions.Value;
 
-
+        // Patient Appointment Functions 
         public async Task<string> PatientCreateAppointmentAsync(string userId, int appointmentSlotId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -74,7 +74,6 @@ namespace Services.Appointments
             var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time"));
             if (slotDateTime <= nowInEgypt)
                 throw new BadRequestException("You cannot book a past appointment slot.");
-
 
             var doctorClinicAccess = await GetDoctorClinicAccessAsync(slot.DoctorId, slot.ClinicId);
 
@@ -172,41 +171,111 @@ namespace Services.Appointments
                 throw new NotFoundException("The appointment was not found.");
 
             if (appointment.PatientId != userId)
-                throw new ResourceAccessDeniedException("You are not authorized to get this appointment.");
+                throw new ResourceAccessDeniedException("You are not authorized to view this appointment.");
 
             return _mapper.Map<PatientAppointmentDetailsResponse>(appointment);
         }
 
 
-
-
-        private static bool IsFullRefundEligible(Appointment appointment)
+        public async Task<string> PatientSubmitManualDepositPaymentProofAsync(string userId, int appointmentId, SubmitManualDepositPaymentProofRequest request)
         {
-            var nowUtc = DateTime.UtcNow;
-            if (appointment.BookingCancellationGracePeriodMinutes.HasValue)
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.PatientId != userId)
+                throw new ResourceAccessDeniedException("You are not allowed to submit payment for this appointment.");
+
+            if (appointment.Status != AppointmentStatus.PendingPayment)
+                throw new BadRequestException("Payment proof can only be submitted for appointments awaiting payment.");
+
+            if (appointment.DepositPayment is null)
+                throw new BadRequestException("Payment information for this appointment was not found.");
+
+            if (appointment.DepositPayment.Status != DepositPaymentStatus.Pending && appointment.DepositPayment.Status != DepositPaymentStatus.Failed)
+                throw new BadRequestException("Payment proof can only be submitted when the payment is pending or failed.");
+
+            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
+                throw new BadRequestException("This reservation has expired. Please book another available slot.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new NotFoundException("The appointment slot associated with this appointment was not found.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("The appointment slot is no longer reserved. Please book another available slot.");
+
+            var manualPaymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId);
+
+            if (manualPaymentMethod is null)
+                throw new NotFoundException("The selected payment method was not found.");
+
+            if (!manualPaymentMethod.IsActive)
+                throw new BadRequestException("The selected payment method is no longer active.");
+
+            if (manualPaymentMethod.ClinicId != appointment.AppointmentSlot.ClinicId)
+                throw new BadRequestException("The selected payment method does not belong to this appointment's clinic.");
+
+            if (request.TransactionReference is not null)
+                request.TransactionReference = request.TransactionReference.Trim();
+
+            string? uploadedFileName = null;
+            try
             {
-                var bookingGracePeriodEndsAtUtc = appointment.BookingDate.AddMinutes(appointment.BookingCancellationGracePeriodMinutes.Value);
-                if (nowUtc <= bookingGracePeriodEndsAtUtc)
-                    return true;
+                uploadedFileName = await FileStorageHandler.UploadAsync(request.PaymentProof, "manualpaymentproofs");
+                appointment.DepositPayment.ManualProofUrl = uploadedFileName;
+                appointment.DepositPayment.ClinicManualPaymentMethodId = manualPaymentMethod.Id;
+                appointment.DepositPayment.MethodType = DepositPaymentMethodType.ManualTransfer;
+                appointment.DepositPayment.TransactionReference = request.TransactionReference;
+                appointment.DepositPayment.Status = DepositPaymentStatus.PendingVerification;
+                appointment.Status = AppointmentStatus.PendingVerification;
+
+
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result == 0)
+                    throw new InternalServerErrorException("We couldn't submit your payment proof right now. Please try again later.");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!string.IsNullOrWhiteSpace(uploadedFileName))
+                    FileStorageHandler.Delete(uploadedFileName, "manualpaymentproofs");
+
+                throw new BadRequestException("This appointment or payment has changed. Please refresh and try again.");
+            }
+            catch
+            {
+                if (!string.IsNullOrWhiteSpace(uploadedFileName))
+                    FileStorageHandler.Delete(uploadedFileName, "manualpaymentproofs");
+
+                throw;
             }
 
-            if (!appointment.FullRefundCancellationWindowMinutes.HasValue)
-                return false;
 
-            var appointmentStartUtc = GetAppointmentStartUtc(appointment);
-            var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes.Value);
-            return nowUtc <= fullRefundDeadlineUtc;
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+            foreach (var secretary in secretaries)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    secretary.Id,
+                    "Payment Proof Submitted",
+                    $"Payment proof has been submitted for appointment #{appointment.Id}. Please review and verify the payment.",
+                    NotificationType.ManualPaymentSubmitted);
+            }
+
+            return "Your payment proof has been submitted successfully and is waiting for clinic verification.";
         }
-
-
-        private static DateTime GetAppointmentStartUtc(Appointment appointment)
-        {
-            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
-            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-        }
-
-
 
 
         public CancellationPolicyResponse GetCancellationPolicy()
@@ -225,341 +294,6 @@ namespace Services.Appointments
             };
 
             return response;
-        }
-
-        private static string FormatDuration(int minutes)
-        {
-            if (minutes < 60)
-                return $"{minutes} minutes";
-
-            var hours = minutes / 60;
-            var remainingMinutes = minutes % 60;
-
-            if (remainingMinutes == 0)
-                return hours == 1 ?
-                       "1 hour" :
-                       $"{hours} hours";
-
-            return hours == 1 ? 
-                   $"1 hour and {remainingMinutes} minutes" : 
-                   $"{hours} hours and {remainingMinutes} minutes";
-        }
-
-
-
-
-        public async Task ExpirePendingAppointmentsAsync()
-        {
-            var now = DateTime.UtcNow;
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var specification = AppointmentSpecifications.GetExpiredPendingPaymentAppointments(now);
-            var appointments = await appointmentRepo.GetAllAsync(specification);
-
-            if (!appointments.Any())
-                return;
-
-            foreach (var appointment in appointments)
-            {
-                appointment.Status = AppointmentStatus.Expired;
-
-                if (appointment.DepositPayment.Status is DepositPaymentStatus.Pending or DepositPaymentStatus.Failed)
-                    appointment.DepositPayment.Status = DepositPaymentStatus.Expired;
-
-                if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
-                    appointment.AppointmentSlot.Status = SlotStatus.Available;
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-
-            foreach (var appointment in appointments)
-            {
-                if (appointment.PatientId is not null)
-                {
-                    await _notificationService.CreateAndSendAsync(
-                        appointment.PatientId,
-                        "Appointment Expired",
-                        $"Your appointment reservation #{appointment.Id} has expired because the payment was not completed in time.",
-                        NotificationType.AppointmentExpired);
-                }
-            }
-        }
-
-
-
-
-        //public async Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(string doctorId, int appointmentId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(doctorId))
-        //        throw new BadRequestException("We couldn't identify your account.");
-
-        //    var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorId);
-        //    if (doctor is null)
-        //        throw new NotFoundException("We couldn't find your account.");
-
-
-        //    var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-        //    var appointmentSpec =AppointmentSpecifications.ForCancellation(appointmentId);
-        //    var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-        //    if (appointment is null)
-        //        throw new NotFoundException("The appointment was not found.");
-
-
-        //    // ---------------------------------------------------------
-        //    // Verify that this appointment belongs to this doctor
-        //    // ---------------------------------------------------------
-
-        //    if (appointment.AppointmentSlot.DoctorId != doctorId)
-        //        throw new ResourceAccessDeniedException(
-        //            "You are not authorized to cancel this appointment.");
-
-
-        //    var clinicId = appointment.AppointmentSlot.ClinicId;
-        //    var doctorClinicRepo = _unitOfWork.GetRepository<DoctorClinic>();
-        //    var doctorClinic = await doctorClinicRepo.GetByCompositeKeyAsync(doctorId, clinicId);
-        //    if (doctorClinic is null)
-        //    {
-        //        throw new ForbiddenException(
-        //            "You are no longer a member of this clinic and are not authorized to cancel this appointment.");
-        //    }
-
-
-
-        //    // ---------------------------------------------------------
-        //    // Doctor can only cancel a confirmed appointment.
-        //    //
-        //    // PendingPayment appointments are intentionally ignored.
-        //    // They are not real confirmed bookings yet.
-        //    // ---------------------------------------------------------
-
-        //    if (appointment.Status != AppointmentStatus.Confirmed)
-        //        throw new BadRequestException(
-        //            "Only confirmed appointments can be cancelled by the doctor.");
-
-
-        //    // ---------------------------------------------------------
-        //    // Payment must actually be completed.
-        //    // ---------------------------------------------------------
-
-        //    var payment = appointment.Payment;
-
-        //    if (payment is null)
-        //        throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
-
-
-        //    if (payment.Status != PaymentStatus.Paid)
-        //        throw new BadRequestException("Only appointments with a completed payment can be cancelled by the doctor.");
-
-
-        //    // ---------------------------------------------------------
-        //    // Slot must be booked.
-        //    // ---------------------------------------------------------
-
-        //    if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
-        //        throw new BadRequestException("The appointment slot is not currently booked.");
-
-
-        //    // ---------------------------------------------------------
-        //    // Cancel Appointment
-        //    // ---------------------------------------------------------
-
-        //    appointment.Status = AppointmentStatus.Cancelled;
-
-
-        //    // ---------------------------------------------------------
-        //    // Release booked slot
-        //    // ---------------------------------------------------------
-
-        //    appointment.AppointmentSlot.Status = SlotStatus.Available;
-
-
-        //    // ---------------------------------------------------------
-        //    // Save cancellation first.
-        //    //
-        //    // Payment remains Paid at this point.
-        //    // RefundService will change it to Refunded only
-        //    // after Paymob confirms the refund.
-        //    // ---------------------------------------------------------
-
-        //    try
-        //    {
-        //        var result = await _unitOfWork.SaveChangesAsync();
-
-        //        if (result == 0)
-        //        {
-        //            throw new InternalServerErrorException(
-        //                "We couldn't cancel the appointment right now. Please try again later.");
-        //        }
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        throw new BadRequestException(
-        //            "This appointment was modified by another operation. Please refresh and try again.");
-        //    }
-
-
-        //    // ---------------------------------------------------------
-        //    // Clinic cancellation always gets a full refund.
-        //    //
-        //    // Unlike patient cancellation, we do NOT check:
-        //    // - 10-minute booking grace period
-        //    // - 2-hour cancellation window
-        //    //
-        //    // Clinic/Doctor cancellation = full deposit refund.
-        //    // ---------------------------------------------------------
-
-        //    var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.ClinicCancellation);
-
-
-        //    // ---------------------------------------------------------
-        //    // Refund successfully processed
-        //    // ---------------------------------------------------------
-
-        //    if (refundResult.Succeeded)
-        //    {
-        //        return new CancelAppointmentResponse
-        //        {
-        //            AppointmentId = appointment.Id,
-        //            AppointmentStatus = appointment.Status.ToString(),
-        //            RefundEligible = true,
-        //            RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
-        //            RefundStatus = RefundStatus.Succeeded.ToString(),
-        //            RefundAmount = appointment.DepositAmount,
-        //            Message = "The appointment has been cancelled and the patient's deposit refund has been processed successfully."
-        //        };
-        //    }
-
-
-        //    // ---------------------------------------------------------
-        //    // Refund result is uncertain.
-        //    // ---------------------------------------------------------
-
-        //    if (refundResult.PendingVerification)
-        //    {
-        //        return new CancelAppointmentResponse
-        //        {
-        //            AppointmentId = appointment.Id,
-        //            AppointmentStatus = appointment.Status.ToString(),
-        //            RefundEligible = true,
-        //            RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
-        //            RefundStatus = RefundStatus.PendingVerification.ToString(),
-        //            RefundAmount = appointment.DepositAmount,
-        //            Message = "The appointment has been cancelled. The patient's refund is being processed and will be confirmed shortly."
-        //        };
-        //    }
-
-
-        //    // ---------------------------------------------------------
-        //    // Paymob definitely rejected the refund.
-        //    // ---------------------------------------------------------
-
-        //    return new CancelAppointmentResponse
-        //    {
-        //        AppointmentId = appointment.Id,
-        //        AppointmentStatus = appointment.Status.ToString(),
-        //        RefundEligible = true,
-        //        RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
-        //        RefundStatus = RefundStatus.Failed.ToString(),
-        //        RefundAmount = appointment.DepositAmount,
-        //        Message = "The appointment has been cancelled, but we could not process the patient's refund at this time. The refund will be retried after verification."
-        //    };
-        //}
-
-
-
-
-
-        public async Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, SecretaryAppointmentQuery query)
-        {
-            if (string.IsNullOrWhiteSpace(secretaryId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-
-            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
-            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
-            if (secretary is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            if (secretary.ClinicId is null)
-                throw new BadRequestException("You are not associated with any clinic.");
-            int clinicId = secretary.ClinicId.Value;
-
-
-            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
-            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); 
-
-
-            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); 
-            var patientSearch = string.IsNullOrWhiteSpace(query.PatientSearch) ? null : query.PatientSearch.Trim();
-
-
-            var countSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
-                                                                                  doctorName,
-                                                                                  patientSearch,
-                                                                                  query.SlotDate,
-                                                                                  query.AppointmentStatus,
-                                                                                  query.DepositPaymentStatus,
-                                                                                  pageIndex,
-                                                                                  pageSize,
-                                                                                  applyPagination: false);
-
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-
-            var totalCount = await appointmentRepo.CountAsync(countSpecification);
-
-
-            var dataSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
-                                                                                 doctorName,
-                                                                                 patientSearch,
-                                                                                 query.SlotDate,
-                                                                                 query.AppointmentStatus,
-                                                                                 query.DepositPaymentStatus,
-                                                                                 pageIndex,
-                                                                                 pageSize,
-                                                                                 applyPagination: true);
-
-
-            var appointments = await appointmentRepo.GetAllAsync(dataSpecification);
-
-            var items = _mapper.Map<List<SecretaryAppointmentResponse>>(appointments);
-
-            return new PaginatedResult<SecretaryAppointmentResponse>
-            {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                TotalCount = totalCount,
-                Items = items
-            };
-        }
-
-
-        public async Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId)
-        {
-            if (string.IsNullOrWhiteSpace(secretaryId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-
-            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
-            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
-            if (secretary is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            if (secretary.ClinicId is null)
-                throw new BadRequestException("You are not associated with any clinic.");
-
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = AppointmentSpecifications.ByIdWithDetailsForSecretary(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-
-            if (appointment is null)
-                throw new NotFoundException("The appointment was not found.");
-
-            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
-                throw new ResourceAccessDeniedException("You are not authorized to view this appointment.");
-
-
-            return _mapper.Map<SecretaryAppointmentDetailsResponse>(appointment);
         }
 
 
@@ -584,6 +318,11 @@ namespace Services.Appointments
 
             if (appointment.PatientId != userId)
                 throw new ResourceAccessDeniedException("You are not authorized to cancel this appointment.");
+
+            var slotDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
+            var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time"));
+            if (slotDateTime <= nowInEgypt)
+                throw new BadRequestException("You cannot cancel an appointment that has already started or is in the past.");
 
             if (appointment.Status == AppointmentStatus.Cancelled)
                 throw new BadRequestException("This appointment has already been cancelled.");
@@ -754,13 +493,381 @@ namespace Services.Appointments
         }
 
 
+        public async Task<string> RescheduleAppointmentByPatientAsync(string userId, int appointmentId, RescheduleAppointmentRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.PatientId != userId)
+                throw new ResourceAccessDeniedException("You are not authorized to reschedule this appointment.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
+
+            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
+
+            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
+            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
+
+            foreach (var secretary in secretaries)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    secretary.Id,
+                    "Appointment Rescheduled",
+                    $"The patient has rescheduled appointment #{appointment.Id}. Please review the updated appointment details.",
+                    NotificationType.AppointmentRescheduledByPatient);
+            }
+
+            return result;
+        }
+
+
+
+
+        // Private Helper Methods
+        private static string FormatDuration(int minutes)
+        {
+            if (minutes < 60)
+                return $"{minutes} minutes";
+
+            var hours = minutes / 60;
+            var remainingMinutes = minutes % 60;
+
+            if (remainingMinutes == 0)
+                return hours == 1 ?
+                       "1 hour" :
+                       $"{hours} hours";
+
+            return hours == 1 ?
+                   $"1 hour and {remainingMinutes} minutes" :
+                   $"{hours} hours and {remainingMinutes} minutes";
+        }
+
+
+        private static bool IsFullRefundEligible(Appointment appointment)
+        {
+            var nowUtc = DateTime.UtcNow;
+            if (appointment.BookingCancellationGracePeriodMinutes.HasValue)
+            {
+                var bookingGracePeriodEndsAtUtc = appointment.BookingDate.AddMinutes(appointment.BookingCancellationGracePeriodMinutes.Value);
+                if (nowUtc <= bookingGracePeriodEndsAtUtc)
+                    return true;
+            }
+
+            if (!appointment.FullRefundCancellationWindowMinutes.HasValue)
+                return false;
+
+            var appointmentStartUtc = GetAppointmentStartUtc(appointment);
+            var fullRefundDeadlineUtc = appointmentStartUtc.AddMinutes(-appointment.FullRefundCancellationWindowMinutes.Value);
+            return nowUtc <= fullRefundDeadlineUtc;
+        }
+
+
+        private static DateTime GetAppointmentStartUtc(Appointment appointment)
+        {
+            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            var appointmentLocalDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.StartTime);
+            return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+        }
+
+
+
+
+        // Background Task: Expire Pending Appointments
+        public async Task ExpirePendingAppointmentsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var specification = AppointmentSpecifications.GetExpiredPendingPaymentAppointments(now);
+            var appointments = await appointmentRepo.GetAllAsync(specification);
+
+            if (!appointments.Any())
+                return;
+
+            foreach (var appointment in appointments)
+            {
+                appointment.Status = AppointmentStatus.Expired;
+
+                if (appointment.DepositPayment.Status is DepositPaymentStatus.Pending or DepositPaymentStatus.Failed)
+                    appointment.DepositPayment.Status = DepositPaymentStatus.Expired;
+
+                if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
+                    appointment.AppointmentSlot.Status = SlotStatus.Available;
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.PatientId is not null)
+                {
+                    await _notificationService.CreateAndSendAsync(
+                        appointment.PatientId,
+                        "Appointment Expired",
+                        $"Your appointment reservation #{appointment.Id} has expired because the payment was not completed in time.",
+                        NotificationType.AppointmentExpired);
+                }
+            }
+        }
+
+
+
+
+
+        // Secretary Appointment Functions
+        public async Task<PaginatedResult<SecretaryAppointmentResponse>> GetClinicAppointmentsForSecretaryAsync(string secretaryId, SecretaryAppointmentQuery query)
+        {
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not associated with any clinic.");
+            int clinicId = secretary.ClinicId.Value;
+
+
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); 
+
+
+            var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); 
+            var patientSearch = string.IsNullOrWhiteSpace(query.PatientSearch) ? null : query.PatientSearch.Trim();
+
+
+            var countSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
+                                                                                  doctorName,
+                                                                                  patientSearch,
+                                                                                  query.SlotDate,
+                                                                                  query.AppointmentStatus,
+                                                                                  query.DepositPaymentStatus,
+                                                                                  pageIndex,
+                                                                                  pageSize,
+                                                                                  applyPagination: false);
+
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+
+            var totalCount = await appointmentRepo.CountAsync(countSpecification);
+
+
+            var dataSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
+                                                                                 doctorName,
+                                                                                 patientSearch,
+                                                                                 query.SlotDate,
+                                                                                 query.AppointmentStatus,
+                                                                                 query.DepositPaymentStatus,
+                                                                                 pageIndex,
+                                                                                 pageSize,
+                                                                                 applyPagination: true);
+
+
+            var appointments = await appointmentRepo.GetAllAsync(dataSpecification);
+
+            var items = _mapper.Map<List<SecretaryAppointmentResponse>>(appointments);
+
+            return new PaginatedResult<SecretaryAppointmentResponse>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = items
+            };
+        }
+
+
+        public async Task<SecretaryAppointmentDetailsResponse> GetClinicAppointmentDetailsForSecretaryAsync(string secretaryId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+
+            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
+            var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (secretary.ClinicId is null)
+                throw new BadRequestException("You are not associated with any clinic.");
+
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ByIdWithDetailsForSecretary(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to view this appointment.");
+
+
+            return _mapper.Map<SecretaryAppointmentDetailsResponse>(appointment);
+        }
+
+
+        public async Task<string> ApproveManualDepositPaymentAsync(string secretaryId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
+
+            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
+
+            if (appointment.DepositPayment is null)
+                throw new BadRequestException("Payment information for this appointment was not found.");
+
+            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
+                throw new BadRequestException("This appointment is no longer awaiting payment verification.");
+
+            if (appointment.DepositPayment.MethodType is not DepositPaymentMethodType.ManualTransfer)
+                throw new BadRequestException("This appointment does not use manual payment.");
+
+            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
+                throw new BadRequestException("No payment proof was submitted for this appointment.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("The appointment slot is no longer reserved.");
+
+            appointment.DepositPayment.Status = DepositPaymentStatus.Paid;
+
+            appointment.DepositPayment.PaidAt = DateTime.UtcNow;
+            appointment.DepositPayment.SecretaryRejectionReason = null;
+            appointment.Status = AppointmentStatus.Confirmed;
+            appointment.AppointmentSlot.Status = SlotStatus.Booked;
+            appointment.TotalPaidAmount += appointment.DepositPayment.RequiredAmount;
+
+            try
+            {
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result == 0)
+                    throw new InternalServerErrorException("You couldn't approve this payment right now. Please try again later.");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
+            }
+
+            if (appointment.PatientId is not null)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Payment Approved",
+                    $"Your payment proof for appointment #{appointment.Id} has been approved, and your appointment is now confirmed.",
+                    NotificationType.ManualPaymentApproved);
+            }
+
+            return "The manual payment has been approved and the appointment is confirmed.";
+        }
+
+
+        public async Task<string> RejectManualDepositPaymentAsync(string secretaryId, int appointmentId, RejectManualDepositPaymentRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(secretaryId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
+            if (secretary is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var rejectionReason = request.Reason.Trim();
+
+            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
+            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+            if (appointment is null)
+                throw new NotFoundException("The appointment was not found.");
+
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
+
+            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
+                throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
+
+            if (appointment.DepositPayment is null)
+                throw new BadRequestException("Payment information for this appointment was not found.");
+
+            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
+                throw new BadRequestException("This appointment is no longer awaiting payment verification.");
+
+            if (!appointment.DepositPayment.ClinicManualPaymentMethodId.HasValue)
+                throw new BadRequestException("This appointment does not use manual payment.");
+
+            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
+                throw new BadRequestException("No payment proof was submitted for this appointment.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("The appointment slot is no longer reserved.");
+
+            appointment.DepositPayment.Status = DepositPaymentStatus.Rejected;
+            appointment.DepositPayment.SecretaryRejectionReason = rejectionReason;
+            appointment.Status = AppointmentStatus.Cancelled;
+            appointment.AppointmentSlot.Status = SlotStatus.Available;
+
+            var remainingPayment = appointment.RemainingPayment;
+            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
+                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
+
+            try
+            {
+                var result = await _unitOfWork.SaveChangesAsync();
+                if (result == 0)
+                    throw new InternalServerErrorException("We couldn't reject this payment right now. Please try again later.");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
+            }
+
+
+            if (appointment.PatientId is not null)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    appointment.PatientId,
+                    "Payment Rejected",
+                    $"Your payment for appointment #{appointment.Id} has been rejected. Reason: {rejectionReason}. Your appointment has been cancelled.",
+                    NotificationType.ManualPaymentRejected);
+            }
+
+            return "The manual payment has been rejected and the appointment has been cancelled.";
+        }
+
+
         public async Task<string> CancelAppointmentBySecretaryRequestedByClinicOrDoctorAsync(string secretaryId, int appointmentId)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
 
             var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
-
             if (secretary is null)
                 throw new NotFoundException("We couldn't find your account.");
 
@@ -1107,254 +1214,6 @@ namespace Services.Appointments
 
         }
 
-
-
-
-
-        public async Task<string> PatientSubmitManualDepositPaymentProofAsync(string userId, int appointmentId, SubmitManualDepositPaymentProofRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
-            if (patient is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-
-            if (appointment is null)
-                throw new NotFoundException("The appointment was not found.");
-
-            if (appointment.PatientId != userId)
-                throw new ResourceAccessDeniedException("You are not allowed to submit payment for this appointment.");
-
-            if (appointment.Status != AppointmentStatus.PendingPayment)
-                throw new BadRequestException("Payment proof can only be submitted for appointments awaiting payment.");
-
-            if (appointment.DepositPayment is null)
-                throw new BadRequestException("Payment information for this appointment was not found.");
-
-            if (appointment.DepositPayment.Status != DepositPaymentStatus.Pending)
-                throw new BadRequestException("Payment proof can only be submitted when the payment is pending.");
-
-            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
-                throw new BadRequestException("This reservation has expired. Please book another available slot.");
-
-            if (appointment.AppointmentSlot is null)
-                throw new NotFoundException("The appointment slot associated with this appointment was not found.");
-
-            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
-                throw new BadRequestException("The appointment slot is no longer reserved. Please book another available slot.");
-
-            var manualPaymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId);
-
-            if (manualPaymentMethod is null)
-                throw new NotFoundException("The selected payment method was not found.");
-
-            if (!manualPaymentMethod.IsActive)
-                throw new BadRequestException("The selected payment method is no longer active.");
-
-            if (manualPaymentMethod.ClinicId != appointment.AppointmentSlot.ClinicId)
-                throw new BadRequestException("The selected payment method does not belong to this appointment's clinic.");
-
-            if (request.TransactionReference is not null)
-                request.TransactionReference = request.TransactionReference.Trim();
-
-            string? uploadedFileName = null;
-            try
-            {
-                uploadedFileName = await FileStorageHandler.UploadAsync(request.PaymentProof, "manualpaymentproofs");
-                appointment.DepositPayment.ManualProofUrl = uploadedFileName;
-                appointment.DepositPayment.ClinicManualPaymentMethodId = manualPaymentMethod.Id;
-                appointment.DepositPayment.MethodType = DepositPaymentMethodType.ManualTransfer;
-                appointment.DepositPayment.TransactionReference = request.TransactionReference;
-                appointment.DepositPayment.Status = DepositPaymentStatus.PendingVerification;
-                appointment.Status = AppointmentStatus.PendingVerification;
-
-
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result == 0)
-                    throw new InternalServerErrorException("We couldn't submit your payment proof right now. Please try again later.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!string.IsNullOrWhiteSpace(uploadedFileName))
-                    FileStorageHandler.Delete(uploadedFileName, "manualpaymentproofs");
-
-                throw new BadRequestException("This appointment or payment has changed. Please refresh and try again.");
-            }
-            catch
-            {
-                if (!string.IsNullOrWhiteSpace(uploadedFileName))
-                    FileStorageHandler.Delete(uploadedFileName, "manualpaymentproofs");
-
-                throw;
-            }
-
-
-            var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
-            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
-            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
-
-            foreach(var secretary in secretaries)
-            {
-                await _notificationService.CreateAndSendAsync(
-                    secretary.Id,
-                    "Payment Proof Submitted",
-                    $"Payment proof has been submitted for appointment #{appointment.Id}. Please review and verify the payment.",
-                    NotificationType.ManualPaymentSubmitted);
-            }
-
-            return "Your payment proof has been submitted successfully and is waiting for clinic verification.";
-        }
-
-
-        public async Task<string> ApproveManualDepositPaymentAsync(string secretaryId, int appointmentId)
-        {
-            if (string.IsNullOrWhiteSpace(secretaryId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
-            if (secretary is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-            if (appointment is null)
-                throw new NotFoundException("The appointment was not found.");
-
-            if (appointment.AppointmentSlot is null)
-                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
-
-            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
-                throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
-
-            if (appointment.DepositPayment is null)
-                throw new BadRequestException("Payment information for this appointment was not found.");
-
-            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
-                throw new BadRequestException("This appointment is no longer awaiting payment verification.");
-
-            if (appointment.DepositPayment.MethodType is not DepositPaymentMethodType.ManualTransfer)
-                throw new BadRequestException("This appointment does not use manual payment.");
-
-            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
-                throw new BadRequestException("No payment proof was submitted for this appointment.");
-
-            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
-                throw new BadRequestException("The appointment slot is no longer reserved.");
-
-            appointment.DepositPayment.Status = DepositPaymentStatus.Paid;
-
-            appointment.DepositPayment.PaidAt = DateTime.UtcNow;
-            appointment.DepositPayment.SecretaryRejectionReason = null;
-            appointment.Status = AppointmentStatus.Confirmed;
-            appointment.AppointmentSlot.Status = SlotStatus.Booked;
-            appointment.TotalPaidAmount += appointment.DepositPayment.RequiredAmount;
-
-            try
-            {
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result == 0)
-                    throw new InternalServerErrorException("You couldn't approve this payment right now. Please try again later.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
-            }
-
-            if (appointment.PatientId is not null)
-            {
-                await _notificationService.CreateAndSendAsync(
-                    appointment.PatientId,
-                    "Payment Approved",
-                    $"Your payment proof for appointment #{appointment.Id} has been approved, and your appointment is now confirmed.",
-                    NotificationType.ManualPaymentApproved);
-            }
-
-            return "The manual payment has been approved and the appointment is confirmed.";
-        }
-
-
-        public async Task<string> RejectManualDepositPaymentAsync(string secretaryId, int appointmentId, RejectManualDepositPaymentRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(secretaryId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var secretary = await _unitOfWork.GetRepository<Secretary, string>().GetByIdAsync(secretaryId);
-            if (secretary is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            var rejectionReason = request.Reason.Trim();
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-            if (appointment is null)
-                throw new NotFoundException("The appointment was not found.");
-
-            if (appointment.AppointmentSlot is null)
-                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
-
-            if (secretary.ClinicId != appointment.AppointmentSlot.ClinicId)
-                throw new ResourceAccessDeniedException("You are not authorized to manage payments for this appointment.");
-
-            if (appointment.DepositPayment is null)
-                throw new BadRequestException("Payment information for this appointment was not found.");
-
-            if (appointment.Status != AppointmentStatus.PendingVerification || appointment.DepositPayment.Status != DepositPaymentStatus.PendingVerification)
-                throw new BadRequestException("This appointment is no longer awaiting payment verification.");
-
-            if (!appointment.DepositPayment.ClinicManualPaymentMethodId.HasValue)
-                throw new BadRequestException("This appointment does not use manual payment.");
-
-            if (string.IsNullOrWhiteSpace(appointment.DepositPayment.ManualProofUrl))
-                throw new BadRequestException("No payment proof was submitted for this appointment.");
-
-            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
-                throw new BadRequestException("The appointment slot is no longer reserved.");
-
-            appointment.DepositPayment.Status = DepositPaymentStatus.Rejected;
-            appointment.DepositPayment.SecretaryRejectionReason = rejectionReason;
-            appointment.Status = AppointmentStatus.Cancelled;
-            appointment.AppointmentSlot.Status = SlotStatus.Available;
-
-            var remainingPayment = appointment.RemainingPayment;
-            if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
-                remainingPayment.Status = RemainingPaymentStatus.Cancelled;
-
-            try
-            {
-                var result = await _unitOfWork.SaveChangesAsync();
-                if (result == 0)
-                    throw new InternalServerErrorException("We couldn't reject this payment right now. Please try again later.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new BadRequestException("This appointment or payment has already been modified. Please refresh and try again.");
-            }
-
-
-            if (appointment.PatientId is not null)
-            {
-                await _notificationService.CreateAndSendAsync(
-                    appointment.PatientId,
-                    "Payment Rejected",
-                    $"Your payment for appointment #{appointment.Id} has been rejected. Reason: {rejectionReason}. Your appointment has been cancelled.",
-                    NotificationType.ManualPaymentRejected);
-            }
-
-            return "The manual payment has been rejected and the appointment has been cancelled.";
-        }
-
-
-
-
-
         public async Task<string> SecretaryMarkAppointmentCompletedAsync(string secretaryId, int appointmentId, SecretaryMarkAppointmentCompletedRequest request)
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
@@ -1398,20 +1257,20 @@ namespace Services.Appointments
                 throw new BadRequestException("Only appointments with a completed payment can be marked as completed.");
 
 
-            var nowUtc = DateTime.UtcNow;
-            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
-            var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-            if (nowUtc < appointmentEndUtc)
-                throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
+            //var nowUtc = DateTime.UtcNow;
+            //var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            //var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
+            //var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+            //if (nowUtc < appointmentEndUtc)
+            //    throw new BadRequestException("The appointment cannot be marked as completed before its scheduled end time.");
 
             var remainingPayment = appointment.RemainingPayment;
             if (remainingPayment is not null && remainingPayment.RequiredAmount > 0)
             {
-                if (remainingPayment.Status != RemainingPaymentStatus.Pending)
-                    throw new BadRequestException("The remaining payment is no longer awaiting payment.");
+                if (request.RemainingPaymentMethodType is null)
+                    throw new BadRequestException("Please select the remaining payment method.");
 
-                switch (request.RemainingPaymentMethodType)
+                switch (request.RemainingPaymentMethodType.Value)
                 {
                     case RemainingPaymentMethodType.CashAtClinic:
                         if (request.ClinicManualPaymentMethodId.HasValue)
@@ -1426,6 +1285,7 @@ namespace Services.Appointments
                             throw new BadRequestException("Please select a manual payment method.");
 
                         var paymentMethod = await _unitOfWork.GetRepository<ClinicManualPaymentMethod, int>().GetByIdAsync(request.ClinicManualPaymentMethodId.Value);
+
                         if (paymentMethod is null || paymentMethod.ClinicId != secretary.ClinicId.Value || !paymentMethod.IsActive)
                             throw new BadRequestException("The selected payment method is invalid or inactive.");
 
@@ -1438,8 +1298,13 @@ namespace Services.Appointments
                 }
 
                 remainingPayment.Status = RemainingPaymentStatus.Paid;
-                remainingPayment.PaidAt = nowUtc;
+                remainingPayment.PaidAt = DateTime.UtcNow;
                 appointment.TotalPaidAmount += remainingPayment.RequiredAmount;
+            }
+            else
+            {
+                if (request.RemainingPaymentMethodType.HasValue || request.ClinicManualPaymentMethodId.HasValue)
+                    throw new BadRequestException("Payment details must not be provided when no remaining payment is due.");
             }
 
             appointment.Status = AppointmentStatus.Completed;
@@ -1606,10 +1471,6 @@ namespace Services.Appointments
 
             return "The manual refund has been confirmed successfully.";
         }
-
-
-
-
 
 
         public async Task<GuestAppointmentReservationCheckout> SecretaryCreateGuestReservationAsync(string secretaryId, int appointmentSlotId, CreateGuestReservationRequest request)
@@ -1907,48 +1768,6 @@ namespace Services.Appointments
         }
 
 
-
-
-        public async Task<string> RescheduleAppointmentByPatientAsync(string userId, int appointmentId, RescheduleAppointmentRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new BadRequestException("We couldn't identify your account.");
-
-            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
-
-            if (patient is null)
-                throw new NotFoundException("We couldn't find your account.");
-
-            var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
-            var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
-            var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
-
-            if (appointment is null)
-                throw new NotFoundException("The appointment was not found.");
-
-            if (appointment.PatientId != userId)
-                throw new ResourceAccessDeniedException("You are not authorized to reschedule this appointment.");
-
-            if (appointment.AppointmentSlot is null)
-                throw new InternalServerErrorException("The appointment slot associated with this appointment could not be found.");
-
-            var result = await RescheduleAppointmentCoreAsync(appointment, request.NewAppointmentSlotId);
-
-            var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
-            var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
-
-            foreach (var secretary in secretaries)
-            {
-                await _notificationService.CreateAndSendAsync(
-                    secretary.Id,
-                    "Appointment Rescheduled",
-                    $"The patient has rescheduled appointment #{appointment.Id}. Please review the updated appointment details.",
-                    NotificationType.AppointmentRescheduledByPatient);
-            }
-
-            return result;
-        }
-
         public async Task<string> RescheduleAppointmentBySecretaryAsync(string userId, int appointmentId, RescheduleAppointmentRequest request)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -1992,6 +1811,11 @@ namespace Services.Appointments
             return result;
         }
 
+
+
+
+
+        // Reusable core method for rescheduling an appointment, used by both patients and secretaries
         private async Task<string> RescheduleAppointmentCoreAsync(Appointment appointment, int newAppointmentSlotId)
         {
             var depositpayment = appointment.DepositPayment;
@@ -2084,6 +1908,9 @@ namespace Services.Appointments
         }
 
 
+
+
+        // Helper method to validate doctor and clinic access
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string doctorId, int clinicId)
         {
             if (string.IsNullOrWhiteSpace(doctorId))
@@ -2120,6 +1947,187 @@ namespace Services.Appointments
             };
         }
 
+
+
+
+
+
+        //public async Task<CancelAppointmentResponse> CancelAppointmentByDoctorAsync(string doctorId, int appointmentId)
+        //{
+        //    if (string.IsNullOrWhiteSpace(doctorId))
+        //        throw new BadRequestException("We couldn't identify your account.");
+
+        //    var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorId);
+        //    if (doctor is null)
+        //        throw new NotFoundException("We couldn't find your account.");
+
+
+        //    var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
+        //    var appointmentSpec =AppointmentSpecifications.ForCancellation(appointmentId);
+        //    var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
+        //    if (appointment is null)
+        //        throw new NotFoundException("The appointment was not found.");
+
+
+        //    // ---------------------------------------------------------
+        //    // Verify that this appointment belongs to this doctor
+        //    // ---------------------------------------------------------
+
+        //    if (appointment.AppointmentSlot.DoctorId != doctorId)
+        //        throw new ResourceAccessDeniedException(
+        //            "You are not authorized to cancel this appointment.");
+
+
+        //    var clinicId = appointment.AppointmentSlot.ClinicId;
+        //    var doctorClinicRepo = _unitOfWork.GetRepository<DoctorClinic>();
+        //    var doctorClinic = await doctorClinicRepo.GetByCompositeKeyAsync(doctorId, clinicId);
+        //    if (doctorClinic is null)
+        //    {
+        //        throw new ForbiddenException(
+        //            "You are no longer a member of this clinic and are not authorized to cancel this appointment.");
+        //    }
+
+
+
+        //    // ---------------------------------------------------------
+        //    // Doctor can only cancel a confirmed appointment.
+        //    //
+        //    // PendingPayment appointments are intentionally ignored.
+        //    // They are not real confirmed bookings yet.
+        //    // ---------------------------------------------------------
+
+        //    if (appointment.Status != AppointmentStatus.Confirmed)
+        //        throw new BadRequestException(
+        //            "Only confirmed appointments can be cancelled by the doctor.");
+
+
+        //    // ---------------------------------------------------------
+        //    // Payment must actually be completed.
+        //    // ---------------------------------------------------------
+
+        //    var payment = appointment.Payment;
+
+        //    if (payment is null)
+        //        throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
+
+
+        //    if (payment.Status != PaymentStatus.Paid)
+        //        throw new BadRequestException("Only appointments with a completed payment can be cancelled by the doctor.");
+
+
+        //    // ---------------------------------------------------------
+        //    // Slot must be booked.
+        //    // ---------------------------------------------------------
+
+        //    if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
+        //        throw new BadRequestException("The appointment slot is not currently booked.");
+
+
+        //    // ---------------------------------------------------------
+        //    // Cancel Appointment
+        //    // ---------------------------------------------------------
+
+        //    appointment.Status = AppointmentStatus.Cancelled;
+
+
+        //    // ---------------------------------------------------------
+        //    // Release booked slot
+        //    // ---------------------------------------------------------
+
+        //    appointment.AppointmentSlot.Status = SlotStatus.Available;
+
+
+        //    // ---------------------------------------------------------
+        //    // Save cancellation first.
+        //    //
+        //    // Payment remains Paid at this point.
+        //    // RefundService will change it to Refunded only
+        //    // after Paymob confirms the refund.
+        //    // ---------------------------------------------------------
+
+        //    try
+        //    {
+        //        var result = await _unitOfWork.SaveChangesAsync();
+
+        //        if (result == 0)
+        //        {
+        //            throw new InternalServerErrorException(
+        //                "We couldn't cancel the appointment right now. Please try again later.");
+        //        }
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        throw new BadRequestException(
+        //            "This appointment was modified by another operation. Please refresh and try again.");
+        //    }
+
+
+        //    // ---------------------------------------------------------
+        //    // Clinic cancellation always gets a full refund.
+        //    //
+        //    // Unlike patient cancellation, we do NOT check:
+        //    // - 10-minute booking grace period
+        //    // - 2-hour cancellation window
+        //    //
+        //    // Clinic/Doctor cancellation = full deposit refund.
+        //    // ---------------------------------------------------------
+
+        //    var refundResult = await _refundService.RefundPaymentAsync(payment.Id, RefundReason.ClinicCancellation);
+
+
+        //    // ---------------------------------------------------------
+        //    // Refund successfully processed
+        //    // ---------------------------------------------------------
+
+        //    if (refundResult.Succeeded)
+        //    {
+        //        return new CancelAppointmentResponse
+        //        {
+        //            AppointmentId = appointment.Id,
+        //            AppointmentStatus = appointment.Status.ToString(),
+        //            RefundEligible = true,
+        //            RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+        //            RefundStatus = RefundStatus.Succeeded.ToString(),
+        //            RefundAmount = appointment.DepositAmount,
+        //            Message = "The appointment has been cancelled and the patient's deposit refund has been processed successfully."
+        //        };
+        //    }
+
+
+        //    // ---------------------------------------------------------
+        //    // Refund result is uncertain.
+        //    // ---------------------------------------------------------
+
+        //    if (refundResult.PendingVerification)
+        //    {
+        //        return new CancelAppointmentResponse
+        //        {
+        //            AppointmentId = appointment.Id,
+        //            AppointmentStatus = appointment.Status.ToString(),
+        //            RefundEligible = true,
+        //            RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+        //            RefundStatus = RefundStatus.PendingVerification.ToString(),
+        //            RefundAmount = appointment.DepositAmount,
+        //            Message = "The appointment has been cancelled. The patient's refund is being processed and will be confirmed shortly."
+        //        };
+        //    }
+
+
+        //    // ---------------------------------------------------------
+        //    // Paymob definitely rejected the refund.
+        //    // ---------------------------------------------------------
+
+        //    return new CancelAppointmentResponse
+        //    {
+        //        AppointmentId = appointment.Id,
+        //        AppointmentStatus = appointment.Status.ToString(),
+        //        RefundEligible = true,
+        //        RefundEligibility = RefundEligibilityStatus.Eligible.ToString(),
+        //        RefundStatus = RefundStatus.Failed.ToString(),
+        //        RefundAmount = appointment.DepositAmount,
+        //        Message = "The appointment has been cancelled, but we could not process the patient's refund at this time. The refund will be retried after verification."
+        //    };
+        //}
 
     }
 }

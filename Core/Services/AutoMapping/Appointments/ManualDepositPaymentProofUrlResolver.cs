@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Appointments
 {
-    public class ManualPaymentProofUrlResolver(IConfiguration _configuration) : IValueResolver<Appointment, SecretaryAppointmentDetailsResponse, string?>
+    public class ManualDepositPaymentProofUrlResolver<TDestination>(IConfiguration _configuration) : IValueResolver<Appointment, TDestination, string?>
     {
-        public string? Resolve(Appointment source, SecretaryAppointmentDetailsResponse destination, string? destMember, ResolutionContext context)
+        public string? Resolve(Appointment source, TDestination destination, string? destMember, ResolutionContext context)
         {
             if (string.IsNullOrEmpty(source.DepositPayment.ManualProofUrl))
                 return null;
 
             var baseUrl = _configuration["BaseURL"];
-            var imagesFolderPath = _configuration["MediaSettings:ManualPaymentProofsPath"];
+            var imagesFolderPath = _configuration["MediaSettings:ManualDepositPaymentProofsPath"];
             destMember = $"{baseUrl}/{imagesFolderPath}/{source.DepositPayment.ManualProofUrl}";
             return destMember;
         }

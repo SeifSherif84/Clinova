@@ -82,5 +82,39 @@ namespace Services.Specifications.Clinics
                 Includes.Add(clinic => clinic.Region);
         }
 
+
+        public static ClinicSpecifications GetDoctorClinicsForPatient(string doctorId)
+        {
+            var specification = new ClinicSpecifications()
+            {
+                Criteria = clinic => !clinic.IsDeleted && clinic.DoctorClinics.Any(dc => dc.DoctorId == doctorId)
+            };
+
+            specification.Includes.Add(clinic => clinic.Region);
+            specification.Includes.Add(clinic => clinic.Region.Governorate);
+
+            return specification;
+        }
+
+
+        public static ClinicSpecifications GetClinicDetailsForPatient(int clinicId, string doctorId)
+        {
+            var specification = new ClinicSpecifications
+            {
+                Criteria = clinic => clinic.Id == clinicId && 
+                                     !clinic.IsDeleted &&
+                                     clinic.DoctorClinics.Any(dc => dc.DoctorId == doctorId)
+
+
+            };
+
+            specification.Includes.Add(clinic => clinic.Region);
+            specification.Includes.Add(clinic => clinic.Region.Governorate);
+            specification.Includes.Add(clinic => clinic.Images);
+            specification.Includes.Add(clinic => clinic.PhoneNumbers);
+
+            return specification;
+        }
+
     }
 }

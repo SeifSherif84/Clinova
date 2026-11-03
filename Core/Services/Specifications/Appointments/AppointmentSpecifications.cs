@@ -21,7 +21,6 @@ namespace Services.Specifications.Appointments
             var specification = new AppointmentSpecifications
             {
                 Criteria = appointment => appointment.PatientId == patientId,
-
                 OrderBy = appointment => appointment.AppointmentSlot.Date,
                 ThenBy = appointment => appointment.AppointmentSlot.StartTime
             };
@@ -30,6 +29,7 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
             specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
 
             return specification;
         }
@@ -44,6 +44,24 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Clinic);
+            specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.DepositPayment.ClinicManualPaymentMethod);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment.ClinicManualPaymentMethod);
+            specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
+
+            return specification;
+        }
+
+
+        public static AppointmentSpecifications ByIdWithSlotAndDepositPayment(int appointmentId)
+        {
+            var specification = new AppointmentSpecifications
+            {
+                Criteria = appointment => appointment.Id == appointmentId
+            };
+
+            specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.DepositPayment);
 
             return specification;
@@ -147,8 +165,9 @@ namespace Services.Specifications.Appointments
             specification.Includes.Add(appointment => appointment.AppointmentSlot.Doctor);
             specification.Includes.Add(appointment => appointment.Patient);
             specification.Includes.Add(appointment => appointment.DepositPayment);
-            specification.Includes.Add(appointment => appointment.RemainingPayment);
             specification.Includes.Add(appointment => appointment.DepositPayment.ClinicManualPaymentMethod);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment.ClinicManualPaymentMethod);
             specification.Includes.Add(appointment => appointment.DepositPayment.DepositRefund);
 
             return specification;

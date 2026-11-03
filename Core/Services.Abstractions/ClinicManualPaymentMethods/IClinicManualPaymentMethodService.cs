@@ -11,14 +11,11 @@ namespace Services.Abstractions.ClinicManualPaymentMethods
     {
         Task<string> AddManualPaymentMethodAsync(string userId, int clinicId, AddClinicManualPaymentMethodRequest request);
         Task<string> UpdateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId, UpdateClinicManualPaymentMethodRequest request);
-
-        //Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetManualPaymentMethodsForPatientAsync(string userId, int clinicId);
+        Task<IEnumerable<ClinicManualPaymentMethodResponseForPatient>> GetClinicManualPaymentMethodsForPatientAsync(string userId, int appointmentId);
         Task<IEnumerable<ClinicManualPaymentMethodResponseForOwner>> GetManualPaymentMethodsForOwnerAsync(string userId, int clinicId);
         Task<string> ActivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId);
         Task<string> DeactivateManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId);
         Task<string> DeleteManualPaymentMethodAsync(string userId, int clinicId, int paymentMethodId);
-
-
         Task<IEnumerable<GuestCheckoutPaymentMethodResponse>> GetGuestCheckoutPaymentMethodsForSecretaryAsync(string secretaryId);
     }
 }

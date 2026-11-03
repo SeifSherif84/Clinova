@@ -244,8 +244,6 @@ namespace Services.Abstractions.Clinics
 
 
 
-
-
         public async Task<ClinicResponse> GetClinicForSecretaryAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -266,6 +264,7 @@ namespace Services.Abstractions.Clinics
 
             return _mapper.Map<ClinicResponse>(clinic);
         }
+
 
 
         public async Task<ClinicDetailsResponse> GetClinicDetailsForSecretaryAsync(string userId)
@@ -290,6 +289,7 @@ namespace Services.Abstractions.Clinics
         }
 
 
+
         public async Task<IEnumerable<ClinicMemberResponseForSecretary>> GetClinicMembersForSecretaryAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -309,10 +309,6 @@ namespace Services.Abstractions.Clinics
 
             return clinicMembersResponse;
         }
-
-
-
-
 
 
 
@@ -490,11 +486,9 @@ namespace Services.Abstractions.Clinics
             if (patient is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-
             var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicId);
             if (clinic is null)
                 throw new NotFoundException("The clinic you're trying to access could not be found.");
-
 
             var depositAmount = clinic.ConsultationFee * (clinic.DepositPercentage / 100m);
             var remainingAmount = clinic.ConsultationFee - depositAmount;
@@ -510,14 +504,72 @@ namespace Services.Abstractions.Clinics
 
 
 
+        public async Task<IEnumerable<DoctorClinicForPatientResponse>> GetDoctorClinicsForPatientAsync(string userId, string doctorId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(doctorId);
+            if (doctor is null)
+                throw new NotFoundException("We couldn't find this doctor.");
+
+            var specification = ClinicSpecifications.GetDoctorClinicsForPatient(doctorId);
+            var clinics = await _unitOfWork.GetRepository<Clinic, int>().GetAllAsync(specification);
+            if (!clinics.Any())
+                return Enumerable.Empty<DoctorClinicForPatientResponse>();
+
+            var response = clinics.Select(clinic =>
+            {
+                var depositAmount = Math.Round(clinic.ConsultationFee * clinic.DepositPercentage / 100m, 2, MidpointRounding.AwayFromZero);
+                var remainingAmount = clinic.ConsultationFee - depositAmount;
+
+                return new DoctorClinicForPatientResponse()
+                {
+                    ClinicId = clinic.Id,
+                    ClinicName = clinic.Name,
+                    GovernorateName = clinic.Region.Governorate.Name,
+                    RegionName = clinic.Region.Name,
+                    StreetName = clinic.StreetName,
+                    ConsultationFee = clinic.ConsultationFee,
+                    DepositPercentage = clinic.DepositPercentage,
+                    DepositAmount = depositAmount,
+                    RemainingAmount = remainingAmount
+                };
+            });
+
+            return response;
+        }
+
+
+
+        public async Task<ClinicDetailsResponse> GetDoctorClinicDetailsForPatientAsync(string userId, int clinicId, string doctorId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var specification = ClinicSpecifications.GetClinicDetailsForPatient(clinicId, doctorId);
+            var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(specification);
+            if (clinic is null)
+                throw new NotFoundException("We couldn't find this clinic.");
+
+            return _mapper.Map<ClinicDetailsResponse>(clinic);
+        }
 
 
 
         private async Task<DoctorClinicContext> GetDoctorClinicAccessAsync(string userId,
-                                                                   int clinicId,
-                                                                   bool includeClinicImages = false,
-                                                                   bool includeClinicPhoneNumbers = false,
-                                                                   bool includeClinicRegion = false)
+                                                                           int clinicId,
+                                                                           bool includeClinicImages = false,
+                                                                           bool includeClinicPhoneNumbers = false,
+                                                                           bool includeClinicRegion = false)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");

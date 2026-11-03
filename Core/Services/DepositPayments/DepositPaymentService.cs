@@ -46,11 +46,6 @@ namespace Services.DepositPayments
             if (patient is null)
                 throw new NotFoundException("We couldn't find your account.");
 
-
-            if (!Enum.IsDefined<OnlinePaymentMethod>(request.PaymentMethod))
-                throw new BadRequestException("Invalid online payment method.");
-
-
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
             var appointmentSpec = AppointmentSpecifications.ById(appointmentId);
             var appointment = await appointmentRepo.GetByIdAsync(appointmentSpec);
@@ -64,7 +59,7 @@ namespace Services.DepositPayments
             if (appointment.Status != AppointmentStatus.PendingPayment)
                 throw new BadRequestException("This appointment is no longer awaiting payment.");
 
-            if (DateTime.UtcNow >= appointment.ReservationExpiresAt)
+            if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
                 throw new BadRequestException("The payment reservation for this appointment has expired.");
 
             if (appointment.DepositPayment is null)
@@ -80,8 +75,6 @@ namespace Services.DepositPayments
                 appointment.DepositPayment.ProviderClientSecret = null;
                 appointment.DepositPayment.Status = DepositPaymentStatus.Pending;
             }
-
-
 
 
             // --------------------------------------------------
@@ -101,6 +94,11 @@ namespace Services.DepositPayments
                 };
             }
 
+            if (appointment.AppointmentSlot is null)
+                throw new InternalServerErrorException("The appointment slot was not found.");
+
+            if (appointment.AppointmentSlot.Status != SlotStatus.Reserved)
+                throw new BadRequestException("The appointment slot is no longer reserved for this appointment.");
 
             // check clinic doctor , member
             var clinicId = appointment.AppointmentSlot.ClinicId;
@@ -124,17 +122,15 @@ namespace Services.DepositPayments
             if (!paymobAccount.IsActive)
                 throw new BadRequestException("Online payment is currently unavailable for this clinic.");
 
-
-            var integrationRepo = _unitOfWork.GetRepository<ClinicPaymentIntegration, int>();
-            var integrationSpec = ClinicPaymentIntegrationSpecifications.ByAccountAndPaymentMethod(paymobAccount.Id, request.PaymentMethod);
-            var integration = await integrationRepo.GetByIdAsync(integrationSpec);
-
+            var integration = await _unitOfWork.GetRepository<ClinicPaymentIntegration, int>().GetByIdAsync(request.ClinicPaymentIntegrationId);
             if (integration is null)
-                throw new BadRequestException($"Online payment using {request.PaymentMethod} is not configured for this clinic.");
+                throw new BadRequestException("The selected online payment method is not configured for this clinic.");
+
+            if (integration.ClinicOnlinePaymentAccountId != paymobAccount.Id)
+                throw new BadRequestException("The selected online payment method is not configured for this clinic.");
 
             if (!integration.IsActive)
-                throw new BadRequestException($"Online payment using {request.PaymentMethod} is currently unavailable.");
-
+                throw new BadRequestException("The selected online payment method is currently unavailable.");
 
             // --------------------------------------------------
             // 12. Decrypt Paymob Secret Key
@@ -265,7 +261,6 @@ namespace Services.DepositPayments
 
 
             var result = await _unitOfWork.SaveChangesAsync();
-
             if (result == 0)
                 throw new InternalServerErrorException("The payment session was created but could not be saved.");
 
@@ -425,7 +420,6 @@ namespace Services.DepositPayments
 
 
 
-
         private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(DepositPayment payment, DepositRefundReason reason)
         {
             var refundResult = await _refundService.RefundPaymentAsync(payment.Id, reason);
@@ -444,7 +438,6 @@ namespace Services.DepositPayments
 
             throw new InternalServerErrorException(refundResult.ErrorMessage ?? "The payment was successful, but the refund could not be completed.");
         }
-
 
 
 
@@ -593,7 +586,6 @@ namespace Services.DepositPayments
 
 
 
-
         private async Task HandleFailedPaymentAsync(DepositPayment payment, PaymobTransactionCallbackObject transaction)
         {
             // --------------------------------------------------
@@ -632,8 +624,6 @@ namespace Services.DepositPayments
 
 
 
-
-
         private async Task MarkConfigurationIssueAsync(ClinicOnlinePaymentAccount paymentAccount, PaymentConfigurationIssueCode issueCode)
         {
             var isFirstConfigurationFailure = paymentAccount.Status != OnlinePaymentAccountStatus.NeedsAttention;
@@ -660,8 +650,6 @@ namespace Services.DepositPayments
                                                           "A recent online payment request could not be completed using your clinic's Paymob configuration. Please review your payment settings.",
                                                           NotificationType.PaymentConfigurationIssue);
         }
-
-
 
 
 
@@ -723,10 +711,6 @@ namespace Services.DepositPayments
                 Message = message
             };
         }
-
-
-
-
 
 
 

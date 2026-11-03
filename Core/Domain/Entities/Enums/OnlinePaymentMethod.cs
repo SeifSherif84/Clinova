@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.Enums
 {
-    public enum OnlinePaymentMethod
+    public enum OnlinePaymentMethodType
     {
         Card = 1,
         Wallet

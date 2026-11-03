@@ -19,7 +19,7 @@ namespace Presentation.Controllers.Appointments
     public class AppointmentsController(IServiceManager _serviceManager) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
-        [HttpPost("slots/{appointmentSlotId}")] // Post: /api/appointments/slots/{appointmentSlotId}
+        [HttpPost("slots/{appointmentSlotId}")] 
         public async Task<IActionResult> PatientCreateAppointment([FromRoute] int appointmentSlotId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -39,7 +39,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("{appointmentId}")] // Get: /api/appointments/{appointmentId}
+        [HttpGet("{appointmentId}")] 
         public async Task<IActionResult> GetPatientAppointmentDetails([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -83,16 +83,12 @@ namespace Presentation.Controllers.Appointments
         [Authorize(Roles = "Patient")]
         [HttpPost("{appointmentId}/payment-proof-submit")] // Post: /api/appointments/{appointmentId}/payment-proof-submit
         public async Task<IActionResult> PatientSubmitManualDepositPaymentProof([FromRoute] int appointmentId,
-                                                                         [FromForm] SubmitManualDepositPaymentProofRequest request)
+                                                                                [FromForm] SubmitManualDepositPaymentProofRequest request)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.AppointmentService.PatientSubmitManualDepositPaymentProofAsync(userId ?? string.Empty, appointmentId, request);
             return Ok(response);
         }
-
-
-
-
 
 
 
@@ -106,7 +102,6 @@ namespace Presentation.Controllers.Appointments
         }
 
 
-
         [Authorize(Roles = "Secretary")]
         [HttpGet("{appointmentId}/management")] // Get: /api/appointments/{appointmentId}/management
         public async Task<IActionResult> GetClinicAppointmentDetailsForSecretary([FromRoute] int appointmentId)
@@ -115,9 +110,6 @@ namespace Presentation.Controllers.Appointments
             var result = await _serviceManager.AppointmentService.GetClinicAppointmentDetailsForSecretaryAsync(userId ?? string.Empty, appointmentId);
             return Ok(result);
         }
-
-
-
 
 
         [Authorize(Roles = "Secretary")]
@@ -226,12 +218,6 @@ namespace Presentation.Controllers.Appointments
             var response = await _serviceManager.AppointmentService.SecretaryCancelPendingGuestReservationBeforePaymentAsync(secretaryId ?? string.Empty, appointmentId);
             return Ok(response);
         }
-
-
-
-
-
-
 
 
 

@@ -69,7 +69,7 @@ namespace Services.Paymob
 
             // Invalid integration configuration.
             if (statusCode == HttpStatusCode.BadRequest && ContainsAny(responseBody,
-                                                                      "integration",
+                                                              "integration",
                                                                       "Integration",
                                                                       "payment method",
                                                                       "payment_methods",
@@ -99,8 +99,8 @@ namespace Services.Paymob
 
 
         public async Task<DepositRefundResult> RefundAsync(string secretKey,
-                                                    long transactionId,
-                                                    long amountCents)
+                                                           long transactionId,
+                                                           long amountCents)
         {
             //// TEST ONLY
             //return new RefundResult

@@ -15,20 +15,20 @@ namespace Services.AutoMapping.Clinics
         public ClinicProfile(IConfiguration _configuration)
         {
             CreateMap<AddClinicRequest, Clinic>()
-                .ForMember(D => D.Images, config => config.Ignore())
-                .ForMember(D => D.PhoneNumbers, config => config.Ignore());
+                .ForMember(dest => dest.Images, config => config.Ignore())
+                .ForMember(dest => dest.PhoneNumbers, config => config.Ignore());
 
             CreateMap<UpdateClinicRequest, Clinic>()
-                .ForMember(D => D.RegionId, config => config.Ignore())
-                .ForAllMembers(config => config.Condition((S, D, srcMember) => srcMember != null));
+                .ForMember(dest => dest.RegionId, config => config.Ignore())
+                .ForAllMembers(config => config.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Clinic, ClinicResponse>()
-                .ForMember(D => D.RegionName, config => config.MapFrom(S => S.Region.Name));
+                .ForMember(dest => dest.RegionName, config => config.MapFrom(src => src.Region.Name));
 
             CreateMap<Clinic, ClinicDetailsResponse>()
-                .ForMember(D => D.RegionName, config => config.MapFrom(S => S.Region.Name))
-                .ForMember(D => D.Images, config => config.MapFrom(new ClinicImagesUrlResolver(_configuration)))
-                .ForMember(D => D.PhoneNumbers, config => config.MapFrom(S => S.PhoneNumbers.Select(item => new ClinicPhoneNumberResponse
+                .ForMember(dest => dest.RegionName, config => config.MapFrom(src => src.Region.Name))
+                .ForMember(dest => dest.Images, config => config.MapFrom(new ClinicImagesUrlResolver(_configuration)))
+                .ForMember(dest => dest.PhoneNumbers, config => config.MapFrom(src => src.PhoneNumbers.Select(item => new ClinicPhoneNumberResponse
                 {
                     Id = item.Id,
                     PhoneNumber = item.PhoneNumber

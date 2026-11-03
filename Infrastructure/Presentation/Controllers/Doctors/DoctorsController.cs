@@ -15,7 +15,6 @@ namespace Presentation.Controllers.Doctors
     [Route("api/doctors")]
     public class DoctorsController(IServiceManager _serviceManager) : ControllerBase
     {
-
         [Authorize(Roles = "Doctor")]
         [HttpGet("me")] // Get api/doctors/me
         public async Task<IActionResult> GetProfile()
@@ -46,5 +45,13 @@ namespace Presentation.Controllers.Doctors
         }
 
 
+        [Authorize(Roles = "Patient")]
+        [HttpGet("search")] // Get api/doctors/search?MedicalSpecialtyId=1
+        public async Task<IActionResult> GetDoctorsForPatient([FromQuery] PatientDoctorQuery query)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _serviceManager.DoctorService.GetDoctorsForPatientAsync(userId ?? string.Empty, query);
+            return Ok(result);
+        }
     }
 }

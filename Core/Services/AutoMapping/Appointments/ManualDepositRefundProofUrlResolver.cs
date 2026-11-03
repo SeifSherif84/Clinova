@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Appointments
 {
-    public class ManualRefundProofUrlResolver(IConfiguration _configuration) : IValueResolver<Appointment, SecretaryAppointmentDetailsResponse, string?>
+    public class ManualDepositRefundProofUrlResolver<TDestination>(IConfiguration _configuration) : IValueResolver<Appointment, TDestination, string?>
     {
-        public string? Resolve(Appointment source, SecretaryAppointmentDetailsResponse destination, string? destMember, ResolutionContext context)
+        public string? Resolve(Appointment source, TDestination destination, string? destMember, ResolutionContext context)
         {
             if (source.DepositPayment.DepositRefund == null)
                 return null;
@@ -21,7 +21,7 @@ namespace Services.AutoMapping.Appointments
                 return null;
 
             var baseUrl = _configuration["BaseURL"];
-            var imagesFolderPath = _configuration["MediaSettings:ManualRefundProofsPath"];
+            var imagesFolderPath = _configuration["MediaSettings:ManualDepositRefundProofsPath"];
             destMember = $"{baseUrl}/{imagesFolderPath}/{source.DepositPayment.DepositRefund.ManualProofUrl}";
             return destMember;
         }
