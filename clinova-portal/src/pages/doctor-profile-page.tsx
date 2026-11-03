@@ -369,11 +369,11 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
               {getErrorMessage(profile.error)}
             </p>
             <Button
-              className="mt-3 h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
-              variant="outline"
+              className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+              variant="ghost"
               onClick={() => profile.refetch()}
             >
-              <RefreshCw />
+              <RefreshCw className="size-4" />
               {t("doctorProfile.retry")}
             </Button>
           </Card>
@@ -441,8 +441,8 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
 
                 <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
                   {!isEditing && (
-                    <Button className="h-10 cursor-pointer rounded-xl px-4 text-sm font-bold normal-case" onClick={startEditing}>
-                      <PencilLine />
+                    <Button className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={startEditing}>
+                      <PencilLine className="size-4" />
                       {t("doctorProfile.edit")}
                     </Button>
                   )}
@@ -660,25 +660,25 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                         <div className="flex flex-wrap justify-end gap-2 border-t border-border/50 pt-5">
                           <Button
                             type="button"
-                            variant="outline"
-                            className="h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
+                            variant="ghost"
+                            className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
                             onClick={cancelEditing}
                             disabled={updateProfile.isPending}
                           >
-                            <X />
+                            <X className="size-4" />
                             {t("doctorProfile.cancel")}
                           </Button>
                           <Button
                             type="submit"
-                            className="h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
+                            className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal"
                             disabled={
                               updateProfile.isPending || genders.isError
                             }
                           >
                             {updateProfile.isPending ? (
-                              <LoaderCircle className="animate-spin motion-reduce:animate-none" />
+                              <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
                             ) : (
-                              <Save />
+                              <Save className="size-4" />
                             )}
                             {t("doctorProfile.save")}
                           </Button>
@@ -822,10 +822,10 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </p>
                     )}
                     <Button
-                      className="h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
+                      className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal"
                       render={<Link to="/doctor/clinics" />}
                     >
-                      <Building2 />
+                      <Building2 className="size-4" />
                       {t("doctorProfile.manageClinics")}
                     </Button>
                   </CardContent>
@@ -905,13 +905,13 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       />
                       <Button
                         type="submit"
-                        className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal cursor-pointer"
+                        className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal"
                         disabled={changePassword.isPending}
                       >
                         {changePassword.isPending ? (
-                          <LoaderCircle className="animate-spin motion-reduce:animate-none" />
+                          <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
                         ) : (
-                          <KeyRound />
+                          <KeyRound className="size-4" />
                         )}
                         {t("doctorProfile.changePassword")}
                       </Button>
@@ -965,8 +965,8 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
       <div className="grid grid-cols-2 gap-2 border-t border-border/60 bg-background/40 p-4">
         <Button
           type="button"
-          variant="outline"
-          className="h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
+          variant="ghost"
+          className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
           disabled={updatePicture.isPending}
           onClick={() => {
             setPictureFile(null);
@@ -977,7 +977,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
         </Button>
         <Button
           type="button"
-          className="h-11 rounded-xl text-sm font-bold normal-case cursor-pointer"
+          className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal"
           disabled={updatePicture.isPending}
           onClick={() => {
             updatePicture.mutate(pictureFile, {
@@ -986,9 +986,9 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
           }}
         >
           {updatePicture.isPending ? (
-            <LoaderCircle className="animate-spin motion-reduce:animate-none" />
+            <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
           ) : (
-            <Camera />
+            <Camera className="size-4" />
           )}
           {t("doctorProfile.updatePicture")}
         </Button>

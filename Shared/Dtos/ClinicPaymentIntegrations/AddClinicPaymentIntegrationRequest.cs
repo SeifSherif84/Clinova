@@ -11,7 +11,7 @@ namespace Shared.Dtos.ClinicPaymentIntegrations
     public class AddClinicPaymentIntegrationRequest
     {
         [EnumDataType(typeof(OnlinePaymentMethodType))]
-        public OnlinePaymentMethodType OnlinePaymentMethodType { get; set; }
+        public OnlinePaymentMethodType PaymentMethod { get; set; }
 
 
         [Range(1, int.MaxValue)]

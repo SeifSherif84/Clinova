@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Hash, Info, Link2, LoaderCircle, Plus, TriangleAlert, WalletCards, X } from 'lucide-react'
+import { ArrowRight, CircleAlert, Hash, Info, Link2, LoaderCircle, Plus, WalletCards, X } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
 import { Alert, AlertDescription} from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useApi } from '@/hooks/use-api'
@@ -85,6 +86,15 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 id="paymob-integrations-title" tabIndex={-1} className="font-sans text-xl font-bold normal-case tracking-normal">{t('paymob.integrationsTitle')}</h2>
+            {!disabled && account.integrations.length > 0 && !activeCount && (
+              <Popover>
+                <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground" />} aria-label={t('paymob.integrationsInactiveTitle')}><CircleAlert className="size-6" /></PopoverTrigger>
+                <PopoverContent className="max-h-[70svh] w-96 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl text-start motion-reduce:animate-none">
+                  <PopoverTitle className="text-base font-bold normal-case">{t('paymob.integrationsInactiveTitle')}</PopoverTitle>
+                  <p className="text-sm leading-6 text-muted-foreground">{t('paymob.integrationsNeeded')}</p>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <p className="mt-1 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsDescription')}</p>
         </div>
@@ -93,17 +103,6 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
     </div>
 
     {disabled && <Alert role="note" className="mt-5 rounded-xl border-border bg-muted/40"><Info /><AlertDescription className="leading-6">{t('paymob.integrationsDisabled')}</AlertDescription></Alert>}
-    {!disabled && account.integrations.length > 0 && !activeCount && (
-      <div role="note" className="mt-5 flex flex-col gap-4 overflow-hidden rounded-2xl border border-warm/20 bg-gradient-to-br from-warm/10 via-card to-transparent p-5 shadow-sm sm:flex-row sm:items-center sm:gap-5">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-warm/15 text-warm">
-          <TriangleAlert className="size-6" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold text-foreground">{t('paymob.integrationsInactiveTitle')}</h3>
-          <p className="mt-1 text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsNeeded')}</p>
-        </div>
-      </div>
-    )}
     {error && !editorOpen && <Notice message={t('paymob.' + error)} />}
 
     {account.integrations.length ? <>
@@ -208,11 +207,11 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
 
               <div className="grid gap-2">
                 <Label htmlFor="paymob-integration-id" className="text-xs font-semibold normal-case tracking-normal text-foreground/80">{t('paymob.integrationId')}</Label>
-                <div className="relative">
-                  <Hash aria-hidden="true" className="pointer-events-none absolute start-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <div className="group relative">
+                  <Hash aria-hidden="true" className={`pointer-events-none absolute start-4 top-1/2 size-4 -translate-y-1/2 transition-colors ${invalid ? 'text-destructive' : 'text-muted-foreground group-focus-within:text-primary'}`} />
                   <Input ref={input} id="paymob-integration-id" autoFocus inputMode="numeric" dir="ltr" autoComplete="off" spellCheck={false} value={enteredId} disabled={busy || refreshing} aria-invalid={invalid || undefined} aria-describedby="paymob-integration-hint"
                     placeholder={t('paymob.integrationIdPlaceholder')}
-                    className="h-12 rounded-xl border border-input bg-background/40 ps-11 focus-visible:border-primary/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20"
+                    className="h-12 rounded-xl bg-background/40 ps-11 transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20"
                     onChange={(event) => { setSelected(method); setIntegrationId(event.target.value); setInvalid(false); setError('') }} />
                 </div>
                 <p id="paymob-integration-hint" className="text-xs leading-6 font-semibold text-muted-foreground">{t('paymob.integrationIdHint')}</p>

@@ -100,11 +100,11 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
           {formError && <Notice message={formError} />}
           <div className="grid gap-2">
             <Label htmlFor={'paymob-integration-edit-' + integration.id} className="text-xs font-semibold normal-case tracking-normal text-foreground/80">{t('paymob.integrationId')}</Label>
-            <div className="relative">
-              <Hash aria-hidden="true" className="pointer-events-none absolute start-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="group relative">
+              <Hash aria-hidden="true" className={`pointer-events-none absolute start-4 top-1/2 size-4 -translate-y-1/2 transition-colors ${invalid ? 'text-destructive' : 'text-muted-foreground group-focus-within:text-primary'}`} />
               <Input ref={input} id={'paymob-integration-edit-' + integration.id} autoFocus inputMode="numeric" dir="ltr" autoComplete="off" spellCheck={false} value={value} disabled={busy} aria-invalid={invalid || undefined}
                 placeholder={t('paymob.integrationIdPlaceholder')}
-                className="h-12 rounded-xl border border-input bg-background/40 ps-11 focus-visible:border-primary/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20"
+                className="h-12 rounded-xl bg-background/40 ps-11 transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20"
                 onChange={(event) => { setValue(event.target.value); setInvalid(false); setFormError('') }} />
             </div>
             <p className="text-xs leading-6 font-semibold text-muted-foreground">{t('paymob.integrationIdHint')}</p>

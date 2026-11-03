@@ -263,7 +263,7 @@ export default function ClinicDetailsPage() {
     <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
       <div className="mx-auto min-w-0 w-full max-w-7xl p-4 sm:p-6 lg:p-10">
         {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
-        {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="outline" className="rounded-xl normal-case cursor-pointer" onClick={() => details.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
+        {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => details.refetch()}><RefreshCw className="size-4" />{t('clinics.retry')}</Button></Card>}
 
         {details.data && (
           <div className="mt-5 min-w-0 grid gap-5">
@@ -283,8 +283,8 @@ export default function ClinicDetailsPage() {
     </div>
     <div className="flex flex-wrap gap-2">
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" className="h-10 w-full cursor-pointer rounded-xl px-4 text-sm font-bold normal-case sm:w-auto" />}>
-        <Settings2 />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
+      <DropdownMenuTrigger render={<Button variant="ghost" className="h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10 sm:w-auto" />}>
+        <Settings2 className="size-4" />{t('clinicDetails.manage')}<ChevronDown className="size-3.5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56 rounded-xl p-1.5">
         <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/working-hours" search={{ clinicId: numericClinicId }} />}>
@@ -313,8 +313,8 @@ export default function ClinicDetailsPage() {
       </DropdownMenuContent>
     </DropdownMenu>
     {isOwner && !isEditing && (
-      <Button className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
-        <PencilLine />{t('clinicDetails.edit')}
+      <Button className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 sm:w-auto" onClick={startEditing}>
+        <PencilLine className="size-4" />{t('clinicDetails.edit')}
       </Button>
     )}
     {currentMember && (
@@ -377,7 +377,7 @@ export default function ClinicDetailsPage() {
   </div>
                   <CardContent className="p-5">
                     {isEditing && editForm ? (
-                      <form className="grid gap-5" onSubmit={submitEdit}><div className="grid min-w-0 gap-5 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-5"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[13px] font-semibold text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2 border-t border-border/50 pt-5"><Button type="button" variant="outline" className="rounded-xl normal-case cursor-pointer" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="rounded-xl normal-case cursor-pointer" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="animate-spin" /> : <Save />}{t('clinicDetails.save')}</Button></div></form>
+                      <form className="grid gap-5" onSubmit={submitEdit}><div className="grid min-w-0 gap-5 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-5"><FormField className="sm:col-span-2" id="editClinicName" label={t('clinicForm.name')} value={editForm.name} onChange={(event) => updateEditField('name', event.target.value)} maxLength={100} required /><FormField id="editStreet" label={t('clinicForm.street')} value={editForm.streetName} onChange={(event) => updateEditField('streetName', event.target.value)} maxLength={150} required /><FormField id="editBuilding" label={t('clinicForm.building')} value={editForm.buildingNumber} onChange={(event) => updateEditField('buildingNumber', event.target.value)} maxLength={10} required /><FormField id="editLandmark" label={t('clinicForm.landmark')} value={editForm.landmark} onChange={(event) => updateEditField('landmark', event.target.value)} maxLength={100} /><FormField id="editMaps" label={t('clinicForm.mapsUrl')} type="url" value={editForm.googleMapsUrl} onChange={(event) => updateEditField('googleMapsUrl', event.target.value)} maxLength={500} /><FormField id="editFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" value={editForm.consultationFee} onChange={(event) => updateEditField('consultationFee', event.target.value)} required /><FormField id="editDeposit" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" value={editForm.depositPercentage} onChange={(event) => updateEditField('depositPercentage', event.target.value)} required /></div><p className="text-[13px] font-semibold text-muted-foreground">{t('clinicDetails.regionEditGap')}</p><div className="flex justify-end gap-2 border-t border-border/50 pt-5"><Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => setIsEditing(false)}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={updateClinic.isPending}>{updateClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicDetails.save')}</Button></div></form>
                     ) : (
                       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
   <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
@@ -463,8 +463,8 @@ export default function ClinicDetailsPage() {
         </span>
       </Label>
 
-      <Button className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>
-        {addImages.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Plus />}
+      <Button className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={!newImages.length || addImages.isPending} onClick={() => addImages.mutate(newImages)}>
+        {addImages.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Plus className="size-4" />}
         {t('clinicDetails.uploadImages')}
       </Button>
     </div>
@@ -553,8 +553,8 @@ export default function ClinicDetailsPage() {
                       <p className="text-xs leading-5 font-bold text-muted-foreground">{t('clinicDetails.inviteDescription')}</p>
                       <form className="grid gap-3" onSubmit={submitInvitation}>
                         <FormField id="inviteDoctorEmail" label={t('clinicDetails.doctorEmail')} type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder={t('clinicDetails.doctorEmailPlaceholder')} required />
-                        <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 cursor-pointer" disabled={sendInvitation.isPending}>
-                          {sendInvitation.isPending ? <LoaderCircle className="animate-spin" /> : <MailPlus />}
+                        <Button type="submit" className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={sendInvitation.isPending}>
+                          {sendInvitation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <MailPlus className="size-4" />}
                           {t('clinicDetails.sendInvitation')}
                         </Button>
                       </form>
@@ -604,8 +604,8 @@ export default function ClinicDetailsPage() {
   {isOwner && details.data.phoneNumbers.length < 6 && (
     <form className="grid gap-3" onSubmit={submitPhone}>
       <FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required />
-      <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90 cursor-pointer" disabled={addPhone.isPending}>
-        {addPhone.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Plus />}
+      <Button type="submit" className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={addPhone.isPending}>
+        {addPhone.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Plus className="size-4" />}
         {t('clinicDetails.savePhone')}
       </Button>
     </form>

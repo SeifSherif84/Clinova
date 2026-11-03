@@ -106,7 +106,7 @@ const cellClasses = [
 export function PaymobCredentialsGuideDialog({ label }: { label?: string }) {
   const { t } = useTranslation()
   return <Dialog>
-    <DialogTrigger render={<Button type="button" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal bg-primary text-primary-foreground hover:bg-primary/90'} />}><BookOpen />{label ?? t('paymob.openGuide')}</DialogTrigger>
+    <DialogTrigger render={<Button type="button" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" />}><BookOpen className="size-4" />{label ?? t('paymob.openGuide')}</DialogTrigger>
     <DialogContent showCloseButton={false} className="flex max-h-[90svh] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-3xl motion-reduce:animate-none">
       <DialogHeader className="shrink-0 border-b p-4 sm:p-6">
         <div className="flex items-start justify-between gap-3">

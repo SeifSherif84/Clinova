@@ -3,7 +3,6 @@ import { ArrowRight, CircleCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PaymobCredentialsGuide } from '@/components/paymob/credentials-guide'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
-import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
 
 export default function PaymobCredentialsGuidePage() {
@@ -22,8 +21,8 @@ export default function PaymobCredentialsGuidePage() {
       </span>
       <p className="mt-3 max-w-md text-sm leading-7 text-foreground/80">{t('paymob.guideFinish')}</p>
     </div>
-    <Button role="link" className={paymobButtonClass + ' h-auto min-h-12 shrink-0 whitespace-normal px-6'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}>
-      {t('paymob.backConnect')}<ArrowRight className="rtl:rotate-180" />
+    <Button role="link" className="h-10 w-fit shrink-0 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}>
+      {t('paymob.backConnect')}<ArrowRight className="size-4 rtl:rotate-180" />
     </Button>
   </div>
 </div>

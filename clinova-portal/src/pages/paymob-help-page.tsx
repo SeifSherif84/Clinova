@@ -81,8 +81,8 @@ export default function PaymobHelpPage() {
         </section>)}
       </div>
       <div className="mt-12 flex flex-wrap gap-2 border-t border-border/60 pt-6">
-        <Button role="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal bg-primary text-primary-foreground hover:bg-primary/90'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="rtl:rotate-180" />{t('paymob.backConnect')}</Button>
-        <Button role="link" variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.openGuide')}</Button>
+        <Button role="link" className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="size-4 rtl:rotate-180" />{t('paymob.backConnect')}</Button>
+        <Button role="link" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.openGuide')}</Button>
       </div>
     </>}
   </PaymobPageFrame>

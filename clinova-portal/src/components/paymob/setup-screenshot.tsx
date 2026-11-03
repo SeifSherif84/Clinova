@@ -32,8 +32,10 @@ export function SetupScreenshot({ section, src, source = 'Paymob' }: { section: 
           <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{title}</DialogTitle>
           <DialogDescription>{hasImage ? caption : failed ? t('paymob.imageUnavailable') : t(source === 'Clinova' ? 'paymob.clinovaScreenshotDescription' : 'paymob.screenshotDescription')}</DialogDescription>
         </DialogHeader>
-        {hasImage ? <><Button type="button" variant="outline" onClick={() => setFullSize(!fullSize)} aria-pressed={fullSize} className={paymobButtonClass}>{fullSize ? <ZoomOut /> : <ZoomIn />}{t(fullSize ? 'paymob.imageFit' : 'paymob.imageActual')}</Button><div role="region" aria-label={title} tabIndex={0} className="max-h-[55svh] overflow-auto rounded-xl focus-visible:outline-2 focus-visible:outline-ring"><img src={src} alt={title} onError={() => setFailed(true)} className={fullSize ? 'h-auto max-w-none' : 'h-auto w-full'} /></div></> : placeholder}
-        <DialogClose render={<Button variant="outline" className={paymobButtonClass} />}><X className="size-4" />{t('paymob.close')}</DialogClose>
+        {hasImage ? <><Button type="button" variant="ghost" onClick={() => setFullSize(!fullSize)} aria-pressed={fullSize} className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30">{fullSize ? <ZoomOut className="size-4" /> : <ZoomIn className="size-4" />}{t(fullSize ? 'paymob.imageFit' : 'paymob.imageActual')}</Button><div role="region" aria-label={title} tabIndex={0} className="max-h-[55svh] overflow-auto rounded-xl focus-visible:outline-2 focus-visible:outline-ring"><img src={src} alt={title} onError={() => setFailed(true)} className={fullSize ? 'h-auto max-w-none' : 'h-auto w-full'} /></div></> : placeholder}
+        <div className="flex justify-end">
+          <DialogClose render={<Button type="button" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" />}><X className="size-4" />{t('paymob.close')}</DialogClose>
+        </div>
       </DialogContent>
     </Dialog>
   </figure>
