@@ -21,6 +21,8 @@ namespace Persistence.Data.Configurations
                    .WithOne(appointment => appointment.Review)
                    .HasForeignKey<Review>(review => review.AppointmentId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(review => review.AppointmentId).IsUnique();
         }
     }
 }

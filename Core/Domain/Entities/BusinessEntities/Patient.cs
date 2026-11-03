@@ -11,7 +11,6 @@ namespace Domain.Entities.BusinessEntities
     public class Patient : UserApp
     {
         public BloodTypes? BloodType { get; set; }
-
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }
