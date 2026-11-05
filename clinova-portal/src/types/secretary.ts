@@ -45,6 +45,24 @@ export interface SecretaryAppointment {
   depositClinicManualPaymentMethodType: string | null
   remainingPaymentStatus: RemainingPaymentStatus | string | null
   requiresManualRefundAction: boolean
+  // Optional so the list still renders against a backend that doesn't send it yet.
+  depositRefundReason?: DepositRefundReason | string | null
+}
+
+export type DepositRefundReason = 'PatientCancellation' | 'ClinicCancellation' | 'LatePaymentAfterReservationExpiration'
+
+// Who ended a cancelled appointment, derived from its refund and payment state (see cancellationSource).
+export type CancellationSource = 'patient' | 'clinic' | 'paymentRejected' | 'lateExpiration'
+
+// Request enums are sent as numbers (RemainingPaymentMethodType / ManualDepositRefundMethodType).
+export const ClinicPaymentMethod = { CashAtClinic: 1, ManualTransfer: 2 } as const
+export type ClinicPaymentMethod = typeof ClinicPaymentMethod[keyof typeof ClinicPaymentMethod]
+
+export type CancellationRequester = 'patient' | 'clinic'
+
+export interface MarkCompletedRequest {
+  remainingPaymentMethodType?: ClinicPaymentMethod
+  clinicManualPaymentMethodId?: number
 }
 
 export interface SecretaryAppointmentDetails {
@@ -104,4 +122,5 @@ export interface ClinicSecretary {
   profilePicture: string | null
 }
 
-export type SecretaryAppointmentAction = 'secretary-cancel' | 'mark-completed' | 'mark-no-show' | 'approve' | 'reject'
+// Actions sent straight from the details page; cancel, refund and complete have their own dialogs.
+export type SecretaryAppointmentAction = 'mark-no-show' | 'approve' | 'reject'

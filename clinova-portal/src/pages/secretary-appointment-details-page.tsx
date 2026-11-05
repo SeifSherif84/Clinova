@@ -1,19 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams, useSearch } from '@tanstack/react-router'
-import { ArrowLeft, Ban, CalendarDays, CircleCheckBig, Clock3, Coins, Copy, ExternalLink, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, Undo2, UserRound, UserX, WalletCards, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Ban, CalendarDays, CalendarX2, CircleCheckBig, Clock3, Coins, Copy, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, WalletCards, X, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import Notice from '@/components/notice'
+import { CancelAppointmentDialog, ConfirmRefundDialog, MarkCompletedDialog, type DialogOutcome } from '@/components/secretary-appointment-dialogs'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useApi } from '@/hooks/use-api'
 import { ApiError, getErrorMessage } from '@/lib/api'
-import { availableActions, formatTime, parseSlotDate, resolveFileUrl, statusTone } from '@/lib/secretary-appointments'
-import type { SecretaryAppointmentAction, SecretaryAppointmentDetails } from '@/types/secretary'
+import { availableActions, cancellationSource, formatTime, parseSlotDate, resolveFileUrl, statusTone } from '@/lib/secretary-appointments'
+import type { CancellationSource, SecretaryAppointmentAction, SecretaryAppointmentDetails } from '@/types/secretary'
+
+type OpenDialog = 'cancel' | 'refund' | 'complete' | 'no-show' | null
+const cancellationIcons: Record<CancellationSource, LucideIcon> = { patient: UserRound, clinic: Stethoscope, paymentRejected: Ban, lateExpiration: CalendarX2 }
+
+// What happened to the deposit after the cancellation, phrased for the cancellation banner.
+function refundOutcome(data: SecretaryAppointmentDetails): { key: string; tone: 'success' | 'pending' | 'danger' | 'muted' } {
+  if (data.depositPaymentStatus === 'Rejected') return { key: 'paymentRejected', tone: 'muted' }
+  if (data.depositPaymentStatus === 'Refunded' || data.depositRefundStatus === 'Succeeded') return { key: 'refunded', tone: 'success' }
+  if (data.depositRefundStatus === 'PendingManualProcessing') return { key: 'manualPending', tone: 'pending' }
+  if (data.depositRefundStatus === 'Processing' || data.depositRefundStatus === 'PendingVerification') return { key: 'onlinePending', tone: 'pending' }
+  if (data.depositRefundStatus === 'Failed') return { key: 'failed', tone: 'danger' }
+  return { key: 'kept', tone: 'muted' }
+}
+const outcomeTone = { success: 'border-primary/20 bg-primary/10 text-primary', pending: 'border-warm/20 bg-warm/10 text-warm', danger: 'border-destructive/20 bg-destructive/10 text-destructive', muted: 'border-border bg-muted text-muted-foreground' }
 
 const spinner = <LoaderCircle className="animate-spin motion-reduce:animate-none" />
 const buttonClass = 'h-10 rounded-lg text-sm font-semibold normal-case tracking-normal'
@@ -42,7 +57,9 @@ export default function SecretaryAppointmentDetailsPage() {
   const id = Number(appointmentId)
   const validId = Number.isInteger(id) && id > 0
   const [rejecting, setRejecting] = useState(false)
-  const [confirmCancel, setConfirmCancel] = useState(false)
+  const [dialog, setDialog] = useState<OpenDialog>(null)
+  // Cancellation results explain the refund decision, so they stay on the page instead of a short-lived toast.
+  const [outcome, setOutcome] = useState<DialogOutcome | null>(null)
   const [reason, setReason] = useState('')
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
@@ -63,8 +80,8 @@ export default function SecretaryAppointmentDetailsPage() {
         body: type === 'reject' ? JSON.stringify({ reason: reason.trim() }) : undefined,
       }, { notifyOnError: false })
     },
-    onMutate: () => setSuccess(''),
-    onSuccess: (_result, type) => { setRejecting(false); setReason(''); setSuccess(t('secretary.appointments.done.' + type)) },
+    onMutate: () => { setSuccess(''); setOutcome(null) },
+    onSuccess: (_result, type) => { setRejecting(false); setReason(''); setDialog(null); setSuccess(t('secretary.appointments.done.' + type)) },
     // Refresh the list and details after every attempt; a failure usually means the appointment changed.
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['secretary', 'appointments'] }),
   })
@@ -100,6 +117,10 @@ export default function SecretaryAppointmentDetailsPage() {
   const date = data ? parseSlotDate(data.slotDate) : null
   const refundedAt = data?.depositRefundProcessedAt ? new Date(data.depositRefundProcessedAt) : null
   const remainingDue = data ? data.remainingPaymentAmount > 0 && data.remainingPaymentStatus !== 'Paid' : false
+  const cancelledBy = data ? cancellationSource(data) : null
+  const CancelledIcon = cancelledBy ? cancellationIcons[cancelledBy] : Ban
+  const refund = data ? refundOutcome(data) : null
+  const dialogProps = { onOpenChange: (open: boolean) => { if (!open) setDialog(null) }, onDone: (result: DialogOutcome) => { setSuccess(result.title ? '' : result.message); setOutcome(result.title ? result : null) } }
 
   return (
     <DoctorWorkspaceShell active="secretary-appointments" topBackLink={backLink}>
@@ -168,7 +189,28 @@ export default function SecretaryAppointmentDetailsPage() {
               </div>
 
               {allowed.verify && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 px-3 py-2.5 text-xs leading-6 font-semibold text-warm sm:text-sm"><Sparkles className="mt-1 size-4 shrink-0" />{t('secretary.appointments.verifyHint')}</p>}
+
+              {data.appointmentStatus === 'Cancelled' && refund && <section aria-label={t('secretary.cancellation.reasonLabel')} className="flex flex-wrap items-start gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-destructive/10 text-destructive"><CancelledIcon className="size-5" /></span>
+                <div className="min-w-0 flex-1">
+                  <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.cancellation.reasonLabel')}</small>
+                  <strong className="mt-0.5 block text-sm font-bold sm:text-base">{t('secretary.cancellation.source.' + (cancelledBy ?? 'unknown'))}</strong>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground sm:text-sm">
+                    {t('secretary.cancellation.sourceHint.' + (cancelledBy ?? 'unknown'), { reason: data.depositPaymentSecretaryRejectionReason ?? '' })}
+                  </p>
+                </div>
+                <span className={`${statusClass} ${outcomeTone[refund.tone]} shrink-0 !px-3 !py-1 !text-xs !font-bold`}>{t('secretary.cancellation.refund.' + refund.key)}</span>
+              </section>}
             </header>
+
+            {outcome && <div role="status" className={`flex items-start gap-3 rounded-2xl border p-4 ${outcome.tone === 'warning' ? 'border-warm/25 bg-warm/10' : 'border-primary/20 bg-primary/5'}`}>
+              <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${outcome.tone === 'warning' ? 'bg-warm/15 text-warm' : 'bg-primary/10 text-primary'}`}>{outcome.tone === 'warning' ? <TriangleAlert className="size-4.5" /> : <CircleCheckBig className="size-4.5" />}</span>
+              <div className="min-w-0 flex-1">
+                <strong className={`block text-sm font-bold ${outcome.tone === 'warning' ? 'text-warm' : 'text-primary'}`}>{outcome.title}</strong>
+                <p className="mt-0.5 text-xs leading-6 text-foreground/80 sm:text-sm">{outcome.message}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="size-8 shrink-0 rounded-lg text-muted-foreground" aria-label={t('secretary.cancellation.dismiss')} onClick={() => setOutcome(null)}><X className="size-4" /></Button>
+            </div>}
 
             <Section icon={CalendarDays} title={t('secretary.appointments.appointmentSection')}>
               <dl className="grid gap-2.5 sm:grid-cols-2">
@@ -284,6 +326,7 @@ export default function SecretaryAppointmentDetailsPage() {
                   <dd className="text-sm font-bold">{label('refundReason', data.depositRefundReason)}</dd>
                 </div>}
               </dl>
+              {data.depositRefundStatus === 'Failed' && <p className="flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs leading-6 font-semibold text-destructive sm:text-sm"><TriangleAlert className="mt-1 size-4 shrink-0" />{t('secretary.cancellation.failedRefundHint')}</p>}
               {data.manualDepositRefundProofUrl && <Button className={primaryButton + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualDepositRefundProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewRefundProof')}<ExternalLink className="size-3.5" /></Button>}
             </Section>}
           </article>
@@ -294,7 +337,7 @@ export default function SecretaryAppointmentDetailsPage() {
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CircleCheckBig className="size-4.5" /></span>
               <div className="min-w-0">
                 <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{t('secretary.appointments.actionsSection')}</h2>
-                {!allowed.verify && !allowed.cancel && <p className="mt-0.5 text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.appointments.noActions')}</p>}
+                {!allowed.verify && !allowed.cancel && !allowed.confirmRefund && <p className="mt-0.5 text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.appointments.noActions')}</p>}
               </div>
             </div>
 
@@ -314,28 +357,39 @@ export default function SecretaryAppointmentDetailsPage() {
 <Button className="h-9 w-full rounded-lg border border-transparent bg-destructive bg-clip-border px-4 text-sm font-bold normal-case tracking-normal text-white shadow-md shadow-destructive/25 transition hover:-translate-y-0.5 hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/30 focus-visible:ring-2 focus-visible:ring-destructive/30 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none motion-reduce:transition-none" disabled={action.isPending} onClick={() => { action.reset(); setRejecting(true) }}>{t('secretary.appointments.reject')}</Button>
             </div>)}
 
+            {allowed.confirmRefund && <div className="grid gap-3 rounded-2xl border border-warm/25 bg-warm/10 p-4">
+              <p className="flex items-start gap-2 text-xs leading-5 font-semibold text-warm sm:text-sm"><HandCoins className="mt-0.5 size-4 shrink-0" />{t('secretary.refundConfirm.pendingHint', { amount: money(data.requestedDepositRefundAmount ?? data.depositPaymentAmount) })}</p>
+              <Button className="h-11 w-full rounded-xl bg-primary text-sm font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={action.isPending} onClick={() => { action.reset(); setDialog('refund') }}><Undo2 />{t('secretary.refundConfirm.open')}</Button>
+            </div>}
+
             {allowed.complete && <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              <Button className={primaryButton} disabled={action.isPending} onClick={() => action.mutate('mark-completed')}>{busy('mark-completed') ? spinner : <CircleCheckBig />}{t('secretary.appointments.complete')}</Button>
-              <Button variant="outline" className={buttonClass} disabled={action.isPending} onClick={() => action.mutate('mark-no-show')}>{busy('mark-no-show') ? spinner : <UserX />}{t('secretary.appointments.noShow')}</Button>
+              <Button className={primaryButton} disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }}><CircleCheckBig />{t('secretary.appointments.complete')}</Button>
+              <Button variant="outline" className={buttonClass} disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }}>{busy('mark-no-show') ? spinner : <UserX />}{t('secretary.appointments.noShow')}</Button>
             </div>}
             {allowed.cancel && !allowed.complete && <p className="text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.appointments.completeLater')}</p>}
             {allowed.cancel && <div className="border-t border-border/60 pt-4">
-              <Button className="h-9 w-full rounded-lg border border-transparent bg-destructive bg-clip-border px-4 text-sm font-bold normal-case tracking-normal text-white shadow-md shadow-destructive/25 transition hover:-translate-y-0.5 hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/30 focus-visible:ring-2 focus-visible:ring-destructive/30 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none motion-reduce:transition-none" disabled={action.isPending} onClick={() => { action.reset(); setConfirmCancel(true) }}>{busy('secretary-cancel') ? spinner : <Ban />}{t('secretary.appointments.cancel')}</Button>
+              <Button className="h-9 w-full rounded-lg border border-transparent bg-destructive bg-clip-border px-4 text-sm font-bold normal-case tracking-normal text-white shadow-md shadow-destructive/25 transition hover:-translate-y-0.5 hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/30 focus-visible:ring-2 focus-visible:ring-destructive/30 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none motion-reduce:transition-none" disabled={action.isPending} onClick={() => { action.reset(); setDialog('cancel') }}><Ban />{t('secretary.appointments.cancel')}</Button>
             </div>}
 
           </aside>
         </div>}
 
+        {data && <>
+          <CancelAppointmentDialog open={dialog === 'cancel'} details={data} {...dialogProps} />
+          <ConfirmRefundDialog open={dialog === 'refund'} details={data} {...dialogProps} />
+          <MarkCompletedDialog open={dialog === 'complete'} details={data} {...dialogProps} />
+        </>}
+
         <ConfirmationDialog
-          open={confirmCancel}
-          title={t('secretary.appointments.cancelTitle')}
-          description={t('secretary.appointments.cancelDescription')}
-          confirmLabel={t('secretary.appointments.cancel')}
-          cancelLabel={t('invitations.keepPending')}
+          open={dialog === 'no-show'}
+          title={t('secretary.noShowDialog.title')}
+          description={t('secretary.noShowDialog.description')}
+          confirmLabel={t('secretary.appointments.noShow')}
+          cancelLabel={t('secretary.noShowDialog.keep')}
           destructive
-          pending={busy('secretary-cancel')}
-          onConfirm={() => action.mutate('secretary-cancel', { onSettled: () => setConfirmCancel(false) })}
-          onOpenChange={(open) => { if (!open && !action.isPending) setConfirmCancel(false) }}
+          pending={busy('mark-no-show')}
+          onConfirm={() => action.mutate('mark-no-show')}
+          onOpenChange={(open) => { if (!open && !action.isPending) setDialog(null) }}
         />
       </div>
     </DoctorWorkspaceShell>
