@@ -22,5 +22,8 @@ namespace Shared.Dtos.Appointments
         public string DepositPaymentMethodType { get; set; } = null!; // Paymob, ManualTransfer, CashAtClinic
 
         public bool RequiresManualRefundAction { get; set; }
+
+        // PatientCancellation, ClinicCancellation or LatePaymentAfterReservationExpiration; null when no refund exists.
+        public string? DepositRefundReason { get; set; }
     }
 }
