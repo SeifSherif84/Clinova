@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,5 +20,6 @@ namespace Domain.Contracts
         Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<int> CountAsync(IBaseSpecifications<TEntity, TKey> specifications);
+        Task<double> AverageAsync(IBaseSpecifications<TEntity, TKey> specifications, Expression<Func<TEntity, int>> selector);
     }
 }

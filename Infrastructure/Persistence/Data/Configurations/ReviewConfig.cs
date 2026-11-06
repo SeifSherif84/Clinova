@@ -22,7 +22,12 @@ namespace Persistence.Data.Configurations
                    .HasForeignKey<Review>(review => review.AppointmentId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(review => review.AppointmentId).IsUnique();
+            builder.Property(review => review.Status)
+                   .HasConversion<string>()
+                   .HasMaxLength(20);
+
+            builder.HasIndex(review => review.AppointmentId)
+                   .IsUnique();
         }
     }
 }

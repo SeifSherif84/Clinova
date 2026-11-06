@@ -145,7 +145,18 @@ function Breakdown({ data }: { data: AppointmentOverview }) {
       {/* Breakdown */}
       <div className="grid min-w-0 gap-4">
         {total === 0 ? (
-          <p className="text-sm font-semibold text-muted-foreground">{t('analytics.appointments.empty')}</p>
+          <div className="relative isolate grid min-h-48 place-items-center overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-muted/70 via-muted/50 to-primary/[0.06] p-6 text-center dark:border-primary/10 dark:from-primary/[0.07] dark:via-card dark:to-primary/[0.03]">
+            <span aria-hidden="true" className="pointer-events-none absolute -top-16 start-1/4 -z-10 size-48 rounded-full bg-primary/10 blur-[70px]" />
+            <div className="grid max-w-sm justify-items-center gap-3">
+              <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                <CalendarDays className="size-5" />
+              </span>
+              <strong className="font-sans text-base font-bold">{t('analytics.appointments.empty')}</strong>
+              <p className="text-xs leading-5 font-semibold text-muted-foreground">
+                {t('analytics.appointments.emptyHint', { defaultValue: 'Confirmed, completed and cancelled visits will appear here as soon as appointments are booked.' })}
+              </p>
+            </div>
+          </div>
         ) : (
           <ul className="grid grid-cols-2 gap-3">
             {present.map((r, i) => {

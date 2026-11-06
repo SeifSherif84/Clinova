@@ -423,7 +423,18 @@ export function FinancialSection({
                 <NetSummary overview={overview} money={money} />
 
                 {bars.length === 0 ? (
-                  <p className="self-center text-sm font-semibold text-muted-foreground">{t('analytics.financial.empty')}</p>
+                  <div className="relative isolate grid min-h-80 min-w-0 place-items-center overflow-hidden rounded-[1.75rem] border border-primary/15 bg-gradient-to-br from-muted/70 via-muted/50 to-primary/[0.06] p-6 text-center dark:border-primary/10 dark:from-primary/[0.07] dark:via-card dark:to-primary/[0.03]">
+                    <span aria-hidden="true" className="pointer-events-none absolute -top-24 start-1/4 -z-10 size-64 rounded-full bg-primary/10 blur-[80px]" />
+                    <div className="grid max-w-xs justify-items-center gap-3">
+                      <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
+                        <WalletCards className="size-5" />
+                      </span>
+                      <strong className="font-sans text-base font-bold">{t('analytics.financial.empty')}</strong>
+                      <p className="text-xs leading-5 font-semibold text-muted-foreground">
+                        {t('analytics.financial.emptyHint', { defaultValue: 'Collected, pending and refunded amounts will show up here as soon as payments are recorded.' })}
+                      </p>
+                    </div>
+                  </div>
                 ) : (
                   <RevenueBarChart bars={bars} metric={metric} onMetric={setMetric} hovered={hovered} onHover={setHovered} money={money} language={language} />
                 )}

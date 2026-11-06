@@ -5,6 +5,7 @@ using Persistence.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,6 +59,11 @@ namespace Persistence.Repositories
         public async Task<int> CountAsync(IBaseSpecifications<TEntity, TKey> specifications)
         {
             return await ApplySpecifications(specifications).CountAsync();
+        }
+
+        public async Task<double> AverageAsync(IBaseSpecifications<TEntity, TKey> specifications, Expression<Func<TEntity, int>> selector)
+        {
+            return await ApplySpecifications(specifications).AverageAsync(selector);
         }
 
 

@@ -632,7 +632,6 @@ namespace Services.Appointments
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
 
-
             var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
             var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
             if (secretary is null)
@@ -642,10 +641,8 @@ namespace Services.Appointments
                 throw new BadRequestException("You are not associated with any clinic.");
             int clinicId = secretary.ClinicId.Value;
 
-
             var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
             var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100); 
-
 
             var doctorName = string.IsNullOrWhiteSpace(query.DoctorName) ? null : query.DoctorName.Trim(); 
             var patientSearch = string.IsNullOrWhiteSpace(query.PatientSearch) ? null : query.PatientSearch.Trim();
@@ -665,7 +662,6 @@ namespace Services.Appointments
             var appointmentRepo = _unitOfWork.GetRepository<Appointment, int>();
 
             var totalCount = await appointmentRepo.CountAsync(countSpecification);
-
 
             var dataSpecification = AppointmentSpecifications.ForClinicSecretary(clinicId,
                                                                                  doctorName,
