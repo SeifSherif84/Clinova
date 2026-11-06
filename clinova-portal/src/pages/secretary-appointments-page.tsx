@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock3, LoaderCircle, RefreshCw, RotateCcw, SearchX, Stethoscope, UserRound } from 'lucide-react'
+import { Ban, CalendarDays, CalendarPlus, CalendarX2, ChevronLeft, ChevronRight, Clock3, LoaderCircle, RefreshCw, RotateCcw, SearchX, Stethoscope, UserRound, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useApi } from '@/hooks/use-api'
 import { getErrorMessage } from '@/lib/api'
-import { formatTime, parseSlotDate, toAppointmentsQuery } from '@/lib/secretary-appointments'
-import { appointmentStatuses, depositPaymentStatuses, type PaginatedResult, type SecretaryAppointment, type SecretaryAppointmentFilters } from '@/types/secretary'
+import { cancellationSource, formatTime, parseSlotDate, toAppointmentsQuery } from '@/lib/secretary-appointments'
+import { appointmentStatuses, depositPaymentStatuses, type CancellationSource, type PaginatedResult, type SecretaryAppointment, type SecretaryAppointmentFilters } from '@/types/secretary'
 
 const pageSize = 12
 const debounceMs = 400
@@ -213,8 +213,9 @@ export default function SecretaryAppointmentsPage() {
                         </div>
 
                         <div className="flex flex-col gap-1.5 pt-3 text-sm sm:w-auto sm:shrink-0 sm:items-end sm:pt-0 sm:ps-5 sm:text-end">
-                          <span className={`flex items-center gap-1.5 font-bold ${statusTextClass(appointment.appointmentStatus)}`}>
+                          <span className={`flex flex-wrap items-center gap-1.5 font-bold sm:justify-end ${statusTextClass(appointment.appointmentStatus)}`}>
                             {status(appointment.appointmentStatus)}
+                            <CancellationChip appointment={appointment} />
                           </span>
                           <span className="flex items-center gap-1.5 font-bold text-muted-foreground">
                             {appointment.depositPaymentMethodType && <span className="flex items-center gap-1.5 truncate"><span className="truncate">{t('secretary.paymentMethod.' + appointment.depositPaymentMethodType, { defaultValue: appointment.depositPaymentMethodType })}</span><span aria-hidden="true" className="h-3.5 w-px shrink-0 bg-muted-foreground/40" /></span>}
@@ -250,6 +251,19 @@ export default function SecretaryAppointmentsPage() {
       </div>
     </DoctorWorkspaceShell>
   )
+}
+
+const cancellationIcons: Record<CancellationSource, LucideIcon> = { patient: UserRound, clinic: Stethoscope, paymentRejected: Ban, lateExpiration: CalendarX2 }
+
+// Tells the secretary at a glance who ended a cancelled appointment.
+function CancellationChip({ appointment }: { appointment: SecretaryAppointment }) {
+  const { t } = useTranslation()
+  const source = cancellationSource(appointment)
+  if (!source) return null
+  const Icon = cancellationIcons[source]
+  return <span className="inline-flex items-center gap-1 rounded-full border border-destructive/15 bg-destructive/5 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-destructive">
+    <Icon className="size-3 shrink-0" />{t('secretary.cancellation.short.' + source)}
+  </span>
 }
 
 // Text filters update locally on every keystroke and reach the URL once typing pauses.

@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@/lib/api'
-import { appointmentStatuses, depositPaymentStatuses, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
+import { appointmentStatuses, depositPaymentStatuses, type CancellationSource, type SecretaryAppointment, type SecretaryAppointmentDetails, type SecretaryAppointmentFilters } from '@/types/secretary'
 
 const success = ['Confirmed', 'Completed', 'Paid', 'Succeeded', 'Refunded']
 const pending = ['PendingPayment', 'PendingVerification', 'Pending', 'Processing', 'PendingManualProcessing']
@@ -62,10 +62,33 @@ function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'slotEndT
 // The API no longer sends an Online/Manual category; anything but the Paymob gateway is a manual payment.
 const isManualPayment = (methodType: string | null) => Boolean(methodType) && methodType !== 'Paymob'
 
+// Guest reservations are created by the secretary and have no patient account (backend: bookingSource = Secretary).
+export const isGuestReservation = (details: Pick<SecretaryAppointmentDetails, 'bookingSource'>) => details.bookingSource === 'Secretary'
+
+// A balance is only collected when the remaining payment still has an amount and hasn't been settled.
+export const hasRemainingDue = (details: Pick<SecretaryAppointmentDetails, 'remainingPaymentAmount' | 'remainingPaymentStatus'>) =>
+  details.remainingPaymentAmount > 0 && details.remainingPaymentStatus === 'Pending'
+
+// The API has no "cancelled by" field, so this reads it from the refund and payment state:
+// - a rejected deposit means the secretary rejected the payment proof;
+// - otherwise the refund reason says who asked, and the clinic flow always records a refund,
+//   so a cancelled appointment with a paid deposit and no refund was cancelled at the patient's request.
+// Returns null when it can't be told (for example an older API that omits depositRefundReason).
+export function cancellationSource(item: Pick<SecretaryAppointment, 'appointmentStatus' | 'depositPaymentStatus' | 'depositRefundReason'>): CancellationSource | null {
+  if (item.appointmentStatus !== 'Cancelled') return null
+  if (item.depositPaymentStatus === 'Rejected') return 'paymentRejected'
+  if (item.depositRefundReason === 'ClinicCancellation') return 'clinic'
+  if (item.depositRefundReason === 'PatientCancellation') return 'patient'
+  if (item.depositRefundReason === 'LatePaymentAfterReservationExpiration') return 'lateExpiration'
+  if (item.depositRefundReason === null && item.depositPaymentStatus === 'Paid') return 'patient'
+  return null
+}
+
 // Mirrors the backend rules so only actions that can succeed are offered.
 export function availableActions(details: SecretaryAppointmentDetails) {
   const verifying = details.appointmentStatus === 'PendingVerification' && details.depositPaymentStatus === 'PendingVerification' && isManualPayment(details.depositPaymentMethodType) && Boolean(details.manualDepositPaymentProofUrl)
   const confirmedPaid = details.appointmentStatus === 'Confirmed' && details.depositPaymentStatus === 'Paid'
   const ended = hasEnded(details)
-  return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid && ended, noShow: confirmedPaid && ended }
+  const confirmRefund = details.appointmentStatus === 'Cancelled' && details.depositPaymentStatus === 'Paid' && details.depositRefundStatus === 'PendingManualProcessing'
+  return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid && ended, noShow: confirmedPaid && ended, confirmRefund }
 }
