@@ -744,14 +744,13 @@ namespace Persistence.Data.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<string>("ReplyContent")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 

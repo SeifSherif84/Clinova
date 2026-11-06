@@ -49,6 +49,8 @@ using Services.Abstractions.Secretaries;
 using Services.Secretaries;
 using Services.Abstractions.Analytics;
 using Services.Analytics;
+using Services.Abstractions.Reviews;
+using Services.Reviews;
 
 namespace Services
 {
@@ -84,5 +86,6 @@ namespace Services
         public ISecretaryInvitationService SecretaryInvitationService { get; } = new SecretaryInvitationService(_unitOfWork, _userManager, _configuration, _mailService, _notificationService, _mapper);
         public ISecretaryService SecretaryService { get; } = new SecretaryService(_unitOfWork, _mapper);
         public IDoctorAnalyticsService DoctorAnalyticsService { get; } = new DoctorAnalyticsService(_unitOfWork);
+        public IReviewService ReviewService { get; } = new ReviewService(_unitOfWork);
     }
 }

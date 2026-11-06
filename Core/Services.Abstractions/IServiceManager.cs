@@ -20,6 +20,7 @@ using Services.Abstractions.DepositPayments;
 using Services.Abstractions.SecretaryInvitations;
 using Services.Abstractions.Secretaries;
 using Services.Abstractions.Analytics;
+using Services.Abstractions.Reviews;
 
 
 namespace Services.Abstractions
@@ -43,5 +44,6 @@ namespace Services.Abstractions
         ISecretaryInvitationService SecretaryInvitationService { get; }
         ISecretaryService SecretaryService { get; }
         IDoctorAnalyticsService DoctorAnalyticsService { get; }
+        IReviewService ReviewService { get; }
     }
 }
