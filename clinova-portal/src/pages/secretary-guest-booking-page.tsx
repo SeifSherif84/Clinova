@@ -29,8 +29,9 @@ import { isManualPaymentProvider } from '@/types/manual-payment-method'
 import { BookingType, GuestPaymentMethod, type AvailableDay, type AvailableSlot, type ConfirmGuestPaymentRequest, type CreateGuestReservationRequest, type GuestCheckoutAccount, type GuestReservationCheckout, type HeldReservation } from '@/types/guest-reservation'
 
 const holdMs = 30 * 60 * 1000
-const button = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
-const primaryButton = button + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'
+const button = 'h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
+const primaryButton = button + ' bg-primary text-primary-foreground hover:bg-primary/90'
+const grayButton = button + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'
 const spinner = <LoaderCircle className="animate-spin motion-reduce:animate-none" />
 // Selectable tile for radio options; the checked state comes from the Base UI radio inside it.
 const bookingTypeKey: Record<number, 'Advance' | 'WalkIn'> = { [BookingType.Advance]: 'Advance', [BookingType.WalkIn]: 'WalkIn' }
@@ -49,8 +50,8 @@ function useLocale() {
 function SectionCard({ icon, title, step, children }: { icon: ReactNode; title: string; step?: number; children: ReactNode }) {
   const { t } = useTranslation()
   return <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-      <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+      <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
       <div className="relative flex items-center gap-2.5">
         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
         <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{title}</h3>
@@ -92,7 +93,7 @@ export default function SecretaryGuestBookingPage() {
           {notAssigned && <ClinicNotAssigned />}
           {clinic.isError && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(clinic.error)}</p>
-            <Button variant="outline" className={button + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
+            <Button variant="outline" className={grayButton + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </Card>}
           {clinic.data && (held
             ? <GuestCheckout key={held.checkout.appointmentId} reservation={held} onConfirmed={() => hold(null, t('secretary.guest.successDescription', { name: held.checkout.guestPatientName, doctor: held.doctorName }))} onReleased={(message) => hold(null, message)} />
@@ -183,7 +184,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         {members.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingDoctors')}</p>}
         {members.isError && <div className="grid justify-items-start gap-2">
           <p className="text-sm font-bold text-destructive">{getErrorMessage(members.error)}</p>
-          <Button type="button" variant="outline" className={button} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
+          <Button type="button" variant="outline" className={grayButton} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
         </div>}
         {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noDoctors')}</p>}
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
@@ -286,8 +287,8 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
 
     <div className="min-w-0">
       <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border-2 border-dashed border-primary/25 bg-gradient-to-b from-primary/[0.07] via-primary/[0.03] to-card p-0 shadow-lg shadow-primary/10 xl:sticky xl:top-24">
-        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
           <div className="relative flex items-center gap-2.5">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-4.5" /></span>
             <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.guest.summaryTitle')}</h3>
@@ -407,7 +408,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
           <p className="flex items-center gap-2 text-sm font-bold text-destructive"><TriangleAlert className="size-4" />{t('secretary.guest.expiredTitle')}</p>
           <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.expiredDescription')}</p>
           <Button type="button" className={primaryButton} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>
-        </div> : <div className={`overflow-hidden rounded-2xl border p-4 sm:p-5 ${lowTime ? 'border-warm/20 bg-warm/10' : 'border-primary/15 bg-primary/5'}`}>
+        </div> : <div className={`overflow-hidden rounded-2xl border p-4 sm:p-5 ${lowTime ? 'border-warm/20 bg-warm/10 dark:border-warm/30 dark:bg-transparent' : 'border-primary/15 bg-primary/5 dark:border-border dark:bg-transparent'}`}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <strong className="block text-sm font-bold tracking-wide text-foreground uppercase">{t('secretary.guest.expiresIn')}</strong>
@@ -444,7 +445,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
           {accounts.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingAccounts')}</p>}
           {accounts.isError && <div className="grid justify-items-start gap-2">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(accounts.error)}</p>
-            <Button type="button" variant="outline" className={button} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
+            <Button type="button" variant="outline" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </div>}
           {accounts.data && !accounts.data.length && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 p-3 text-xs leading-6 font-bold text-warm"><TriangleAlert className="mt-1 size-3.5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
           {accounts.data && accounts.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.account')} value={accountId} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
@@ -468,18 +469,18 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
         {!countdown.expired && <div className="flex flex-wrap gap-2.5 border-t border-border/50 pt-5">
           <Button type="button" className={primaryButton + ' flex-1 sm:flex-none'} disabled={busy} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig />}{t('secretary.guest.confirm')}</Button>
           <Button type="button" variant="outline" className={button + ' rounded-xl border-destructive/20 bg-destructive/5 text-destructive hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive'} disabled={busy} onClick={() => { cancel.reset(); setConfirmCancel(true) }}>{cancel.isPending ? spinner : <Ban />}{t('secretary.guest.cancel')}</Button>
-          {failed && <Button type="button" variant="outline" className={button} disabled={busy} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>}
+          {failed && <Button type="button" variant="outline" className={grayButton} disabled={busy} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>}
         </div>}
       </SectionCard>
     </div>
 
     <div className="min-w-0">
       <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border-2 border-dashed border-primary/25 bg-gradient-to-b from-primary/[0.07] via-primary/[0.03] to-card p-0 shadow-lg shadow-primary/10 xl:sticky xl:top-24">
-        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-5">
-          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex items-center gap-3.5">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-6" /></span>
-            <h3 className="min-w-0 flex-1 truncate font-sans text-xl font-bold">{t('secretary.guest.summaryTitle')}</h3>
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><ReceiptText className="size-4.5" /></span>
+            <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.guest.summaryTitle')}</h3>
           </div>
         </div>
         <CardContent className="grid gap-3 p-5">

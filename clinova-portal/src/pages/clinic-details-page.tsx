@@ -301,7 +301,7 @@ export default function ClinicDetailsPage() {
           </DropdownMenuItem>
         )}
                 {isOwner && (
-          <DropdownMenuItem className="gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/analytics" params={{ clinicId }} />}>
+          <DropdownMenuItem className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-sm font-bold normal-case" render={<Link to="/doctor/clinics/$clinicId/analytics" params={{ clinicId }} />}>
             <TrendingUp className="size-4 text-primary" />{t('analytics.navigation')}
           </DropdownMenuItem>
         )}
@@ -320,7 +320,7 @@ export default function ClinicDetailsPage() {
     {currentMember && (
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+          render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-10 cursor-pointer place-items-center rounded-xl bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
         >
           {(isOwner ? deleteClinic.isPending : leaveClinic.isPending) ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
         </DropdownMenuTrigger>
@@ -366,8 +366,8 @@ export default function ClinicDetailsPage() {
             <div className="min-w-0 grid items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(20rem,1fr)]">
               <div className="min-w-0 grid gap-5">
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <Building2 className="size-4.5" />
@@ -402,8 +402,8 @@ export default function ClinicDetailsPage() {
                 </Card>
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <Camera className="size-4.5" />
@@ -448,7 +448,7 @@ export default function ClinicDetailsPage() {
         onDragOver={(event) => { event.preventDefault(); setIsDragging(true) }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-4 py-4 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${isDragging ? 'border-primary bg-primary/10' : newImages.length ? 'border-primary/50 bg-primary/[0.05] hover:border-primary/60 hover:bg-primary/[0.06]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
+        className={`group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-4 py-4 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${isDragging ? 'border-primary bg-primary/10 dark:bg-transparent' : newImages.length ? 'border-primary/50 bg-primary/[0.05] hover:bg-foreground/5 dark:bg-transparent dark:hover:bg-foreground/5' : 'border-primary/30 bg-primary/[0.03] hover:bg-foreground/5 dark:bg-transparent dark:hover:bg-foreground/5'}`}
       >
         <Input className="sr-only" id="addClinicImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={selectImages} />
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
@@ -472,8 +472,8 @@ export default function ClinicDetailsPage() {
 </CardContent></Card>
 
 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <UsersRound className="size-4.5" />
@@ -540,8 +540,8 @@ export default function ClinicDetailsPage() {
               <div className="min-w-0 grid gap-5">
                 {isOwner && (
                   <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-primary/15 bg-card p-0">
-                    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-                      <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+                    <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+                      <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
                       <div className="relative flex items-center gap-2.5">
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
                           <MailPlus className="size-4.5" />
@@ -565,8 +565,8 @@ export default function ClinicDetailsPage() {
                 {isOwner && <SecretaryInviteCard clinicId={numericClinicId} />}
 
                 <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <Phone className="size-4.5" />

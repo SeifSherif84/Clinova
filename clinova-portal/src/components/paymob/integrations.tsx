@@ -99,7 +99,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
           <p className="mt-1 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsDescription')}</p>
         </div>
       </div>
-      {canAdd && account.integrations.length > 0 && <Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
+      {canAdd && account.integrations.length > 0 && <Button className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
     </div>
 
     {disabled && <Alert role="note" className="mt-5 rounded-xl border-border bg-muted/40"><Info /><AlertDescription className="leading-6">{t('paymob.integrationsDisabled')}</AlertDescription></Alert>}
@@ -157,8 +157,8 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
 
     <Dialog open={editorOpen} onOpenChange={(next) => { if (!next) closeEditor() }}>
       <DialogContent showCloseButton={false} className="max-h-[90dvh] overflow-y-auto rounded-3xl border border-border bg-card p-5 motion-reduce:animate-none sm:max-w-2xl sm:p-7">
-        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0">
-          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0 dark:bg-none">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
           <div className="relative flex items-center gap-2.5">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Link2 className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
@@ -219,8 +219,8 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-3">
-            <Button type="button" variant="outline" className={paymobButtonClass} disabled={busy} onClick={closeEditor}><X />{t('paymob.cancelIntegration')}</Button>
-            <Button type="submit" className={paymobButtonClass} disabled={busy || refreshing} aria-busy={busy}>{busy || refreshing ? <LoaderCircle className={spinnerClass} /> : <Link2 />}{t('paymob.linkIntegration')}</Button>
+            <Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} disabled={busy} onClick={closeEditor}><X />{t('paymob.cancelIntegration')}</Button>
+            <Button type="submit" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={busy || refreshing} aria-busy={busy}>{busy || refreshing ? <LoaderCircle className={spinnerClass} /> : <Link2 />}{t('paymob.linkIntegration')}</Button>
           </div>
         </form>}
       </DialogContent>

@@ -22,7 +22,7 @@ export function SetupScreenshot({ section, src, source = 'Paymob' }: { section: 
     <Dialog onOpenChange={() => setFullSize(false)}>
       <div className="overflow-hidden rounded-xl border border-border">
         {hasImage ? <img src={src} alt={title} onError={() => setFailed(true)} className="h-auto w-full" /> : placeholder}
-        <DialogTrigger render={<Button variant="ghost" className={paymobButtonClass + ' h-auto min-h-11 w-full whitespace-normal rounded-none px-3 py-2'} />} aria-label={t(hasImage ? 'paymob.zoomImageLabel' : 'paymob.zoomLabel', { section })}>
+        <DialogTrigger render={<Button variant="ghost" className={paymobButtonClass + ' w-full rounded-none border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} />} aria-label={t(hasImage ? 'paymob.zoomImageLabel' : 'paymob.zoomLabel', { section })}>
           <ZoomIn className="size-4" />{t(hasImage ? 'paymob.zoomImage' : 'paymob.zoom')}
         </DialogTrigger>
       </div>

@@ -16,7 +16,9 @@ import { appointmentStatuses, depositPaymentStatuses, type CancellationSource, t
 
 const pageSize = 12
 const debounceMs = 400
-const buttonClass = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
+const buttonClass = 'h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
+const primaryButtonClass = buttonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'
+const grayButtonClass = buttonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'
 type TextFilter = 'doctorName' | 'patientSearch'
 
 // Presentational-only status grouping for the list's color accents; the backend's own
@@ -98,7 +100,7 @@ export default function SecretaryAppointmentsPage() {
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarDays className="size-3" />{t('secretary.workspace')}</Badge>
             <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.appointments.title')}</h1>
           </div>
-          <Button className={buttonClass + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
+          <Button className={primaryButtonClass} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
         </div>
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-3">
@@ -126,7 +128,7 @@ export default function SecretaryAppointmentsPage() {
                 {appointmentItems.map((item) => <SelectItem className="rounded-lg" key={item.value} value={item.value}>{item.label}</SelectItem>)}
               </SelectContent>
             </Select>
-            {activeFilters > 0 && <Button variant="outline" className="ms-auto h-10 shrink-0 rounded-xl border-border/60 bg-background/45 px-3.5 text-xs font-bold normal-case text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:text-primary" onClick={clearFilters}><RotateCcw className="size-3.5" />{t('secretary.appointments.clearFilters')}</Button>}
+            {activeFilters > 0 && <Button variant="outline" className={grayButtonClass + ' ms-auto shrink-0'} onClick={clearFilters}><RotateCcw className="size-3.5" />{t('secretary.appointments.clearFilters')}</Button>}
           </div>
           <div role="radiogroup" aria-label={t('secretary.appointments.depositStatus')} className="-mx-1 mt-2.5 flex gap-1.5 overflow-x-auto px-1 pb-0.5">
             {paymentOptions.map((option) => {
@@ -152,15 +154,11 @@ export default function SecretaryAppointmentsPage() {
 
           {appointments.isError && !page && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(appointments.error)}</p>
-            <Button variant="outline" className={buttonClass + ' mt-3'} disabled={appointments.isFetching} onClick={() => appointments.refetch()}>{appointments.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('invitations.retry')}</Button>
+            <Button variant="outline" className={grayButtonClass + ' mt-3'} disabled={appointments.isFetching} onClick={() => appointments.refetch()}>{appointments.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('invitations.retry')}</Button>
           </Card>}
 
           {page && !page.items.length && (
             <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
-              <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
-                <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
-              </div>
-
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
                 <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -173,7 +171,7 @@ export default function SecretaryAppointmentsPage() {
 
               <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t(activeFilters ? 'secretary.appointments.noMatchTitle' : 'secretary.appointments.emptyTitle')}</h2>
               <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t(activeFilters ? 'secretary.appointments.noMatchDescription' : 'secretary.appointments.emptyDescription')}</p>
-              {activeFilters > 0 && <Button variant="outline" className={buttonClass + ' mt-6'} onClick={clearFilters}><RotateCcw />{t('secretary.appointments.clearFilters')}</Button>}
+              {activeFilters > 0 && <Button variant="outline" className={grayButtonClass + ' mt-6'} onClick={clearFilters}><RotateCcw />{t('secretary.appointments.clearFilters')}</Button>}
             </section>
           )}
 
@@ -196,7 +194,7 @@ export default function SecretaryAppointmentsPage() {
                         to="/secretary/appointments/$appointmentId"
                         params={{ appointmentId: String(appointment.appointmentId) }}
                         search={search}
-                        className="group flex flex-col gap-3 rounded-2xl border border-primary/10 bg-primary/[0.03] p-4 text-start transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 motion-reduce:transition-none sm:flex-row sm:items-center sm:gap-5 sm:p-5"
+                        className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 text-start transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 motion-reduce:transition-none sm:flex-row sm:items-center sm:gap-5 sm:p-5"
                       >
                         <span className="flex shrink-0 items-center gap-3">
                           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span>
@@ -242,8 +240,8 @@ export default function SecretaryAppointmentsPage() {
             {page.totalPages > 1 && <nav aria-label={t('secretary.appointments.pagination')} className="mt-6 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs font-bold text-muted-foreground">{t('secretary.appointments.pageOf', { page: page.pageIndex, total: page.totalPages })}</span>
               <div className="flex gap-2">
-                <Button variant="outline" className={buttonClass} disabled={page.pageIndex <= 1 || appointments.isFetching} onClick={() => goTo(page.pageIndex - 1)}><ChevronLeft className="rtl:rotate-180" />{t('secretary.appointments.previous')}</Button>
-                <Button variant="outline" className={buttonClass} disabled={page.pageIndex >= page.totalPages || appointments.isFetching} onClick={() => goTo(page.pageIndex + 1)}>{t('secretary.appointments.next')}<ChevronRight className="rtl:rotate-180" /></Button>
+                <Button variant="outline" className={grayButtonClass} disabled={page.pageIndex <= 1 || appointments.isFetching} onClick={() => goTo(page.pageIndex - 1)}><ChevronLeft className="rtl:rotate-180" />{t('secretary.appointments.previous')}</Button>
+                <Button variant="outline" className={grayButtonClass} disabled={page.pageIndex >= page.totalPages || appointments.isFetching} onClick={() => goTo(page.pageIndex + 1)}>{t('secretary.appointments.next')}<ChevronRight className="rtl:rotate-180" /></Button>
               </div>
             </nav>}
           </>}

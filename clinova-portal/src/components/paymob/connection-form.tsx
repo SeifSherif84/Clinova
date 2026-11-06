@@ -125,7 +125,7 @@ export function PaymobConnectionForm(props: Props) {
       }
       setError('')
     }}>
-      <div className="mb-5 rounded-2xl border border-primary/15 bg-primary/5 p-4">
+      <div className="mb-5 rounded-2xl border border-primary/15 bg-primary/5 p-4 dark:border-border dark:bg-muted/30">
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p role="status" className="text-sm font-bold">{update && !selectedCount ? t('paymob.noChanges') : t('paymob.ux.fieldsFilled', { filled: filledCount, total: selectedCount })}</p>
@@ -151,7 +151,7 @@ export function PaymobConnectionForm(props: Props) {
           replacing={!update || Boolean(replacing[name])}
           onReplace={update ? (replace) => replaceField(name, replace) : undefined} />)}
       </div>
-      {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
+      {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 dark:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
         <div className="flex min-w-0 items-start gap-3.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><ShieldCheck className="size-[18px]" strokeWidth={1.75} /></span>
           <div className="min-w-0">
@@ -167,7 +167,7 @@ export function PaymobConnectionForm(props: Props) {
               <DialogDescription>{t('paymob.secureEntry')}</DialogDescription>
             </DialogHeader>
             <ul className="grid gap-3">{['securityEncryption', 'securityBackend', 'securityApiKey', 'securityPatients', 'securitySharing'].map((key) => <li key={key} className="flex items-start gap-2 text-xs leading-6 text-muted-foreground sm:text-sm"><LockKeyhole className="mt-1 size-3.5 shrink-0 text-primary" />{t('paymob.' + key)}</li>)}</ul>
-            <DialogClose render={<Button type="button" variant="outline" className={paymobButtonClass} />}><X />{t('paymob.close')}</DialogClose>
+            <DialogClose render={<Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} />}><X />{t('paymob.close')}</DialogClose>
           </DialogContent>
         </Dialog>
       </div>}
@@ -184,7 +184,7 @@ export function PaymobConnectionForm(props: Props) {
       </fieldset>
       <div className="mt-10 grid gap-4">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <Button type="submit" disabled={!available || !complete || !authorized || (!update && !understood) || busy} aria-describedby={'paymob-next-step paymob-save-note' + (!available ? ' ' + (props.unavailableNoticeId ?? 'paymob-unavailable') : '')} className={paymobButtonClass + ' h-auto min-h-12 w-full shrink-0 whitespace-normal px-8 py-3 sm:w-auto'} aria-busy={busy}>
+          <Button type="submit" disabled={!available || !complete || !authorized || (!update && !understood) || busy} aria-describedby={'paymob-next-step paymob-save-note' + (!available ? ' ' + (props.unavailableNoticeId ?? 'paymob-unavailable') : '')} className={paymobButtonClass + ' w-full shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto'} aria-busy={busy}>
             {busy ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Link2 className="size-4" />}{t(busy ? 'paymob.saving' : update ? 'paymob.update' : 'paymob.connect')}
           </Button>
           <p id="paymob-next-step" aria-live="polite" className="sr-only">{t('paymob.' + nextStep)}</p>

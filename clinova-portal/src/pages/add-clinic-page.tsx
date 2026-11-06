@@ -110,8 +110,8 @@ export default function AddClinicPage() {
           {(formError || createClinic.error) && <Notice message={formError || getErrorMessage(createClinic.error)} />}
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <Building2 className="size-4.5" />
@@ -129,8 +129,8 @@ export default function AddClinicPage() {
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <MapPin className="size-4.5" />
@@ -145,8 +145,8 @@ export default function AddClinicPage() {
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <CircleDollarSign className="size-4.5" />
@@ -158,8 +158,8 @@ export default function AddClinicPage() {
 </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <Phone className="size-4.5" />
@@ -171,14 +171,14 @@ export default function AddClinicPage() {
     </div>
   </div>
   <CardContent className="grid gap-3 p-5">
-              {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="outline" size="icon" className="mb-0.5 rounded-xl" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
-              <Button type="button" variant="outline" className="h-10 w-fit rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal shadow-md shadow-black/5 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10 active:translate-y-0 disabled:translate-y-0 disabled:shadow-none motion-reduce:transition-none dark:shadow-black/30" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus className="size-4" />{t('clinicForm.addPhone')}</Button>
+              {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="ghost" size="icon" className="mb-0.5 size-10 shrink-0 cursor-pointer rounded-xl bg-foreground/5 text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
+              <Button type="button" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus className="size-4" />{t('clinicForm.addPhone')}</Button>
             </CardContent>
           </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
-  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
         <FileImage className="size-4.5" />
@@ -190,7 +190,7 @@ export default function AddClinicPage() {
     </div>
   </div>
   <CardContent className="p-5">
-  <Label className={`group flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center normal-case tracking-normal transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary/[0.06] hover:shadow-md motion-reduce:transition-none ${images.length ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03]'}`} htmlFor="clinicImages">
+  <Label className={`group flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center normal-case tracking-normal transition hover:-translate-y-0.5 hover:bg-foreground/5 hover:shadow-md motion-reduce:transition-none dark:bg-transparent dark:hover:bg-foreground/5 ${images.length ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03]'}`} htmlFor="clinicImages">
     <Input className="sr-only" id="clinicImages" name="Images" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={handleImages} />
     <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
       <Upload className="size-6" />
@@ -207,7 +207,7 @@ export default function AddClinicPage() {
 </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-2"><Button type="button" variant="outline" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicForm.create')}</Button></div>
+          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicForm.create')}</Button></div>
         </form>
       </div>
     </DoctorWorkspaceShell>

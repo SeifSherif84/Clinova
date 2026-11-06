@@ -99,7 +99,7 @@ export function QueryBoundary<T>({ query, children }: { query: UseQueryResult<T,
     return (
       <div className="grid justify-items-start gap-3">
         <p className="text-sm font-bold text-destructive">{getErrorMessage(query.error)}</p>
-        <Button variant="outline" className="h-10 cursor-pointer rounded-xl text-sm font-bold normal-case" disabled={query.isFetching} onClick={() => query.refetch()}>
+        <Button variant="outline" className="h-10 cursor-pointer rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" disabled={query.isFetching} onClick={() => query.refetch()}>
           {query.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}
           {t('analytics.retry')}
         </Button>

@@ -61,7 +61,7 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
         {sensitive && <Button type="button" variant="ghost" size="icon" disabled={disabled} aria-label={t(visible ? 'paymob.hide' : 'paymob.show', { field: label })} aria-pressed={visible} onClick={() => setVisible(!visible)} className="absolute right-1.5 top-1.5 size-9 rounded-xl text-muted-foreground">{visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button>}
       </div>
       {error && <p id={id + '-error'} className={required ? 'sr-only' : 'px-1 text-xs leading-5 text-destructive'}>{error}</p>}
-      {onReplace && <Button type="button" variant="ghost" disabled={disabled} className="h-auto min-h-9 w-fit max-w-full whitespace-normal rounded-md px-0 py-1 text-xs font-semibold normal-case tracking-normal text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={() => changeReplacement(false)}><X />{t('paymob.keepExisting', { field: label })}</Button>}
+      {onReplace && <Button type="button" variant="ghost" disabled={disabled} className="h-10 w-fit max-w-full rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" onClick={() => changeReplacement(false)}><X />{t('paymob.keepExisting', { field: label })}</Button>}
     </>}
   </div>
 }

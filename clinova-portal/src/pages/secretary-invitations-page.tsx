@@ -57,15 +57,11 @@ export default function SecretaryInvitationsPage() {
           {received.isError && (
             <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
               <p className="text-sm font-bold text-destructive">{getErrorMessage(received.error)}</p>
-              <Button variant="outline" className="mt-3 h-11 rounded-xl text-sm font-bold normal-case tracking-normal" onClick={() => received.refetch()}><RefreshCw />{t('invitations.retry')}</Button>
+              <Button variant="outline" className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => received.refetch()}><RefreshCw />{t('invitations.retry')}</Button>
             </Card>
           )}
           {received.isSuccess && !invitations.length && (
             <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
-              <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
-                <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
-              </div>
-
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
                 <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -102,10 +98,10 @@ export default function SecretaryInvitationsPage() {
                       </div>
                       {pending ? (
                         <div className="mt-auto flex flex-wrap gap-2">
-                          <Button className="h-11 flex-1 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'accept', clinicName: invitation.clinicName }) }}>
+                          <Button className="h-10 flex-1 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'accept', clinicName: invitation.clinicName }) }}>
                             {busy && decide.variables?.type === 'accept' ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Check />}{t('invitations.accept')}
                           </Button>
-                          <Button variant="outline" className="h-11 flex-1 rounded-xl border-destructive/20 bg-destructive/5 text-sm font-bold normal-case text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'reject', clinicName: invitation.clinicName }) }}>
+                          <Button variant="outline" className="h-10 flex-1 rounded-xl border-destructive/20 bg-destructive/5 px-4 text-[13px] font-bold normal-case text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'reject', clinicName: invitation.clinicName }) }}>
                             {busy && decide.variables?.type === 'reject' ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}{t('invitations.reject')}
                           </Button>
                         </div>

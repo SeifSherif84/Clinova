@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { PaymobEnvironmentNote } from '@/components/paymob/environment-note'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
 import { SetupScreenshot } from '@/components/paymob/setup-screenshot'
-import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
 import { isPaymobTutorial } from '@/lib/paymob-tutorials'
 
@@ -34,11 +33,11 @@ export default function PaymobTutorialPage() {
           ))}
         </div>
         {topic === 'test-live' && <PaymobEnvironmentNote />}
-        {!clinovaGuide && <Button role="link" variant="link" className={paymobButtonClass + ' mt-4 h-auto min-h-11 whitespace-normal px-0 text-start'} render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
-        {topic === 'update-disconnect' && <Button role="link" variant="link" className={paymobButtonClass + ' mt-4 h-auto min-h-11 whitespace-normal px-0'} render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 />{t('paymob.viewSettings')}</Button>}
+        {!clinovaGuide && <Button role="link" variant="outline" className="mt-4 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink className="size-4" />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
+        {topic === 'update-disconnect' && <Button role="link" variant="outline" className="mt-4 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 className="size-4" />{t('paymob.viewSettings')}</Button>}
       </article>}
       <nav className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5" aria-label={t('paymob.setupGuide')}>
-        <Button role="link" variant="outline" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="rtl:rotate-180" />{t('paymob.backConnect')}</Button>
+        <Button role="link" variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="size-4 rtl:rotate-180" />{t('paymob.backConnect')}</Button>
 
       </nav>
     </>}

@@ -5,7 +5,6 @@ import Notice from '@/components/notice'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
 import { PaymobIntegrations } from '@/components/paymob/integrations'
 import { PaymobSettingsRow } from '@/components/paymob/payment-settings-row'
-import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
 import { useSavedPaymobConfiguration } from '@/hooks/use-paymob-configuration'
 
@@ -21,12 +20,12 @@ function PaymentSettings({ clinicId }: { clinicId: string }) {
   return <>
     {configuration.isError ? <div className="grid gap-4 border-y py-6">
       <Notice message={t('paymob.statusUnavailable')} /><p role="alert" className="text-sm leading-6 text-muted-foreground">{t('paymob.statusUnavailable')}</p>
-      <div className="flex flex-wrap gap-2"><Button variant="outline" className={paymobButtonClass} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button></div>
+      <div className="flex flex-wrap gap-2"><Button variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <RefreshCw className="size-4" />}{t('errors.tryAgain')}</Button></div>
     </div> : <PaymobSettingsRow clinicId={clinicId} configuration={configuration.data} />}
     {!configuration.isError && configuration.data && <PaymobIntegrations clinicId={clinicId} account={configuration.data} refreshing={configuration.isFetching} />}
     <div className="mt-5 flex flex-wrap gap-2">
-      <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen />{t('paymob.helpTitle')}</Button>
-      {!configuration.isError && <Button variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('paymob.refreshSettings')}</Button>}
+      <Button role="link" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.helpTitle')}</Button>
+      {!configuration.isError && <Button variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <RefreshCw className="size-4" />}{t('paymob.refreshSettings')}</Button>}
     </div>
   </>
 }

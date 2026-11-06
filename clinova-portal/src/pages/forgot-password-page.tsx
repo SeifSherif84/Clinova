@@ -29,10 +29,10 @@ export default function ForgotPasswordPage() {
         {reset.isSuccess && <Notice tone="success" message={t('forgotPassword.success', { email })} />}
         {reset.error && <Notice message={getErrorMessage(reset.error)} />}
         <FormField id="resetEmail" name="email" type="email" label={t('fields.email')} placeholder="you@example.com" icon={<Mail size={18} />} autoComplete="email" required />
-        <Button className="h-12 rounded-xl bg-primary text-sm font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={reset.isPending}>
-          {reset.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <>{t('forgotPassword.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
+        <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={reset.isPending}>
+          {reset.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <>{t('forgotPassword.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
         </Button>
-        <Link to="/login" search={{ redirect: undefined }} className="inline-flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-primary"><ArrowLeft className="size-4 rtl:rotate-180" /> {t('common.backToSignIn')}</Link>
+        <Link to="/login" search={{ redirect: undefined }} className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"><ArrowLeft className="size-4 rtl:rotate-180" /> {t('common.backToSignIn')}</Link>
       </form>
     </AuthShell>
   )

@@ -44,9 +44,9 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
           <Link className={active === 'working-hours' ? activeItem : navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 />{t('dashboard.workingHours')}</Link>
           <Link className={active === 'profile' ? activeItem : navItem} to="/doctor/profile"><Stethoscope />{t('dashboard.profile')}</Link>
         </nav>}
-        <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">
-  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><ShieldCheck className="size-4" /></span>
-  <span className="grid"><strong className="text-xs">{t('dashboard.secureSession')}</strong><small className="text-[10px] text-muted-foreground">{t('dashboard.protected')}</small></span>
+        <Card className="mt-auto flex-row items-center gap-2.5 rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 shadow-none ring-0 dark:bg-transparent">
+  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><ShieldCheck className="size-4" /></span>
+  <span className="grid min-w-0 gap-0.5 leading-tight"><strong className="truncate text-[13px] font-bold">{t('dashboard.secureSession')}</strong><small className="truncate text-[11px] font-medium text-muted-foreground">{t('dashboard.protected')}</small></span>
 </Card>
       </aside>
 

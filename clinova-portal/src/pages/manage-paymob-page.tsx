@@ -6,7 +6,6 @@ import Notice from '@/components/notice'
 import { PaymobConnectionForm } from '@/components/paymob/connection-form'
 import { credentialNames } from '@/components/paymob/credentials'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
-import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
 import { useSavePaymobCredentials, useSavedPaymobConfiguration } from '@/hooks/use-paymob-configuration'
 
@@ -29,14 +28,14 @@ function ManageConfiguration({ clinicId }: { clinicId: string }) {
   }, [configuration.data, hash])
 
   if (configuration.isPending) return <p role="status" className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('paymob.settingsLoading')}</p>
-  if (configuration.isError) return <div className="grid justify-items-start gap-4"><Notice message={t('paymob.manageUnavailable')} /><p role="alert" className="text-sm text-muted-foreground">{t('paymob.manageUnavailable')}</p><Button variant="outline" className={paymobButtonClass} disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button></div>
-  if (!configuration.data) return <div className="grid justify-items-start gap-4"><p className="text-sm text-muted-foreground">{t('paymob.noSavedConfiguration')}</p><Button role="link" className={paymobButtonClass} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button></div>
+  if (configuration.isError) return <div className="grid justify-items-start gap-4"><Notice message={t('paymob.manageUnavailable')} /><p role="alert" className="text-sm text-muted-foreground">{t('paymob.manageUnavailable')}</p><Button variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={configuration.isFetching} onClick={() => void configuration.refetch()}>{configuration.isFetching ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <RefreshCw className="size-4" />}{t('errors.tryAgain')}</Button></div>
+  if (!configuration.data) return <div className="grid justify-items-start gap-4"><p className="text-sm text-muted-foreground">{t('paymob.noSavedConfiguration')}</p><Button role="link" className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 className="size-4" />{t('paymob.navigation')}</Button></div>
 
   const account = configuration.data
   return <>
     <PaymobConnectionForm key={configuration.data.accountId} mode="update" existing={configuration.data} onUpdate={(changes) => saveCredentials(changes, account.accountId)} />
     <div className="mt-8 flex flex-wrap gap-2">
-      <Button role="link" variant="outline" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal border-transparent bg-muted text-foreground hover:bg-muted/70'} render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><ArrowLeft className="rtl:rotate-180" />{t('paymob.backSettings')}</Button>
+      <Button role="link" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><ArrowLeft className="size-4 rtl:rotate-180" />{t('paymob.backSettings')}</Button>
 
     </div>
   </>

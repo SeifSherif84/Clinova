@@ -1,5 +1,5 @@
 import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftRight, Ban, Banknote, CircleCheckBig, FileCheck2, Info, LoaderCircle, RefreshCw, Stethoscope, TriangleAlert, Undo2, Upload, UserRound, Wallet, X, type LucideIcon } from 'lucide-react'
+import { ArrowLeftRight, Ban, Banknote, Check, CircleCheckBig, FileCheck2, Hash, LoaderCircle, RefreshCw, Stethoscope, TriangleAlert, Undo2, Upload, UserRound, Wallet, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
@@ -16,8 +16,9 @@ import type { GuestCheckoutAccount } from '@/types/guest-reservation'
 import { isManualPaymentProvider } from '@/types/manual-payment-method'
 import { ClinicPaymentMethod, type CancellationRequester, type MarkCompletedRequest, type SecretaryAppointmentDetails } from '@/types/secretary'
 
-const button = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
-const spinner = <LoaderCircle className="animate-spin motion-reduce:animate-none" />
+const button = 'h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
+const grayButton = button + ' bg-foreground/5 hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30'
+const spinner = <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
 const maxProofSize = 5 * 1024 * 1024
 const proofTypes = ['image/jpeg', 'image/png', 'image/webp']
 
@@ -54,7 +55,7 @@ const actionKey = (appointmentId: number) => ['secretary', 'appointment-action',
 function DialogFrame({ open, onOpenChange, appointmentId, wide = false, children }: { open: boolean; onOpenChange: (open: boolean) => void; appointmentId: number; wide?: boolean; children: ReactNode }) {
   const pending = useIsMutating({ mutationKey: actionKey(appointmentId) }) > 0
   return <Dialog open={open} onOpenChange={(next) => { if (!pending) onOpenChange(next) }}>
-    <DialogContent showCloseButton={false} className={`max-h-[calc(100dvh-2rem)] grid-cols-[minmax(0,1fr)] gap-0 overflow-x-hidden overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-2xl ${wide ? 'sm:max-w-xl' : 'sm:max-w-lg'}`}>
+    <DialogContent showCloseButton={false} className={`max-h-[calc(100dvh-2rem)] grid-cols-[minmax(0,1fr)] gap-0 overflow-x-hidden overflow-y-auto rounded-3xl border border-border bg-card p-0 text-card-foreground shadow-2xl ${wide ? 'sm:max-w-2xl' : 'sm:max-w-lg'}`}>
       {children}
     </DialogContent>
   </Dialog>
@@ -71,18 +72,19 @@ function DialogLayout({ icon: Icon, destructive = false, title, description, chi
   footerNote?: string
 }) {
   return <>
-    <DialogHeader className={`relative overflow-hidden border-b border-border/40 bg-linear-to-br p-5 text-start sm:px-6 ${destructive ? 'from-destructive/10 via-destructive/3' : 'from-primary/15 via-primary/5'} to-transparent`}>
-      <div className="relative flex items-start gap-3">
-        <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${destructive ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}><Icon className="size-5" /></span>
+    <DialogHeader className={`relative overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br p-3.5 text-start dark:bg-none ${destructive ? 'from-destructive/15 via-destructive/[0.05]' : 'from-primary/15 via-primary/[0.05]'} to-transparent`}>
+      <span className={`pointer-events-none absolute -end-8 -top-8 size-32 rounded-full blur-2xl dark:hidden ${destructive ? 'bg-destructive/10' : 'bg-primary/10'}`} />
+      <div className="relative flex items-center gap-2.5">
+        <span className={`grid size-9 shrink-0 place-items-center rounded-xl shadow-lg ring-4 ${destructive ? 'bg-destructive/10 text-destructive shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}><Icon className="size-4.5" /></span>
         <div className="min-w-0 flex-1">
-          <DialogTitle className="font-sans text-lg font-bold normal-case tracking-normal">{title}</DialogTitle>
-          <DialogDescription className="mt-1 text-start text-xs leading-5 sm:text-sm">{description}</DialogDescription>
+          <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{title}</DialogTitle>
+          <DialogDescription className="mt-0.5 text-start text-[13px] leading-5">{description}</DialogDescription>
         </div>
       </div>
     </DialogHeader>
     {/* minmax(0,1fr) stops long names or previews from widening the track past the dialog. */}
     <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 p-5 sm:p-6">{children}</div>
-    <div className="flex min-w-0 flex-col-reverse gap-2 border-t border-border/40 bg-muted/20 p-5 sm:flex-row sm:items-center sm:justify-end sm:px-6">
+    <div className="flex min-w-0 flex-col-reverse gap-2 bg-muted/20 p-5 sm:flex-row sm:items-center sm:justify-end sm:px-6">
       {footerNote && <p className="hidden min-w-0 flex-1 truncate text-xs font-bold text-muted-foreground sm:block">{footerNote}</p>}
       {footer}
     </div>
@@ -106,19 +108,20 @@ type FormProps = Omit<AppointmentDialogProps, 'open'>
 
 // Radio card matching the guest checkout picker: the whole card is the hit area, with a check mark when selected.
 function ChoiceCard({ value, icon, title, hint, tone = 'primary' }: { value: string; icon: ReactNode; title: string; hint?: string; tone?: 'primary' | 'destructive' }) {
-  const selected = tone === 'destructive'
-    ? 'has-data-checked:border-destructive/60 has-data-checked:bg-destructive/5'
-    : 'has-data-checked:border-primary has-data-checked:bg-primary/5 has-data-checked:shadow-md has-data-checked:shadow-primary/10'
-  return <label className={`group relative flex min-w-0 cursor-pointer items-start gap-3 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:border-primary/30 hover:bg-primary/5 has-focus-visible:ring-2 has-focus-visible:ring-primary/20 has-data-disabled:cursor-not-allowed has-data-disabled:opacity-60 motion-reduce:transition-none ${selected}`}>
+  const destructive = tone === 'destructive'
+  const selected = destructive
+    ? 'has-data-checked:border-destructive/50 has-data-checked:bg-destructive/[0.04]'
+    : 'has-data-checked:border-primary/50 has-data-checked:bg-primary/[0.04]'
+  return <label className={`group relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-border/70 bg-card px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md has-focus-visible:ring-2 has-focus-visible:ring-primary/20 has-data-disabled:cursor-not-allowed has-data-disabled:opacity-60 has-data-disabled:hover:translate-y-0 has-data-disabled:hover:shadow-none motion-reduce:transition-none ${selected}`}>
     <RadioGroupItem value={value} className="pointer-events-none absolute size-px opacity-0 after:hidden" />
-    <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone === 'destructive' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>{icon}</span>
-    <span className="grid min-w-0 flex-1 gap-0.5 pt-0.5">
+    <span className={`grid size-9 shrink-0 place-items-center rounded-xl shadow-lg ring-4 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none [&>svg]:size-4.5 ${destructive ? 'bg-destructive text-white shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}>{icon}</span>
+    <span className="grid min-w-0 flex-1 gap-0.5">
       <strong className="text-sm font-bold">{title}</strong>
-      {hint && <span className="text-xs leading-5 text-muted-foreground">{hint}</span>}
+      {hint && <span className="text-[13px] leading-5 font-medium text-muted-foreground">{hint}</span>}
     </span>
-    <span aria-hidden="true" className="relative mt-0.5 grid size-6 shrink-0 place-items-center">
+    <span aria-hidden="true" className="relative grid size-5 shrink-0 place-items-center">
       <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-data-checked:opacity-0" />
-      <CircleCheckBig className={`size-6 opacity-0 transition group-has-data-checked:opacity-100 ${tone === 'destructive' ? 'text-destructive' : 'text-primary'}`} />
+      <CircleCheckBig className={`size-5 opacity-0 transition group-has-data-checked:opacity-100 ${destructive ? 'text-destructive' : 'text-primary'}`} />
     </span>
   </label>
 }
@@ -139,7 +142,7 @@ function Callout({ tone, icon: Icon, children }: { tone: 'info' | 'warning'; ico
 const refundWarning = (message: string) => /could not be processed/i.test(message)
 
 export function CancelAppointmentDialog({ open, ...props }: AppointmentDialogProps) {
-  return <DialogFrame open={open} onOpenChange={props.onOpenChange} appointmentId={props.details.appointmentId}><CancelForm {...props} /></DialogFrame>
+  return <DialogFrame open={open} onOpenChange={props.onOpenChange} appointmentId={props.details.appointmentId} wide><CancelForm {...props} /></DialogFrame>
 }
 
 export function ConfirmRefundDialog({ open, ...props }: AppointmentDialogProps) {
@@ -170,7 +173,7 @@ function CancelForm({ details, onOpenChange, onDone }: FormProps) {
     onSuccess: (message) => {
       const text = typeof message === 'string' && message.trim() ? message : t('secretary.cancellation.done')
       const warning = refundWarning(text)
-      onDone({ message: text, tone: warning ? 'warning' : 'success', title: t(warning ? 'secretary.cancellation.resultWarning' : 'secretary.cancellation.resultTitle') })
+      onDone({ message: text, tone: warning ? 'warning' : 'success' })
       onOpenChange(false)
     },
     onSettled: () => refresh(),
@@ -191,8 +194,8 @@ function CancelForm({ details, onOpenChange, onDone }: FormProps) {
     title={t('secretary.cancellation.title')}
     description={t('secretary.cancellation.description', { patient: details.patientName })}
     footer={<>
-      <Button type="button" variant="outline" className={button} disabled={cancel.isPending} onClick={() => onOpenChange(false)}><X />{t('secretary.cancellation.keep')}</Button>
-      <Button type="button" variant="destructive" className={button} disabled={!ready || cancel.isPending} onClick={() => cancel.mutate()}>{cancel.isPending ? spinner : <Ban />}{t('secretary.cancellation.confirm')}</Button>
+      <Button type="button" variant="ghost" className={grayButton} disabled={cancel.isPending} onClick={() => onOpenChange(false)}><X className="size-4" />{t('secretary.cancellation.keep')}</Button>
+      <Button type="button" variant="destructive" className={button} disabled={!ready || cancel.isPending} onClick={() => cancel.mutate()}>{cancel.isPending ? spinner : <Ban className="size-4" />}{t('secretary.cancellation.confirm')}</Button>
     </>}
   >
     {cancel.error && <Notice message={getErrorMessage(cancel.error)} />}
@@ -205,7 +208,7 @@ function CancelForm({ details, onOpenChange, onDone }: FormProps) {
     </Question>
 
     {requester === 'patient' && guest && <Question label={t('secretary.cancellation.refundQuestion')}>
-      <RadioGroup name="cancellationRefundDue" aria-label={t('secretary.cancellation.refundQuestion')} value={refundDue === null ? '' : String(refundDue)} disabled={cancel.isPending} onValueChange={(value) => { setRefundDue(value === 'true'); cancel.reset() }} className="grid gap-2.5 sm:grid-cols-2">
+      <RadioGroup name="cancellationRefundDue" aria-label={t('secretary.cancellation.refundQuestion')} value={refundDue === null ? '' : String(refundDue)} disabled={cancel.isPending} onValueChange={(value) => { setRefundDue(value === 'true'); cancel.reset() }} className="grid gap-3.5 sm:grid-cols-2">
         <ChoiceCard value="true" icon={<Undo2 className="size-4.5" />} title={t('secretary.cancellation.refundYes')} hint={t('secretary.cancellation.refundYesHint', { amount: deposit })} />
         <ChoiceCard value="false" tone="destructive" icon={<Wallet className="size-4.5" />} title={t('secretary.cancellation.refundNo')} hint={t('secretary.cancellation.refundNoHint')} />
       </RadioGroup>
@@ -214,14 +217,18 @@ function CancelForm({ details, onOpenChange, onDone }: FormProps) {
     {/* A registered patient's cash deposit can't be refunded through the patient flow; the backend rejects it if the policy grants a refund. */}
     {requester === 'patient' && !guest && details.depositPaymentMethodType === 'CashAtClinic' && <Callout tone="warning" icon={TriangleAlert}>{t('secretary.cancellation.cashWarning')}</Callout>}
 
-    {refundOutcome && <Callout tone="info" icon={Info}>
-      <strong className="block font-bold text-foreground">{t('secretary.cancellation.whatHappens')}</strong>
-      <ul className="mt-1 grid list-disc gap-0.5 ps-4 font-medium text-muted-foreground">
-        <li>{refundOutcome}</li>
-        <li>{t('secretary.cancellation.outcome.slot')}</li>
-        {hasRemainingDue(details) && <li>{t('secretary.cancellation.outcome.balance', { amount: money(details.remainingPaymentAmount) })}</li>}
+    {refundOutcome && <div className="relative isolate overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.07] via-card to-transparent p-4 sm:p-5">
+      <span aria-hidden="true" className="pointer-events-none absolute -end-10 -top-10 -z-10 size-32 rounded-full bg-primary/10 blur-2xl" />
+      <strong className="block text-sm font-bold">{t('secretary.cancellation.whatHappens')}</strong>
+      <ul className="mt-4 grid gap-3 sm:ps-1">
+        {[refundOutcome, t('secretary.cancellation.outcome.slot'), hasRemainingDue(details) ? t('secretary.cancellation.outcome.balance', { amount: money(details.remainingPaymentAmount) }) : null].filter(Boolean).map((line, index) => (
+          <li key={index} className="flex items-start gap-3 text-[13px] leading-6 font-medium text-foreground/80">
+            <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Check className="size-3" strokeWidth={3} /></span>
+            <span className="min-w-0">{line}</span>
+          </li>
+        ))}
       </ul>
-    </Callout>}
+    </div>}
   </DialogLayout>
 }
 
@@ -295,10 +302,9 @@ function RefundForm({ details, onOpenChange, onDone }: FormProps) {
     icon={Undo2}
     title={t('secretary.refundConfirm.title')}
     description={t('secretary.refundConfirm.description', { patient: details.patientName })}
-    footerNote={method ? t('secretary.refundConfirm.footerSummary', { amount: money(amount), method: methods.find((item) => item.value === method)?.title }) : undefined}
     footer={<>
-      <Button type="button" variant="outline" className={button} disabled={confirm.isPending} onClick={() => onOpenChange(false)}><X />{t('secretary.refundConfirm.close')}</Button>
-      <Button type="button" className={button + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'} disabled={confirm.isPending} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig />}{t('secretary.refundConfirm.confirm')}</Button>
+      <Button type="button" variant="ghost" className={grayButton} disabled={confirm.isPending} onClick={() => onOpenChange(false)}><X className="size-4" />{t('secretary.refundConfirm.close')}</Button>
+      <Button type="button" className={button + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={confirm.isPending} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig className="size-4" />}{t('secretary.refundConfirm.confirm')}</Button>
     </>}
   >
     {(formError || confirm.error) && <Notice message={formError || getErrorMessage(confirm.error)} />}
@@ -327,28 +333,26 @@ function RefundForm({ details, onOpenChange, onDone }: FormProps) {
     </div>
 
     <Step number={1} title={t('secretary.refundConfirm.method')} note={t('secretary.refundConfirm.methodNote')}>
-      <RadioGroup name="refundMethod" aria-label={t('secretary.refundConfirm.method')} value={method ? String(method) : ''} disabled={confirm.isPending} onValueChange={(value) => { setMethod(Number(value) === ClinicPaymentMethod.ManualTransfer ? ClinicPaymentMethod.ManualTransfer : ClinicPaymentMethod.CashAtClinic); setFormError('') }} className="grid auto-rows-fr grid-cols-2 items-stretch gap-2.5">
-        {/* auto-rows-fr + h-full keep both tiles the same size whatever the hint length. */}
-        {methods.map(({ value, icon: Icon, title, hint }) => <label key={value} className="group relative flex h-full min-w-0 cursor-pointer flex-col items-center justify-start gap-2 rounded-2xl border border-border/60 bg-background/45 px-3 py-4 text-center transition hover:border-primary/30 hover:bg-primary/5 has-focus-visible:ring-2 has-focus-visible:ring-primary/20 has-data-checked:border-primary has-data-checked:bg-primary/5 has-data-checked:shadow-md has-data-checked:shadow-primary/10 has-data-disabled:cursor-not-allowed has-data-disabled:opacity-60 motion-reduce:transition-none">
-          <RadioGroupItem value={String(value)} className="pointer-events-none absolute size-px opacity-0 after:hidden" />
-          <CircleCheckBig aria-hidden="true" className="absolute end-2.5 top-2.5 size-5 text-primary opacity-0 transition group-has-data-checked:opacity-100" />
-          <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary transition group-has-data-checked:bg-primary group-has-data-checked:text-primary-foreground"><Icon className="size-5" /></span>
-          <strong className="text-sm font-bold">{title}</strong>
-          <span className="min-h-8 text-[11px] leading-4 text-muted-foreground">{hint}</span>
-        </label>)}
+      <RadioGroup name="refundMethod" aria-label={t('secretary.refundConfirm.method')} value={method ? String(method) : ''} disabled={confirm.isPending} onValueChange={(value) => { setMethod(Number(value) === ClinicPaymentMethod.ManualTransfer ? ClinicPaymentMethod.ManualTransfer : ClinicPaymentMethod.CashAtClinic); setFormError('') }} className="grid gap-2.5 sm:grid-cols-2">
+        {methods.map(({ value, icon: Icon, title, hint }) => <ChoiceCard key={value} value={String(value)} icon={<Icon className="size-4.5" />} title={title} hint={hint} />)}
       </RadioGroup>
     </Step>
 
     {method && <Step number={2} title={t('secretary.refundConfirm.proofStep')} badge={t(transfer ? 'secretary.refundConfirm.required' : 'secretary.refundConfirm.optional')} badgeTone={transfer ? 'warm' : 'muted'}>
       <Input className="sr-only" id="refundProof" type="file" accept=".jpg,.jpeg,.png,.webp" disabled={confirm.isPending} onChange={chooseProof} />
       {proof && preview
-        ? <div className="overflow-hidden rounded-2xl border border-border/60 bg-background/45">
-          <img src={preview} alt={t('secretary.refundConfirm.previewAlt')} className="h-44 w-full bg-muted object-contain" />
-          <div className="flex items-center gap-2.5 border-t border-border/60 px-3.5 py-2.5">
-            <FileCheck2 className="size-4 shrink-0 text-primary" />
-            <span className="min-w-0 flex-1 truncate text-sm font-bold">{proof.name}</span>
-            <label htmlFor="refundProof" className={`inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-bold transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary ${confirm.isPending ? 'pointer-events-none opacity-50' : ''}`}><Upload className="size-3.5" />{t('secretary.refundConfirm.replaceProof')}</label>
-            <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0 rounded-lg text-muted-foreground hover:text-destructive" aria-label={t('secretary.refundConfirm.removeProof')} disabled={confirm.isPending} onClick={() => setProof(null)}><X className="size-4" /></Button>
+        ? <div className="overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-sm">
+          <div className="relative bg-muted/40">
+            <img src={preview} alt={t('secretary.refundConfirm.previewAlt')} className="h-48 w-full object-contain" />
+            <Button type="button" variant="ghost" size="icon" className="absolute end-2.5 top-2.5 size-8 cursor-pointer rounded-full bg-background/80 text-muted-foreground shadow-sm backdrop-blur-sm hover:bg-destructive/10 hover:text-destructive" aria-label={t('secretary.refundConfirm.removeProof')} disabled={confirm.isPending} onClick={() => setProof(null)}><X className="size-4" /></Button>
+          </div>
+          <div className="flex items-center gap-3 border-t border-border/60 bg-primary/[0.04] px-3.5 py-2.5 dark:bg-transparent">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><FileCheck2 className="size-4.5" /></span>
+            <span className="grid min-w-0 flex-1 gap-0.5">
+              <strong className="truncate text-sm font-bold">{proof.name}</strong>
+              <small dir="ltr" className="text-start text-xs font-semibold text-muted-foreground tabular-nums">{proof.size >= 1024 * 1024 ? `${(proof.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(proof.size / 1024))} KB`}</small>
+            </span>
+            <label htmlFor="refundProof" className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-foreground/5 px-4 text-[13px] font-bold transition-colors hover:bg-foreground/10 ${confirm.isPending ? 'pointer-events-none opacity-50' : ''}`}><Upload className="size-3.5" />{t('secretary.refundConfirm.replaceProof')}</label>
           </div>
         </div>
         : <label
@@ -356,19 +360,21 @@ function RefundForm({ details, onOpenChange, onDone }: FormProps) {
           onDragOver={(event) => { event.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
           onDrop={dropProof}
-          className={`flex min-h-44 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-4 py-7 text-center transition motion-reduce:transition-none ${missingProof ? 'border-destructive/50 bg-destructive/5' : dragging ? 'border-primary bg-primary/10' : 'border-primary/30 bg-primary/4 hover:bg-primary/8'}`}
+          className={`group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${missingProof ? 'border-destructive/50 bg-destructive/5 dark:bg-transparent' : dragging ? 'border-primary bg-primary/10' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06] dark:bg-transparent dark:hover:bg-foreground/5'}`}
         >
-          <span className={`grid size-12 shrink-0 place-items-center rounded-xl ${missingProof ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}><Upload className="size-5" /></span>
-          <span className="grid gap-0.5">
-            <strong className="text-sm font-bold">{t('secretary.refundConfirm.dropProof')}</strong>
-            <small className="text-xs text-muted-foreground">{t('secretary.refundConfirm.proofHint')}</small>
+          <span className={`grid size-12 shrink-0 place-items-center rounded-2xl shadow-lg ring-4 transition group-hover:scale-105 motion-reduce:transition-none ${missingProof ? 'bg-destructive text-white shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}><Upload className="size-6" /></span>
+          <span className="grid min-w-0 flex-1 gap-0.5">
+            <strong className="text-sm leading-5 font-bold">{t('secretary.refundConfirm.dropProof')}</strong>
+            <small className="text-xs font-semibold text-muted-foreground">{t('secretary.refundConfirm.proofHint')}</small>
           </span>
         </label>}
-      {missingProof && <p className="text-xs font-bold text-destructive">{t('secretary.refundConfirm.proofRequired')}</p>}
 
       <div className="grid gap-1.5">
         <Label htmlFor="refundReference" className="text-xs font-semibold normal-case tracking-normal text-foreground/80">{t('secretary.refundConfirm.reference')}</Label>
-        <input id="refundReference" dir="ltr" value={reference} maxLength={100} disabled={confirm.isPending} placeholder={t('secretary.refundConfirm.referencePlaceholder')} onChange={(event) => setReference(event.target.value)} className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 text-start text-sm outline-none transition focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10" />
+        <div dir="ltr" className="relative">
+          <Hash aria-hidden="true" className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-primary/70" />
+          <input id="refundReference" value={reference} maxLength={100} disabled={confirm.isPending} placeholder={t('secretary.refundConfirm.referencePlaceholder')} onChange={(event) => setReference(event.target.value)} className="h-12 w-full rounded-xl border border-input bg-background/40 ps-10 pe-3 text-start text-sm outline-none transition focus-visible:border-primary/50 focus-visible:ring-4 focus-visible:ring-primary/10 disabled:opacity-60" />
+        </div>
       </div>
     </Step>}
   </DialogLayout>
@@ -413,8 +419,8 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
     title={t('secretary.complete.title')}
     description={t(due ? 'secretary.complete.descriptionDue' : 'secretary.complete.descriptionPaid', { patient: details.patientName })}
     footer={<>
-      <Button type="button" variant="outline" className={button} disabled={complete.isPending} onClick={() => onOpenChange(false)}><X />{t('secretary.complete.close')}</Button>
-      <Button type="button" className={button + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={complete.isPending} onClick={submit}>{complete.isPending ? spinner : <CircleCheckBig />}{t(due ? 'secretary.complete.confirmDue' : 'secretary.complete.confirm')}</Button>
+      <Button type="button" variant="ghost" className={grayButton} disabled={complete.isPending} onClick={() => onOpenChange(false)}><X className="size-4" />{t('secretary.complete.close')}</Button>
+      <Button type="button" className={button + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={complete.isPending} onClick={submit}>{complete.isPending ? spinner : <CircleCheckBig className="size-4" />}{t(due ? 'secretary.complete.confirmDue' : 'secretary.complete.confirm')}</Button>
     </>}
   >
     {(formError || complete.error) && <Notice message={formError || getErrorMessage(complete.error)} />}
@@ -436,7 +442,7 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
       {accounts.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingAccounts')}</p>}
       {accounts.isError && <div className="grid justify-items-start gap-2">
         <p className="text-sm font-bold text-destructive">{getErrorMessage(accounts.error)}</p>
-        <Button type="button" variant="outline" className={button} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
+        <Button type="button" variant="ghost" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw className="size-4" />}{t('errors.tryAgain')}</Button>
       </div>}
       {accounts.data && !accounts.data.length && <Callout tone="warning" icon={TriangleAlert}>{t('secretary.guest.noAccounts')}</Callout>}
       {accounts.data && accounts.data.length > 0 && <RadioGroup name="remainingPaymentAccount" aria-label={t('secretary.complete.account')} value={accountId} disabled={complete.isPending} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-2.5">

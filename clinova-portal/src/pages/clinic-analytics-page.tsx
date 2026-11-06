@@ -119,8 +119,8 @@ export default function ClinicAnalyticsPage() {
             </p>
 
             <Button
-              variant="outline"
-              className="mt-5 h-11 rounded-xl text-sm font-bold normal-case"
+              variant="ghost"
+              className="mt-5 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
               render={
                 <Link
                   to="/doctor/clinics/$clinicId"

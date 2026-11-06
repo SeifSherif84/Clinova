@@ -37,8 +37,8 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
 
   return (
     <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-      <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-        <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+      <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+        <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
         <div className="relative flex items-center gap-2.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
             <UserRoundCog className="size-4.5" />
@@ -52,7 +52,7 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
         <form className="grid gap-3" onSubmit={submit}>
           <p className="text-xs leading-5 font-bold text-muted-foreground">{t('secretary.clinic.inviteDescription')}</p>
           <FormField id="inviteSecretaryEmail" label={t('secretary.clinic.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder="secretary@example.com" required />
-          <Button type="submit" className="h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={invite.isPending}>
+          <Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={invite.isPending}>
             {invite.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <MailPlus />}
             {t('secretary.clinic.invite')}
           </Button>
@@ -86,8 +86,8 @@ export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }
   return (
     <>
       <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
           <div className="relative flex items-center gap-2.5">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
               <UserRoundCog className="size-4.5" />

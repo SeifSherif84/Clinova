@@ -25,7 +25,7 @@ export default function MobileNavigationMenu() {
 
   return <div className="shrink-0 lg:hidden">
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger render={<Button type="button" variant="outline" size="icon" className="rounded-xl border-border bg-card/40 text-muted-foreground" aria-label={t(open ? 'dashboard.closeMenu' : 'dashboard.mobileMenu')} />}>
+      <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 cursor-pointer rounded-xl bg-foreground/5 text-foreground transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" aria-label={t(open ? 'dashboard.closeMenu' : 'dashboard.mobileMenu')} />}>
         {open ? <X className="size-4" /> : <Menu className="size-4" />}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-72 max-w-[calc(100dvw-2rem)] rounded-2xl border border-border bg-card p-2 text-foreground shadow-md ring-1 ring-foreground/5" aria-label={t('dashboard.navigation')}>

@@ -14,6 +14,6 @@ export default function ClinicNotAssigned() {
     </span>
     <h2 className="mt-6 font-heading text-2xl font-bold sm:text-3xl">{t('secretary.myClinic.notAssignedTitle')}</h2>
     <p className="mt-2 max-w-md text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.myClinic.notAssignedDescription')}</p>
-    <Button className="mt-5 h-11 rounded-xl bg-primary px-5 text-sm font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/secretary/invitations" />}><MailOpen />{t('secretary.myClinic.viewInvitations')}</Button>
+    <Button className="mt-5 h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/secretary/invitations" />}><MailOpen />{t('secretary.myClinic.viewInvitations')}</Button>
   </Card>
 }

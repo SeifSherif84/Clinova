@@ -38,7 +38,7 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
   return <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
     <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
       {!valid ? <p className="text-sm text-muted-foreground">{t('clinicDetails.invalidId')}</p>
-        : failed ? <><Notice message={t('common.genericError')} /><p role="alert" className="text-sm text-muted-foreground">{t('common.genericError')}</p><Button variant="outline" className={paymobButtonClass + ' mt-4'} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw />{t('errors.tryAgain')}</Button></>
+        : failed ? <><Notice message={t('common.genericError')} /><p role="alert" className="text-sm text-muted-foreground">{t('common.genericError')}</p><Button variant="outline" className={paymobButtonClass + ' mt-4 border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw />{t('errors.tryAgain')}</Button></>
         : clinic.isPending || members.isPending ? <div role="status" className="flex min-h-64 items-center justify-center gap-3 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('paymob.loading')}</div>
         : !owner ? <Alert role="note" className="rounded-xl"><ShieldCheck /><AlertDescription>{t('paymob.ownerOnly')}</AlertDescription></Alert>
         : clinic.data ? <>
@@ -49,8 +49,8 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
               <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.pageDescription')}</p>
             </>}
             <section className={'relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card p-6 sm:p-10 ' + (hideIntro ? 'mt-0' : 'mt-5')}>
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
-              <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent dark:hidden" />
+              <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl dark:hidden" />
               <div className="grid items-center gap-10 lg:grid-cols-[1.3fr_1fr]">
                 <div>
                   <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">

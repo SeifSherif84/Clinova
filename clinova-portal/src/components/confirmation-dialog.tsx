@@ -35,8 +35,8 @@ export default function ConfirmationDialog({ open, title, description, confirmLa
       </AlertDialogHeader>
       {error && <Notice message={error} />}
       <AlertDialogFooter>
-        <AlertDialogCancel className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal" disabled={pending}><X className="size-4" />{cancelLabel}</AlertDialogCancel>
-        <AlertDialogAction type="button" variant={destructive ? 'destructive' : 'default'} className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal" disabled={pending} onClick={onConfirm}>{pending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : destructive ? <AlertTriangle className="size-4" /> : <Check className="size-4" />}{confirmLabel}</AlertDialogAction>
+        <AlertDialogCancel className="h-10 cursor-pointer rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground shadow-none hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" disabled={pending}><X className="size-4" />{cancelLabel}</AlertDialogCancel>
+        <AlertDialogAction type="button" variant={destructive ? 'destructive' : 'default'} className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={pending} onClick={onConfirm}>{pending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : destructive ? <AlertTriangle className="size-4" /> : <Check className="size-4" />}{confirmLabel}</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>

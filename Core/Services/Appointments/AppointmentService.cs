@@ -232,7 +232,7 @@ namespace Services.Appointments
             string? uploadedFileName = null;
             try
             {
-                uploadedFileName = await FileStorageHandler.UploadAsync(request.PaymentProof, "manualpaymentproofs");
+                uploadedFileName = await FileStorageHandler.UploadAsync(request.PaymentProof, "manualdepositpaymentproofs");
                 appointment.DepositPayment.ManualProofUrl = uploadedFileName;
                 appointment.DepositPayment.ClinicManualPaymentMethodId = manualPaymentMethod.Id;
                 appointment.DepositPayment.MethodType = DepositPaymentMethodType.ManualTransfer;
@@ -1428,7 +1428,7 @@ namespace Services.Appointments
             string? uploadedFileName = null;
             try
             {
-                uploadedFileName = request.ManualRefundProof is not null ? await FileStorageHandler.UploadAsync(request.ManualRefundProof, "manualrefundproofs") : null;
+                uploadedFileName = request.ManualRefundProof is not null ? await FileStorageHandler.UploadAsync(request.ManualRefundProof, "manualdepositrefundproofs") : null;
                 appointment.DepositPayment.DepositRefund.ManualProofUrl = uploadedFileName;
                 appointment.DepositPayment.DepositRefund.ManualTransactionReference = request.ManualRefundTransactionReference;
                 appointment.DepositPayment.DepositRefund.Status = DepositRefundStatus.Succeeded;

@@ -52,7 +52,7 @@ export function PaymobAccountMenu({ clinicId, account }: { clinicId: string; acc
     {success && <Notice tone="success" message={success} />}
     {error && <Notice message={error} />}
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={busy} aria-busy={busy} render={<Button variant="outline" className="h-10 rounded-xl border-transparent bg-muted px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" />}>
+      <DropdownMenuTrigger disabled={busy} aria-busy={busy} render={<Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" />}>
         {busy ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Settings2 className="size-4" />}
         {t(account.status === 'NeedsAttention' ? 'paymob.reviewSettings' : 'paymob.manage')}
         <ChevronDown className="size-3.5" />

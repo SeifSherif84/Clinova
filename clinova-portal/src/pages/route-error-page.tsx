@@ -13,7 +13,7 @@ export default function RouteErrorPage({ reset }: { error: unknown; reset: () =>
       <span className="mt-6 grid size-16 place-items-center rounded-2xl bg-destructive/10 text-destructive"><TriangleAlert className="size-7" /></span>
       <h1 className="font-heading text-2xl font-medium sm:text-3xl">{t('errors.routeTitle')}</h1>
       <p className="max-w-lg text-sm leading-6 text-muted-foreground">{t('errors.routeMessage')}</p>
-      <div className="flex flex-wrap justify-center gap-2"><Button className="rounded-xl normal-case" onClick={reset}><RefreshCw />{t('errors.tryAgain')}</Button><Button variant="outline" className="rounded-xl normal-case" render={<a href="/" />}><Home />{t('common.returnHome')}</Button></div>
+      <div className="flex flex-wrap justify-center gap-2"><Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={reset}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<a href="/" />}><Home className="size-4" />{t('common.returnHome')}</Button></div>
     </main>
   )
 }

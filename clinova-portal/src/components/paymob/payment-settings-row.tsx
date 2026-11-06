@@ -19,8 +19,8 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
             <h2 className="font-sans text-3xl leading-tight font-bold sm:text-4xl">{t('paymob.heroTitle')}</h2>
             <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{t('paymob.heroDescription')}</p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Button role="link" className={paymobButtonClass + ' h-auto min-h-11 whitespace-normal px-5'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
-              <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-10 rounded-full px-4 py-2'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
+              <Button role="link" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
+              <Button role="link" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
             </div>
             <p className="mt-6 flex items-center gap-2.5 text-xs font-bold text-primary/70">
               <span className="h-px w-9 bg-primary/25" />
@@ -48,7 +48,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
         <PaymobAccountMenu clinicId={clinicId} account={configuration} />
-        <Button role="link" variant="outline" className="h-10 rounded-xl border-transparent bg-muted px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.setupGuide')}</Button>
+        <Button role="link" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.setupGuide')}</Button>
       </div>
     </div>
   </section>

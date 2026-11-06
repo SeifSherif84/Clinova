@@ -24,11 +24,11 @@ export default function DoctorClinicsPage() {
   <Building2 className="size-3" />
   {t('clinics.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinics.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinics.description')}</p></div>
-          <Button className="h-10 rounded-xl bg-primary px-4 text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
+          <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" /><p className="text-xs text-muted-foreground">{t('clinics.loading')}</p></Card>}
-        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><p className="text-sm font-semibold text-destructive">{getErrorMessage(clinics.error)}</p><Button className="mt-3 rounded-xl normal-case" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
+        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><p className="text-sm font-semibold text-destructive">{getErrorMessage(clinics.error)}</p><Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" onClick={() => clinics.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
 
 {clinics.data?.length === 0 && (
   <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
@@ -71,7 +71,7 @@ export default function DoctorClinicsPage() {
       <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 whitespace-nowrap text-[10.5px] font-bold tracking-normal text-foreground/60 uppercase"><CircleDollarSign className="size-[18px] shrink-0" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
       <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-[18px]" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
     </div>
-    <Button className="mt-auto w-full rounded-xl bg-primary text-sm normal-case font-bold text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
+    <Button className="mt-auto h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
   </CardContent>
 </Card>
             ))}

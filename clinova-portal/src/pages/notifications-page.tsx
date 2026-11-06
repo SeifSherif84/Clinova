@@ -36,14 +36,14 @@ function NotificationContent() {
         </div>
         {state.unreadCount > 0 && (
           <Button
-            className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal"
-            variant="outline"
+            className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+            variant="ghost"
             disabled={state.isMarkingAll}
             onClick={state.markAllAsRead}
           >
             {state.isMarkingAll
-              ? <LoaderCircle className="animate-spin motion-reduce:animate-none" />
-              : <CheckCheck />}
+              ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
+              : <CheckCheck className="size-4" />}
             {t('notifications.markAllRead')}
           </Button>
         )}
@@ -61,11 +61,11 @@ function NotificationContent() {
           <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(state.error)}</p>
             <Button
-              className="mt-3 h-11 rounded-xl text-sm font-bold normal-case"
-              variant="outline"
+              className="mt-3 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+              variant="ghost"
               onClick={state.refetch}
             >
-              <RefreshCw />
+              <RefreshCw className="size-4" />
               {t('notifications.retry')}
             </Button>
           </Card>
@@ -73,9 +73,6 @@ function NotificationContent() {
 
         {!state.isLoading && !state.isError && state.notifications.length === 0 && (
           <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
-            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
-              <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
-            </div>
 
             <div className="relative">
               <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
@@ -128,23 +125,23 @@ function NotificationRow({ item, language }: { item: NotificationItem; language?
       <div className="flex flex-wrap gap-2 sm:justify-end">
         {isInvitation && (
           <Button
-            variant="outline"
-            className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal"
+            variant="ghost"
+            className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
             render={<Link to="/doctor/invitations" />}
           >
-            <MailOpen />
+            <MailOpen className="size-4" />
             {t('notifications.viewInvitation')}
           </Button>
         )}
         {!item.isRead && (
           <Button
-            className="h-11 rounded-xl text-sm font-bold normal-case tracking-normal"
+            className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90"
             disabled={isMarking}
             onClick={() => state.markAsRead(item.id)}
           >
             {isMarking
-              ? <LoaderCircle className="animate-spin motion-reduce:animate-none" />
-              : <CheckCheck />}
+              ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
+              : <CheckCheck className="size-4" />}
             {t('notifications.markRead')}
           </Button>
         )}

@@ -17,11 +17,13 @@ import { getErrorMessage } from '@/lib/api'
 import { depositAmount, formatMoney, isNotAssignedError } from '@/lib/guest-reservation'
 import type { ClinicDetails } from '@/types/clinic'
 
-const button = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
+const button = 'h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
+const primaryButton = button + ' bg-primary text-primary-foreground hover:bg-primary/90'
+const grayButton = button + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'
 
 function SectionTitle({ icon, children, count }: { icon: ReactNode; children: ReactNode; count?: number }) {
-  return <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+  return <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+    <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
     <div className="relative flex items-center gap-2.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
       <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{children}</h3>
@@ -50,7 +52,7 @@ export default function SecretaryClinicPage() {
           {notAssigned && <ClinicNotAssigned />}
           {clinic.isError && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(clinic.error)}</p>
-            <Button variant="outline" className={button + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
+            <Button variant="outline" className={grayButton + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </Card>}
           {clinic.data && <ClinicOverview clinic={clinic.data} />}
         </div>
@@ -89,11 +91,11 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {clinic.googleMapsUrl && <Button variant="outline" className={button} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
-          <Button className={button + ' bg-primary px-5 text-primary-foreground hover:bg-primary/90'} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
+          {clinic.googleMapsUrl && <Button variant="outline" className={grayButton} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
+          <Button className={primaryButton} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+              render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-10 cursor-pointer place-items-center rounded-xl bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
             >
               {leave.isPending ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
             </DropdownMenuTrigger>
@@ -160,7 +162,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
             {members.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingDoctors')}</p>}
             {members.isError && <div className="grid justify-items-start gap-2">
               <p className="text-sm font-bold text-destructive">{getErrorMessage(members.error)}</p>
-              <Button variant="outline" className={button} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
+              <Button variant="outline" className={grayButton} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
             </div>}
             {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.myClinic.noDoctors')}</p>}
             {members.data?.length ? <ul className="-mx-2 grid divide-y divide-border/50">
@@ -173,7 +175,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
                   </div>
                   <span className="mt-1 flex items-center gap-1.5 truncate text-xs font-semibold text-muted-foreground"><Stethoscope className="size-3.5 shrink-0 text-primary" />{member.medicalSpecialty}</span>
                 </div>
-                <Button variant="ghost" size="icon" className="size-10 shrink-0 rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground" aria-label={t('secretary.myClinic.bookFor', { name: member.fullName })} title={t('secretary.myClinic.bookFor', { name: member.fullName })} render={<Link to="/secretary/guest-booking" search={{ doctorId: member.id }} />}><CalendarPlus className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="size-10 shrink-0 rounded-xl bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground dark:hover:bg-emerald-700 dark:hover:text-white" aria-label={t('secretary.myClinic.bookFor', { name: member.fullName })} title={t('secretary.myClinic.bookFor', { name: member.fullName })} render={<Link to="/secretary/guest-booking" search={{ doctorId: member.id }} />}><CalendarPlus className="size-4" /></Button>
               </li>)}
             </ul> : null}
           </CardContent>

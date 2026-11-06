@@ -36,7 +36,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
     <div className="mt-5 overflow-hidden rounded-3xl border border-border/70 bg-muted/40 shadow-sm">
       <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <p className="max-w-xl text-sm leading-6 text-muted-foreground">{t('paymob.ux.overview')}</p>
-        <Button className={paymobButtonClass + ' h-auto min-h-11 shrink-0 whitespace-normal bg-primary text-primary-foreground hover:bg-primary/90'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rotate-90" />{t('paymob.ux.ready')}</Button>
+        <Button className={paymobButtonClass + ' h-10 shrink-0 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rotate-90" />{t('paymob.ux.ready')}</Button>
       </div>
       <nav aria-label={t('paymob.stepsLabel')} className="border-t border-border/70 bg-muted/30 px-5 py-6 sm:px-8">
         <ol className="flex items-start justify-between gap-2">
@@ -61,7 +61,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
     <div>
       <SetupSection id="paymob-account" icon={UserPlus} title={t('paymob.accountTitle')} description={t('paymob.accountDescription')}>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Button role="link" className={paymobButtonClass} render={<a href="https://paymob.com/" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.openPaymob')}</Button>
+          <Button role="link" className={paymobButtonClass + ' h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90'} render={<a href="https://paymob.com/" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.openPaymob')}</Button>
           <div className="flex min-w-0 flex-wrap items-center gap-5">
             <span className="truncate text-sm font-semibold text-muted-foreground">{t('paymob.existingAccount')}</span>
             <button
@@ -102,7 +102,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
       <SetupSection id="paymob-connect" icon={Link2} title={t('paymob.connectTitle')} description={t('paymob.connectDescription')}>
         <ConnectPaymobAccount clinicId={clinicId} />
         <div className="mt-6 border-t pt-5">
-  <Button role="link" variant="secondary" className={paymobButtonClass + ' h-auto min-h-11 w-fit whitespace-normal rounded-full bg-muted/80 px-5 text-foreground hover:bg-muted'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}>
+  <Button role="link" variant="ghost" className={paymobButtonClass + ' h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/help" params={{ clinicId }} />}>
     <BookOpen className="size-4 shrink-0" />{t('paymob.helpTitle')}
   </Button>
   <p className="mt-2 text-[13px] font-semibold leading-6 text-foreground/70">{t('paymob.helpDescription')}</p>

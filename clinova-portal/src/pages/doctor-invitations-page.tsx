@@ -214,7 +214,7 @@ export default function DoctorInvitationsPage() {
                 <X className="size-6" />
               </span>
               <p className="mt-4 text-sm font-bold text-destructive">{getErrorMessage(activeQuery.error)}</p>
-              <Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case tracking-normal cursor-pointer" variant="outline" onClick={() => activeQuery.refetch()}>
+              <Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" onClick={() => activeQuery.refetch()}>
                 <RefreshCw />
                 {t('invitations.retry')}
               </Button>
@@ -223,10 +223,6 @@ export default function DoctorInvitationsPage() {
 
 {activeQuery.isSuccess && invitations.length === 0 && (
   <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
-      <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
-    </div>
-
     <div className="relative">
       <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
       <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -293,7 +289,7 @@ export default function DoctorInvitationsPage() {
           {view === 'received' ? (
             <>
               <Button
-                className="h-10 flex-1 gap-1.5 rounded-xl bg-primary text-sm font-semibold normal-case tracking-normal text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-[0.98] cursor-pointer"
+                className="h-10 flex-1 cursor-pointer gap-1.5 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
                 disabled={action.isPending}
                 onClick={() => runAction(invitation.id, 'accept')}
               >
@@ -302,7 +298,7 @@ export default function DoctorInvitationsPage() {
               </Button>
               <Button
                 variant="destructive"
-                className="h-10 flex-1 gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-semibold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98] cursor-pointer"
+                className="h-10 flex-1 cursor-pointer gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 text-[13px] font-bold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98]"
                 disabled={action.isPending}
                 onClick={() => runAction(invitation.id, 'reject')}
               >
@@ -313,7 +309,7 @@ export default function DoctorInvitationsPage() {
           ) : (
             <Button
               variant="destructive"
-              className="h-10 w-full gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 text-sm font-semibold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98] cursor-pointer"
+              className="h-10 w-full cursor-pointer gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 text-[13px] font-bold normal-case tracking-normal text-destructive shadow-none transition-all hover:bg-destructive/15 hover:text-destructive active:scale-[0.98]"
               disabled={action.isPending}
               onClick={() => runAction(invitation.id, 'cancel')}
             >

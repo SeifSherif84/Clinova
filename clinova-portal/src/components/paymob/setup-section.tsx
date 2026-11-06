@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-export const paymobButtonClass = 'h-11 rounded-xl text-sm font-bold normal-case tracking-normal'
+export const paymobButtonClass = 'h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
 
 export function SetupSection({ id, title, description, icon: Icon, children }: {
   id: string; title: string; description: string; icon: LucideIcon; children: ReactNode

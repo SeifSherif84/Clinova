@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { PaymobEnvironmentNote } from '@/components/paymob/environment-note'
 import { PaymobPageFrame } from '@/components/paymob/page-frame'
 import { SetupScreenshot } from '@/components/paymob/setup-screenshot'
-import { paymobButtonClass } from '@/components/paymob/setup-section'
 import { Button } from '@/components/ui/button'
 import type { PaymobTutorial } from '@/lib/paymob-tutorials'
 
@@ -43,8 +42,8 @@ function FaqAnswer({ topic, clinicId }: { topic: PaymobTutorial; clinicId: strin
       ))}
     </div>
     {topic === 'test-live' && <PaymobEnvironmentNote />}
-    {!clinovaGuide && <Button role="link" variant="link" className={paymobButtonClass + ' mt-3 h-auto min-h-9 whitespace-normal px-0 text-start'} render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
-    {topic === 'update-disconnect' && <Button role="link" variant="link" className={paymobButtonClass + ' mt-3 h-auto min-h-9 whitespace-normal px-0'} render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 />{t('paymob.viewSettings')}</Button>}
+    {!clinovaGuide && <Button role="link" variant="ghost" className="mt-4 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink className="size-4" />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
+    {topic === 'update-disconnect' && <Button role="link" variant="ghost" className="mt-4 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 className="size-4" />{t('paymob.viewSettings')}</Button>}
   </div>
 }
 

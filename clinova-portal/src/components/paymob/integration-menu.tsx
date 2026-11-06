@@ -74,7 +74,7 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
       <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Edit" title="Edit" disabled={busy || refreshing} onClick={openEditor}>
         <PencilLine className="size-4" />
       </Button>
-      
+
       {integration.isActive ? (
         <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" aria-label="Deactivate" title="Deactivate" disabled={busy || refreshing} onClick={() => run({ kind: 'deactivate' })}>
           {busy ? <LoaderCircle className={spinnerClass} /> : <PowerOff className="size-4" />}
@@ -84,7 +84,7 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
           {busy ? <LoaderCircle className={spinnerClass} /> : <Power className="size-4" />}
         </Button>
       )}
-      
+
       <Button variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label="Delete" title="Delete" disabled={busy || refreshing} onClick={() => { setError(''); setConfirmDelete(true) }}>
         <Trash2 className="size-4" />
       </Button>
@@ -110,8 +110,8 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
             <p className="text-xs leading-6 font-semibold text-muted-foreground">{t('paymob.integrationIdHint')}</p>
           </div>
           <div className="flex flex-wrap justify-end gap-3">
-            <Button type="button" variant="outline" className={paymobButtonClass} disabled={busy} onClick={() => setEditing(false)}><X />{t('paymob.cancelIntegration')}</Button>
-            <Button type="submit" className={paymobButtonClass} disabled={busy} aria-busy={busy}>{busy ? <LoaderCircle className={spinnerClass} /> : <Save />}{t('paymob.integration.save')}</Button>
+            <Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} disabled={busy} onClick={() => setEditing(false)}><X />{t('paymob.cancelIntegration')}</Button>
+            <Button type="submit" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={busy} aria-busy={busy}>{busy ? <LoaderCircle className={spinnerClass} /> : <Save />}{t('paymob.integration.save')}</Button>
           </div>
         </form>
       </DialogContent>

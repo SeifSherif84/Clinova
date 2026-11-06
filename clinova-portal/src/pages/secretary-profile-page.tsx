@@ -68,8 +68,8 @@ export default function SecretaryProfilePage() {
         {profile.isError && (
           <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(profile.error)}</p>
-            <Button className="mt-3 h-11 cursor-pointer rounded-xl text-sm font-bold normal-case" variant="outline" disabled={profile.isFetching} onClick={() => profile.refetch()}>
-              {profile.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}
+            <Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" disabled={profile.isFetching} onClick={() => profile.refetch()}>
+              {profile.isFetching ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <RefreshCw className="size-4" />}
               {t('errors.tryAgain')}
             </Button>
           </Card>
@@ -200,14 +200,14 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
 
           <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
             {!isEditing && (
-              <Button className="h-10 cursor-pointer rounded-xl px-4 text-sm font-bold normal-case" onClick={startEditing}>
-                <PencilLine />
+              <Button className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={startEditing}>
+                <PencilLine className="size-4" />
                 {t('doctorProfile.edit')}
               </Button>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-9 cursor-pointer place-items-center rounded-lg bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
+                render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-10 cursor-pointer place-items-center rounded-xl bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
               >
                 {deleteAccount.isPending ? <LoaderCircle className="size-[18px] animate-spin motion-reduce:animate-none" /> : <MoreHorizontal className="size-[18px]" />}
               </DropdownMenuTrigger>
@@ -269,8 +269,8 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
       <div className={'min-w-0 grid items-start gap-5 ' + (hasSide ? 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.85fr)]' : '')}>
         <div className="min-w-0 grid content-start gap-5">
           <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-              <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+              <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
               <div className="relative flex items-center gap-2.5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
                   <UserRound className="size-4.5" />
@@ -307,12 +307,12 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
                 </div>
                 {isEditing && (
                   <div className="flex flex-wrap justify-end gap-2 border-t border-border/50 pt-5">
-                    <Button type="button" variant="outline" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case" onClick={cancelEditing} disabled={save.isPending}>
-                      <X />
+                    <Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={cancelEditing} disabled={save.isPending}>
+                      <X className="size-4" />
                       {t('doctorProfile.cancel')}
                     </Button>
-                    <Button type="submit" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case" disabled={save.isPending || genders.isError}>
-                      {save.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}
+                    <Button type="submit" className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={save.isPending || genders.isError}>
+                      {save.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Save className="size-4" />}
                       {t('secretary.profile.save')}
                     </Button>
                   </div>
@@ -322,8 +322,8 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
           </Card>
 
           <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-              <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+            <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+              <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
               <div className="relative flex items-center gap-2.5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
                   <UserRound className="size-4.5" />
@@ -343,8 +343,8 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
           <div className="min-w-0 grid content-start gap-5">
             {profile.nationalIdImageUrl && (
               <Card className="min-w-0 gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
-                <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5">
-                  <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+                <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
+                  <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
                   <div className="relative flex items-center gap-2.5">
                     <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10">
                       <ShieldCheck className="size-4.5" />
@@ -397,11 +397,11 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
             </div>
 
             <div className="grid grid-cols-2 gap-2 border-t border-border/60 bg-background/40 p-4">
-              <Button type="button" variant="outline" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case" disabled={upload.isPending} onClick={() => { setPictureFile(null); setPictureModalOpen(false) }}>
+              <Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={upload.isPending} onClick={() => { setPictureFile(null); setPictureModalOpen(false) }}>
                 {t('doctorProfile.cancel')}
               </Button>
-              <Button type="button" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case" disabled={upload.isPending} onClick={() => { upload.mutate(pictureFile, { onSuccess: () => setPictureModalOpen(false) }) }}>
-                {upload.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Camera />}
+              <Button type="button" className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={upload.isPending} onClick={() => { upload.mutate(pictureFile, { onSuccess: () => setPictureModalOpen(false) }) }}>
+                {upload.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Camera className="size-4" />}
                 {t('doctorProfile.updatePicture')}
               </Button>
             </div>

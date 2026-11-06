@@ -111,13 +111,13 @@ export function PaymobCredentialsGuideDialog({ label }: { label?: string }) {
       <DialogHeader className="shrink-0 border-b p-4 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t('paymob.guideTitle')}</DialogTitle>
-          <DialogClose render={<Button type="button" variant="ghost" size="icon" className="size-11 shrink-0 rounded-xl" />} aria-label={t('paymob.close')}><X /></DialogClose>
+          <DialogClose render={<Button type="button" variant="ghost" size="icon" className="size-10 shrink-0 rounded-xl bg-foreground/5 text-foreground hover:bg-foreground/10" />} aria-label={t('paymob.close')}><X /></DialogClose>
         </div>
         <DialogDescription>{t('paymob.ux.guideStays')}</DialogDescription>
       </DialogHeader>
       <div className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6"><PaymobCredentialsGuide /></div>
       <div className="shrink-0 border-t p-4 sm:px-6">
-        <DialogClose render={<Button type="button" className={paymobButtonClass + ' w-full sm:w-auto'} />}><X />{t('paymob.ux.returnToForm')}</DialogClose>
+        <DialogClose render={<Button type="button" className={paymobButtonClass + ' w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto'} />}><X />{t('paymob.ux.returnToForm')}</DialogClose>
       </div>
     </DialogContent>
   </Dialog>

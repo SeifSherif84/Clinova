@@ -18,7 +18,7 @@ import { ApiError, getErrorMessage } from '@/lib/api'
 import type { ClinicDetails, ClinicMember } from '@/types/clinic'
 import { manualPaymentProviders, manualPaymentTypeIds, type ManualPaymentMethod, type ManualPaymentMethodType } from '@/types/manual-payment-method'
 
-const buttonClass = 'h-11 rounded-xl text-sm font-bold normal-case'
+const buttonClass = 'h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30'
 const spinnerClass = 'size-4 animate-spin motion-reduce:animate-none'
 const providerTypes = manualPaymentProviders
 type Editor = { id?: number; type: ManualPaymentMethodType; accountIdentifier: string; isActive: boolean }
@@ -55,7 +55,7 @@ export default function ManualPaymentMethodsPage() {
 
   return <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
     <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
-      {!validId ? <Notice message={t('clinicDetails.invalidId')} /> : accessError ? <div className="grid justify-items-start gap-4"><Notice message={getErrorMessage(accessError)} /><p className="text-sm text-muted-foreground">{getErrorMessage(accessError)}</p><Button variant="outline" className={buttonClass} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw />{t('manualPayments.retry')}</Button></div> : clinic.isPending || members.isPending ? <LoadingState /> : !isOwner ? <div className="flex items-center gap-3 rounded-2xl border bg-card p-6"><ShieldCheck className="shrink-0 text-primary" /><p className="text-sm font-bold">{t('manualPayments.ownerOnly')}</p></div> : clinic.data ? <PaymentWorkspace key={id} clinic={clinic.data} /> : null}
+      {!validId ? <Notice message={t('clinicDetails.invalidId')} /> : accessError ? <div className="grid justify-items-start gap-4"><Notice message={getErrorMessage(accessError)} /><p className="text-sm text-muted-foreground">{getErrorMessage(accessError)}</p><Button variant="ghost" className={buttonClass} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw className="size-4" />{t('manualPayments.retry')}</Button></div> : clinic.isPending || members.isPending ? <LoadingState /> : !isOwner ? <div className="flex items-center gap-3 rounded-2xl border bg-card p-6"><ShieldCheck className="shrink-0 text-primary" /><p className="text-sm font-bold">{t('manualPayments.ownerOnly')}</p></div> : clinic.data ? <PaymentWorkspace key={id} clinic={clinic.data} /> : null}
     </div>
   </DoctorWorkspaceShell>
 }
@@ -158,8 +158,8 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
       <Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={!canChange} onClick={() => openEditor()}>{busy || methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('manualPayments.add')}</Button>
     </div>
     <section className="relative isolate mt-6 overflow-hidden rounded-3xl border border-primary/10 bg-card p-6 sm:p-10" aria-label={t('manualPayments.eyebrow')}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
-      <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent dark:hidden" />
+      <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl dark:hidden" />
       <div className="grid items-center gap-10 lg:grid-cols-[1.3fr_1fr]">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
@@ -232,7 +232,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
     </section>
     {success && <Notice message={success} tone="success" />}
     {error && !editor && !confirmation && <Notice message={error} />}
-    {methods.isLoading ? <LoadingState /> : methods.isError ? <div className="mt-6 grid justify-items-start gap-3 rounded-2xl border border-destructive/20 bg-card p-6"><Notice message={getErrorMessage(methods.error)} /><p className="text-sm font-bold">{t(methods.data ? 'manualPayments.refreshError' : 'manualPayments.loadError')}</p><Button variant="outline" className={buttonClass} disabled={methods.isFetching} onClick={() => void methods.refetch()}>{methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <RefreshCw />}{t('manualPayments.retry')}</Button></div> : <section className="mt-8" aria-labelledby="receiving-accounts">
+    {methods.isLoading ? <LoadingState /> : methods.isError ? <div className="mt-6 grid justify-items-start gap-3 rounded-2xl border border-destructive/20 bg-card p-6"><Notice message={getErrorMessage(methods.error)} /><p className="text-sm font-bold">{t(methods.data ? 'manualPayments.refreshError' : 'manualPayments.loadError')}</p><Button variant="ghost" className={buttonClass} disabled={methods.isFetching} onClick={() => void methods.refetch()}>{methods.isFetching ? <LoaderCircle className={spinnerClass} /> : <RefreshCw className="size-4" />}{t('manualPayments.retry')}</Button></div> : <section className="mt-8" aria-labelledby="receiving-accounts">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
@@ -335,7 +335,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
           <h3 className="text-sm font-bold">{t('manualPayments.emptyFilter')}</h3>
           <p className="mt-1 text-xs leading-6 text-muted-foreground sm:text-sm">{t('manualPayments.emptyFilterDescription')}</p>
         </div>
-        <Button variant="outline" className={`${buttonClass} shrink-0`} onClick={() => setFilter('all')}><WalletCards />{t('manualPayments.all')}</Button>
+        <Button variant="ghost" className={`${buttonClass} shrink-0`} onClick={() => setFilter('all')}><WalletCards className="size-4" />{t('manualPayments.all')}</Button>
       </div>}
     </section>}
     <section className="mt-10 pt-8" aria-label={t('manualPayments.howTitle')}>
@@ -358,8 +358,8 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
 
     <Dialog open={Boolean(editor)} onOpenChange={(open) => { if (!open && !busy) { setEditor(null); setError('') } }}>
       <DialogContent showCloseButton={false} className="max-h-[90dvh] overflow-y-auto rounded-3xl border border-border bg-card p-5 motion-reduce:animate-none sm:max-w-2xl sm:p-7">
-        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0">
-          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl" />
+        <DialogHeader className="relative -m-5 mb-0 overflow-hidden rounded-t-3xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 text-start sm:-m-7 sm:mb-0 dark:bg-none">
+          <span className="pointer-events-none absolute -end-8 -top-8 size-32 rounded-full bg-primary/10 blur-2xl dark:hidden" />
           <div className="relative flex items-center gap-2.5">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
@@ -421,7 +421,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="outline" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={busy} onClick={() => { setEditor(null); setError('') }}><X className="size-4" />{t('manualPayments.cancel')}</Button><Button type="submit" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={!canChange || unchanged}>{busy ? <LoaderCircle className={spinnerClass} /> : editor.id === undefined ? <Plus className="size-4" /> : <Save className="size-4" />}{t(editor.id === undefined ? 'manualPayments.create' : 'manualPayments.save')}</Button></div>
+          <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={busy} onClick={() => { setEditor(null); setError('') }}><X className="size-4" />{t('manualPayments.cancel')}</Button><Button type="submit" className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" disabled={!canChange || unchanged}>{busy ? <LoaderCircle className={spinnerClass} /> : editor.id === undefined ? <Plus className="size-4" /> : <Save className="size-4" />}{t(editor.id === undefined ? 'manualPayments.create' : 'manualPayments.save')}</Button></div>
         </form>}
       </DialogContent>
     </Dialog>

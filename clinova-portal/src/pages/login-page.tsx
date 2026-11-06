@@ -57,14 +57,14 @@ export default function LoginPage() {
         <FormField id="email" name="email" type="email" label={t('login.email')} placeholder="you@example.com" icon={<Mail size={18} />} autoComplete="email" required />
         <PasswordField id="password" name="password" label={t('login.password')} placeholder={t('login.passwordPlaceholder')} autoComplete="current-password" required />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2"><Checkbox id="remember" className="rounded border-input data-checked:bg-primary" checked={remember} onCheckedChange={setRemember} /><Label htmlFor="remember" className="cursor-pointer text-xs font-normal text-muted-foreground">{t('login.remember')}</Label></div>
-          <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:text-primary/75">{t('login.forgot')}</Link>
+          <div className="flex items-center gap-2.5"><Checkbox id="remember" className="rounded border-input data-checked:bg-primary" checked={remember} onCheckedChange={setRemember} /><Label htmlFor="remember" className="cursor-pointer text-sm font-semibold normal-case tracking-normal text-muted-foreground">{t('login.remember')}</Label></div>
+          <Link to="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary/75">{t('login.forgot')}</Link>
         </div>
-        <Button className="h-12 rounded-xl bg-primary text-sm font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={login.isPending || login.isSuccess}>
-          {login.isPending || login.isSuccess ?<LoaderCircle className="size-4 animate-spin" /> : <>{t('login.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
+        <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={login.isPending || login.isSuccess}>
+          {login.isPending || login.isSuccess ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <>{t('login.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
         </Button>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3"><Separator /><span className="text-center text-[10px] tracking-widest text-muted-foreground uppercase">{t('login.newHere')}</span><Separator /></div>
-        <p className="text-center text-xs text-muted-foreground">{t('login.newToClinova')} <Link to="/register" className="font-semibold text-primary hover:text-primary/75">{t('common.createAccount')}</Link></p>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3"><Separator /><span className="text-center text-[11px] font-bold tracking-widest text-muted-foreground uppercase">{t('login.newHere')}</span><Separator /></div>
+        <p className="text-center text-sm font-semibold text-muted-foreground">{t('login.newToClinova')} <Link to="/register" className="font-semibold text-primary hover:text-primary/75">{t('common.createAccount')}</Link></p>
       </form>
     </AuthShell>
   )

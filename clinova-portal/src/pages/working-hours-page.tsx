@@ -229,13 +229,9 @@ export default function WorkingHoursPage() {
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loadingClinics')}</p></Card>}
-        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-11 rounded-xl text-sm font-bold normal-case" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
+        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
         {clinics.data?.length === 0 && (
           <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
-            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 grid place-items-center [mask-image:radial-gradient(circle_at_center,black_25%,transparent_70%)]">
-              <span className="absolute size-[30rem] rounded-full bg-primary/[0.06] blur-3xl" />
-            </div>
-
             <div className="relative">
               <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
               <span className="relative grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -249,7 +245,7 @@ export default function WorkingHoursPage() {
             <h2 className="mt-10 font-heading text-3xl font-bold sm:text-5xl">{t('workingHours.noClinicsTitle')}</h2>
             <span className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-transparent via-primary to-transparent" />
             <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('workingHours.noClinicsDescription')}</p>
-            <Button className="mt-8 h-11 rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('workingHours.createClinic')}</Button>
+            <Button className="mt-8 h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('workingHours.createClinic')}</Button>
           </section>
         )}
 
@@ -308,7 +304,7 @@ export default function WorkingHoursPage() {
                 </CardHeader>
                 <CardContent className="min-w-0 p-0">
                   {(hoursLoading || days.isLoading) && <div className="grid min-h-72 place-items-center p-6"><div className="grid justify-items-center gap-3"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loading')}</p></div></div>}
-                  {queryError && <div className="grid justify-items-start gap-3 p-6"><Notice message={getErrorMessage(queryError)} /><Button variant="outline" className="h-11 rounded-xl text-sm font-bold normal-case" onClick={() => { clinics.refetch(); days.refetch(); hourQueries.forEach((query) => query.refetch()) }}><RefreshCw />{t('workingHours.retry')}</Button></div>}
+                  {queryError && <div className="grid justify-items-start gap-3 p-6"><Notice message={getErrorMessage(queryError)} /><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => { clinics.refetch(); days.refetch(); hourQueries.forEach((query) => query.refetch()) }}><RefreshCw />{t('workingHours.retry')}</Button></div>}
                   {hoursReady && !queryError && (
                     <>
                       <div className="hidden max-h-[46rem] max-w-full overflow-auto [scrollbar-width:thin] lg:block" dir="ltr">
@@ -385,7 +381,7 @@ export default function WorkingHoursPage() {
                             <section className="overflow-hidden rounded-2xl border border-border/60 bg-background/35" key={day.id}>
                               <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-3">
                                 <div><h3 className="text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-xs font-semibold text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
-                                <Button type="button" variant="outline" className="h-10 rounded-xl px-3 text-xs font-bold normal-case" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
+                                <Button type="button" variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
                               </div>
                               <div className="grid gap-2 p-3">
                                 {dayEntries.length ? dayEntries.map((entry) => (
@@ -564,15 +560,15 @@ export default function WorkingHoursPage() {
                 aria-label={t('workingHours.delete')}
                 disabled={toggleWorkingHour.isPending || deleteWorkingHour.isPending || saveWorkingHour.isPending}
                 onClick={() => { deleteWorkingHour.reset(); setSuccess(''); setEditor(null); setDeleteTarget(selectedEntry) }}
-                className="group/delete flex h-11 cursor-pointer items-center self-start overflow-hidden rounded-xl border border-destructive/20 bg-destructive/5 px-3.5 text-destructive transition-all duration-300 hover:border-destructive hover:bg-destructive hover:text-white hover:shadow-md hover:shadow-destructive/25 focus-visible:border-destructive focus-visible:bg-destructive focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/30 disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
+                className="group/delete flex h-10 cursor-pointer items-center self-start overflow-hidden rounded-xl border border-destructive/20 bg-destructive/5 px-4 text-destructive transition-all duration-300 hover:border-destructive hover:bg-destructive hover:text-white hover:shadow-md hover:shadow-destructive/25 focus-visible:border-destructive focus-visible:bg-destructive focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/30 disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
               >
                 <Trash2 className="size-[18px] shrink-0 transition-transform duration-300 group-hover/delete:-rotate-12 group-hover/delete:scale-110 group-focus-visible/delete:-rotate-12" />
-                <span className="ms-2 max-w-40 overflow-hidden text-sm font-bold whitespace-nowrap opacity-100 transition-all duration-300 sm:ms-0 sm:max-w-0 sm:opacity-0 sm:group-hover/delete:ms-2 sm:group-hover/delete:max-w-40 sm:group-hover/delete:opacity-100 sm:group-focus-visible/delete:ms-2 sm:group-focus-visible/delete:max-w-40 sm:group-focus-visible/delete:opacity-100">{t('workingHours.delete')}</span>
+                <span className="ms-2 max-w-40 overflow-hidden text-[13px] font-bold whitespace-nowrap opacity-100 transition-all duration-300 sm:ms-0 sm:max-w-0 sm:opacity-0 sm:group-hover/delete:ms-2 sm:group-hover/delete:max-w-40 sm:group-hover/delete:opacity-100 sm:group-focus-visible/delete:ms-2 sm:group-focus-visible/delete:max-w-40 sm:group-focus-visible/delete:opacity-100">{t('workingHours.delete')}</span>
               </button>
             ) : <span />}
             <div className="flex flex-col-reverse gap-2 sm:flex-row">
-              <Button type="button" variant="outline" className="h-11 cursor-pointer rounded-xl text-sm font-bold normal-case disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending} onClick={() => { setEditor(null); setLocalError(''); saveWorkingHour.reset() }}><X />{t('workingHours.cancel')}</Button>
-              <Button type="submit" className="h-11 cursor-pointer rounded-xl bg-primary text-sm font-bold normal-case text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending || !editor.clinicId}>{saveWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}{t(editor.mode === 'create' ? 'workingHours.create' : 'workingHours.save')}</Button>
+              <Button type="button" variant="outline" className="h-10 cursor-pointer rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 disabled:cursor-not-allowed dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" disabled={saveWorkingHour.isPending} onClick={() => { setEditor(null); setLocalError(''); saveWorkingHour.reset() }}><X />{t('workingHours.cancel')}</Button>
+              <Button type="submit" className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending || !editor.clinicId}>{saveWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}{t(editor.mode === 'create' ? 'workingHours.create' : 'workingHours.save')}</Button>
             </div>
           </div>
         </form>
