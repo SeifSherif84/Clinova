@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams, useSearch } from '@tanstack/react-router'
-import { ArrowLeft, Ban, CalendarDays, CircleCheckBig, Clock3, Coins, Copy, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, WalletCards, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Ban, CalendarDays, Check, ChevronRight, CircleCheckBig, Clock3, Coins, Copy, Ellipsis, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, WalletCards, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -9,6 +9,7 @@ import Notice from '@/components/notice'
 import { CancelAppointmentDialog, ConfirmRefundDialog, MarkCompletedDialog, type DialogOutcome } from '@/components/secretary-appointment-dialogs'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useApi } from '@/hooks/use-api'
@@ -51,6 +52,7 @@ export default function SecretaryAppointmentDetailsPage() {
   const [reason, setReason] = useState('')
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
   const locale = i18n.resolvedLanguage === 'ar' ? 'ar-EG' : 'en-EG'
 
   const details = useQuery({
@@ -103,6 +105,7 @@ export default function SecretaryAppointmentDetailsPage() {
   const data = details.data
   const allowed = data ? availableActions(data) : null
   const date = data ? parseSlotDate(data.slotDate) : null
+  const showAside = Boolean(allowed && (allowed.verify || allowed.confirmRefund))
   const refundedAt = data?.depositRefundProcessedAt ? new Date(data.depositRefundProcessedAt) : null
   const remainingDue = data ? data.remainingPaymentAmount > 0 && data.remainingPaymentStatus !== 'Paid' : false
   const dialogProps = { onOpenChange: (open: boolean) => { if (!open) setDialog(null) }, onDone: (result: DialogOutcome) => { setSuccess(result.message) } }
@@ -130,7 +133,7 @@ export default function SecretaryAppointmentDetailsPage() {
           <Button variant="outline" className={grayButton + ' mt-3'} disabled={details.isFetching} onClick={() => details.refetch()}>{details.isFetching ? spinner : <RefreshCw />}{t('invitations.retry')}</Button>
         </div>}
 
-        {data && allowed && <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        {data && allowed && <div className={`grid items-start gap-6 ${showAside ? 'xl:grid-cols-[minmax(0,1fr)_20rem]' : ''}`}>
           <article className="grid min-w-0 gap-4">
             <header className="relative isolate grid gap-5 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm sm:p-7">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
@@ -139,7 +142,19 @@ export default function SecretaryAppointmentDetailsPage() {
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-3.5 py-1.5 text-xs font-extrabold tracking-wider text-primary uppercase">{t('secretary.appointments.number', { id: data.appointmentId })}</span>
-                <span className={`${statusClass} ${statusTone(data.appointmentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.appointmentStatus)}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`${statusClass} ${statusTone(data.appointmentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.appointmentStatus)}</span>
+                  {allowed.cancel && <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+                    <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" disabled={action.isPending} />} aria-label={t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}><Ellipsis className="size-5" /></PopoverTrigger>
+                    <PopoverContent className="w-56 gap-0 rounded-2xl p-1.5">
+                      <PopoverTitle className="px-3 pt-1.5 pb-2 text-xs leading-none font-bold normal-case tracking-normal text-muted-foreground">{t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}</PopoverTitle>
+                      <div aria-hidden="true" className="mx-1.5 mb-1.5 h-px bg-border/60" />
+                      <button type="button" className="group flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-start text-[13px] font-bold text-destructive transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-destructive/30 focus-visible:outline-none" onClick={() => { setMenuOpen(false); action.reset(); setDialog('cancel') }}>
+                        <Ban className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />{t('secretary.appointments.cancel')}
+                      </button>
+                    </PopoverContent>
+                  </Popover>}
+                </div>
               </div>
 
               <div className="flex min-w-0 items-center gap-4">
@@ -151,27 +166,75 @@ export default function SecretaryAppointmentDetailsPage() {
 
               <div className="grid gap-2.5 sm:grid-cols-3">
                 <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><CalendarDays className="size-5" /></span>
+                  <CalendarDays className="size-5 shrink-0 text-primary" />
                   <span className="grid min-w-0 leading-tight">
                     <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.date')}</small>
                     <strong className="truncate text-sm font-bold">{date ? date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : data.slotDate}</strong>
                   </span>
                 </div>
                 <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Clock3 className="size-5" /></span>
+                  <Clock3 className="size-5 shrink-0 text-primary" />
                   <span className="grid min-w-0 leading-tight">
                     <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.time')}</small>
                     <strong dir="ltr" className="truncate text-start text-sm font-bold">{formatTime(data.slotStartTime)} – {formatTime(data.slotEndTime)}</strong>
                   </span>
                 </div>
                 <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Stethoscope className="size-5" /></span>
+                  <Stethoscope className="size-5 shrink-0 text-primary" />
                   <span className="grid min-w-0 leading-tight">
                     <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.doctor')}</small>
                     <strong className="truncate text-sm font-bold">{data.doctorName}</strong>
                   </span>
                 </div>
               </div>
+
+              {(allowed.complete || allowed.cancel) && <div className="grid gap-5">
+                <ol aria-label={t('secretary.outcome.lifecycle', { defaultValue: 'Appointment lifecycle' })} className="flex items-center gap-3">
+                  {[
+                    { key: 'booked', label: t('secretary.outcome.booked', { defaultValue: 'Booked' }), done: true },
+                    { key: 'confirmed', label: t('secretary.outcome.confirmed', { defaultValue: 'Confirmed' }), done: true },
+                    { key: 'outcome', label: t('secretary.outcome.step', { defaultValue: 'Outcome' }), done: false },
+                  ].map((step, index, steps) => (
+                    <li key={step.key} className={`flex min-w-0 items-center gap-2.5 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
+                      {step.done
+                        ? <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 shadow-primary/25 ring-primary/10"><Check className="size-4" /></span>
+                        : <span className="relative grid size-8 shrink-0 place-items-center rounded-full border-2 border-primary bg-card ring-4 ring-primary/10">
+                          <span aria-hidden="true" className="absolute inset-0 animate-ping rounded-full bg-primary/25 motion-reduce:animate-none" />
+                          <span className="size-2.5 rounded-full bg-primary" />
+                        </span>}
+                      <span className={`truncate text-xs font-bold ${step.done ? 'text-foreground/70' : 'text-primary'}`}>{step.label}</span>
+                      {index < steps.length - 1 && <span aria-hidden="true" className={`ms-1 h-0.5 min-w-4 flex-1 rounded-full ${steps[index + 1].done ? 'bg-primary' : 'bg-gradient-to-r from-primary/60 to-primary/10 rtl:bg-gradient-to-l'}`} />}
+                    </li>
+                  ))}
+                </ol>
+
+                {allowed.complete ? <div className="grid gap-3">
+                  <div>
+                    <h2 className="font-sans text-base font-bold tracking-normal normal-case">{t('secretary.outcome.title', { defaultValue: 'Record the outcome' })}</h2>
+                    <p className="mt-1 text-xs leading-5 font-semibold text-muted-foreground sm:text-sm">{t('secretary.outcome.hint', { defaultValue: 'The appointment is confirmed. Choose what actually happened — this closes the appointment.' })}</p>
+                  </div>
+                  <div role="group" aria-label={t('secretary.outcome.title', { defaultValue: 'Record the outcome' })} className="relative grid gap-3 sm:grid-cols-2">
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                      <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition duration-200 group-hover:scale-105"><CircleCheckBig className="size-4.5" /></span>
+                      <span className="relative grid min-w-0 gap-0.5">
+                        <strong className="text-[15px] font-bold">{t('secretary.outcome.completed', { defaultValue: 'Completed' })}</strong>
+                        <small className="text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.outcome.completedHint', { defaultValue: 'The patient attended and the visit took place.' })}</small>
+                      </span>
+                      <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition duration-200 group-hover:bg-primary group-hover:text-primary-foreground"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
+                    </button>
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-warm/20 bg-gradient-to-br from-warm/10 via-card to-transparent p-4 text-start transition duration-200 hover:-translate-y-0.5 hover:border-warm/40 hover:shadow-lg hover:shadow-warm/10 focus-visible:ring-2 focus-visible:ring-warm/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                      <span aria-hidden="true" className="pointer-events-none absolute -end-6 -top-6 size-24 rounded-full bg-warm/10 blur-2xl transition-opacity duration-200 group-hover:opacity-100 sm:opacity-70" />
+                      <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-warm/15 text-warm ring-4 ring-warm/10 transition duration-200 group-hover:scale-105 group-hover:bg-warm group-hover:text-white group-hover:shadow-lg group-hover:shadow-warm/30">{busy('mark-no-show') ? spinner : <UserX className="size-4.5" />}</span>
+                      <span className="relative grid min-w-0 gap-0.5">
+                        <strong className="text-[15px] font-bold">{t('secretary.outcome.noShow', { defaultValue: 'No-show' })}</strong>
+                        <small className="text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.outcome.noShowHint', { defaultValue: 'The patient did not attend the appointment.' })}</small>
+                      </span>
+                      <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-warm/10 text-warm transition duration-200 group-hover:bg-warm group-hover:text-white"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
+                    </button>
+                    <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-1/2 z-10 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-border bg-card text-[10px] font-bold text-muted-foreground uppercase shadow-md">{t('secretary.outcome.or', { defaultValue: 'or' })}</span>
+                  </div>
+                </div> : <p className="text-xs leading-5 font-semibold text-muted-foreground sm:text-sm">{t('secretary.appointments.completeLater')}</p>}
+              </div>}
 
               {allowed.verify && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 px-3 py-2.5 text-xs leading-6 font-semibold text-warm sm:text-sm"><Sparkles className="mt-1 size-4 shrink-0" />{t('secretary.appointments.verifyHint')}</p>}
             </header>
@@ -294,30 +357,27 @@ export default function SecretaryAppointmentDetailsPage() {
             </Section>}
           </article>
 
-          <aside className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm dark:border-border dark:bg-card dark:bg-none">
+          {showAside && <aside className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm dark:border-border dark:bg-card dark:bg-none">
             <span aria-hidden="true" className="pointer-events-none absolute -end-8 -top-8 -z-10 size-28 rounded-full bg-primary/10 blur-2xl dark:hidden" />
             <div className="flex items-center gap-2.5">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CircleCheckBig className="size-4.5" /></span>
-              <div className="min-w-0">
-                <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{t('secretary.appointments.actionsSection')}</h2>
-                {!allowed.verify && !allowed.cancel && !allowed.confirmRefund && <p className="mt-0.5 text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.appointments.noActions')}</p>}
-              </div>
+              <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{t('secretary.appointments.actionsSection')}</h2>
             </div>
 
-{allowed.verify && (rejecting ? <div className="grid gap-3">
-  <Label htmlFor="secretaryRejectReason" className="text-sm font-bold normal-case tracking-normal text-foreground">{t('secretary.appointments.reasonLabel')}</Label>
-  <div className="grid gap-1.5">
-    <Textarea id="secretaryRejectReason" value={reason} maxLength={500} autoFocus onChange={(event) => { setReason(event.target.value); setFormError('') }} placeholder={t('secretary.appointments.reasonPlaceholder')} className="min-h-28 resize-none rounded-xl border border-input bg-background/70 px-3.5 py-3 text-sm leading-6 font-medium transition placeholder:text-sm placeholder:font-medium focus-visible:border-destructive/50 focus-visible:ring-2 focus-visible:ring-destructive/10" />
-    <small className="justify-self-end text-xs font-bold tabular-nums text-muted-foreground" dir="ltr">{reason.trim().length}/500</small>
-  </div>
-  <div className="grid grid-cols-[1fr_1.4fr] gap-2.5">
-    <Button variant="outline" className={grayButton + ' w-full'} disabled={action.isPending} onClick={() => { setRejecting(false); setFormError('') }}>{t('paymob.cancelIntegration')}</Button>
-    <Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={submitRejection}>{busy('reject') && spinner}{t('secretary.appointments.reject')}</Button>
-  </div>
-</div> : <div className="grid gap-2.5">
+            {allowed.verify && (rejecting ? <div className="grid gap-3">
+              <Label htmlFor="secretaryRejectReason" className="text-sm font-bold normal-case tracking-normal text-foreground">{t('secretary.appointments.reasonLabel')}</Label>
+              <div className="grid gap-1.5">
+                <Textarea id="secretaryRejectReason" value={reason} maxLength={500} autoFocus onChange={(event) => { setReason(event.target.value); setFormError('') }} placeholder={t('secretary.appointments.reasonPlaceholder')} className="min-h-28 resize-none rounded-xl border border-input bg-background/70 px-3.5 py-3 text-sm leading-6 font-medium transition placeholder:text-sm placeholder:font-medium focus-visible:border-destructive/50 focus-visible:ring-2 focus-visible:ring-destructive/10" />
+                <small className="justify-self-end text-xs font-bold tabular-nums text-muted-foreground" dir="ltr">{reason.trim().length}/500</small>
+              </div>
+              <div className="grid grid-cols-[1fr_1.4fr] gap-2.5">
+                <Button variant="outline" className={grayButton + ' w-full'} disabled={action.isPending} onClick={() => { setRejecting(false); setFormError('') }}>{t('paymob.cancelIntegration')}</Button>
+                <Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={submitRejection}>{busy('reject') && spinner}{t('secretary.appointments.reject')}</Button>
+              </div>
+            </div> : <div className="grid gap-2.5">
               {data.manualDepositPaymentProofUrl && !allowed.verify && <Button variant="outline" className={grayButton + ' justify-start gap-2.5'} disabled={action.isPending} render={<a href={resolveFileUrl(data.manualDepositPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText className="size-4 shrink-0 text-primary" />{t('secretary.appointments.viewProof')}<ExternalLink className="ms-auto size-3.5 shrink-0 text-muted-foreground" /></Button>}
-<Button className={primaryButton + ' w-full'} disabled={action.isPending} onClick={() => action.mutate('approve')}>{busy('approve') && spinner}{t('secretary.appointments.approve')}</Button>
-<Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={() => { action.reset(); setRejecting(true) }}>{t('secretary.appointments.reject')}</Button>
+              <Button className={primaryButton + ' w-full'} disabled={action.isPending} onClick={() => action.mutate('approve')}>{busy('approve') && spinner}{t('secretary.appointments.approve')}</Button>
+              <Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={() => { action.reset(); setRejecting(true) }}>{t('secretary.appointments.reject')}</Button>
             </div>)}
 
             {allowed.confirmRefund && <div className="grid gap-3">
@@ -326,17 +386,7 @@ export default function SecretaryAppointmentDetailsPage() {
               </div>
               <Button className={primaryButton + ' w-full'} disabled={action.isPending} onClick={() => { action.reset(); setDialog('refund') }}><Undo2 />{t('secretary.refundConfirm.open')}</Button>
             </div>}
-
-            {allowed.complete && <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              <Button className={primaryButton} disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }}><CircleCheckBig />{t('secretary.appointments.complete')}</Button>
-              <Button variant="outline" className={grayButton} disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }}>{busy('mark-no-show') ? spinner : <UserX />}{t('secretary.appointments.noShow')}</Button>
-            </div>}
-            {allowed.cancel && !allowed.complete && <p className="text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.appointments.completeLater')}</p>}
-            {allowed.cancel && <div className="border-t border-border/60 pt-4">
-              <Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={() => { action.reset(); setDialog('cancel') }}><Ban />{t('secretary.appointments.cancel')}</Button>
-            </div>}
-
-          </aside>
+          </aside>}
         </div>}
 
         {data && <>

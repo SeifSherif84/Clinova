@@ -78,7 +78,7 @@ function DialogLayout({ icon: Icon, destructive = false, title, description, chi
         <span className={`grid size-9 shrink-0 place-items-center rounded-xl shadow-lg ring-4 ${destructive ? 'bg-destructive/10 text-destructive shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}><Icon className="size-4.5" /></span>
         <div className="min-w-0 flex-1">
           <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{title}</DialogTitle>
-          <DialogDescription className="mt-0.5 text-start text-[13px] leading-5">{description}</DialogDescription>
+          <DialogDescription className="mt-0.5 text-start text-xs leading-5">{description}</DialogDescription>
         </div>
       </div>
     </DialogHeader>
@@ -107,19 +107,21 @@ function Step({ number, title, note, badge, badgeTone = 'muted', children }: { n
 type FormProps = Omit<AppointmentDialogProps, 'open'>
 
 // Radio card matching the guest checkout picker: the whole card is the hit area, with a check mark when selected.
-function ChoiceCard({ value, icon, title, hint, tone = 'primary' }: { value: string; icon: ReactNode; title: string; hint?: string; tone?: 'primary' | 'destructive' }) {
+function ChoiceCard({ value, icon, title, hint, tone = 'primary', stacked = false, bare = false }: { value: string; icon: ReactNode; title: string; hint?: string; tone?: 'primary' | 'destructive'; stacked?: boolean; bare?: boolean }) {
   const destructive = tone === 'destructive'
   const selected = destructive
-    ? 'has-data-checked:border-destructive/50 has-data-checked:bg-destructive/[0.04]'
-    : 'has-data-checked:border-primary/50 has-data-checked:bg-primary/[0.04]'
-  return <label className={`group relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-border/70 bg-card px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md has-focus-visible:ring-2 has-focus-visible:ring-primary/20 has-data-disabled:cursor-not-allowed has-data-disabled:opacity-60 has-data-disabled:hover:translate-y-0 has-data-disabled:hover:shadow-none motion-reduce:transition-none ${selected}`}>
+    ? 'has-data-checked:border-destructive/50 has-data-checked:bg-destructive/[0.04] has-data-checked:ring-2 has-data-checked:ring-destructive/10'
+    : 'has-data-checked:border-primary/50 has-data-checked:bg-primary/[0.04] has-data-checked:ring-2 has-data-checked:ring-primary/10'
+  return <label className={`group relative flex min-w-0 cursor-pointer rounded-2xl border border-border/70 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md has-focus-visible:ring-2 has-focus-visible:ring-primary/20 has-data-disabled:cursor-not-allowed has-data-disabled:opacity-60 has-data-disabled:hover:translate-y-0 has-data-disabled:hover:shadow-none motion-reduce:transition-none ${selected} ${stacked ? 'flex-col items-start gap-4 p-4 sm:p-5' : 'items-center gap-3.5 px-4 py-3.5'}`}>
     <RadioGroupItem value={value} className="pointer-events-none absolute size-px opacity-0 after:hidden" />
-    <span className={`grid size-9 shrink-0 place-items-center rounded-xl shadow-lg ring-4 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none [&>svg]:size-4.5 ${destructive ? 'bg-destructive text-white shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}>{icon}</span>
-    <span className="grid min-w-0 flex-1 gap-0.5">
+    {bare
+      ? <span className="grid shrink-0 place-items-center">{icon}</span>
+      : <span className={`grid shrink-0 place-items-center rounded-xl shadow-lg ring-4 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none ${stacked ? 'size-11 [&>svg]:size-5' : 'size-9 [&>svg]:size-4.5'} ${destructive ? 'bg-destructive text-white shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}>{icon}</span>}
+    <span className={`grid min-w-0 gap-0.5 ${stacked ? 'w-full' : 'flex-1'}`}>
       <strong className="text-sm font-bold">{title}</strong>
       {hint && <span className="text-[13px] leading-5 font-medium text-muted-foreground">{hint}</span>}
     </span>
-    <span aria-hidden="true" className="relative grid size-5 shrink-0 place-items-center">
+    <span aria-hidden="true" className={`grid size-5 shrink-0 place-items-center ${stacked ? 'absolute end-4 top-4' : 'relative'}`}>
       <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-data-checked:opacity-0" />
       <CircleCheckBig className={`size-5 opacity-0 transition group-has-data-checked:opacity-100 ${destructive ? 'text-destructive' : 'text-primary'}`} />
     </span>
@@ -425,15 +427,16 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
   >
     {(formError || complete.error) && <Notice message={formError || getErrorMessage(complete.error)} />}
 
-    <div className={`rounded-2xl border px-4 py-4 ${due ? 'border-warm/25 bg-warm/10' : 'border-primary/20 bg-primary/5'}`}>
-      <small className={`block text-[10px] font-bold tracking-wider uppercase ${due ? 'text-warm' : 'text-primary'}`}>{t(due ? 'secretary.complete.collect' : 'secretary.complete.nothingDue')}</small>
-      <strong dir="ltr" className={`mt-1 block text-start text-2xl font-bold tabular-nums ${due ? 'text-warm' : 'text-primary'}`}>{money(due ? details.remainingPaymentAmount : 0)}</strong>
+    <div className={`relative isolate overflow-hidden rounded-2xl border p-4 sm:p-5 ${due ? 'border-warm/25 bg-gradient-to-br from-warm/15 via-warm/[0.06] to-transparent' : 'border-primary/20 bg-gradient-to-br from-primary/15 via-primary/[0.06] to-transparent'}`}>
+      <span aria-hidden="true" className={`pointer-events-none absolute -end-10 -top-10 -z-10 size-32 rounded-full blur-2xl ${due ? 'bg-warm/15' : 'bg-primary/10'}`} />
+      <small className={`block text-[11px] font-bold tracking-wider uppercase ${due ? 'text-warm' : 'text-primary'}`}>{t(due ? 'secretary.complete.collect' : 'secretary.complete.nothingDue')}</small>
+      <strong dir="ltr" className={`mt-1.5 block text-start font-sans text-4xl leading-none font-bold tracking-tight tabular-nums ${due ? 'text-warm' : 'text-primary'}`}>{money(due ? details.remainingPaymentAmount : 0)}</strong>
     </div>
 
     {due && <Question label={t('secretary.complete.method')}>
       <RadioGroup name="remainingPaymentMethod" aria-label={t('secretary.complete.method')} value={method ? String(method) : ''} disabled={complete.isPending} onValueChange={(value) => { setMethod(Number(value) === ClinicPaymentMethod.ManualTransfer ? ClinicPaymentMethod.ManualTransfer : ClinicPaymentMethod.CashAtClinic); setAccountId(''); setFormError('') }} className="grid gap-2.5 sm:grid-cols-2">
-        <ChoiceCard value={String(ClinicPaymentMethod.CashAtClinic)} icon={<Banknote className="size-4.5" />} title={t('secretary.paymentMethod.CashAtClinic')} hint={t('secretary.complete.cashHint')} />
-        <ChoiceCard value={String(ClinicPaymentMethod.ManualTransfer)} icon={<ArrowLeftRight className="size-4.5" />} title={t('secretary.paymentMethod.ManualTransfer')} hint={t('secretary.complete.transferHint')} />
+        <ChoiceCard stacked value={String(ClinicPaymentMethod.CashAtClinic)} icon={<Banknote />} title={t('secretary.paymentMethod.CashAtClinic')} hint={t('secretary.complete.cashHint')} />
+        <ChoiceCard stacked value={String(ClinicPaymentMethod.ManualTransfer)} icon={<ArrowLeftRight />} title={t('secretary.paymentMethod.ManualTransfer')} hint={t('secretary.complete.transferHint')} />
       </RadioGroup>
     </Question>}
 
@@ -448,8 +451,9 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
       {accounts.data && accounts.data.length > 0 && <RadioGroup name="remainingPaymentAccount" aria-label={t('secretary.complete.account')} value={accountId} disabled={complete.isPending} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-2.5">
         {accounts.data.map((account) => <ChoiceCard
           key={account.id}
+          bare={isManualPaymentProvider(account.type)}
           value={String(account.id)}
-          icon={isManualPaymentProvider(account.type) ? <ProviderLogo type={account.type} size="sm" /> : <Wallet className="size-4.5" />}
+          icon={isManualPaymentProvider(account.type) ? <ProviderLogo type={account.type} /> : <Wallet className="size-4.5" />}
           title={t(`manualPayments.${account.type}`, { defaultValue: account.type })}
           hint={account.accountIdentifier}
         />)}
