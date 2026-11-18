@@ -420,27 +420,6 @@ namespace Services.DepositPayments
 
 
 
-        private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(DepositPayment payment, DepositRefundReason reason)
-        {
-            var refundResult = await _refundService.RefundPaymentAsync(payment.Id, reason);
-
-            if (refundResult.Succeeded)
-                return;
-
-            // The refund record is already stored as
-            // PendingVerification by RefundService.
-            //
-            // We intentionally do not throw here because the
-            // payment itself was already successful and the
-            // appointment must remain invalid.
-            if (refundResult.PendingVerification)
-                return;
-
-            throw new InternalServerErrorException(refundResult.ErrorMessage ?? "The payment was successful, but the refund could not be completed.");
-        }
-
-
-
         private async Task HandleSuccessfulPaymentAsync(DepositPayment payment, PaymobTransactionCallbackObject transaction)
         {
             // --------------------------------------------------
@@ -621,6 +600,29 @@ namespace Services.DepositPayments
                 throw new InternalServerErrorException("The payment was modified by another operation. Please try again.");
             }
         }
+
+
+
+
+        private async Task RefundSuccessfulPaymentAfterAppointmentBecameInvalid(DepositPayment payment, DepositRefundReason reason)
+        {
+            var refundResult = await _refundService.RefundPaymentAsync(payment.Id, reason);
+
+            if (refundResult.Succeeded)
+                return;
+
+            // The refund record is already stored as
+            // PendingVerification by RefundService.
+            //
+            // We intentionally do not throw here because the
+            // payment itself was already successful and the
+            // appointment must remain invalid.
+            if (refundResult.PendingVerification)
+                return;
+
+            throw new InternalServerErrorException(refundResult.ErrorMessage ?? "The payment was successful, but the refund could not be completed.");
+        }
+
 
 
 

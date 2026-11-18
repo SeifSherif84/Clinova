@@ -54,7 +54,7 @@ namespace Services.Patients
                 throw new BadRequestException("First name cannot be empty.");
 
             if (request.LastName is not null && string.IsNullOrWhiteSpace(request.LastName))
-                throw new BadRequestException("First name cannot be empty.");
+                throw new BadRequestException("Last name cannot be empty.");
 
             if (request.FirstName is not null)
                 request.FirstName = request.FirstName.Trim();
@@ -95,6 +95,5 @@ namespace Services.Patients
 
             return "Your profile picture has been updated successfully.";
         }
-
     }
 }

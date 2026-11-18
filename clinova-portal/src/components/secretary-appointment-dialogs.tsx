@@ -78,7 +78,7 @@ function DialogLayout({ icon: Icon, destructive = false, title, description, chi
         <span className={`grid size-9 shrink-0 place-items-center rounded-xl shadow-lg ring-4 ${destructive ? 'bg-destructive/10 text-destructive shadow-destructive/30 ring-destructive/10' : 'bg-primary text-primary-foreground shadow-primary/30 ring-primary/10'}`}><Icon className="size-4.5" /></span>
         <div className="min-w-0 flex-1">
           <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{title}</DialogTitle>
-          <DialogDescription className="mt-0.5 text-start text-xs leading-5">{description}</DialogDescription>
+          <DialogDescription className="mt-0.5 text-start text-[13px] leading-5">{description}</DialogDescription>
         </div>
       </div>
     </DialogHeader>
@@ -390,6 +390,7 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
   const due = hasRemainingDue(details)
   const [method, setMethod] = useState<ClinicPaymentMethod | null>(null)
   const [accountId, setAccountId] = useState('')
+  const [accountType, setAccountType] = useState<string | null>(null)
   const [formError, setFormError] = useState('')
 
   // Same clinic accounts the guest checkout uses; the secretary is allowed to read them.
@@ -405,14 +406,21 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
     onSettled: () => refresh(),
   })
 
+  // Accounts are grouped by provider: one card per provider, then the secretary picks the exact number.
+  const accountTypes = Array.from(new Set(accounts.data?.map((account) => account.type) ?? []))
+  const activeType = accountType ?? (accountTypes.length === 1 ? accountTypes[0] : null)
+  const typeAccounts = activeType ? (accounts.data ?? []).filter((account) => account.type === activeType) : []
+  // A lone account is picked automatically; several need an explicit choice.
+  const chosenAccountId = typeAccounts.length === 1 ? String(typeAccounts[0].id) : typeAccounts.some((account) => String(account.id) === accountId) ? accountId : ''
+
   function submit() {
     // No balance due: the backend rejects any payment fields, so send an empty object.
     if (!due) return complete.mutate({})
     if (!method) return setFormError(t('secretary.complete.methodRequired'))
-    if (method === ClinicPaymentMethod.ManualTransfer && !accountId) return setFormError(t('secretary.complete.accountRequired'))
+    if (method === ClinicPaymentMethod.ManualTransfer && !chosenAccountId) return setFormError(t('secretary.complete.accountRequired'))
     setFormError('')
     complete.mutate(method === ClinicPaymentMethod.ManualTransfer
-      ? { remainingPaymentMethodType: method, clinicManualPaymentMethodId: Number(accountId) }
+      ? { remainingPaymentMethodType: method, clinicManualPaymentMethodId: Number(chosenAccountId) }
       : { remainingPaymentMethodType: method })
   }
 
@@ -434,7 +442,7 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
     </div>
 
     {due && <Question label={t('secretary.complete.method')}>
-      <RadioGroup name="remainingPaymentMethod" aria-label={t('secretary.complete.method')} value={method ? String(method) : ''} disabled={complete.isPending} onValueChange={(value) => { setMethod(Number(value) === ClinicPaymentMethod.ManualTransfer ? ClinicPaymentMethod.ManualTransfer : ClinicPaymentMethod.CashAtClinic); setAccountId(''); setFormError('') }} className="grid gap-2.5 sm:grid-cols-2">
+      <RadioGroup name="remainingPaymentMethod" aria-label={t('secretary.complete.method')} value={method ? String(method) : ''} disabled={complete.isPending} onValueChange={(value) => { setMethod(Number(value) === ClinicPaymentMethod.ManualTransfer ? ClinicPaymentMethod.ManualTransfer : ClinicPaymentMethod.CashAtClinic); setAccountId(''); setAccountType(null); setFormError('') }} className="grid gap-2.5 sm:grid-cols-2">
         <ChoiceCard stacked value={String(ClinicPaymentMethod.CashAtClinic)} icon={<Banknote />} title={t('secretary.paymentMethod.CashAtClinic')} hint={t('secretary.complete.cashHint')} />
         <ChoiceCard stacked value={String(ClinicPaymentMethod.ManualTransfer)} icon={<ArrowLeftRight />} title={t('secretary.paymentMethod.ManualTransfer')} hint={t('secretary.complete.transferHint')} />
       </RadioGroup>
@@ -448,16 +456,32 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
         <Button type="button" variant="ghost" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw className="size-4" />}{t('errors.tryAgain')}</Button>
       </div>}
       {accounts.data && !accounts.data.length && <Callout tone="warning" icon={TriangleAlert}>{t('secretary.guest.noAccounts')}</Callout>}
-      {accounts.data && accounts.data.length > 0 && <RadioGroup name="remainingPaymentAccount" aria-label={t('secretary.complete.account')} value={accountId} disabled={complete.isPending} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-2.5">
-        {accounts.data.map((account) => <ChoiceCard
-          key={account.id}
-          bare={isManualPaymentProvider(account.type)}
-          value={String(account.id)}
-          icon={isManualPaymentProvider(account.type) ? <ProviderLogo type={account.type} /> : <Wallet className="size-4.5" />}
-          title={t(`manualPayments.${account.type}`, { defaultValue: account.type })}
-          hint={account.accountIdentifier}
-        />)}
-      </RadioGroup>}
+      {accounts.data && accounts.data.length > 0 && <div className="grid gap-4">
+        <RadioGroup name="remainingPaymentAccountType" aria-label={t('secretary.complete.account')} value={activeType ?? ''} disabled={complete.isPending} onValueChange={(value) => { setAccountType(String(value)); setAccountId(''); setFormError('') }} className="grid gap-2.5">
+          {accountTypes.map((type) => {
+            const group = (accounts.data ?? []).filter((account) => account.type === type)
+            const title = t(`manualPayments.${type}`, { defaultValue: type })
+            return <ChoiceCard
+              key={type}
+              bare={isManualPaymentProvider(type)}
+              value={type}
+              icon={isManualPaymentProvider(type) ? <ProviderLogo type={type} size="sm" /> : <Wallet className="size-4.5" />}
+              title={title}
+              hint={group.length === 1 ? group[0].accountIdentifier : undefined}
+            />
+          })}
+        </RadioGroup>
+
+        {typeAccounts.length > 1 && <div className="grid gap-2">
+          <small className="text-[13px] font-semibold text-foreground/80">{t('secretary.complete.accountPick', { defaultValue: 'Choose the number that received the transfer' })}</small>
+          <RadioGroup name="remainingPaymentAccount" aria-label={t('secretary.complete.accountPick', { defaultValue: 'Choose the number that received the transfer' })} value={chosenAccountId} disabled={complete.isPending} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid w-full gap-1 rounded-xl bg-foreground/5 p-1" style={{ gridTemplateColumns: `repeat(${Math.min(typeAccounts.length, 3)}, minmax(0, 1fr))` }}>
+            {typeAccounts.map((account) => <label key={account.id} dir="ltr" className="relative flex h-11 min-w-0 cursor-pointer items-center justify-center rounded-lg px-3 font-mono text-[15px] font-bold tabular-nums text-muted-foreground transition-all duration-200 not-has-[[data-checked]]:hover:bg-foreground/5 not-has-[[data-checked]]:hover:text-foreground motion-reduce:transition-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/30 has-[[data-checked]]:bg-card has-[[data-checked]]:text-primary has-[[data-checked]]:shadow-sm has-[[data-checked]]:ring-1 has-[[data-checked]]:ring-primary/25 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+              <RadioGroupItem value={String(account.id)} className="pointer-events-none absolute size-px opacity-0" />
+              <span className="truncate">{account.accountIdentifier}</span>
+            </label>)}
+          </RadioGroup>
+        </div>}
+      </div>}
     </div>}
   </DialogLayout>
 }

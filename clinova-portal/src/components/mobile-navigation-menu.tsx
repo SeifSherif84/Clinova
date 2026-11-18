@@ -47,7 +47,7 @@ export default function MobileNavigationMenu() {
           ? <DropdownMenuItem className={pathname === '/doctor/profile' ? activeClass : itemClass} render={<Link to="/doctor/profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>
           : isSecretary
           ? <DropdownMenuItem className={pathname === '/secretary/profile' ? activeClass : itemClass} render={<Link to="/secretary/profile" />}><UserRound />{t('dashboard.profile')}</DropdownMenuItem>
-          : <DropdownMenuItem className={itemClass} render={<a href="/dashboard#profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>}
+          : <DropdownMenuItem className={pathname === '/patient/profile' ? activeClass : itemClass} render={<Link to="/patient/profile" />}><UserRound />{t('dashboard.profile')}</DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>
   </div>

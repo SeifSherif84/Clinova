@@ -28,8 +28,8 @@ namespace Shared.Dtos.Appointments
         public string DepositPaymentStatus { get; set; } = null!;
 
         // Refund
-        public string? DepositRefundStatus { get; set; }
         public decimal? RequestedDepositRefundAmount { get; set; }
+        public string? DepositRefundStatus { get; set; }
 
         // Reservation
         public DateTime? ReservationExpiresAt { get; set; }

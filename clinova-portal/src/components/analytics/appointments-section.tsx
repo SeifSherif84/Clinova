@@ -136,7 +136,7 @@ function Breakdown({ data }: { data: AppointmentOverview }) {
           ) : (
             <div className="grid justify-items-center gap-1.5">
               <strong className="font-sans text-6xl font-bold leading-none tabular-nums tracking-tight">{total}</strong>
-              <span className="max-w-[8rem] text-xs font-semibold leading-snug text-muted-foreground">{t('analytics.appointments.total')}</span>
+              <span className="max-w-[9rem] text-[13px] font-semibold leading-snug text-muted-foreground">{t('analytics.appointments.total')}</span>
             </div>
           )}
         </div>
@@ -152,7 +152,7 @@ function Breakdown({ data }: { data: AppointmentOverview }) {
                 <CalendarDays className="size-5" />
               </span>
               <strong className="font-sans text-base font-bold">{t('analytics.appointments.empty')}</strong>
-              <p className="text-xs leading-5 font-semibold text-muted-foreground">
+              <p className="text-[13px] leading-5 font-semibold text-muted-foreground">
                 {t('analytics.appointments.emptyHint', { defaultValue: 'Confirmed, completed and cancelled visits will appear here as soon as appointments are booked.' })}
               </p>
             </div>

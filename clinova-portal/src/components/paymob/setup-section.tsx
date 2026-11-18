@@ -13,7 +13,7 @@ export function SetupSection({ id, title, description, icon: Icon, children }: {
       </span>
       <div className="min-w-0 flex-1 pt-1">
         <h2 tabIndex={-1} id={id + '-title'} className="font-sans text-2xl font-bold leading-tight tracking-tight normal-case">{title}</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-7 font-medium text-foreground/75">{description}</p>
       </div>
     </div>
     <div className="mt-7 ms-6 border-s-2 border-primary/10 ps-6 sm:ms-[3.25rem]">{children}</div>

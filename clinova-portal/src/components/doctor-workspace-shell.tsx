@@ -11,13 +11,14 @@ import { useAuth } from '@/hooks/use-auth'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
 
-type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'secretary-appointments' | 'secretary-guest-booking' | 'secretary-clinic' | 'secretary-invitations' | 'secretary-profile'
+type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'patient-profile' | 'secretary-appointments' | 'secretary-guest-booking' | 'secretary-clinic' | 'secretary-invitations' | 'secretary-profile'
 
 // Shared sidebar shell for clinic staff; the navigation follows the signed-in role.
 export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: WorkspaceSection; topBackLink?: ReactNode }) {
   const { t } = useTranslation()
   const auth = useAuth()
   const isSecretary = auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')
+  const isPatient = auth.user?.roles.some((role) => role.toLowerCase() === 'patient')
   const navigate = useNavigate()
   const logout = useMutation({ mutationFn: auth.signOut, onSettled: () => navigate({ to: '/login', search: { redirect: undefined } }) })
   const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
@@ -35,6 +36,11 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
           <Link className={active === 'secretary-invitations' ? activeItem : navItem} to="/secretary/invitations"><MailOpen />{t('dashboard.invitations')}</Link>
           <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
           <Link className={active === 'secretary-profile' ? activeItem : navItem} to="/secretary/profile"><UserRound />{t('dashboard.profile')}</Link>
+        </nav> : isPatient ? <nav className="mt-12 grid gap-1">
+          <Link className={navItem} to="/dashboard"><Sparkles />{t('dashboard.overview')}</Link>
+          <a className={navItem} href="/dashboard#appointments"><CalendarDays />{t('dashboard.appointments')}</a>
+          <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
+          <Link className={active === 'patient-profile' ? activeItem : navItem} to="/patient/profile"><UserRound />{t('dashboard.profile')}</Link>
         </nav> : <nav className="mt-12 grid gap-1">
           <Link className={navItem} to="/dashboard"><Sparkles />{t('dashboard.overview')}</Link>
           <a className={navItem} href="/dashboard#appointments"><CalendarDays />{t('dashboard.appointments')}</a>
@@ -62,7 +68,7 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
             </span>
             <span className="grid min-w-0 gap-0.5 text-start leading-tight">
               <strong className="truncate text-[15px] font-extrabold text-foreground">{auth.user?.name}</strong>
-              <small className="truncate text-xs font-semibold text-muted-foreground">{t(isSecretary ? 'secretary.workspace' : 'clinicModule.doctorWorkspace')}</small>
+              <small className="truncate text-xs font-semibold text-muted-foreground">{isPatient ? t('patient.workspace', { defaultValue: 'Patient workspace' }) : t(isSecretary ? 'secretary.workspace' : 'clinicModule.doctorWorkspace')}</small>
             </span>
           </div>
           <Button

@@ -93,7 +93,7 @@ export default function ClinicAnalyticsPage() {
 
   return (
     <DoctorWorkspaceShell active="clinics" topBackLink={backLink}>
-      <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         {!validId ? (
           <Notice message={t('clinicDetails.invalidId')} />
         ) : blockedStatus !== undefined ? (

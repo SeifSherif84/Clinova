@@ -46,7 +46,7 @@ export default function SecretaryClinicPage() {
 
   return (
     <DoctorWorkspaceShell active="secretary-clinic">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <div>
           {clinic.isLoading && <p role="status" className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.myClinic.loading')}</p>}
           {notAssigned && <ClinicNotAssigned />}

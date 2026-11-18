@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos.Doctors
 {
-    public class PatientDoctorResponse
+    public class DoctorResponseForPatient
     {
         public string DoctorId { get; set; } = null!;
         public string DoctorName { get; set; } = null!;
         public string MedicalSpecialtyName { get; set; } = null!;
-        public string? Title { get; set; }
         public int? ExperienceYears { get; set; }
-        public string? Bio { get; set; }
+        public string? ProfilePictureUrl { get; set; }
+        public double? AverageRating { get; set; }
     }
 }

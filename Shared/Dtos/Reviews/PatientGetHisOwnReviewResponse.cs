@@ -15,7 +15,6 @@ namespace Shared.Dtos.Reviews
         public bool IsAnonymous { get; set; }
         public string Status { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
-
         public string DoctorId { get; set; } = null!;
         public string DoctorName { get; set; } = null!;
         public string ClinicName { get; set; } = null!;

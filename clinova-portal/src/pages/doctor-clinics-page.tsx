@@ -18,7 +18,7 @@ export default function DoctorClinicsPage() {
 
   return (
     <DoctorWorkspaceShell active="clinics">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div><Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
   <Building2 className="size-3" />
@@ -66,10 +66,10 @@ export default function DoctorClinicsPage() {
         </div>
       </div>
     </div>
-    <p className="flex items-start gap-2 text-xs leading-5 font-semibold text-muted-foreground"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
+    <p className="flex items-start gap-2 text-sm leading-6 font-semibold text-muted-foreground"><MapPin className="mt-1 size-4 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
     <div className="grid grid-cols-2 gap-3">
-      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 whitespace-nowrap text-[10.5px] font-bold tracking-normal text-foreground/60 uppercase"><CircleDollarSign className="size-[18px] shrink-0" />{t('clinics.consultation')}</small><strong className="text-sm">{money.format(clinic.consultationFee)}</strong></span>
-      <span className="grid gap-1.5 rounded-xl bg-background/100 p-3"><small className="flex items-center gap-1.5 text-[10.5px] font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-[18px]" />{t('clinics.deposit')}</small><strong className="text-sm">{clinic.depositPercentage}%</strong></span>
+      <span className="grid gap-2 rounded-xl bg-background/100 p-4"><small className="flex items-center gap-1.5 whitespace-nowrap text-xs font-bold tracking-normal text-foreground/60 uppercase"><CircleDollarSign className="size-5 shrink-0" />{t('clinics.consultation')}</small><strong className="text-base">{money.format(clinic.consultationFee)}</strong></span>
+      <span className="grid gap-2 rounded-xl bg-background/100 p-4"><small className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-5 shrink-0" />{t('clinics.deposit')}</small><strong className="text-base">{clinic.depositPercentage}%</strong></span>
     </div>
     <Button className="mt-auto h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
   </CardContent>

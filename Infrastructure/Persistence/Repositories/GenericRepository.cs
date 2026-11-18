@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Persistence.Repositories
 {
-    public class GenericRepositiry<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class
+    public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : class
     {
         private readonly AppDbContext _context;
 
-        public GenericRepositiry(AppDbContext context)
+        public GenericRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -64,6 +64,7 @@ namespace Persistence.Repositories
         public async Task<double> AverageAsync(IBaseSpecifications<TEntity, TKey> specifications, Expression<Func<TEntity, int>> selector)
         {
             return await ApplySpecifications(specifications).AverageAsync(selector);
+            // return await ApplySpecifications(specifications).Select(selector).DefaultIfEmpty(0).AverageAsync();
         }
 
 
@@ -72,6 +73,16 @@ namespace Persistence.Repositories
             return SpecificationsEvaluator.GenerateQuery(_context.Set<TEntity>(), specifications);
         }
 
-
+        public async Task<Dictionary<TGroupKey, double>> AverageByAsync<TGroupKey>(IBaseSpecifications<TEntity, TKey> specifications,
+                                                                                   Expression<Func<TEntity, TGroupKey>> groupBySelector,
+                                                                                   Expression<Func<TEntity, int>> selector) where TGroupKey : notnull
+        {
+            return await ApplySpecifications(specifications).GroupBy(groupBySelector)
+                                                            .Select(group => new
+                                                            {
+                                                                Key = group.Key,
+                                                                AverageRating = group.AsQueryable().Average(selector)
+                                                            }).ToDictionaryAsync(x => x.Key, x => x.AverageRating);
+        }
     }
 }

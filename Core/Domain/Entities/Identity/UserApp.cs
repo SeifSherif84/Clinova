@@ -25,6 +25,5 @@ namespace Domain.Entities.Identity
         public DateTime? DeletedAt { get; set; }
 
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-
     }
 }

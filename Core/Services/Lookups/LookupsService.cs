@@ -25,6 +25,17 @@ namespace Services.Abstractions.Lookups
             return result;
         }
 
+        public IEnumerable<LookupResponse> GetBloodTypesAsync()
+        {
+            var bloodTypesList = Enum.GetValues<BloodTypes>().ToList();
+            var result = bloodTypesList.Select(bloodType => new LookupResponse()
+            {
+                Id = (int)bloodType,
+                Name = bloodType.ToString(),
+            });
+            return result;
+        }
+
         public IEnumerable<LookupResponse> GetDaysOfWeekAsync()
         {
             var daysOfWeekList = Enum.GetValues<DayOfWeek>().ToList();
@@ -103,5 +114,6 @@ namespace Services.Abstractions.Lookups
             });
             return result;
         }
+
     }
 }

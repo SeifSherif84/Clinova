@@ -222,7 +222,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
               >
                 {money(shown.value)}
               </strong>
-              <span className="max-w-[8rem] text-xs font-semibold leading-snug text-muted-foreground">
+              <span className="max-w-[9rem] text-[13px] font-semibold leading-snug text-muted-foreground">
                 {t('analytics.financial.totalCollected')}
               </span>
             </div>
@@ -242,7 +242,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
             <dt
               onMouseEnter={() => setFocus(item.key)}
               onMouseLeave={() => setFocus(null)}
-              className="pointer-events-auto flex w-fit cursor-default items-center justify-center gap-1.5 pb-1.5 text-[10px] leading-tight font-bold tracking-wider whitespace-nowrap text-muted-foreground uppercase"
+              className="pointer-events-auto flex w-fit cursor-default items-center justify-center gap-1.5 pb-1.5 text-[11px] leading-tight font-bold tracking-wider whitespace-nowrap text-muted-foreground uppercase"
             >
               <span className={`size-2 shrink-0 rounded-full ${item.dot}`} />
               {info[item.key].label}
@@ -430,7 +430,7 @@ export function FinancialSection({
                         <WalletCards className="size-5" />
                       </span>
                       <strong className="font-sans text-base font-bold">{t('analytics.financial.empty')}</strong>
-                      <p className="text-xs leading-5 font-semibold text-muted-foreground">
+                      <p className="text-[13px] leading-5 font-semibold text-muted-foreground">
                         {t('analytics.financial.emptyHint', { defaultValue: 'Collected, pending and refunded amounts will show up here as soon as payments are recorded.' })}
                       </p>
                     </div>

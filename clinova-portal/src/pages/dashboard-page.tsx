@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useNotifications } from '@/hooks/use-notifications'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
+import PatientHomePage from '@/pages/patient-home-page'
 
 export default function DashboardPage() {
   const { t } = useTranslation()
@@ -22,6 +23,9 @@ export default function DashboardPage() {
   const firstName = auth.user?.name.split(' ')[0] || t('dashboard.fallbackName')
   const isDoctor = auth.user?.roles.some((role) => role.toLowerCase() === 'doctor')
   const isSecretary = auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')
+  const isPatient = auth.user?.roles.some((role) => role.toLowerCase() === 'patient')
+  // Patients get the website-style home; staff keep this dashboard unchanged.
+  if (isPatient) return <PatientHomePage />
   const navItem = 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-foreground [&>svg]:size-4'
 
   return (
@@ -38,7 +42,7 @@ export default function DashboardPage() {
           {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           <Link className={navItem} to="/notifications"><Bell /> {t('dashboard.notifications')}</Link>
           {isDoctor && <Link className={navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 /> {t('dashboard.workingHours')}</Link>}
-          {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : isSecretary ? <Link className={navItem} to="/secretary/profile"><UserRound /> {t('dashboard.profile')}</Link> : <a className={navItem} href="#profile"><Stethoscope /> {t('dashboard.profile')}</a>}
+          {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : isSecretary ? <Link className={navItem} to="/secretary/profile"><UserRound /> {t('dashboard.profile')}</Link> : <Link className={navItem} to="/patient/profile"><UserRound /> {t('dashboard.profile')}</Link>}
         </nav>
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">
   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><ShieldCheck className="size-4" /></span>
@@ -60,7 +64,7 @@ export default function DashboardPage() {
             </span>
             <span className="grid min-w-0 gap-0.5 text-start leading-tight">
               <strong className="truncate text-[15px] font-extrabold text-foreground">{auth.user?.name}</strong>
-              <small className="truncate text-xs font-semibold text-muted-foreground">{t(isSecretary ? 'secretary.workspace' : 'clinicModule.doctorWorkspace')}</small>
+              <small className="truncate text-xs font-semibold text-muted-foreground">{!isDoctor && !isSecretary ? t('patient.workspace', { defaultValue: 'Patient workspace' }) : t(isSecretary ? 'secretary.workspace' : 'clinicModule.doctorWorkspace')}</small>
             </span>
           </div>
           <Button
@@ -75,7 +79,7 @@ export default function DashboardPage() {
           </Button>
         </header>
 
-        <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10" id="overview">
+        <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10" id="overview">
           <Card className="relative min-h-60 justify-center overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-primary/10 px-6 py-8 sm:px-10 sm:py-10 lg:min-h-64">
             <div className="pointer-events-none absolute -end-28 size-80 rounded-full border border-primary/15 shadow-[inset_0_0_0_3rem_color-mix(in_oklab,var(--primary)_3%,transparent)]" />
             <CardContent className="relative z-10 flex items-center justify-between p-0">

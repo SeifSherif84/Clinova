@@ -14,6 +14,7 @@ namespace Services.Abstractions.Reviews
         Task<string> PatientSubmitReviewAsync(string userId, int appointmentId, CreateReviewRequest request);
         Task<string> PatientUpdateReviewAsync(string userId, int reviewId, int appointmentId, UpdateReviewRequest request);
         Task<string> PatientDeleteReviewAsync(string userId, int reviewId, int appointmentId);
+        Task<AppointmentReviewResponse> PatientGetAppointmentReviewAsync(string userId, int appointmentId);
         Task<IEnumerable<PatientGetHisOwnReviewResponse>> PatientGetHisOwnReviewsAsync(string userId);
         Task<PaginatedReviewsResult<PatientGetDoctorReviewResponse>> PatientGetDoctorReviewsAsync(string userId, string doctorId, int pageIndex, int pageSize);
         Task<PatientGetDoctorRatingSummaryResponse> PatientGetDoctorRatingSummaryAsync(string userId, string doctorId);

@@ -70,7 +70,7 @@ namespace Services
                                 IOptions<CancellationPolicySettings> _cancellationPolicy) : IServiceManager
     {
         public IAuthService AuthService { get; } = new AuthService(_userManager, _mapper, _configuration, _mailService, _jwtOptions, _unitOfWork);
-        public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper);
+        public IDoctorService DoctorService { get; } = new DoctorService(_unitOfWork, _mapper, _configuration);
         public ILookupsService LookupsService { get; } = new LookupsService(_unitOfWork);
         public IClinicService ClinicService { get; } = new ClinicService(_unitOfWork, _mapper, _notificationService);
         public IDoctorInvitationService InvitationService { get; } = new DoctorInvitationService(_userManager, _unitOfWork, _mapper, _notificationService);

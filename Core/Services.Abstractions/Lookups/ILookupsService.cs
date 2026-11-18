@@ -12,6 +12,7 @@ namespace Services.Abstractions.Lookups
     public interface ILookupsService
     {
         IEnumerable<LookupResponse> GetGendersAsync();
+        IEnumerable<LookupResponse> GetBloodTypesAsync();
         IEnumerable<LookupResponse> GetDaysOfWeekAsync();
         IEnumerable<LookupResponse> GetManualPaymentMethodsAsync();
         Task<IEnumerable<LookupResponse>> GetMedicalSpecialtiesAsync();

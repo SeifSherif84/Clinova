@@ -54,7 +54,7 @@ export default function ManualPaymentMethodsPage() {
   )
 
   return <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
-    <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
+    <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
       {!validId ? <Notice message={t('clinicDetails.invalidId')} /> : accessError ? <div className="grid justify-items-start gap-4"><Notice message={getErrorMessage(accessError)} /><p className="text-sm text-muted-foreground">{getErrorMessage(accessError)}</p><Button variant="ghost" className={buttonClass} onClick={() => { void clinic.refetch(); void members.refetch() }}><RefreshCw className="size-4" />{t('manualPayments.retry')}</Button></div> : clinic.isPending || members.isPending ? <LoadingState /> : !isOwner ? <div className="flex items-center gap-3 rounded-2xl border bg-card p-6"><ShieldCheck className="shrink-0 text-primary" /><p className="text-sm font-bold">{t('manualPayments.ownerOnly')}</p></div> : clinic.data ? <PaymentWorkspace key={id} clinic={clinic.data} /> : null}
     </div>
   </DoctorWorkspaceShell>
@@ -291,7 +291,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
                   <span className={method.isActive ? 'text-primary' : 'text-muted-foreground'}>{t(method.isActive ? 'manualPayments.active' : 'manualPayments.inactive')}</span>
                 </span>
               </div>
-              <span dir="ltr" className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-start font-mono text-sm font-bold">
+              <span dir="ltr" className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-start font-mono text-base font-bold">
                 <span className="truncate">{method.accountIdentifier}</span>
               </span>
             </div>
@@ -349,7 +349,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
             </span>
             <div className="sm:max-w-52">
               <h3 className="text-sm font-bold">{t(`manualPayments.step${step}`)}</h3>
-              <p className="mt-1.5 text-xs leading-6 text-muted-foreground">{t(`manualPayments.step${step}Description`)}</p>
+              <p className="mt-1.5 text-[13px] leading-6 font-medium text-foreground/70">{t(`manualPayments.step${step}Description`)}</p>
             </div>
           </li>
         ))}
@@ -364,7 +364,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><WalletCards className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
               <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(editor?.id === undefined ? 'manualPayments.createTitle' : 'manualPayments.editTitle')}</DialogTitle>
-              <DialogDescription className="mt-0.5 text-start text-xs leading-5">{t(editor?.id === undefined ? 'manualPayments.createDescription' : 'manualPayments.editDescription')}</DialogDescription>
+              <DialogDescription className="mt-0.5 text-start text-[13px] leading-5 font-medium text-foreground/70">{t(editor?.id === undefined ? 'manualPayments.createDescription' : 'manualPayments.editDescription')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -374,7 +374,7 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
             <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-card to-transparent p-5">
               <div className="flex items-center justify-between gap-2">
                 <ProviderLogo type={editor.type} className="shadow-sm" />
-                <span className="flex h-12 items-center px-1 text-[10px] font-bold text-muted-foreground">
+                <span className="flex h-12 items-center px-1 text-xs font-semibold text-foreground/70">
                   {t(editor.id === undefined ? 'manualPayments.previewStatus' : editor.isActive ? 'manualPayments.active' : 'manualPayments.paused')}
                 </span>
               </div>
@@ -383,8 +383,8 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
                 {editor.accountIdentifier.trim() || t('manualPayments.previewPlaceholder')}
               </p>
               <div className="mt-6 border-t border-border/60 pt-4">
-                <p className="flex items-start gap-2.5 text-[11px] leading-5 font-medium text-muted-foreground/90">
-                  <span className="relative mt-1 flex size-2 shrink-0">
+                <p className="flex items-start gap-2.5 text-xs leading-5 font-semibold text-foreground/70">
+                  <span className="relative mt-[0.4375rem] flex size-2 shrink-0">
                     <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/40 motion-reduce:animate-none" />
                     <span className="relative inline-flex size-2 rounded-full bg-primary" />
                   </span>

@@ -15,11 +15,12 @@ namespace Domain.Contracts
         void Update(TEntity entity);
         void Delete(TEntity entity);
 
-
-
         Task<TEntity?> GetByIdAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<int> CountAsync(IBaseSpecifications<TEntity, TKey> specifications);
         Task<double> AverageAsync(IBaseSpecifications<TEntity, TKey> specifications, Expression<Func<TEntity, int>> selector);
+        Task<Dictionary<TGroupKey, double>> AverageByAsync<TGroupKey>(IBaseSpecifications<TEntity, TKey> specifications, 
+                                                                      Expression<Func<TEntity, TGroupKey>> groupBySelector, 
+                                                                      Expression<Func<TEntity, int>> selector) where TGroupKey : notnull;
     }
 }

@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Bell, CheckCheck, LoaderCircle, MailOpen, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
+import PatientShell from '@/components/patient-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -16,7 +17,7 @@ export default function NotificationsPage() {
   const isStaff = auth.user?.roles.some((role) => ['doctor', 'secretary'].includes(role.toLowerCase()))
 
   if (isStaff) return <DoctorWorkspaceShell active="notifications">{content}</DoctorWorkspaceShell>
-  return <main className="min-h-svh bg-background text-foreground">{content}</main>
+  return <PatientShell>{content}</PatientShell>
 }
 
 function NotificationContent() {
@@ -24,7 +25,7 @@ function NotificationContent() {
   const state = useNotifications()
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+    <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">

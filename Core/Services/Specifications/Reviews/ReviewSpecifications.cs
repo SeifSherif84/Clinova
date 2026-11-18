@@ -72,12 +72,25 @@ namespace Services.Specifications.Reviews
             var specification = new ReviewSpecifications()
             {
                 Criteria = review => review.Appointment.AppointmentSlot.DoctorId == doctorId &&
-                           review.Status == ReviewStatus.Approved &&
-                           rating.HasValue ? review.Rating == rating.Value : true
+                                     review.Status == ReviewStatus.Approved &&
+                                     (!rating.HasValue || review.Rating == rating.Value)
             };
 
             return specification;
         }
+
+
+        public static ReviewSpecifications PatientGetDoctorsAverageRatings(IEnumerable<string> doctorIds)
+        {
+            var specification = new ReviewSpecifications()
+            {
+                Criteria = review => doctorIds.Contains(review.Appointment.AppointmentSlot.DoctorId) &&
+                                     review.Status == ReviewStatus.Approved
+            };
+
+            return specification;
+        }
+
 
         public static ReviewSpecifications DoctorGetHisReviews(string doctorId, 
                                                                int pageIndex, 

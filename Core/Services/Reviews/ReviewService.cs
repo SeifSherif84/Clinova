@@ -164,6 +164,41 @@ namespace Services.Reviews
         }
 
 
+        public async Task<AppointmentReviewResponse> PatientGetAppointmentReviewAsync(string userId, int appointmentId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(appointmentId);
+            if (appointment is null)
+                throw new NotFoundException("We couldn't find the appointment.");
+
+            if (appointment.PatientId != userId)
+                throw new BadRequestException("You are not authorized to access this appointment.");
+
+            var reviewRepo = _unitOfWork.GetRepository<Domain.Entities.BusinessEntities.Review, int>();
+            var reviewSpecification = ReviewSpecifications.CheckIfReviewExistForThisAppointment(appointmentId);
+            var review = await reviewRepo.GetByIdAsync(reviewSpecification);
+            if (review is null)
+                throw new NotFoundException("No review was found for this appointment.");
+
+            return new AppointmentReviewResponse
+            {
+                Id = review.Id,
+                AppointmentId = review.AppointmentId,
+                Rating = review.Rating,
+                Comment = review.Comment,
+                IsAnonymous = review.IsAnonymous,
+                Status = review.Status.ToString(),
+                CreatedAt = review.CreatedAt
+            };
+        }
+
+
         public async Task<IEnumerable<PatientGetHisOwnReviewResponse>> PatientGetHisOwnReviewsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -187,7 +222,7 @@ namespace Services.Reviews
                 Status = review.Status.ToString(),
                 CreatedAt = review.CreatedAt,
                 DoctorId = review.Appointment.AppointmentSlot.DoctorId,
-                DoctorName = $"{review.Appointment.AppointmentSlot.Doctor.FirstName} {review.Appointment.AppointmentSlot.Doctor.LastName}",
+                DoctorName = $"Dr. {review.Appointment.AppointmentSlot.Doctor.FirstName} {review.Appointment.AppointmentSlot.Doctor.LastName}",
                 ClinicName = review.Appointment.AppointmentSlot.Clinic.Name
             }).ToList();
 

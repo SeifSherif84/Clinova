@@ -1,4 +1,4 @@
-import { ArrowRight, Info, Link2, LoaderCircle, LockKeyhole, ShieldCheck, X } from 'lucide-react'
+import { ArrowRight, Info, Link2, LoaderCircle } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import Notice from '@/components/notice'
@@ -129,7 +129,7 @@ export function PaymobConnectionForm(props: Props) {
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p role="status" className="text-sm font-bold">{update && !selectedCount ? t('paymob.noChanges') : t('paymob.ux.fieldsFilled', { filled: filledCount, total: selectedCount })}</p>
-            <p className="mt-1 text-xs leading-6 text-muted-foreground">{t('paymob.ux.guideStays')}</p>
+            <p className="mt-1 text-[13px] leading-6 font-medium text-foreground/70">{t('paymob.ux.guideStays')}</p>
           </div>
           <PaymobCredentialsGuideDialog label={t('paymob.ux.findCredentials')} />
         </div>
@@ -152,22 +152,19 @@ export function PaymobConnectionForm(props: Props) {
           onReplace={update ? (replace) => replaceField(name, replace) : undefined} />)}
       </div>
       {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 dark:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
-        <div className="flex min-w-0 items-start gap-3.5">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><ShieldCheck className="size-[18px]" strokeWidth={1.75} /></span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold leading-5 text-foreground">{t('paymob.securityTitle')}</p>
-            <p className="mt-1 max-w-md text-xs leading-5 text-muted-foreground">{t('paymob.securityShort')}</p>
-          </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold leading-5 text-foreground">{t('paymob.securityTitle')}</p>
+          <p className="mt-1 max-w-md text-[13px] leading-6 font-medium text-foreground/75">{t('paymob.securityShort')}</p>
         </div>
         <Dialog>
-          <DialogTrigger render={<Button type="button" variant="ghost" className="group h-auto min-h-9 w-fit shrink-0 gap-2 whitespace-normal rounded-md px-0 py-1 text-start text-sm font-semibold normal-case tracking-normal text-primary hover:bg-transparent hover:underline hover:underline-offset-4 max-sm:ml-[50px]" />}>{t('paymob.ux.securityDetails')}<ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></DialogTrigger>
-          <DialogContent showCloseButton={false} className="max-h-[85svh] overflow-y-auto rounded-2xl motion-reduce:animate-none">
-            <DialogHeader>
+          <DialogTrigger render={<Button type="button" variant="ghost" className="group h-auto min-h-9 w-fit shrink-0 gap-2 whitespace-normal rounded-md px-0 py-1 text-start text-sm font-semibold normal-case tracking-normal text-primary hover:bg-transparent hover:underline hover:underline-offset-4" />}>{t('paymob.ux.securityDetails')}<ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></DialogTrigger>
+          <DialogContent showCloseButton={false} className="max-h-[85svh] overflow-y-auto rounded-2xl motion-reduce:animate-none sm:max-w-4xl">
+            <DialogHeader className="gap-1.5">
               <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t('paymob.securityTitle')}</DialogTitle>
-              <DialogDescription>{t('paymob.secureEntry')}</DialogDescription>
+              <DialogDescription className="text-[15px] leading-6 font-medium text-foreground/75">{t('paymob.secureEntry')}</DialogDescription>
+              <ul className="grid gap-1.5">{['securityEncryption', 'securityBackend', 'securityApiKey', 'securityPatients', 'securitySharing'].map((key) => <li key={key} className="text-[15px] leading-6 font-medium text-foreground/80">{t('paymob.' + key)}</li>)}</ul>
             </DialogHeader>
-            <ul className="grid gap-3">{['securityEncryption', 'securityBackend', 'securityApiKey', 'securityPatients', 'securitySharing'].map((key) => <li key={key} className="flex items-start gap-2 text-xs leading-6 text-muted-foreground sm:text-sm"><LockKeyhole className="mt-1 size-3.5 shrink-0 text-primary" />{t('paymob.' + key)}</li>)}</ul>
-            <DialogClose render={<Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} />}><X />{t('paymob.close')}</DialogClose>
+            <DialogClose render={<Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} />}>{t('paymob.close')}</DialogClose>
           </DialogContent>
         </Dialog>
       </div>}
@@ -175,11 +172,11 @@ export function PaymobConnectionForm(props: Props) {
         <legend className="mb-3 text-sm font-bold text-foreground">{t('paymob.consentTitle')}</legend>
         <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-authorized" aria-label={t(update ? 'paymob.updateConsent' : 'paymob.authorized')} checked={authorized} onCheckedChange={setAuthorized} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <Label htmlFor="paymob-authorized" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</Label>
+          <Label htmlFor="paymob-authorized" className="max-w-2xl cursor-pointer text-[15px] font-semibold normal-case leading-6 tracking-normal text-foreground">{t(update ? 'paymob.updateConsent' : 'paymob.authorized')}</Label>
         </div>
         {!update && <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-understood" aria-label={t('paymob.understood')} checked={understood} onCheckedChange={setUnderstood} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
-          <Label htmlFor="paymob-understood" className="max-w-2xl cursor-pointer text-sm font-normal normal-case leading-6 tracking-normal text-foreground/85">{t('paymob.understood')}</Label>
+          <Label htmlFor="paymob-understood" className="max-w-2xl cursor-pointer text-[15px] font-semibold normal-case leading-6 tracking-normal text-foreground">{t('paymob.understood')}</Label>
         </div>}
       </fieldset>
       <div className="mt-10 grid gap-4">
@@ -189,7 +186,7 @@ export function PaymobConnectionForm(props: Props) {
           </Button>
           <p id="paymob-next-step" aria-live="polite" className="sr-only">{t('paymob.' + nextStep)}</p>
         </div>
-        <p id="paymob-save-note" className="flex max-w-xl items-start gap-2 text-[13px] font-semibold leading-6 text-foreground/70"><Info className="mt-[5px] size-3.5 shrink-0 text-primary/70" />{t('paymob.saveNote')}</p>
+        <p id="paymob-save-note" className="flex max-w-xl items-start gap-2 text-sm font-semibold leading-6 text-foreground/70"><Info className="mt-[4px] size-4 shrink-0 text-primary/70" />{t('paymob.saveNote')}</p>
       </div>
     </form>}
   </div>

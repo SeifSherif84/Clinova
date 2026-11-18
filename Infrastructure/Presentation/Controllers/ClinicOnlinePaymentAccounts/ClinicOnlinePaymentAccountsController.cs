@@ -87,7 +87,7 @@ namespace Presentation.Controllers.ClinicOnlinePaymentAccounts
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("appointments/{appointmentId}")] // https://localhost:7269/api/online-payment-accounts/appointments/1
+        [HttpGet("appointments/{appointmentId}")] // Get api/online-payment-accounts/appointments/{appointmentId}
         public async Task<IActionResult> GetClinicOnlinePaymentMethodsForPatient([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

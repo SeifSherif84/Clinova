@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useParams, useSearch } from '@tanstack/react-router'
-import { ArrowLeft, Ban, CalendarDays, Check, ChevronRight, CircleCheckBig, Clock3, Coins, Copy, Ellipsis, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, WalletCards, type LucideIcon } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { ArrowLeft, Ban, Banknote, CalendarClock, CalendarDays, ChevronRight, CircleCheckBig, Clock3, Copy, Ellipsis, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, Wallet, type LucideIcon } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
@@ -32,7 +32,7 @@ const humanize = (value: string) => value.replace(/([a-z])([A-Z])/g, '$1 $2')
 function Section({ icon: Icon, title, aside, children }: { icon: LucideIcon; title: string; aside?: ReactNode; children: ReactNode }) {
   return <section className="grid gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-sm sm:px-6">
     <div className="flex min-h-6 items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2.5 font-sans text-base font-bold tracking-normal normal-case"><Icon className="size-5 text-primary" />{title}</h2>
+      <h2 className="flex items-center gap-2.5 font-sans text-lg font-bold tracking-normal normal-case"><Icon className="size-6 text-primary" />{title}</h2>
       {aside}
     </div>
     {children}
@@ -51,8 +51,10 @@ export default function SecretaryAppointmentDetailsPage() {
   const [dialog, setDialog] = useState<OpenDialog>(null)
   const [reason, setReason] = useState('')
   const [formError, setFormError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [success, setSuccess] = useState(() => { try { return sessionStorage.getItem('secretary-flash-message') ?? '' } catch { return '' } })
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  useEffect(() => { try { sessionStorage.removeItem('secretary-flash-message') } catch { /* nothing to clear */ } }, [])
   const locale = i18n.resolvedLanguage === 'ar' ? 'ar-EG' : 'en-EG'
 
   const details = useQuery({
@@ -106,13 +108,14 @@ export default function SecretaryAppointmentDetailsPage() {
   const allowed = data ? availableActions(data) : null
   const date = data ? parseSlotDate(data.slotDate) : null
   const showAside = Boolean(allowed && (allowed.verify || allowed.confirmRefund))
+  const canReschedule = data?.appointmentStatus === 'Confirmed'
   const refundedAt = data?.depositRefundProcessedAt ? new Date(data.depositRefundProcessedAt) : null
   const remainingDue = data ? data.remainingPaymentAmount > 0 && data.remainingPaymentStatus !== 'Paid' : false
   const dialogProps = { onOpenChange: (open: boolean) => { if (!open) setDialog(null) }, onDone: (result: DialogOutcome) => { setSuccess(result.message) } }
 
   return (
     <DoctorWorkspaceShell active="secretary-appointments" topBackLink={backLink}>
-      <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         {success && <Notice tone="success" message={success} />}
         {(formError || action.error) && <Notice message={formError || getErrorMessage(action.error)} />}
 
@@ -133,7 +136,7 @@ export default function SecretaryAppointmentDetailsPage() {
           <Button variant="outline" className={grayButton + ' mt-3'} disabled={details.isFetching} onClick={() => details.refetch()}>{details.isFetching ? spinner : <RefreshCw />}{t('invitations.retry')}</Button>
         </div>}
 
-        {data && allowed && <div className={`grid items-start gap-6 ${showAside ? 'xl:grid-cols-[minmax(0,1fr)_20rem]' : ''}`}>
+        {data && allowed && <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <article className="grid min-w-0 gap-4">
             <header className="relative isolate grid gap-5 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm sm:p-7">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
@@ -144,14 +147,18 @@ export default function SecretaryAppointmentDetailsPage() {
                 <span className="inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-3.5 py-1.5 text-xs font-extrabold tracking-wider text-primary uppercase">{t('secretary.appointments.number', { id: data.appointmentId })}</span>
                 <div className="flex items-center gap-2">
                   <span className={`${statusClass} ${statusTone(data.appointmentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.appointmentStatus)}</span>
-                  {allowed.cancel && <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+                  {(allowed.cancel || canReschedule) && <Popover open={menuOpen} onOpenChange={setMenuOpen}>
                     <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" disabled={action.isPending} />} aria-label={t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}><Ellipsis className="size-5" /></PopoverTrigger>
                     <PopoverContent className="w-56 gap-0 rounded-2xl p-1.5">
-                      <PopoverTitle className="px-3 pt-1.5 pb-2 text-xs leading-none font-bold normal-case tracking-normal text-muted-foreground">{t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}</PopoverTitle>
+                      <PopoverTitle className="px-3 pt-2 pb-2.5 text-sm leading-none font-bold normal-case tracking-normal text-muted-foreground">{t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}</PopoverTitle>
                       <div aria-hidden="true" className="mx-1.5 mb-1.5 h-px bg-border/60" />
-                      <button type="button" className="group flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-start text-[13px] font-bold text-destructive transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-destructive/30 focus-visible:outline-none" onClick={() => { setMenuOpen(false); action.reset(); setDialog('cancel') }}>
+                      {canReschedule && <button type="button" className="group flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-start text-[13px] font-bold text-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none" onClick={() => { setMenuOpen(false); void navigate({ to: '/secretary/appointments/$appointmentId/reschedule', params: { appointmentId } }) }}>
+                        <CalendarClock className="size-4 shrink-0 text-primary transition-transform duration-200 group-hover:scale-110" />{t('secretary.reschedule.action', { defaultValue: 'Reschedule' })}
+                      </button>}
+                      {canReschedule && allowed.cancel && <div aria-hidden="true" className="mx-1.5 my-1 h-px bg-border/60" />}
+                      {allowed.cancel && <button type="button" className="group flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-start text-[13px] font-bold text-destructive transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-destructive/30 focus-visible:outline-none" onClick={() => { setMenuOpen(false); action.reset(); setDialog('cancel') }}>
                         <Ban className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />{t('secretary.appointments.cancel')}
-                      </button>
+                      </button>}
                     </PopoverContent>
                   </Popover>}
                 </div>
@@ -188,33 +195,10 @@ export default function SecretaryAppointmentDetailsPage() {
                 </div>
               </div>
 
-              {(allowed.complete || allowed.cancel) && <div className="grid gap-5">
-                <ol aria-label={t('secretary.outcome.lifecycle', { defaultValue: 'Appointment lifecycle' })} className="flex items-center gap-3">
-                  {[
-                    { key: 'booked', label: t('secretary.outcome.booked', { defaultValue: 'Booked' }), done: true },
-                    { key: 'confirmed', label: t('secretary.outcome.confirmed', { defaultValue: 'Confirmed' }), done: true },
-                    { key: 'outcome', label: t('secretary.outcome.step', { defaultValue: 'Outcome' }), done: false },
-                  ].map((step, index, steps) => (
-                    <li key={step.key} className={`flex min-w-0 items-center gap-2.5 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                      {step.done
-                        ? <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 shadow-primary/25 ring-primary/10"><Check className="size-4" /></span>
-                        : <span className="relative grid size-8 shrink-0 place-items-center rounded-full border-2 border-primary bg-card ring-4 ring-primary/10">
-                          <span aria-hidden="true" className="absolute inset-0 animate-ping rounded-full bg-primary/25 motion-reduce:animate-none" />
-                          <span className="size-2.5 rounded-full bg-primary" />
-                        </span>}
-                      <span className={`truncate text-xs font-bold ${step.done ? 'text-foreground/70' : 'text-primary'}`}>{step.label}</span>
-                      {index < steps.length - 1 && <span aria-hidden="true" className={`ms-1 h-0.5 min-w-4 flex-1 rounded-full ${steps[index + 1].done ? 'bg-primary' : 'bg-gradient-to-r from-primary/60 to-primary/10 rtl:bg-gradient-to-l'}`} />}
-                    </li>
-                  ))}
-                </ol>
-
-                {allowed.complete ? <div className="grid gap-3">
-                  <div>
-                    <h2 className="font-sans text-base font-bold tracking-normal normal-case">{t('secretary.outcome.title', { defaultValue: 'Record the outcome' })}</h2>
-                    <p className="mt-1 text-xs leading-5 font-semibold text-muted-foreground sm:text-sm">{t('secretary.outcome.hint', { defaultValue: 'The appointment is confirmed. Choose what actually happened — this closes the appointment.' })}</p>
-                  </div>
+              {allowed.complete && <div className="grid gap-3">
+                  <h2 className="font-sans text-base font-bold tracking-normal normal-case">{t('secretary.outcome.title', { defaultValue: 'Record the appointment result' })}</h2>
                   <div role="group" aria-label={t('secretary.outcome.title', { defaultValue: 'Record the outcome' })} className="relative grid gap-3 sm:grid-cols-2">
-                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                       <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition duration-200 group-hover:scale-105"><CircleCheckBig className="size-4.5" /></span>
                       <span className="relative grid min-w-0 gap-0.5">
                         <strong className="text-[15px] font-bold">{t('secretary.outcome.completed', { defaultValue: 'Completed' })}</strong>
@@ -222,18 +206,16 @@ export default function SecretaryAppointmentDetailsPage() {
                       </span>
                       <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition duration-200 group-hover:bg-primary group-hover:text-primary-foreground"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
                     </button>
-                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-warm/20 bg-gradient-to-br from-warm/10 via-card to-transparent p-4 text-start transition duration-200 hover:-translate-y-0.5 hover:border-warm/40 hover:shadow-lg hover:shadow-warm/10 focus-visible:ring-2 focus-visible:ring-warm/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-                      <span aria-hidden="true" className="pointer-events-none absolute -end-6 -top-6 size-24 rounded-full bg-warm/10 blur-2xl transition-opacity duration-200 group-hover:opacity-100 sm:opacity-70" />
-                      <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-warm/15 text-warm ring-4 ring-warm/10 transition duration-200 group-hover:scale-105 group-hover:bg-warm group-hover:text-white group-hover:shadow-lg group-hover:shadow-warm/30">{busy('mark-no-show') ? spinner : <UserX className="size-4.5" />}</span>
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                      <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-foreground/10 text-foreground/70 ring-4 ring-foreground/5 transition duration-200 group-hover:scale-105 group-hover:bg-foreground/20 group-hover:text-foreground">{busy('mark-no-show') ? spinner : <UserX className="size-4.5" />}</span>
                       <span className="relative grid min-w-0 gap-0.5">
                         <strong className="text-[15px] font-bold">{t('secretary.outcome.noShow', { defaultValue: 'No-show' })}</strong>
                         <small className="text-xs leading-5 font-semibold text-muted-foreground">{t('secretary.outcome.noShowHint', { defaultValue: 'The patient did not attend the appointment.' })}</small>
                       </span>
-                      <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-warm/10 text-warm transition duration-200 group-hover:bg-warm group-hover:text-white"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
+                      <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-foreground/10 text-foreground/70 transition duration-200 group-hover:bg-foreground/20 group-hover:text-foreground"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
                     </button>
                     <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-1/2 z-10 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-border bg-card text-[10px] font-bold text-muted-foreground uppercase shadow-md">{t('secretary.outcome.or', { defaultValue: 'or' })}</span>
                   </div>
-                </div> : <p className="text-xs leading-5 font-semibold text-muted-foreground sm:text-sm">{t('secretary.appointments.completeLater')}</p>}
               </div>}
 
               {allowed.verify && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 px-3 py-2.5 text-xs leading-6 font-semibold text-warm sm:text-sm"><Sparkles className="mt-1 size-4 shrink-0" />{t('secretary.appointments.verifyHint')}</p>}
@@ -241,11 +223,11 @@ export default function SecretaryAppointmentDetailsPage() {
             <Section icon={CalendarDays} title={t('secretary.appointments.appointmentSection')}>
               <dl className="grid gap-2.5 sm:grid-cols-2">
                 <div className="min-w-0 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
-                  <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.bookingType')}</dt>
+                  <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.bookingType')}</dt>
                   <dd className="mt-1.5 truncate text-base font-bold">{label('bookingType', data.bookingType)}</dd>
                 </div>
                 <div className="min-w-0 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
-                  <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.bookingSource')}</dt>
+                  <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.bookingSource')}</dt>
                   <dd className="mt-1.5 truncate text-base font-bold">{label('bookingSource', data.bookingSource)}</dd>
                 </div>
               </dl>
@@ -264,32 +246,11 @@ export default function SecretaryAppointmentDetailsPage() {
               </dl>}
             </Section>
 
-            <Section icon={WalletCards} title={t('secretary.appointments.paymentSection')}>
-              <div className="grid gap-2.5 sm:grid-cols-3">
-                <div className="min-w-0 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-4">
-                  <small className="block truncate text-xs font-bold tracking-wider text-primary uppercase">{t('secretary.appointments.totalPaid')}</small>
-                  <strong dir="ltr" className="mt-1.5 block truncate text-start text-xl font-bold tabular-nums text-primary">{money(data.totalPaidAmount)}</strong>
-                </div>
-                <div className="min-w-0 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
-                  <small className="block truncate text-xs font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.deposit')}</small>
-                  <strong dir="ltr" className="mt-1.5 block truncate text-start text-xl font-bold tabular-nums">{money(data.depositPaymentAmount)}</strong>
-                </div>
-                <div className={`min-w-0 rounded-2xl border px-4 py-4 ${remainingDue ? 'border-warm/25 bg-warm/10' : 'border-border/60 bg-muted/30'}`}>
-                  <small className={`block truncate text-xs font-bold tracking-wider uppercase ${remainingDue ? 'text-warm' : 'text-muted-foreground'}`}>{t('secretary.appointments.remaining')}</small>
-                  <strong dir="ltr" className={`mt-1.5 block truncate text-start text-xl font-bold tabular-nums ${remainingDue ? 'text-warm' : ''}`}>{money(data.remainingPaymentAmount)}</strong>
-                </div>
-              </div>
-
-              {data.depositPaymentAmount + data.remainingPaymentAmount > 0 && <div className="grid gap-1.5" aria-hidden="true">
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <span className="block h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${Math.min(100, (data.totalPaidAmount / (data.depositPaymentAmount + data.remainingPaymentAmount)) * 100)}%` }} />
-                </div>
-              </div>}
-
+            <Section icon={Banknote} title={t('secretary.appointments.depositSection', { defaultValue: 'Deposit payment' })} aside={<span className={`${statusClass} ${statusTone(data.depositPaymentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.depositPaymentStatus)}</span>}>
               <dl className="grid gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.depositStatus')}</dt>
-                  <dd><span className={`${statusClass} ${statusTone(data.depositPaymentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.depositPaymentStatus)}</span></dd>
+                  <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.amount')}</dt>
+                  <dd dir="ltr" className="text-sm font-bold tabular-nums">{money(data.depositPaymentAmount)}</dd>
                 </div>
                 {data.depositPaymentMethodType && <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-3">
                   <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.depositMethod')}</dt>
@@ -311,22 +272,21 @@ export default function SecretaryAppointmentDetailsPage() {
               {data.manualDepositPaymentProofUrl && <Button className={primaryButton + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualDepositPaymentProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewProof')}<ExternalLink className="size-3.5" /></Button>}
             </Section>
 
-            {data.remainingPaymentStatus && <Section icon={Coins} title={t('secretary.appointments.remainingSection')} aside={<span className={`${statusClass} ${statusTone(data.remainingPaymentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.remainingPaymentStatus)}</span>}>
-              <div className={`min-w-0 rounded-2xl border px-4 py-4 ${remainingDue ? 'border-warm/25 bg-warm/10' : 'border-primary/20 bg-primary/5'}`}>
-                <small className={`block truncate text-xs font-bold tracking-wider uppercase ${remainingDue ? 'text-warm' : 'text-primary'}`}>{t('secretary.appointments.amount')}</small>
-                <strong dir="ltr" className={`mt-1.5 block truncate text-start text-2xl font-bold tabular-nums ${remainingDue ? 'text-warm' : 'text-primary'}`}>{money(data.remainingPaymentAmount)}</strong>
-              </div>
-
-              {(data.remainingPaymentMethodType || data.remainingClinicManualPaymentMethodType) && <dl className="grid gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4">
-                {data.remainingPaymentMethodType && <div className="flex items-center justify-between gap-3">
+            {data.remainingPaymentStatus && <Section icon={Wallet} title={t('secretary.appointments.remainingSection')} aside={<span className={`${statusClass} ${statusTone(data.remainingPaymentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.remainingPaymentStatus)}</span>}>
+              <dl className="grid gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.amount')}</dt>
+                  <dd dir="ltr" className="min-w-0 text-end text-sm font-bold tabular-nums">{money(data.remainingPaymentAmount)}</dd>
+                </div>
+                {data.remainingPaymentMethodType && <div className="flex items-start justify-between gap-3 border-t border-border/50 pt-3">
                   <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.paymentMethod')}</dt>
-                  <dd className="text-sm font-bold">{label('paymentMethod', data.remainingPaymentMethodType)}</dd>
+                  <dd className="min-w-0 text-end text-sm font-bold break-words">{label('paymentMethod', data.remainingPaymentMethodType)}</dd>
                 </div>}
-                {data.remainingClinicManualPaymentMethodType && <div className={`flex items-center justify-between gap-3 ${data.remainingPaymentMethodType ? 'border-t border-border/50 pt-3' : ''}`}>
+                {data.remainingClinicManualPaymentMethodType && <div className="flex items-start justify-between gap-3 border-t border-border/50 pt-3">
                   <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.transferMethod')}</dt>
-                  <dd className="text-sm font-bold">{label('paymentMethod', data.remainingClinicManualPaymentMethodType)}</dd>
+                  <dd className="min-w-0 text-end text-sm font-bold break-words">{label('paymentMethod', data.remainingClinicManualPaymentMethodType)}</dd>
                 </div>}
-              </dl>}
+              </dl>
             </Section>}
 
             {data.depositRefundStatus && <Section icon={Undo2} title={t('secretary.appointments.refundSection')} aside={<span className={`${statusClass} ${statusTone(data.depositRefundStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.depositRefundStatus)}</span>}>
@@ -357,6 +317,7 @@ export default function SecretaryAppointmentDetailsPage() {
             </Section>}
           </article>
 
+          <div className="grid gap-4 xl:sticky xl:top-24">
           {showAside && <aside className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm dark:border-border dark:bg-card dark:bg-none">
             <span aria-hidden="true" className="pointer-events-none absolute -end-8 -top-8 -z-10 size-28 rounded-full bg-primary/10 blur-2xl dark:hidden" />
             <div className="flex items-center gap-2.5">
@@ -387,7 +348,32 @@ export default function SecretaryAppointmentDetailsPage() {
               <Button className={primaryButton + ' w-full'} disabled={action.isPending} onClick={() => { action.reset(); setDialog('refund') }}><Undo2 />{t('secretary.refundConfirm.open')}</Button>
             </div>}
           </aside>}
+          <div className="relative isolate overflow-hidden rounded-2xl border border-primary/15 bg-card p-5 shadow-sm sm:p-6">
+            <h2 className="font-sans text-lg font-bold">{t('secretary.appointments.paymentSummary', { defaultValue: 'Payment summary' })}</h2>
+            <p className="mt-4 text-sm font-semibold text-muted-foreground">{t('secretary.appointments.consultationFee', { defaultValue: 'Consultation fee' })}</p>
+            <strong dir="ltr" className="mt-1 block text-start font-sans text-3xl font-bold tabular-nums">{money(data.depositPaymentAmount + data.remainingPaymentAmount)}</strong>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-foreground/10" aria-hidden="true">
+              <span className="block h-full rounded-full bg-primary transition-all duration-500 motion-reduce:transition-none" style={{ width: `${data.depositPaymentAmount + data.remainingPaymentAmount > 0 ? Math.min(100, (data.totalPaidAmount / (data.depositPaymentAmount + data.remainingPaymentAmount)) * 100) : 0}%` }} />
+            </div>
+            <dl className="mt-5 divide-y divide-border/60 border-t border-border/60">
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.deposit')}</dt>
+                <dd dir="ltr" className="text-sm font-bold tabular-nums">{money(data.depositPaymentAmount)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.totalPaid')}</dt>
+                <dd dir="ltr" className="text-sm font-bold tabular-nums text-primary">{money(data.totalPaidAmount)}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-3.5">
+                <dt className="text-sm font-semibold text-muted-foreground">{t('secretary.appointments.remaining')}</dt>
+                <dd dir="ltr" className={`text-sm font-bold tabular-nums ${remainingDue ? 'text-warm' : ''}`}>{money(data.remainingPaymentAmount)}</dd>
+              </div>
+            </dl>
+          </div>
+
+          </div>
         </div>}
+        
 
         {data && <>
           <CancelAppointmentDialog open={dialog === 'cancel'} details={data} {...dialogProps} />

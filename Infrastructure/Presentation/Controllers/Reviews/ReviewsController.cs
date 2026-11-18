@@ -51,6 +51,16 @@ namespace Presentation.Controllers.Reviews
 
 
         [Authorize(Roles = "Patient")]
+        [HttpGet("appointments/{appointmentId}")] // Get api/reviews/appointments/{appointmentId}
+        public async Task<IActionResult> PatientGetAppointmentReview([FromRoute] int appointmentId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ReviewService.PatientGetAppointmentReviewAsync(userId ?? string.Empty, appointmentId);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Patient")]
         [HttpGet("my-reviews")] // Get api/reviews/my-reviews
         public async Task<IActionResult> PatientGetHisOwnReviews()
         {
@@ -73,7 +83,7 @@ namespace Presentation.Controllers.Reviews
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("doctors/{doctorId}/rating-summary")]
+        [HttpGet("doctors/{doctorId}/rating-summary")] // Get api/reviews/doctors/{doctorId}/rating-summary
         public async Task<IActionResult> PatientGetDoctorRatingSummary([FromRoute] string doctorId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

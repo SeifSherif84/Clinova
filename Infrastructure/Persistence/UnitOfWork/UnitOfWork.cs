@@ -16,7 +16,7 @@ namespace Persistence.UnitOfWork
 
         public IGenericRepository<TEntity, TKey> GetRepository<TEntity, TKey>() where TEntity : class
         {
-            return (IGenericRepository<TEntity, TKey>) _repositories.GetOrAdd(typeof(TEntity).Name, new GenericRepositiry<TEntity, TKey>(_context));
+            return (IGenericRepository<TEntity, TKey>) _repositories.GetOrAdd(typeof(TEntity).Name, new GenericRepository<TEntity, TKey>(_context));
         }
 
         public ICompositeKeyGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class

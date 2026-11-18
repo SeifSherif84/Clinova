@@ -15,6 +15,7 @@ namespace Services.Abstractions.Doctors
         Task<DoctorProfileResponse> GetProfileAsync(string userId);
         Task<string> UpdateProfileAsync(string userId, UpdateDoctorProfileRequest request);
         Task<string> UpdateProfilePictureAsync(string userId, UpdateDoctorProfilePictureRequest request);
-        Task<PaginatedResult<PatientDoctorResponse>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query);
+        Task<PaginatedResult<DoctorResponseForPatient>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query);
+        Task<DoctorHeaderForPatientResponse> GetDoctorHeaderForPatientAsync(string userId, string doctorId);
     }
 }

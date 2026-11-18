@@ -53,5 +53,15 @@ namespace Presentation.Controllers.Doctors
             var result = await _serviceManager.DoctorService.GetDoctorsForPatientAsync(userId ?? string.Empty, query);
             return Ok(result);
         }
+
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("{doctorId}/header")] // Get api/doctors/{doctorId}/header
+        public async Task<IActionResult> GetDoctorHeaderForPatient(string doctorId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.DoctorService.GetDoctorHeaderForPatientAsync(userId ?? string.Empty, doctorId);
+            return Ok(response);
+        }
     }
 }

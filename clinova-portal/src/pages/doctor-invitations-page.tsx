@@ -122,7 +122,7 @@ export default function DoctorInvitationsPage() {
 
   return (
     <DoctorWorkspaceShell active="invitations">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">

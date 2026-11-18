@@ -46,7 +46,7 @@ export default function SecretaryInvitationsPage() {
 
   return (
     <DoctorWorkspaceShell active="secretary-invitations">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><MailOpen className="size-3" />{t('invitations.eyebrow')}</Badge>
         <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.invitations.title')}</h1>
         <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.invitations.description')}</p>

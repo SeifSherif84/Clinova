@@ -100,7 +100,7 @@ export default function AddClinicPage() {
 
   return (
     <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <div className="mt-5">  <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
   <Building2 className="size-3" />
   {t('clinicForm.eyebrow')}
@@ -139,8 +139,8 @@ export default function AddClinicPage() {
     </div>
   </div>
   <CardContent className="grid gap-5 p-5 sm:grid-cols-2">
-              <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.governorate')}</Label><Select items={governorates.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={governorateId} onValueChange={changeGovernorate} disabled={governorates.isLoading || governorates.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3"><SelectValue placeholder={governorates.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseGovernorate')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{governorates.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
-              <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.region')}</Label><Select items={regions.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={regionId} onValueChange={setRegionId} disabled={!governorateId || regions.isLoading || regions.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3"><SelectValue placeholder={regions.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseRegion')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{regions.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
+              <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.governorate')}</Label><Select items={governorates.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={governorateId} onValueChange={changeGovernorate} disabled={governorates.isLoading || governorates.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 !text-base !font-normal !leading-normal text-foreground [&_[data-slot=select-value]]:!text-base [&_[data-slot=select-value]]:!font-normal"><SelectValue placeholder={governorates.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseGovernorate')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{governorates.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
+              <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.region')}</Label><Select items={regions.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={regionId} onValueChange={setRegionId} disabled={!governorateId || regions.isLoading || regions.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 !text-base !font-normal !leading-normal text-foreground [&_[data-slot=select-value]]:!text-base [&_[data-slot=select-value]]:!font-normal"><SelectValue placeholder={regions.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseRegion')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{regions.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
             </CardContent>
           </Card>
 
@@ -166,7 +166,7 @@ export default function AddClinicPage() {
       </span>
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-sans text-base font-bold">{t('clinicForm.phonesTitle')}</h3>
-        <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">{t('clinicForm.phonesHint')}</p>
+        <p className="mt-0.5 text-[13px] leading-5 font-semibold text-foreground/70">{t('clinicForm.phonesHint')}</p>
       </div>
     </div>
   </div>
@@ -185,7 +185,7 @@ export default function AddClinicPage() {
       </span>
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-sans text-base font-bold">{t('clinicForm.imagesTitle')}</h3>
-        <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">{t('clinicForm.imagesHint')}</p>
+        <p className="mt-0.5 text-[13px] leading-5 font-semibold text-foreground/70">{t('clinicForm.imagesHint')}</p>
       </div>
     </div>
   </div>

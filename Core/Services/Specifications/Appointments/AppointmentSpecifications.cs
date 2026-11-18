@@ -94,6 +94,7 @@ namespace Services.Specifications.Appointments
 
             specification.Includes.Add(appointment => appointment.AppointmentSlot);
             specification.Includes.Add(appointment => appointment.DepositPayment);
+            specification.Includes.Add(appointment => appointment.RemainingPayment);
 
             return specification;
         }

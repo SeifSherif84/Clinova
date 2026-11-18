@@ -96,7 +96,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
               </Popover>
             )}
           </div>
-          <p className="mt-1 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.integrationsDescription')}</p>
+          <p className="mt-1 max-w-2xl text-sm leading-7 font-medium text-foreground/75">{t('paymob.integrationsDescription')}</p>
         </div>
       </div>
       {canAdd && account.integrations.length > 0 && <Button className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
@@ -122,7 +122,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
                 <span className={integration.isActive ? 'text-primary' : 'text-muted-foreground'}>{t(integration.isActive ? 'paymob.integrationActive' : 'paymob.integrationInactive')}</span>
               </span>
             </div>
-            <span dir="ltr" title={t('paymob.integrationId')} className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-start font-mono text-sm font-bold">
+            <span dir="ltr" title={t('paymob.integrationId')} className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-start font-mono text-base font-bold">
               <span className="truncate">{integration.integrationId}</span>
             </span>
           </div>
@@ -147,9 +147,9 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
               <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
             <div>
               <strong className="block text-sm font-bold">{t('paymob.method.' + value)}</strong>
-              <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t('paymob.methodHint.' + value)}</span>
+              <span className="mt-1 block text-[13px] leading-5 font-semibold text-foreground/75">{t('paymob.methodHint.' + value)}</span>
             </div>
-            <span className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-primary transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"><Plus className="size-3.5" />{t('paymob.addIntegration')}</span>
+            <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-primary transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"><Plus className="size-4" />{t('paymob.addIntegration')}</span>
           </button>
         ))}</div>}
       </div>
@@ -163,7 +163,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Link2 className="size-4.5" /></span>
             <div className="min-w-0 flex-1">
               <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(account.integrations.length ? 'paymob.addAnotherIntegrationTitle' : 'paymob.addFirstIntegrationTitle')}</DialogTitle>
-              <DialogDescription className="mt-0.5 text-start text-[13px] leading-5">{t('paymob.addIntegrationDescription')}</DialogDescription>
+              <DialogDescription className="mt-0.5 text-start text-[13px] leading-5 font-medium text-foreground/75">{t('paymob.addIntegrationDescription')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -178,15 +178,6 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
               <p dir={enteredId.trim() ? 'ltr' : undefined} className={`mt-2 text-lg font-bold ${enteredId.trim() ? 'break-all font-mono' : 'font-sans text-muted-foreground'}`}>
                 {enteredId.trim() || t('paymob.previewPlaceholder', { defaultValue: 'Your Integration ID' })}
               </p>
-              <div className="mt-6 border-t border-border/60 pt-4">
-                <p className="flex items-start gap-2.5 text-[11px] leading-5 font-medium text-muted-foreground/90">
-                  <span className="relative mt-1 flex size-2 shrink-0">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/40 motion-reduce:animate-none" />
-                    <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                  </span>
-                  {t('paymob.previewNote', { defaultValue: 'Use the Integration ID for this method from your Paymob dashboard, not the Merchant ID.' })}
-                </p>
-              </div>
             </div>
 
             <div className="grid content-start gap-5">
@@ -202,7 +193,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
                     </button>
                   })}
                 </div>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">{t('paymob.methodHint.' + method)}</p>
+                <p className="mt-2 text-[13px] leading-5 font-semibold text-foreground/75">{t('paymob.methodHint.' + method)}</p>
               </div>
 
               <div className="grid gap-2">

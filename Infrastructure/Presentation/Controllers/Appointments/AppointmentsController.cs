@@ -19,7 +19,7 @@ namespace Presentation.Controllers.Appointments
     public class AppointmentsController(IServiceManager _serviceManager) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
-        [HttpPost("slots/{appointmentSlotId}")] 
+        [HttpPost("slots/{appointmentSlotId}")] // Post: /api/appointments/slots/{appointmentSlotId}
         public async Task<IActionResult> PatientCreateAppointment([FromRoute] int appointmentSlotId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -39,7 +39,7 @@ namespace Presentation.Controllers.Appointments
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("{appointmentId}")] 
+        [HttpGet("{appointmentId}")] // Get: /api/appointments/{appointmentId}
         public async Task<IActionResult> GetPatientAppointmentDetails([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

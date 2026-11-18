@@ -36,7 +36,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      <section className="relative z-10 mx-auto grid w-full max-w-screen-2xl items-center gap-8 px-4 pt-10 pb-14 sm:px-6 sm:pt-16 lg:min-h-[42rem] lg:grid-cols-2 lg:gap-12 lg:px-8 lg:pt-8">
+      <section className="relative z-10 mx-auto grid w-full max-w-screen-2xl items-center gap-8 px-4 pt-10 pb-14 sm:px-6 sm:pt-16 lg:min-h-[42rem] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-12 lg:px-8 lg:pt-8">
         <div className="text-center lg:text-start">
           <span className="inline-flex items-center justify-center gap-1.5 text-sm font-bold tracking-[.1em] text-primary uppercase lg:justify-start"><Sparkles className="size-4 text-primary" /> {t('landing.badge')}</span>
           <h1 className="mx-auto mt-3 max-w-3xl font-sans text-4xl leading-[1.1] font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:mx-0 lg:text-6xl rtl:tracking-normal xl:text-7xl">{t('landing.titleStart')} <em className="font-bold not-italic text-warm">{t('landing.titleAccent')}</em> {t('landing.titleEnd')}</h1>
@@ -57,12 +57,12 @@ export default function LandingPage() {
 </div>
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-2xl place-items-center lg:min-h-[36rem]">
-          <div className="pointer-events-none absolute size-[82%] rounded-full border border-primary/10" />
-          <div className="pointer-events-none absolute size-[64%] animate-[spin_30s_linear_infinite] rounded-full border border-dashed border-primary/15 motion-reduce:animate-none" />
-          <MedicalIllustration />
-          <Card className="absolute top-[12%] start-0 hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-start-4"><HeartPulse className="size-5 text-warm" /><span className="grid"><strong className="text-sm">{t('landing.connectedCare')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
-          <Card className="absolute end-0 bottom-[12%] hidden flex-row items-center gap-3 rounded-2xl border border-border bg-card/85 px-4 py-3 shadow-xl backdrop-blur-xl sm:flex lg:-end-4"><CalendarDays className="size-5 text-warm" /><span className="grid"><strong className="text-sm">{t('landing.schedule')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
+        <div className="relative mx-auto w-full max-w-md pb-8 lg:max-w-none">
+          <div className="relative -rotate-2 overflow-hidden rounded-[2rem] border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-warm/10 p-6 shadow-xl shadow-primary/10 rtl:rotate-2">
+            <MedicalIllustration />
+          </div>
+          <Card className="absolute -start-3 top-6 flex-row items-center gap-3 rounded-2xl border border-border bg-card/90 px-4 py-3 shadow-xl backdrop-blur-xl sm:-start-6"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><HeartPulse className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.connectedCare')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
+          <Card className="absolute -end-3 bottom-0 flex-row items-center gap-3 rounded-2xl border border-border bg-card/90 px-4 py-3 shadow-xl backdrop-blur-xl sm:-end-6"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><CalendarDays className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.schedule')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
         </div>
       </section>
 

@@ -218,7 +218,7 @@ export default function WorkingHoursPage() {
 
   return (
     <DoctorWorkspaceShell active="working-hours">
-      <div className="mx-auto w-full min-w-0 max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarClock className="size-3" />{t('workingHours.eyebrow')}</Badge>
@@ -281,7 +281,7 @@ export default function WorkingHoursPage() {
               <Card className="min-w-0 rounded-2xl border border-border bg-card">
                 <CardHeader className="!pb-3 border-b border-border/40">
                   <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="min-w-0"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CalendarClock className="size-7" /></span>{t('workingHours.calendarTitle')}</CardTitle><p className="mt-3 max-w-2xl rounded-lg bg-primary/[0.04] px-3 py-2 text-xs leading-5 font-medium text-foreground/70 sm:text-[13px]">{t('workingHours.scheduleDescription')}</p></div>
+                    <div className="min-w-0"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CalendarClock className="size-7" /></span>{t('workingHours.calendarTitle')}</CardTitle><p className="mt-3 w-fit max-w-full rounded-lg bg-primary/[0.04] px-3 py-2 text-[13px] leading-5 font-semibold text-foreground/90 sm:text-sm">{t('workingHours.scheduleDescription')}</p></div>
                     <div className="grid min-w-60 gap-1.5">
   <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.clinicFilter')}</Label>
   <Select
@@ -423,7 +423,7 @@ export default function WorkingHoursPage() {
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span>
           <div className="min-w-0 flex-1">
             <DialogTitle className="font-sans text-base font-bold normal-case tracking-normal">{t(editor.mode === 'create' ? 'workingHours.newAvailability' : 'workingHours.editAvailability')}</DialogTitle>
-            <DialogDescription className="mt-0.5 text-start text-xs leading-5">{t('workingHours.editorDescription')}</DialogDescription>
+            <DialogDescription className="mt-0.5 text-start text-[13px] leading-5 font-medium text-foreground/70">{t('workingHours.editorDescription')}</DialogDescription>
           </div>
         </div>
       </DialogHeader>

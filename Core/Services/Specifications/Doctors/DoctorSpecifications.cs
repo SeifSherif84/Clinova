@@ -94,5 +94,21 @@ namespace Services.Specifications.Doctors
 
             return specification;
         }
+
+
+
+        public static DoctorSpecifications GetDoctorHeaderForPatient(string doctorId)
+        {
+            var specification = new DoctorSpecifications()
+            {
+                Criteria = doctor => doctor.Id == doctorId &&
+                                     doctor.ApprovalStatus == DoctorApprovalStatus.Approved &&
+                                     !doctor.IsDeleted,
+            };
+
+            specification.Includes.Add(doctor => doctor.MedicalSpecialty);
+
+            return specification;
+        }
     }
 }

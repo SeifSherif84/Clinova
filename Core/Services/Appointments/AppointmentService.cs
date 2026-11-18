@@ -342,9 +342,7 @@ namespace Services.Appointments
             if (appointment.Status != AppointmentStatus.PendingPayment && appointment.Status != AppointmentStatus.Confirmed)
                 throw new BadRequestException("This appointment cannot be cancelled at its current status.");
 
-
             var depositPayment = appointment.DepositPayment;
-
             if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
@@ -357,10 +355,8 @@ namespace Services.Appointments
             if (remainingPayment is not null && remainingPayment.Status == RemainingPaymentStatus.Pending)
                 remainingPayment.Status = RemainingPaymentStatus.Cancelled;
 
-
             if (appointment.AppointmentSlot.Status == SlotStatus.Reserved || appointment.AppointmentSlot.Status == SlotStatus.Booked)
                 appointment.AppointmentSlot.Status = SlotStatus.Available;
-
 
             if (!isDepositPaymentPaid)
             {
@@ -372,7 +368,6 @@ namespace Services.Appointments
 
                 return "Your appointment has been cancelled successfully.";
             }
-
 
             if (!isFullRefundEligible)
             {
@@ -433,7 +428,6 @@ namespace Services.Appointments
                         "We couldn't save the cancellation and refund request. Please check the current appointment and refund status before retrying.");
                 }
 
-
                 var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
                 var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
 
@@ -446,11 +440,8 @@ namespace Services.Appointments
                         NotificationType.ManualRefundRequested);
                 }
 
-
                 return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved and is awaiting manual processing by the clinic.";
             }
-
-
 
             // ---------------------------------------------------------
             // Do NOT mark Payment as Refunded here.
@@ -486,7 +477,6 @@ namespace Services.Appointments
 
                 return "Your appointment has been cancelled successfully. According to Clinova's cancellation policy, your refund has been approved, but it could not be processed at this time.";
             }
-
 
             else
                 throw new InternalServerErrorException("The payment method could not be determined.");
@@ -603,6 +593,9 @@ namespace Services.Appointments
                 if (appointment.DepositPayment.Status is DepositPaymentStatus.Pending or DepositPaymentStatus.Failed)
                     appointment.DepositPayment.Status = DepositPaymentStatus.Expired;
 
+                if (appointment.RemainingPayment is not null && appointment.RemainingPayment.Status == RemainingPaymentStatus.Pending)
+                    appointment.RemainingPayment.Status = RemainingPaymentStatus.Cancelled;
+
                 if (appointment.AppointmentSlot.Status == SlotStatus.Reserved)
                     appointment.AppointmentSlot.Status = SlotStatus.Available;
             }
@@ -692,7 +685,6 @@ namespace Services.Appointments
         {
             if (string.IsNullOrWhiteSpace(secretaryId))
                 throw new BadRequestException("We couldn't identify your account.");
-
 
             var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
             var secretary = await secretaryRepo.GetByIdAsync(secretaryId);
@@ -1251,7 +1243,6 @@ namespace Services.Appointments
 
             if (payment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be marked as completed.");
-
 
             //var nowUtc = DateTime.UtcNow;
             //var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
@@ -1868,7 +1859,6 @@ namespace Services.Appointments
             if (newSlot.DoctorId != currentSlot.DoctorId || newSlot.ClinicId != currentSlot.ClinicId)
                 throw new BadRequestException("The new appointment slot must belong to the same doctor and clinic.");
 
-
             var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
             var newSlotLocalDateTime = newSlot.Date.ToDateTime(newSlot.StartTime);
             var nowInEgypt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, egyptTimeZone);
@@ -1878,7 +1868,6 @@ namespace Services.Appointments
 
             newSlot.Status = currentSlot.Status;
             currentSlot.Status = SlotStatus.Available;
-
             appointment.AppointmentSlotId = newSlot.Id;
             appointment.AppointmentSlot = newSlot;
 

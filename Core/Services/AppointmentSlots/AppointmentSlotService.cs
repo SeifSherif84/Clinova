@@ -333,7 +333,6 @@ namespace Services.AppointmentSlots
 
             if (secretary.ClinicId is null)
                 throw new BadRequestException("You are not assigned to any clinic.");
-
             int clinicId = secretary.ClinicId.Value;
 
             if (appointment.AppointmentSlot is null)
@@ -390,17 +389,17 @@ namespace Services.AppointmentSlots
         private void CheckReschedulableAppointment(Appointment appointment)
         {
             var currentSlot = appointment.AppointmentSlot;
-            var payment = appointment.DepositPayment;
+            var depositpayment = appointment.DepositPayment;
 
             if (currentSlot is null)
                 throw new InternalServerErrorException("The current appointment slot could not be found.");
 
-            if (payment is null)
+            if (depositpayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
 
             if (appointment.Status == AppointmentStatus.PendingPayment)
             {
-                if (payment.Status != DepositPaymentStatus.Pending)
+                if (depositpayment.Status != DepositPaymentStatus.Pending)
                     throw new BadRequestException("This appointment cannot be rescheduled with its current payment status.");
 
                 if (appointment.ReservationExpiresAt <= DateTime.UtcNow)
@@ -411,7 +410,7 @@ namespace Services.AppointmentSlots
             }
             else if (appointment.Status == AppointmentStatus.Confirmed)
             {
-                if (payment.Status != DepositPaymentStatus.Paid)
+                if (depositpayment.Status != DepositPaymentStatus.Paid)
                     throw new BadRequestException("Only confirmed appointments with completed payment can be rescheduled.");
 
                 if (currentSlot.Status != SlotStatus.Booked)

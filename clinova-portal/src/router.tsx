@@ -126,6 +126,60 @@ function requireSecretary(context: RouterContext, pathname: string) {
   if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: pathname } })
   if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'secretary')) throw redirect({ to: '/dashboard' })
 }
+function requirePatient(context: RouterContext, pathname: string) {
+  if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: pathname } })
+  if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'patient')) throw redirect({ to: '/dashboard' })
+}
+const patientProfileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/profile',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-profile-page')),
+})
+// Placeholders until the real pages are wired; swap the import when each one is built.
+const patientComingSoon = () => import('@/pages/patient-coming-soon-page')
+const patientDoctorsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/doctors',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-doctors-page')),
+})
+const patientDoctorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/doctors/$doctorId',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-doctor-page')),
+})
+const patientSpecialtiesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/specialties',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(patientComingSoon),
+})
+const patientReviewsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/reviews',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-reviews-page')),
+})
+const patientFaqsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/faqs',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-faqs-page')),
+})
+const patientAppointmentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/appointments',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-appointments-page')),
+})
+const patientAppointmentDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/appointments/$appointmentId',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-appointment-details-page')),
+})
 const secretaryAppointmentsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/secretary/appointments',
@@ -140,6 +194,12 @@ const secretaryAppointmentDetailsRoute = createRoute({
   // Carries the list filters so "back" returns to the same filtered page.
   validateSearch: parseAppointmentFilters,
   component: lazyRouteComponent(() => import('@/pages/secretary-appointment-details-page')),
+})
+const secretaryAppointmentRescheduleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/secretary/appointments/$appointmentId/reschedule',
+  beforeLoad: ({ context, location }) => requireSecretary(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/secretary-reschedule-page')),
 })
 const secretaryInvitationsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -287,9 +347,18 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   notificationsRoute,
   doctorProfileRoute,
+  patientProfileRoute,
+  patientDoctorsRoute,
+  patientDoctorRoute,
+  patientSpecialtiesRoute,
+  patientAppointmentsRoute,
+  patientAppointmentDetailsRoute,
+  patientReviewsRoute,
+  patientFaqsRoute,
   doctorInvitationsRoute,
   secretaryAppointmentsRoute,
   secretaryAppointmentDetailsRoute,
+  secretaryAppointmentRescheduleRoute,
   secretaryInvitationsRoute,
   secretaryClinicRoute,
   secretaryGuestBookingRoute,

@@ -233,7 +233,7 @@ namespace Presentation.Controllers.Clinics
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("{clinicId}/doctors/{doctorId}")]
+        [HttpGet("{clinicId}/doctors/{doctorId}")] // Get api/clinics/{clinicId}/doctors/{doctorId}
         public async Task<IActionResult> GetDoctorClinicDetailsForPatient(int clinicId, string doctorId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -258,6 +258,10 @@ export const secretaryEn = {
     confirm: 'Mark completed',
     confirmDue: 'Balance paid, mark completed',
   },
+  outcome: {
+    title: 'Record the appointment result',
+    hint: 'Patient came? Mark it Completed and collect the remaining amount. Didn’t come? Mark it No-show.',
+  },
   noShowDialog: {
     title: 'Mark as no-show?',
     description: 'Use this when the patient didn’t attend. The deposit is kept, any unpaid balance is cancelled, and this can’t be undone.',
@@ -657,6 +661,10 @@ export const secretaryAr = {
     close: 'ليس الآن',
     confirm: 'تم الكشف',
     confirmDue: 'تم الدفع، تسجيل كمكتمل',
+  },
+  outcome: {
+    title: 'سجّل نتيجة الحجز',
+    hint: 'لو المريض حضر اختر «تم الكشف» وحصّل باقي المبلغ، ولو لم يحضر اختر «لم يحضر».',
   },
   noShowDialog: {
     title: 'تسجيل عدم الحضور؟',

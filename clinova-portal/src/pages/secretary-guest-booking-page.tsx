@@ -82,7 +82,7 @@ export default function SecretaryGuestBookingPage() {
 
   return (
     <DoctorWorkspaceShell active="secretary-guest-booking">
-      <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         {notice && <Notice tone="success" message={notice} />}
         <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarPlus className="size-3" />{t('secretary.workspace')}</Badge>
         <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.guest.title')}</h1>
@@ -188,7 +188,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         </div>}
         {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noDoctors')}</p>}
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
             <RadioGroupItem value={member.id} className="pointer-events-none absolute size-px opacity-0" />
             <DoctorAvatar className="size-14" name={member.fullName} picture={member.profilePicture} />
             <span className="grid min-w-0 flex-1 gap-1">
@@ -246,9 +246,9 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
             {date && slots.isError && <p role="alert" className="text-xs font-bold text-destructive">{getErrorMessage(slots.error)}</p>}
             {date && slots.data && !slots.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noSlots')}</p>}
             {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="mt-1 grid grid-cols-2 gap-2.5">
-              {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-2.5 py-3 text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:border-primary not-has-[[data-checked]]:hover:bg-primary/10 not-has-[[data-checked]]:hover:text-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
+              {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-2.5 py-3 text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:-translate-y-0.5 not-has-[[data-checked]]:hover:bg-primary/5 dark:not-has-[[data-checked]]:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
                 <RadioGroupItem value={String(item.id)} className="pointer-events-none absolute size-px opacity-0" />
-                <Clock3 aria-hidden="true" className="size-3.5 shrink-0 opacity-60" />
+                <Clock3 aria-hidden="true" className="size-4 shrink-0 stroke-[2.25] opacity-80" />
                 <span dir="ltr">{formatTime(item.startTime)} – {formatTime(item.endTime)}</span>
               </label>)}
             </RadioGroup>}
@@ -258,8 +258,8 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
 
       <SectionCard icon={<UserRound className="size-5" />} title={t('secretary.guest.detailsStep')} step={3}>
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormField className="content-start" id="guestName" label={t('secretary.guest.name')} placeholder={t('secretary.guest.namePlaceholder')} value={name} maxLength={100} autoComplete="off" icon={<UserRound size={18} />} error={errors.name} onChange={(event) => { setName(event.target.value); setErrors((current) => ({ ...current, name: undefined })) }} />
-          <FormField className="content-start" id="guestPhone" type="tel" dir="ltr" inputMode="numeric" label={t('secretary.guest.phone')} placeholder="01012345678" value={phone} maxLength={11} autoComplete="off" hint={t('secretary.guest.phoneHint')} icon={<Phone size={18} />} error={errors.phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, '')); setErrors((current) => ({ ...current, phone: undefined })) }} />
+          <FormField className="content-start" inputClassName="text-base md:text-base leading-7 font-medium placeholder:text-sm placeholder:font-medium" id="guestName" label={t('secretary.guest.name')} placeholder={t('secretary.guest.namePlaceholder')} value={name} maxLength={100} autoComplete="off" icon={<UserRound size={18} />} error={errors.name} onChange={(event) => { setName(event.target.value); setErrors((current) => ({ ...current, name: undefined })) }} />
+          <FormField className="content-start" inputClassName="text-base md:text-base leading-7 font-medium placeholder:text-sm placeholder:font-medium" id="guestPhone" type="tel" dir="ltr" inputMode="numeric" label={t('secretary.guest.phone')} placeholder="01012345678" value={phone} maxLength={11} autoComplete="off" hint={t('secretary.guest.phoneHint')} icon={<Phone size={18} />} error={errors.phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, '')); setErrors((current) => ({ ...current, phone: undefined })) }} />
         </div>
         <div className="grid gap-3">
           <Label className="text-sm font-bold text-foreground">{t('secretary.guest.bookingType')}</Label>
@@ -267,7 +267,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
             {typeOptions.map((option) => {
               const key = bookingTypeKey[option.id]
               const split = amounts(option.id)
-              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-4 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-4 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
                 <RadioGroupItem value={String(option.id)} className="pointer-events-none absolute size-px opacity-0" />
                 <span className="grid min-w-0 flex-1 gap-1.5">
                   <strong className="text-base font-bold">{key ? t(`secretary.guest.types.${key}`) : option.name}</strong>
@@ -358,6 +358,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
   const countdown = useCountdown(checkout.reservationExpiresAt)
   const [method, setMethod] = useState<number | null>(null)
   const [accountId, setAccountId] = useState('')
+  const [accountType, setAccountType] = useState<string | null>(null)
   const [formError, setFormError] = useState('')
   const [confirmCancel, setConfirmCancel] = useState(false)
   const methods = useQuery({
@@ -388,13 +389,19 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
   const typeKey = checkout.bookingType === 'Advance' || checkout.bookingType === 'WalkIn' ? checkout.bookingType : null
   const expiresAt = new Date(checkout.reservationExpiresAt).toLocaleTimeString(i18n.resolvedLanguage === 'ar' ? 'ar-EG' : 'en-EG', { hour: 'numeric', minute: '2-digit' })
   const lowTime = countdown.remaining < 5 * 60 * 1000
+  // Accounts are grouped by provider: one card per provider, then the secretary picks the number the guest transferred to.
+  const accountTypes = Array.from(new Set(accounts.data?.map((account) => account.type) ?? []))
+  const activeType = accountType ?? (accountTypes.length === 1 ? accountTypes[0] : null)
+  const typeAccounts = activeType ? (accounts.data ?? []).filter((account) => account.type === activeType) : []
+  // A lone account is picked automatically; several need an explicit choice.
+  const chosenAccountId = typeAccounts.length === 1 ? String(typeAccounts[0].id) : typeAccounts.some((account) => String(account.id) === accountId) ? accountId : ''
 
   function submit() {
     if (!method) return setFormError(t('secretary.guest.methodRequired'))
-    if (method === GuestPaymentMethod.ManualTransfer && !accountId) return setFormError(t('secretary.guest.accountRequired'))
+    if (method === GuestPaymentMethod.ManualTransfer && !chosenAccountId) return setFormError(t('secretary.guest.accountRequired'))
     setFormError('')
     confirm.mutate(method === GuestPaymentMethod.ManualTransfer
-      ? { guestReservationPaymentMethodType: GuestPaymentMethod.ManualTransfer, clinicManualPaymentMethodId: Number(accountId) }
+      ? { guestReservationPaymentMethodType: GuestPaymentMethod.ManualTransfer, clinicManualPaymentMethodId: Number(chosenAccountId) }
       : { guestReservationPaymentMethodType: GuestPaymentMethod.CashAtClinic })
   }
 
@@ -421,10 +428,10 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
 
         <div className="grid gap-2">
           <Label className="text-sm font-bold text-foreground">{t('secretary.guest.paymentMethod')}</Label>
-          <RadioGroup aria-label={t('secretary.guest.paymentMethod')} value={method ? String(method) : ''} disabled={countdown.expired || busy} onValueChange={(value) => { setMethod(Number(value)); setAccountId(''); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
+          <RadioGroup aria-label={t('secretary.guest.paymentMethod')} value={method ? String(method) : ''} disabled={countdown.expired || busy} onValueChange={(value) => { setMethod(Number(value)); setAccountId(''); setAccountType(null); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
             {methodOptions.map((option) => {
               const key = paymentMethodKey[option.id]
-              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+              return <label key={option.id} className="group relative flex min-w-0 cursor-pointer items-start gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
                 <RadioGroupItem value={String(option.id)} className="pointer-events-none absolute size-px opacity-0" />
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">{option.id === GuestPaymentMethod.ManualTransfer ? <ArrowLeftRight className="size-4.5" /> : <Banknote className="size-4.5" />}</span>
                 <span className="grid min-w-0 flex-1 gap-0.5 pt-0.5">
@@ -448,22 +455,38 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
             <Button type="button" variant="outline" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </div>}
           {accounts.data && !accounts.data.length && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 p-3 text-xs leading-6 font-bold text-warm"><TriangleAlert className="mt-1 size-3.5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
-          {accounts.data && accounts.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.account')} value={accountId} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
-            {accounts.data.map((account) => <label key={account.id} className="group relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
-              <RadioGroupItem value={String(account.id)} className="pointer-events-none absolute size-px opacity-0" />
-              {isManualPaymentProvider(account.type)
-                ? <ProviderLogo type={account.type} size="sm" className="shadow-sm" />
-                : <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Wallet className="size-4" /></span>}
-              <span className="min-w-0 flex-1">
-                <small className="block truncate text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t(`manualPayments.${account.type}`, { defaultValue: account.type })}</small>
-                <strong dir="ltr" className="block truncate text-start text-sm font-bold">{account.accountIdentifier}</strong>
-              </span>
-              <span aria-hidden="true" className="relative grid size-6 shrink-0 place-items-center">
-                <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
-                <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
-              </span>
-            </label>)}
-          </RadioGroup>}
+          {accounts.data && accounts.data.length > 0 && <div className="grid gap-4">
+            <RadioGroup aria-label={t('secretary.guest.account')} value={activeType ?? ''} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountType(String(value)); setAccountId(''); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
+              {accountTypes.map((type) => {
+                const group = (accounts.data ?? []).filter((account) => account.type === type)
+                const title = t(`manualPayments.${type}`, { defaultValue: type })
+                return <label key={type} className="group relative flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 p-4 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+                  <RadioGroupItem value={type} className="pointer-events-none absolute size-px opacity-0" />
+                  {isManualPaymentProvider(type)
+                    ? <ProviderLogo type={type} size="sm" className="shadow-sm" />
+                    : <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Wallet className="size-4" /></span>}
+                  <span className="min-w-0 flex-1">
+                    {group.length === 1 && <small className="block truncate text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{title}</small>}
+                    <strong dir={group.length === 1 ? 'ltr' : undefined} className="block truncate text-start text-sm font-bold">{group.length === 1 ? group[0].accountIdentifier : title}</strong>
+                  </span>
+                  <span aria-hidden="true" className="relative grid size-6 shrink-0 place-items-center">
+                    <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
+                    <CircleCheckBig className="size-6 text-primary opacity-0 transition group-has-[[data-checked]]:opacity-100" />
+                  </span>
+                </label>
+              })}
+            </RadioGroup>
+
+            {typeAccounts.length > 1 && <div className="grid gap-2">
+              <small className="text-[13px] font-semibold text-foreground/80">{t('secretary.guest.accountPick', { defaultValue: 'Choose the number the guest transferred to' })}</small>
+              <RadioGroup aria-label={t('secretary.guest.accountPick', { defaultValue: 'Choose the number the guest transferred to' })} value={chosenAccountId} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountId(String(value)); setFormError('') }} className="grid w-full gap-1 rounded-xl bg-foreground/5 p-1" style={{ gridTemplateColumns: `repeat(${Math.min(typeAccounts.length, 3)}, minmax(0, 1fr))` }}>
+                {typeAccounts.map((account) => <label key={account.id} dir="ltr" className="relative flex h-11 min-w-0 cursor-pointer items-center justify-center rounded-lg px-3 font-mono text-[15px] font-bold tabular-nums text-muted-foreground transition-all duration-200 not-has-[[data-checked]]:hover:bg-foreground/5 not-has-[[data-checked]]:hover:text-foreground motion-reduce:transition-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/30 has-[[data-checked]]:bg-card has-[[data-checked]]:text-primary has-[[data-checked]]:shadow-sm has-[[data-checked]]:ring-1 has-[[data-checked]]:ring-primary/25 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+                  <RadioGroupItem value={String(account.id)} className="pointer-events-none absolute size-px opacity-0" />
+                  <span className="truncate">{account.accountIdentifier}</span>
+                </label>)}
+              </RadioGroup>
+            </div>}
+          </div>}
         </div>}
 
         {!countdown.expired && <div className="flex flex-wrap gap-2.5 border-t border-border/50 pt-5">

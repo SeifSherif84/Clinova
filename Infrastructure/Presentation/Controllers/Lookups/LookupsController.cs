@@ -23,6 +23,14 @@ namespace Presentation.Controllers.Enums
             return Ok(response);
         }
 
+        [Authorize]
+        [HttpGet("blood-types")] // Get api/lookups/blood-types
+        public IActionResult GetBloodTypes()
+        {
+            var response = _serviceManager.LookupsService.GetBloodTypesAsync();
+            return Ok(response);
+        }
+
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("days-of-week")]
@@ -68,7 +76,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize(Roles = "Doctor")]
+        [Authorize]
         [HttpGet("governorates")] // Get api/lookups/governorates
         public async Task<IActionResult> GetGovernorates()
         {
@@ -77,7 +85,7 @@ namespace Presentation.Controllers.Enums
         }
 
 
-        [Authorize(Roles = "Doctor")]
+        [Authorize]
         [HttpGet("regions")] // Get api/lookups/regions?governorateId={governorateId}
         public async Task<IActionResult> GetRegions([FromQuery] int governorateId)
         {

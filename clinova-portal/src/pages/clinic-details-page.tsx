@@ -261,7 +261,7 @@ export default function ClinicDetailsPage() {
 
   return (
     <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
-      <div className="mx-auto min-w-0 w-full max-w-7xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto min-w-0 w-full max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
         {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => details.refetch()}><RefreshCw className="size-4" />{t('clinics.retry')}</Button></Card>}
 
@@ -550,7 +550,7 @@ export default function ClinicDetailsPage() {
                       </div>
                     </div>
                     <CardContent className="grid gap-4 p-5">
-                      <p className="text-xs leading-5 font-bold text-muted-foreground">{t('clinicDetails.inviteDescription')}</p>
+                      <p className="text-sm leading-6 font-bold text-muted-foreground">{t('clinicDetails.inviteDescription')}</p>
                       <form className="grid gap-3" onSubmit={submitInvitation}>
                         <FormField id="inviteDoctorEmail" label={t('clinicDetails.doctorEmail')} type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder={t('clinicDetails.doctorEmailPlaceholder')} required />
                         <Button type="submit" className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={sendInvitation.isPending}>

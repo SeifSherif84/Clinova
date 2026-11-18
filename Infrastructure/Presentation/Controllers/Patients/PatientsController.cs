@@ -44,6 +44,5 @@ namespace Presentation.Controllers.Patients
             var response = await _serviceManager.PatientService.UpdateProfilePictureAsync(userId ?? string.Empty, request);
             return Ok(response);
         }
-
     }
 }

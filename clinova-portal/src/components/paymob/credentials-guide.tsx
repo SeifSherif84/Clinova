@@ -1,8 +1,8 @@
 import { BookOpen, ChevronRight, CreditCard, ExternalLink, KeyRound, Link2, LockKeyhole, Plus, X } from 'lucide-react'
-import { useId } from 'react'
+import { Fragment, useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { PaymobEnvironmentNote } from './environment-note'
 import { SetupScreenshot } from './setup-screenshot'
 import { SetupSection, paymobButtonClass } from './setup-section'
@@ -13,14 +13,14 @@ export function PaymobCredentialsGuide() {
   return <div className="min-w-0">
       <p className="max-w-full font-sans text-2xl font-bold leading-snug break-words sm:text-3xl">{t('paymob.requiredCredentials')}</p>
       <div className="relative mt-8 overflow-x-auto overflow-y-visible pb-2">
-        <div className="flex min-w-max items-start">
+        <div className="flex w-full min-w-max items-start">
           {([
             { name: 'Public Key', key: 'publicKey' },
             { name: 'Secret Key', key: 'secretKey' },
             { name: 'HMAC Secret', key: 'hmacSecret' },
             { name: 'ApiKey', key: 'apiKey' },
-          ] as const).map((credential, i, arr) => (
-            <div key={credential.name} className="flex items-start">
+          ] as const).map((credential, i) => (
+            <Fragment key={credential.name}>
               <div className="group relative flex w-24 flex-col items-center gap-2.5">
                 <span className="relative z-10 grid size-9 shrink-0 cursor-default place-items-center rounded-full border-2 border-primary/25 bg-card text-xs font-bold text-primary transition-colors duration-200 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
                   {i + 1}
@@ -30,17 +30,16 @@ export function PaymobCredentialsGuide() {
                   {t('paymob.fields.' + credential.key + '.what')}
                 </div>
               </div>
-              {i < arr.length - 1 && <span aria-hidden="true" className="mx-1 mt-4.5 h-px w-10 shrink-0 bg-primary/25 sm:w-16" />}
-            </div>
+              <span aria-hidden="true" className="mx-1 mt-4.5 h-px min-w-10 flex-1 bg-primary/25" />
+            </Fragment>
           ))}
-          <span aria-hidden="true" className="mx-1 mt-4.5 h-px w-10 shrink-0 bg-gradient-to-r from-primary/25 to-primary sm:w-16" />
           <div className="flex w-24 shrink-0 flex-col items-center gap-2.5">
             <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm">
               <Link2 className="size-4" />
             </span>
             <span className="text-center text-xs font-bold leading-5 text-primary">Paymob</span>
           </div>
-          <span aria-hidden="true" className="mx-1 mt-4.5 h-px w-10 shrink-0 bg-primary/25 sm:w-16" />
+          <span aria-hidden="true" className="mx-1 mt-4.5 h-px min-w-10 flex-1 bg-primary/25" />
           <div className="flex w-28 shrink-0 flex-col items-center gap-2.5">
             <span className="grid size-9 place-items-center rounded-full border-2 border-primary/25 bg-card text-primary">
               <Plus className="size-4" />
@@ -76,13 +75,13 @@ const cellClasses = [
       <span aria-hidden="true" className="font-serif text-base font-bold text-foreground italic [font-variant-numeric:lining-nums]">{i + 1}</span>
       <dt className="text-base font-bold tracking-tight">{t('paymob.fields.' + name + '.label')}</dt>
       {name !== 'publicKey' && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
           <LockKeyhole className="size-3.5 shrink-0" />
           {t('paymob.sensitive')}
         </span>
       )}
     </div>
-    <dd className="mt-2.5 ps-[1.6rem] text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.fields.' + name + '.what')}</dd>
+    <dd className="mt-2.5 ps-[1.6rem] text-sm leading-7 font-medium text-foreground/75">{t('paymob.fields.' + name + '.what')}</dd>
   </div>
 </div>
             )
@@ -91,29 +90,35 @@ const cellClasses = [
         <SetupScreenshot section={t('paymob.apiKeys')} src="/paymob-screenshot/paymobApiKeys.png" />
       </SetupSection>
       <SetupSection id={id + "-integrations"} icon={CreditCard} title={t('paymob.integrationSection')} description={t('paymob.integrationSectionDescription')}>
-        <ol className="mb-5 grid gap-4">{(t('paymob.integrationSteps', { returnObjects: true }) as string[]).map((step, i) => <li key={step} className="flex items-center gap-3.5 text-sm leading-7 font-medium text-foreground/75"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-foreground">{i + 1}</span><span>{step}</span></li>)}</ol>
+        {(() => {
+          const steps = t('paymob.integrationSteps', { returnObjects: true }) as string[]
+          return <ol className="mb-5 max-w-2xl">{steps.map((step, i) => <li key={step} className="relative flex items-start gap-4 pb-6 last:pb-0">
+            {i < steps.length - 1 && <span aria-hidden="true" className="absolute start-[13px] top-8 bottom-1 w-px bg-primary/15" />}
+            <span className="relative grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">{i + 1}</span>
+            <p className="pt-0.5 text-sm font-semibold leading-6 text-muted-foreground">{step}</p>
+          </li>)}</ol>
+        })()}
         <SetupScreenshot section={t('paymob.paymentIntegrations')} src="/paymob-screenshot/paymobPaymentIntegrations.png" />
       </SetupSection>
       <PaymobEnvironmentNote />
-      <p className="mt-5 flex items-start gap-2.5 text-xs leading-6 font-semibold text-foreground/70">
-  <LockKeyhole className="mt-0.5 size-4 shrink-0 text-primary" />
-  {t('paymob.secureEntry')}
-</p>
-      <Button role="link" variant="link" className={paymobButtonClass + ' my-3 h-auto min-h-11 whitespace-normal px-0 text-start'} render={<a href="https://developers.paymob.com/paymob-docs/getting-started/new-dashboard" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.officialGuide')}</Button>
+      <p className="mt-5 flex items-start gap-2.5 text-sm leading-7 font-medium text-foreground/75">
+        <LockKeyhole className="mt-1 size-4.5 shrink-0 text-primary" />
+        {t('paymob.secureEntry')}
+      </p>
+      <Button role="link" variant="link" className={paymobButtonClass + ' my-3 h-auto min-h-11 gap-2.5 whitespace-normal px-0 text-start text-sm font-bold'} render={<a href="https://developers.paymob.com/paymob-docs/getting-started/new-dashboard" target="_blank" rel="noopener noreferrer" />}><ExternalLink className="size-[18px] shrink-0" />{t('paymob.officialGuide')}</Button>
   </div>
 }
 
 export function PaymobCredentialsGuideDialog({ label }: { label?: string }) {
   const { t } = useTranslation()
   return <Dialog>
-    <DialogTrigger render={<Button type="button" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" />}><BookOpen className="size-4" />{label ?? t('paymob.openGuide')}</DialogTrigger>
-    <DialogContent showCloseButton={false} className="flex max-h-[90svh] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-3xl motion-reduce:animate-none">
+    <DialogTrigger render={<Button type="button" className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary/30" />}><BookOpen className="size-4" />{label ?? t('paymob.openGuide')}</DialogTrigger>
+    <DialogContent showCloseButton={false} className="flex max-h-[90svh] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-5xl motion-reduce:animate-none">
       <DialogHeader className="shrink-0 border-b p-4 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <DialogTitle className="font-sans text-xl font-bold normal-case tracking-normal">{t('paymob.guideTitle')}</DialogTitle>
           <DialogClose render={<Button type="button" variant="ghost" size="icon" className="size-10 shrink-0 rounded-xl bg-foreground/5 text-foreground hover:bg-foreground/10" />} aria-label={t('paymob.close')}><X /></DialogClose>
         </div>
-        <DialogDescription>{t('paymob.ux.guideStays')}</DialogDescription>
       </DialogHeader>
       <div className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6"><PaymobCredentialsGuide /></div>
       <div className="shrink-0 border-t p-4 sm:px-6">

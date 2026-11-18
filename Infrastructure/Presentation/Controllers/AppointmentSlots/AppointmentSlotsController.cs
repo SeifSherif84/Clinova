@@ -16,7 +16,7 @@ namespace Presentation.Controllers.AppointmentSlots
     public class AppointmentSlotsController(IServiceManager _serviceManager) : ControllerBase
     {
         [Authorize(Roles = "Patient")]
-        [HttpGet("patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-days")]
+        [HttpGet("patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-days")] // Get api/appointment-slots/patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-days
         public async Task<IActionResult> GetDoctorDaysWhichHaveAvailableSlotForPatientAppointment([FromRoute] string doctorId, [FromRoute] int clinicId ,
                                                                                                   [FromQuery] DoctorDaysWhichHaveAvailableSlotRequest request)
         {
@@ -26,7 +26,7 @@ namespace Presentation.Controllers.AppointmentSlots
         }
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-slots")]
+        [HttpGet("patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-slots")] // Get api/appointment-slots/patient-appointment/doctors/{doctorId}/clinics/{clinicId}/available-slots
         public async Task<IActionResult> GetAvailableAppointmentSlotsExistInSpecificDayForPatientAppointment([FromRoute] string doctorId, [FromRoute] int clinicId,
                                                                                                              [FromQuery] DoctorAvailableAppointmentSlotsExistInSpecificDayRequest request)
         {

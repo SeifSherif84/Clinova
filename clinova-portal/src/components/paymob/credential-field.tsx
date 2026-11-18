@@ -14,9 +14,9 @@ export function CredentialHelp({ name }: { name: CredentialName }) {
   return <Popover>
     <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-9 rounded-xl text-muted-foreground" />} aria-label={t('paymob.help', { field: label })}><CircleHelp className="size-4" /></PopoverTrigger>
     <PopoverContent className="max-h-[70svh] w-96 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl text-start motion-reduce:animate-none">
-      <PopoverTitle className="text-sm font-bold normal-case">{label}</PopoverTitle>
-      <dl className="grid gap-3">{(['what', 'why', 'where'] as const).map((part) => <div key={part}><dt className="text-xs font-bold">{t('paymob.' + part)}</dt><dd className="mt-1 text-xs leading-6 text-muted-foreground">{t('paymob.fields.' + name + '.' + part)}</dd></div>)}</dl>
-      {sensitive && <p className="border-t pt-3 text-xs leading-6 text-muted-foreground">{t('paymob.secureEntry')}</p>}
+      <PopoverTitle className="text-base font-bold normal-case">{label}</PopoverTitle>
+      <dl className="grid gap-3.5">{(['what', 'why', 'where'] as const).map((part) => <div key={part}><dt className="text-sm font-bold">{t('paymob.' + part)}</dt><dd className="mt-1 text-[13px] leading-6 font-medium text-foreground/80">{t('paymob.fields.' + name + '.' + part)}</dd></div>)}</dl>
+      {sensitive && <p className="border-t pt-3 text-[13px] leading-6 font-medium text-foreground/80">{t('paymob.secureEntry')}</p>}
     </PopoverContent>
   </Popover>
 }
@@ -43,7 +43,7 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
       <div className="flex items-center gap-0.5">
         <Label htmlFor={id} className="text-sm font-semibold normal-case tracking-normal text-foreground">{label}</Label><CredentialHelp name={name} />
       </div>
-      {sensitive && <p id={id + '-sensitive'} className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase leading-none tracking-wider text-muted-foreground"><LockKeyhole className="size-3 shrink-0" />{t('paymob.sensitive')}</p>}
+      {sensitive && <p id={id + '-sensitive'} className="flex items-center gap-1.5 text-[11.5px] font-semibold leading-none text-muted-foreground"><LockKeyhole className="size-3 shrink-0" />{t('paymob.sensitive')}</p>}
     </div>
     {savedView ? <>
       <div className="relative">

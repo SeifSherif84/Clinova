@@ -35,7 +35,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
   return <>
     <div className="mt-5 overflow-hidden rounded-3xl border border-border/70 bg-muted/40 shadow-sm">
       <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <p className="max-w-xl text-sm leading-6 text-muted-foreground">{t('paymob.ux.overview')}</p>
+        <p className="max-w-xl text-[15px] leading-7 font-semibold text-foreground/75">{t('paymob.ux.overview')}</p>
         <Button className={paymobButtonClass + ' h-10 shrink-0 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rotate-90" />{t('paymob.ux.ready')}</Button>
       </div>
       <nav aria-label={t('paymob.stepsLabel')} className="border-t border-border/70 bg-muted/30 px-5 py-6 sm:px-8">
@@ -76,7 +76,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
             </button>
           </div>
         </div>
-        <p className="mt-4 flex items-center gap-2.5 text-xs leading-6 font-semibold text-muted-foreground">
+        <p className="mt-4 flex items-center gap-2.5 text-[13px] leading-6 font-semibold text-muted-foreground">
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
             <Lock className="size-3.5" />
           </span>
@@ -87,13 +87,13 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="min-w-0 rounded-2xl border border-border/60 bg-card p-4">
             <h3 className="text-sm font-bold">{t('paymob.apiKeys')}</h3>
-            <p className="mt-2 text-xs leading-6 text-muted-foreground">{t('paymob.ux.keysSummary')}</p>
+            <p className="mt-2 text-[13px] leading-6 font-semibold text-foreground/75">{t('paymob.ux.keysSummary')}</p>
             <ul className="mt-3 flex flex-wrap gap-2">{['Public Key', 'Secret Key', 'HMAC Secret', 'ApiKey'].map((name) => <li key={name} className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs font-bold">{name}</li>)}</ul>
           </div>
           <div className="min-w-0 rounded-2xl border border-border/60 bg-card p-4">
             <h3 className="text-sm font-bold">{t('paymob.integrationTitle')}</h3>
-            <p className="mt-2 text-xs leading-6 text-muted-foreground">{t('paymob.ux.integrationSummary')}</p>
-            <p className="mt-3 text-xs leading-6 text-muted-foreground">{t('paymob.integrationNote')}</p>
+            <p className="mt-2 text-[13px] leading-6 font-semibold text-foreground/75">{t('paymob.ux.integrationSummary')}</p>
+            <p className="mt-3 text-[13px] leading-6 font-semibold text-foreground/75">{t('paymob.integrationNote')}</p>
           </div>
         </div>
         <div className="mt-4"><PaymobCredentialsGuideDialog /></div>

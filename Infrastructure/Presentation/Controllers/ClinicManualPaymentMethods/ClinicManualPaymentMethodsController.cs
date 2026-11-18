@@ -53,7 +53,7 @@ namespace Presentation.Controllers.ClinicManualPaymentMethods
 
 
         [Authorize(Roles = "Patient")]
-        [HttpGet("appointments/{appointmentId}")] // https://localhost:7269/api/manual-payment-methods/appointments/1
+        [HttpGet("appointments/{appointmentId}")] // Get api/manual-payment-methods/appointments/{appointmentId}
         public async Task<IActionResult> GetClinicManualPaymentMethodsForPatient([FromRoute] int appointmentId)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

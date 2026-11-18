@@ -7,11 +7,14 @@ using Domain.Exceptions.BadRequest;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Services.Abstractions.Doctors;
 using Services.FileStorage;
 using Services.Specifications.Doctors;
+using Services.Specifications.Reviews;
 using Shared.Dtos.Appointments;
 using Shared.Dtos.Doctors;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +24,10 @@ using System.Threading.Tasks;
 namespace Services.Doctors
 {
     public class DoctorService(IUnitOfWork _unitOfWork,
-                               IMapper _mapper) : IDoctorService
+                               IMapper _mapper,
+                               IConfiguration _configuration) : IDoctorService
     {
-        public async Task<PaginatedResult<PatientDoctorResponse>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query)
+        public async Task<PaginatedResult<DoctorResponseForPatient>> GetDoctorsForPatientAsync(string userId, PatientDoctorQuery query)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
@@ -31,7 +35,6 @@ namespace Services.Doctors
             var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
             if (patient is null)
                 throw new NotFoundException("We couldn't find your account.");
-
 
             var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
             var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100);
@@ -62,9 +65,25 @@ namespace Services.Doctors
 
             var doctors = await doctorRepo.GetAllAsync(dataSpecification);
 
-            var items = _mapper.Map<List<PatientDoctorResponse>>(doctors);
+            var baseUrl = _configuration["BaseURL"];
+            var imagesFolderPath = _configuration["MediaSettings:DoctorProfileImagesPath"];
 
-            return new PaginatedResult<PatientDoctorResponse>
+            var doctorIds = doctors.Select(d => d.Id).ToList();
+            var reviewRepo = _unitOfWork.GetRepository<Domain.Entities.BusinessEntities.Review, int>();
+            var reviewSpecification = ReviewSpecifications.PatientGetDoctorsAverageRatings(doctorIds);
+            var averageRatings = await reviewRepo.AverageByAsync(reviewSpecification, review => review.Appointment.AppointmentSlot.DoctorId, review => review.Rating);
+
+            var items = doctors.Select(doctor => new DoctorResponseForPatient
+            {
+                DoctorId = doctor.Id,
+                DoctorName = $"Dr. {doctor.FirstName} {doctor.LastName}",
+                ProfilePictureUrl = !string.IsNullOrWhiteSpace(doctor.ProfilePicture) ? $"{baseUrl}/{imagesFolderPath}/{doctor.ProfilePicture}" : null,
+                MedicalSpecialtyName = doctor.MedicalSpecialty.Name,
+                ExperienceYears = doctor.ExperienceYears,
+                AverageRating = averageRatings.TryGetValue(doctor.Id, out var averageRating) ? averageRating : null
+            }).ToList();
+
+            return new PaginatedResult<DoctorResponseForPatient>
             {
                 PageIndex = pageIndex,
                 PageSize = pageSize,
@@ -72,6 +91,7 @@ namespace Services.Doctors
                 Items = items
             };
         }
+
 
         public async Task<DoctorProfileResponse> GetProfileAsync(string userId)
         {
@@ -149,6 +169,41 @@ namespace Services.Doctors
                 FileStorageHandler.Delete(oldProfilePicture, @"doctors\profilePictures");
 
             return "Your profile picture has been updated successfully.";
+        }
+
+
+        public async Task<DoctorHeaderForPatientResponse> GetDoctorHeaderForPatientAsync(string userId, string doctorId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var patient = await _unitOfWork.GetRepository<Patient, string>().GetByIdAsync(userId);
+            if (patient is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            if (string.IsNullOrWhiteSpace(doctorId))
+                throw new BadRequestException("Invalid doctor ID.");
+
+            var doctorSpecification = DoctorSpecifications.GetDoctorHeaderForPatient(doctorId);
+            var doctorRepo = _unitOfWork.GetRepository<Doctor, string>();
+            var doctor = await doctorRepo.GetByIdAsync(doctorSpecification);
+
+            if (doctor is null)
+                throw new NotFoundException("We couldn't find this doctor.");
+
+            var baseUrl = _configuration["BaseURL"];
+            var imagesFolderPath = _configuration["MediaSettings:DoctorProfileImagesPath"];
+
+            return new DoctorHeaderForPatientResponse
+            {
+                DoctorId = doctor.Id,
+                DoctorName = $"Dr. {doctor.FirstName} {doctor.LastName}",
+                ProfilePictureUrl = !string.IsNullOrWhiteSpace(doctor.ProfilePicture) ? $"{baseUrl}/{imagesFolderPath}/{doctor.ProfilePicture}" : null,
+                Title = doctor.Title,
+                MedicalSpecialtyName = doctor.MedicalSpecialty.Name,
+                ExperienceYears = doctor.ExperienceYears,
+                Bio = doctor.Bio
+            };
         }
     }
 }

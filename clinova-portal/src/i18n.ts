@@ -7,6 +7,7 @@ import { secretaryEn, secretaryAr } from '@/locales/secretary'
 import { analyticsEn, analyticsAr } from '@/locales/analytics'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import { patientPortalEn, patientPortalAr, patientEn, patientAr } from '@/locales/patient'
 
 const resources = {
   en: {
@@ -14,6 +15,8 @@ const resources = {
       manualPayments: manualPaymentsEn,
       secretary: secretaryEn,
       analytics: analyticsEn,
+      patientPortal: patientPortalEn,
+      patient: patientEn,
       paymob: { ...paymobEn, ...paymobExperienceEn, ...paymobApiEn, ux: paymobUxEn },
       common: {
         appTitle: 'Clinova | Connected healthcare',
@@ -599,6 +602,8 @@ const resources = {
       manualPayments: manualPaymentsAr,
       secretary: secretaryAr,
       analytics: analyticsAr,
+      patientPortal: patientPortalAr,
+      patient: patientAr,
       paymob: { ...paymobAr, ...paymobExperienceAr, ...paymobApiAr, ux: paymobUxAr },
       common: {
         appTitle: 'كلينوفا | رعاية صحية مترابطة',

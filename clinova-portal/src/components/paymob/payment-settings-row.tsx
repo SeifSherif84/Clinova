@@ -44,7 +44,7 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
           <span className={'rounded-full border px-2.5 py-1 text-xs font-bold ' + color}>{t('paymob.accountStatus.' + status)}</span>
           {!configuration.isActive && <span className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs font-bold text-muted-foreground">{t('paymob.account.inactive')}</span>}
         </div>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t(configuration.isActive ? 'paymob.accountStatusDescription.' + status : 'paymob.account.inactiveDescription')}</p>
+        <p className="mt-3 text-sm leading-7 font-medium text-foreground/75">{t(configuration.isActive ? 'paymob.accountStatusDescription.' + status : 'paymob.account.inactiveDescription')}</p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
         <PaymobAccountMenu clinicId={clinicId} account={configuration} />

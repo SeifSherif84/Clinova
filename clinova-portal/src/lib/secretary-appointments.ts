@@ -51,14 +51,6 @@ export function toAppointmentsQuery(filters: SecretaryAppointmentFilters, pageSi
   return params.toString()
 }
 
-function hasEnded(appointment: Pick<SecretaryAppointment, 'slotDate' | 'slotEndTime'>) {
-  const date = parseSlotDate(appointment.slotDate)
-  const [hours, minutes] = appointment.slotEndTime.split(':').map(Number)
-  if (!date) return false
-  date.setHours(hours || 0, minutes || 0)
-  return date.getTime() <= Date.now()
-}
-
 // The API no longer sends an Online/Manual category; anything but the Paymob gateway is a manual payment.
 const isManualPayment = (methodType: string | null) => Boolean(methodType) && methodType !== 'Paymob'
 
@@ -88,7 +80,6 @@ export function cancellationSource(item: Pick<SecretaryAppointment, 'appointment
 export function availableActions(details: SecretaryAppointmentDetails) {
   const verifying = details.appointmentStatus === 'PendingVerification' && details.depositPaymentStatus === 'PendingVerification' && isManualPayment(details.depositPaymentMethodType) && Boolean(details.manualDepositPaymentProofUrl)
   const confirmedPaid = details.appointmentStatus === 'Confirmed' && details.depositPaymentStatus === 'Paid'
-  const ended = hasEnded(details)
   const confirmRefund = details.appointmentStatus === 'Cancelled' && details.depositPaymentStatus === 'Paid' && details.depositRefundStatus === 'PendingManualProcessing'
-  return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid && ended, noShow: confirmedPaid && ended, confirmRefund }
+  return { verify: verifying, cancel: confirmedPaid, complete: confirmedPaid, noShow: confirmedPaid, confirmRefund }
 }

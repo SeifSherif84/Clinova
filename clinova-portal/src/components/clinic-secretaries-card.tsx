@@ -50,7 +50,7 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
         {success && <Notice tone="success" message={success} />}
         {invite.error && <Notice message={getErrorMessage(invite.error)} />}
         <form className="grid gap-3" onSubmit={submit}>
-          <p className="text-xs leading-5 font-bold text-muted-foreground">{t('secretary.clinic.inviteDescription')}</p>
+          <p className="text-sm leading-6 font-bold text-muted-foreground">{t('secretary.clinic.inviteDescription')}</p>
           <FormField id="inviteSecretaryEmail" label={t('secretary.clinic.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder="secretary@example.com" required />
           <Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={invite.isPending}>
             {invite.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <MailPlus />}
