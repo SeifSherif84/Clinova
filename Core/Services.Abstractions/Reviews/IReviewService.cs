@@ -19,5 +19,7 @@ namespace Services.Abstractions.Reviews
         Task<PaginatedReviewsResult<PatientGetDoctorReviewResponse>> PatientGetDoctorReviewsAsync(string userId, string doctorId, int pageIndex, int pageSize);
         Task<PatientGetDoctorRatingSummaryResponse> PatientGetDoctorRatingSummaryAsync(string userId, string doctorId);
         Task<PaginatedReviewsResult<DoctorGetHisOwnReviewResponse>> DoctorGetHisOwnReviewsAsync(string userId, int pageIndex, int pageSize);
+        Task<PaginatedResult<AdminReviewResponse>> AdminGetReviewsAsync(string adminId, AdminReviewQuery query);
+        Task<string> AdminUpdateReviewStatusAsync(string adminId, int reviewId, AdminUpdateReviewStatusRequest request);
     }
 }

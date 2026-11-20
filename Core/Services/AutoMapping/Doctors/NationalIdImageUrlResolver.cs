@@ -14,15 +14,16 @@ using System.Threading.Tasks;
 
 namespace Services.AutoMapping.Doctors
 {
-    public class NationalIdImageUrlResolver(IConfiguration _configuration) : IValueResolver<Doctor, DoctorProfileResponse, string>
+    public class NationalIdImageUrlResolver<TDestination>(IConfiguration _configuration) : IValueResolver<Doctor, TDestination, string>
     {
-        public string Resolve(Doctor source, DoctorProfileResponse destination, string destMember, ResolutionContext context)
+        public string Resolve(Doctor source, TDestination destination, string destMember, ResolutionContext context)
         {
             if (string.IsNullOrEmpty(source.NationalIdImageUrl))
                 return string.Empty;
 
             var baseUrl = _configuration["BaseURL"];
             var imagesFolderPath = _configuration["MediaSettings:DoctorNationalIdImagesPath"];
+
             destMember = $"{baseUrl}/{imagesFolderPath}/{source.NationalIdImageUrl}";
             return destMember;
         }

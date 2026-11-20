@@ -155,7 +155,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={(value) => { setSpecialtyId(value ?? ALL); setPageIndex(1) }}
                 disabled={specialties.isLoading || specialties.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.specialty', { defaultValue: 'Specialty' })} className="h-10 w-auto min-w-44 shrink-0 rounded-xl border border-input bg-background/40 px-3 text-sm">
+                <SelectTrigger aria-label={t('patientPortal.doctors.specialty', { defaultValue: 'Specialty' })} className="h-10 w-auto min-w-44 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <Stethoscope className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>
@@ -174,7 +174,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={changeGovernorate}
                 disabled={governorates.isLoading || governorates.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.governorate', { defaultValue: 'Governorate' })} className="h-10 w-auto min-w-40 shrink-0 rounded-xl border border-input bg-background/40 px-3 text-sm">
+                <SelectTrigger aria-label={t('patientPortal.doctors.governorate', { defaultValue: 'Governorate' })} className="h-10 w-auto min-w-40 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <MapPin className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>
@@ -193,7 +193,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={(value) => { setRegionId(value ?? ALL); setPageIndex(1) }}
                 disabled={governorateId === ALL || regions.isLoading || regions.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.region', { defaultValue: 'Region' })} className="h-10 w-auto min-w-36 shrink-0 rounded-xl border border-input bg-background/40 px-3 text-sm">
+                <SelectTrigger aria-label={t('patientPortal.doctors.region', { defaultValue: 'Region' })} className="h-10 w-auto min-w-36 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <MapPin className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>

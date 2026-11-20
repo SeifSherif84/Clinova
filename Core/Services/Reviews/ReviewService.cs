@@ -1,11 +1,15 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.BusinessEntities;
 using Domain.Entities.Enums;
+using Domain.Entities.Identity;
 using Domain.Exceptions.BadRequest;
+using Domain.Exceptions.Forbidden;
 using Domain.Exceptions.InternalServerError;
 using Domain.Exceptions.NotFound;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Services.Abstractions.Notifications;
 using Services.Abstractions.Reviews;
 using Services.Specifications.Reviews;
 using Shared.Dtos.Appointments;
@@ -19,7 +23,9 @@ using System.Threading.Tasks;
 
 namespace Services.Reviews
 {
-    public class ReviewService(IUnitOfWork _unitOfWork) : IReviewService
+    public class ReviewService(IUnitOfWork _unitOfWork,
+                               UserManager<UserApp> _userManager,
+                               INotificationService _notificationService) : IReviewService
     {
         public async Task<string> PatientSubmitReviewAsync(string userId, int appointmentId, CreateReviewRequest request)
         {
@@ -395,5 +401,114 @@ namespace Services.Reviews
             };
         }
 
+
+        public async Task<PaginatedResult<AdminReviewResponse>> AdminGetReviewsAsync(string adminId, AdminReviewQuery query)
+        {
+            if (string.IsNullOrWhiteSpace(adminId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var user = await _userManager.FindByIdAsync(adminId);
+            if (user is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (!isAdmin)
+                throw new ResourceAccessDeniedException("You are not authorized to access reviews.");
+
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100);
+            var searchTerm = query.SearchTerm?.Trim();
+
+            var reviewRepo = _unitOfWork.GetRepository<Domain.Entities.BusinessEntities.Review, int>();
+            var countSpecification = ReviewSpecifications.AdminGetReviews(query.Status, searchTerm, pageIndex, pageSize, applyPagination: false);
+            var totalCount = await reviewRepo.CountAsync(countSpecification);
+
+            if (totalCount == 0)
+            {
+                return new PaginatedResult<AdminReviewResponse>
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    Items = new List<AdminReviewResponse>()
+                };
+            }
+
+            var dataSpecification = ReviewSpecifications.AdminGetReviews(query.Status, searchTerm, pageIndex, pageSize, applyPagination: true);
+            var reviews = await reviewRepo.GetAllAsync(dataSpecification);
+
+            var items = reviews.Select(review => new AdminReviewResponse
+            {
+                ReviewId = review.Id,
+                PatientName = $"{review.Appointment.Patient!.FirstName} {review.Appointment.Patient.LastName}",
+                Rating = review.Rating,
+                Comment = review.Comment,
+                Status = review.Status.ToString(),
+                IsAnonymous = review.IsAnonymous,
+                CreatedAt = review.CreatedAt
+            }).ToList();
+
+            return new PaginatedResult<AdminReviewResponse>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = items
+            };
+        }
+
+
+        public async Task<string> AdminUpdateReviewStatusAsync(string adminId, int reviewId, AdminUpdateReviewStatusRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(adminId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var user = await _userManager.FindByIdAsync(adminId);
+            if (user is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (!isAdmin)
+                throw new ResourceAccessDeniedException("You are not authorized to manage reviews.");
+
+            if (request.Status != ReviewStatus.Approved && request.Status != ReviewStatus.Rejected)
+                throw new BadRequestException("You can only approve or reject a review.");
+
+            var reviewRepo = _unitOfWork.GetRepository<Domain.Entities.BusinessEntities.Review, int>();
+            var specification = ReviewSpecifications.AdminGetReviewWithAppointment(reviewId);
+            var review = await reviewRepo.GetByIdAsync(specification);
+            if (review is null)
+                throw new NotFoundException($"Review with ID {reviewId} was not found.");
+
+            if (review.Status != ReviewStatus.Pending)
+                throw new BadRequestException("Only pending reviews can be moderated.");
+
+            review.Status = request.Status;
+
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("We couldn't update the review status right now. Please try again later.");
+
+            var doctorName = $"{review.Appointment.AppointmentSlot.Doctor.FirstName} {review.Appointment.AppointmentSlot.Doctor.LastName}";
+
+            if (request.Status == ReviewStatus.Approved)
+            {
+                await _notificationService.CreateAndSendAsync(
+                    review.Appointment.PatientId!,
+                    "Review Approved",
+                    $"Your review for Dr. {doctorName} has been approved and is now visible on Clinova. Thank you for sharing your feedback!",
+                    NotificationType.ReviewApproved);
+            }
+            else
+            {
+                await _notificationService.CreateAndSendAsync(
+                    review.Appointment.PatientId!,
+                    "Review Rejected",
+                    $"Unfortunately, your review for Dr. {doctorName} has been rejected by the administration and will not be published.",
+                    NotificationType.ReviewRejected);
+            }
+
+            return request.Status == ReviewStatus.Approved ? "Review has been approved successfully." : "Review has been rejected successfully.";
+        }
     }
 }

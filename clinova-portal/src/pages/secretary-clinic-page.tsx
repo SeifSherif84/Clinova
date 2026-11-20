@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { BadgeCheck, Building2, CalendarPlus, CircleDollarSign, ExternalLink, ImageIcon, Landmark, LoaderCircle, LogOut, MapPin, MoreHorizontal, Phone, RefreshCw, Stethoscope, UsersRound, WalletCards } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { BadgeCheck, Building2, CalendarPlus, ChevronLeft, ChevronRight, CircleDollarSign, ExternalLink, ImageIcon, Landmark, LoaderCircle, LogOut, MapPin, Maximize2, MoreHorizontal, Phone, RefreshCw, Stethoscope, UsersRound, WalletCards, X } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClinicNotAssigned from '@/components/clinic-not-assigned'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -17,9 +17,9 @@ import { getErrorMessage } from '@/lib/api'
 import { depositAmount, formatMoney, isNotAssignedError } from '@/lib/guest-reservation'
 import type { ClinicDetails } from '@/types/clinic'
 
-const button = 'h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal'
+const button = 'h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal [&_svg:not([class*=size-])]:size-4'
 const primaryButton = button + ' bg-primary text-primary-foreground hover:bg-primary/90'
-const grayButton = button + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'
+const grayButton = button + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'
 
 function SectionTitle({ icon, children, count }: { icon: ReactNode; children: ReactNode; count?: number }) {
   return <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 bg-gradient-to-br from-primary/15 via-primary/[0.05] to-transparent p-3.5 dark:bg-none">
@@ -52,7 +52,7 @@ export default function SecretaryClinicPage() {
           {notAssigned && <ClinicNotAssigned />}
           {clinic.isError && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(clinic.error)}</p>
-            <Button variant="outline" className={grayButton + ' mt-3'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
+            <Button variant="ghost" className={grayButton + ' mt-3 w-fit'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </Card>}
           {clinic.data && <ClinicOverview clinic={clinic.data} />}
         </div>
@@ -68,6 +68,20 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
   const queryClient = useQueryClient()
   const members = useSecretaryClinicMembers()
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const [viewing, setViewing] = useState<number | null>(null)
+  const stepPhoto = (direction: 1 | -1) => setViewing((current) => current == null ? current : (current + direction + clinic.images.length) % clinic.images.length)
+  // Escape closes the viewer; the arrow keys move between photos.
+  useEffect(() => {
+    if (viewing == null) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setViewing(null); return }
+      if (clinic.images.length < 2) return
+      const direction = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+      if (direction) setViewing((current) => current == null ? current : (current + direction + clinic.images.length) % clinic.images.length)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [viewing, clinic.images.length])
   const leave = useMutation({
     mutationFn: () => api.request<string>(`/api/clinics/${clinic.id}/secretaries/me`, { method: 'DELETE' }, { notifyOnError: false }),
     onSuccess: async () => { setConfirmLeave(false); await queryClient.invalidateQueries({ queryKey: ['secretary'] }); navigate({ to: '/secretary/invitations' }) },
@@ -91,7 +105,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {clinic.googleMapsUrl && <Button variant="outline" className={grayButton} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
+          {clinic.googleMapsUrl && <Button variant="ghost" className={grayButton} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
           <Button className={primaryButton} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -147,9 +161,12 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
           <SectionTitle icon={<ImageIcon className="size-6" />} count={clinic.images.length}>{t('secretary.myClinic.imagesTitle')}</SectionTitle>
           <CardContent className="p-5">
             {clinic.images.length ? <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {clinic.images.map((image, index) => <a key={image.id} href={image.url} target="_blank" rel="noreferrer" className="rounded-2xl border border-border/60 bg-background/40 p-2 transition hover:border-primary/30">
-                <img className="aspect-video size-full rounded-xl object-cover" src={image.url} alt={t('secretary.myClinic.imageAlt', { number: index + 1 })} loading="lazy" />
-              </a>)}
+              {clinic.images.map((image, index) => <button key={image.id} type="button" aria-label={t('secretary.myClinic.viewPhoto', { defaultValue: 'View photo' })} onClick={() => setViewing(index)} className="group relative cursor-zoom-in rounded-2xl border border-border/60 bg-background/40 p-2 text-start outline-none transition hover:border-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40">
+                <span className="relative block overflow-hidden rounded-xl">
+                  <img className="block aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" src={image.url} alt={t('secretary.myClinic.imageAlt', { number: index + 1 })} loading="lazy" />
+                  <span aria-hidden="true" className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100 motion-reduce:transition-none"><Maximize2 className="size-6 drop-shadow" /></span>
+                </span>
+              </button>)}
             </div> : <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.myClinic.noImages')}</p>}
           </CardContent>
         </Card>
@@ -162,12 +179,12 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
             {members.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingDoctors')}</p>}
             {members.isError && <div className="grid justify-items-start gap-2">
               <p className="text-sm font-bold text-destructive">{getErrorMessage(members.error)}</p>
-              <Button variant="outline" className={grayButton} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
+              <Button variant="ghost" className={grayButton + ' w-fit'} disabled={members.isFetching} onClick={() => members.refetch()}>{members.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
             </div>}
             {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.myClinic.noDoctors')}</p>}
             {members.data?.length ? <ul className="-mx-2 grid divide-y divide-border/50">
               {members.data.map((member) => <li key={member.id} className="group flex min-w-0 items-center gap-4 rounded-2xl px-2 py-3.5 transition-colors hover:bg-primary/5">
-                <span className="shrink-0 rounded-xl"><DoctorAvatar className="size-16" name={member.fullName} picture={member.profilePicture} /></span>
+                <span className="shrink-0 rounded-xl"><DoctorAvatar className="size-[4.5rem]" name={member.fullName} picture={member.profilePicture} /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <strong className="truncate text-base font-bold">{member.fullName}</strong>
@@ -192,6 +209,16 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
         </Card>
       </div>
     </div>
+
+    {viewing != null && clinic.images[viewing] && <div role="dialog" aria-modal="true" aria-label={clinic.name} className="fixed inset-0 z-[60] grid place-items-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setViewing(null)}>
+      <img src={clinic.images[viewing].url} alt={clinic.name} onClick={(event) => event.stopPropagation()} className="max-h-[85svh] max-w-full rounded-2xl object-contain shadow-2xl" />
+      <button type="button" aria-label={t('secretary.myClinic.closePhoto', { defaultValue: 'Close' })} onClick={() => setViewing(null)} className="absolute end-4 top-4 grid size-10 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"><X className="size-5" /></button>
+      {clinic.images.length > 1 && <>
+        <button type="button" aria-label={t('secretary.myClinic.previousPhoto', { defaultValue: 'Previous' })} onClick={(event) => { event.stopPropagation(); stepPhoto(-1) }} className="absolute start-3 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:start-5"><ChevronLeft className="size-5 rtl:rotate-180" /></button>
+        <button type="button" aria-label={t('secretary.myClinic.nextPhoto', { defaultValue: 'Next' })} onClick={(event) => { event.stopPropagation(); stepPhoto(1) }} className="absolute end-3 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:end-5"><ChevronRight className="size-5 rtl:rotate-180" /></button>
+        <span dir="ltr" className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-bold tabular-nums text-white backdrop-blur">{viewing + 1} / {clinic.images.length}</span>
+      </>}
+    </div>}
 
     <ConfirmationDialog
       open={confirmLeave}

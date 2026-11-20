@@ -17,8 +17,8 @@ namespace Services.AutoMapping.Doctors
         {
             CreateMap<Doctor, DoctorProfileResponse>()
                 .ForMember(dest => dest.MedicalSpecialtyName, config => config.MapFrom(src => src.MedicalSpecialty.Name))
-                .ForMember(dest => dest.NationalIdImageUrl, config => config.MapFrom(new NationalIdImageUrlResolver(_configuration)))
-                .ForMember(dest => dest.SyndicateCardImageUrl, config => config.MapFrom(new SyndicateCardImageUrlResolver(_configuration)))
+                .ForMember(dest => dest.NationalIdImageUrl, config => config.MapFrom(new NationalIdImageUrlResolver<DoctorProfileResponse>(_configuration)))
+                .ForMember(dest => dest.SyndicateCardImageUrl, config => config.MapFrom(new SyndicateCardImageUrlResolver<DoctorProfileResponse>(_configuration)))
                 .ForMember(dest => dest.ProfilePicture, config => config.MapFrom(new ProfilePictureUrlResolver<DoctorProfileResponse>(_configuration)))
                 .ForMember(dest => dest.ApprovalStatusName, config => config.MapFrom(src => (src.ApprovalStatus).ToString()));
 

@@ -1,19 +1,28 @@
-import { Link } from '@tanstack/react-router'
-import { ArrowRight, CalendarDays, ChevronDown, CircleHelp, House } from 'lucide-react'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { ArrowRight, ChevronDown, CircleHelp, House, MessageSquareText } from 'lucide-react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import PatientShell from '@/components/patient-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { faqTopics, useFaqs, useTopics } from '@/lib/patient-faq'
 
 export default function PatientFaqsPage() {
   const { t } = useTranslation()
-  const faqs = [
-    { q: t('patientPortal.faq.q1', { defaultValue: 'How do I book an appointment?' }), a: t('patientPortal.faq.a1', { defaultValue: 'Find a doctor, choose one of the available time slots, and confirm your booking.' }) },
-    { q: t('patientPortal.faq.q2', { defaultValue: 'Where can I see my appointments?' }), a: t('patientPortal.faq.a2', { defaultValue: 'Open My Appointments from the top menu to see your upcoming and previous visits.' }) },
-    { q: t('patientPortal.faq.q3', { defaultValue: 'How do I update my details or photo?' }), a: t('patientPortal.faq.a3', { defaultValue: 'Open the account menu at the top right and choose My profile.' }) },
-    { q: t('patientPortal.faq.q4', { defaultValue: 'Will I be told about changes to my appointment?' }), a: t('patientPortal.faq.a4', { defaultValue: 'Yes. Updates appear under the bell icon and on the Notifications page.' }) },
-  ]
+  const search = useSearch({ from: '/patient/faqs' })
+  const navigate = useNavigate({ from: '/patient/faqs' })
+  const faqs = useFaqs()
+  const topics = useTopics()
+  const topic = faqTopics.find((item) => item === search.topic) ?? faqTopics[0]
+  const visible = faqs.filter((item) => item.topic === topic)
+  const openId = search.q
+
+  useEffect(() => {
+    if (openId) document.getElementById('faq-' + openId)?.scrollIntoView({ block: 'center' })
+  }, [openId, topic])
+
+  const chip = (selected: boolean) => `inline-flex h-9 shrink-0 cursor-pointer items-center rounded-full border px-4 text-[13px] font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'}`
 
   return <PatientShell>
     <div className="relative isolate overflow-hidden">
@@ -31,25 +40,31 @@ export default function PatientFaqsPage() {
           <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{t('patientPortal.faqPage.description', { defaultValue: 'Quick answers about finding doctors, booking, and managing your account.' })}</p>
         </div>
 
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
-          <Card className="relative isolate gap-0 overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-primary/5 p-6 sm:p-8 lg:sticky lg:top-28">
-            <span aria-hidden="true" className="pointer-events-none absolute -end-12 -top-12 -z-10 size-48 rounded-full bg-primary/10 blur-3xl" />
-            <span className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CircleHelp className="size-7" /></span>
-            <h2 className="mt-6 font-sans text-2xl font-bold">{t('patientPortal.faqPage.stillTitle', { defaultValue: 'Still have questions?' })}</h2>
+        <div role="group" aria-label={t('patientPortal.help.topicsTitle', { defaultValue: 'Browse Help Topics' })} className="-mx-1 mt-8 flex gap-2 overflow-x-auto px-1 pb-1">
+          {topics.map((item) => <button key={item.id} type="button" aria-pressed={topic === item.id} className={chip(topic === item.id)} onClick={() => navigate({ search: { topic: item.id }, replace: true, resetScroll: false })}>{item.title}</button>)}
+        </div>
+
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+          <Card className="relative isolate gap-0 overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-primary/5 p-6 sm:p-8 lg:sticky lg:top-28 dark:bg-card dark:bg-none">
+            <span aria-hidden="true" className="pointer-events-none absolute -end-12 -top-12 -z-10 size-48 rounded-full bg-primary/10 blur-3xl dark:hidden" />
+            <div className="flex items-center gap-4">
+              <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CircleHelp className="size-7" /></span>
+              <h2 className="min-w-0 font-sans text-2xl font-bold">{t('patientPortal.faqPage.stillTitle', { defaultValue: 'Still have questions?' })}</h2>
+            </div>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">{t('patientPortal.faqPage.stillDescription', { defaultValue: 'Browse doctors and clinics, or check your appointments for the latest on your visits.' })}</p>
             <div className="mt-6 flex flex-wrap gap-2.5">
-              <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/patient/doctors" />}>{t('patientPortal.hero.cta', { defaultValue: 'Find a doctor' })}<ArrowRight className="size-4 rtl:rotate-180" /></Button>
-              <Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/patient/appointments" />}><CalendarDays className="size-4" />{t('patientPortal.nav.appointments', { defaultValue: 'My Appointments' })}</Button>
+              <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/patient/help" />}><MessageSquareText className="size-4" />{t('patientPortal.help.contactCta', { defaultValue: 'Contact support' })}</Button>
+              <Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/patient/doctors" />}>{t('patientPortal.hero.cta', { defaultValue: 'Find a doctor' })}<ArrowRight className="size-4 rtl:rotate-180" /></Button>
             </div>
           </Card>
 
           <div className="grid gap-3">
-            {faqs.map((item, index) => <details key={item.q} open={index === 0} className="group rounded-2xl border border-border bg-card px-5 transition open:border-primary/25 open:shadow-sm">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-start text-sm font-bold marker:hidden focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+            {visible.map((item, index) => <details key={`${item.id}-${openId ?? ''}-${topic ?? ''}`} id={'faq-' + item.id} open={openId ? item.id === openId : index === 0} className="group scroll-mt-28 rounded-2xl border border-border bg-card px-5 transition duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 open:border-primary/25 open:shadow-sm">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-start text-base font-bold marker:hidden focus-visible:outline-none [&::-webkit-details-marker]:hidden">
                 {item.q}
-                <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180 group-open:text-primary" />
+                <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180 group-open:text-primary motion-reduce:transition-none" />
               </summary>
-              <p className="pb-5 text-sm leading-7 text-muted-foreground">{item.a}</p>
+              <p className="pb-5 text-[15px] leading-7 font-medium text-foreground/80">{item.a}</p>
             </details>)}
           </div>
         </div>

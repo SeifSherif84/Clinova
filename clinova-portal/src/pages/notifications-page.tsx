@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Bell, CheckCheck, LoaderCircle, MailOpen, RefreshCw } from 'lucide-react'
+import { Bell, CheckCheck, CircleCheck, CircleX, LoaderCircle, LogOut, MailOpen, RefreshCw, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import PatientShell from '@/components/patient-shell'
@@ -17,7 +17,7 @@ export default function NotificationsPage() {
   const isStaff = auth.user?.roles.some((role) => ['doctor', 'secretary'].includes(role.toLowerCase()))
 
   if (isStaff) return <DoctorWorkspaceShell active="notifications">{content}</DoctorWorkspaceShell>
-  return <PatientShell>{content}</PatientShell>
+  return <PatientShell hideFooter>{content}</PatientShell>
 }
 
 function NotificationContent() {
@@ -90,9 +90,15 @@ function NotificationContent() {
           </section>
         )}
 
-        {state.notifications.map((item) => (
-          <NotificationRow key={item.id} item={item} language={i18n.resolvedLanguage} />
-        ))}
+        {state.notifications.length > 0 && (
+          <ul className="grid gap-3" aria-label={t('notifications.title')}>
+            {state.notifications.map((item) => (
+              <li key={item.id}>
+                <NotificationRow item={item} language={i18n.resolvedLanguage} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   )
@@ -100,53 +106,85 @@ function NotificationContent() {
 
 type NotificationItem = ReturnType<typeof useNotifications>['notifications'][number]
 
+// Visual meaning per notification type. Falls back to a neutral bell for unknown types.
+function notificationStyle(type: string): { icon: LucideIcon; tile: string } {
+  const value = type.toLowerCase()
+  if (value.includes('accept')) return { icon: CircleCheck, tile: 'bg-primary/10 text-primary' }
+  if (value.includes('reject') || value.includes('declin')) return { icon: CircleX, tile: 'bg-destructive/10 text-destructive' }
+  if (value.includes('left') || value.includes('remov')) return { icon: LogOut, tile: 'bg-warm/10 text-warm' }
+  if (value.includes('invitation')) return { icon: MailOpen, tile: 'bg-primary/10 text-primary' }
+  return { icon: Bell, tile: 'bg-muted text-muted-foreground' }
+}
+
+function relativeTime(value: string, language?: string) {
+  const diff = (new Date(value).getTime() - Date.now()) / 1000
+  const formatter = new Intl.RelativeTimeFormat(language, { numeric: 'auto' })
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [['day', 86400], ['hour', 3600], ['minute', 60]]
+  for (const [unit, seconds] of units) {
+    if (Math.abs(diff) >= seconds) return formatter.format(Math.round(diff / seconds), unit)
+  }
+  return formatter.format(0, 'second')
+}
+
 function NotificationRow({ item, language }: { item: NotificationItem; language?: string }) {
   const { t } = useTranslation()
   const state = useNotifications()
   const isInvitation = item.type.startsWith('Invitation')
   const isMarking = state.markingId === item.id
+  const { icon: Icon, tile } = notificationStyle(item.type)
+  const created = new Date(item.createdAt)
 
   return (
-    <Card className={`grid gap-4 rounded-2xl border p-5 transition hover:border-primary/30 hover:bg-primary/[0.06] sm:grid-cols-[auto_1fr_auto] sm:items-start ${item.isRead ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'}`}>
-      <span className={`grid size-11 place-items-center rounded-xl ${item.isRead ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
-        <Bell className="size-5" />
+    <article
+      aria-label={item.title}
+      className={`group relative grid gap-3 overflow-hidden rounded-2xl border p-4 transition-colors motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:p-5 ${item.isRead ? 'border-border bg-card hover:bg-muted/30' : 'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07]'}`}
+    >
+
+      <span aria-hidden="true" className={`grid size-11 shrink-0 place-items-center rounded-xl ${tile}`}>
+        <Icon className="size-5" />
       </span>
+
       <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-sans text-lg font-bold leading-tight">{item.title}</h2>
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <h2 className={`font-sans text-base leading-tight ${item.isRead ? 'font-semibold text-foreground/80' : 'font-bold text-foreground'}`}>{item.title}</h2>
           {!item.isRead && (
-            <Badge className="rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
+            <Badge className="rounded-full border border-primary/15 bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
               {t('notifications.new')}
             </Badge>
           )}
         </div>
-        <p className="mt-1 text-xs font-bold leading-6 text-muted-foreground sm:text-sm">{item.message}</p>
-        <small className="mt-2 block text-[11px] font-bold text-muted-foreground">{new Date(item.createdAt).toLocaleString(language)}</small>
+        <p className="mt-1 text-sm leading-6 font-medium text-muted-foreground">{item.message}</p>
+        <time dateTime={created.toISOString()} title={created.toLocaleString(language)} className="mt-1.5 block text-xs font-semibold text-muted-foreground/80">
+          {relativeTime(item.createdAt, language)}
+        </time>
       </div>
-      <div className="flex flex-wrap gap-2 sm:justify-end">
-        {isInvitation && (
-          <Button
-            variant="ghost"
-            className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
-            render={<Link to="/doctor/invitations" />}
-          >
-            <MailOpen className="size-4" />
-            {t('notifications.viewInvitation')}
-          </Button>
-        )}
-        {!item.isRead && (
-          <Button
-            className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90"
-            disabled={isMarking}
-            onClick={() => state.markAsRead(item.id)}
-          >
-            {isMarking
-              ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
-              : <CheckCheck className="size-4" />}
-            {t('notifications.markRead')}
-          </Button>
-        )}
-      </div>
-    </Card>
+
+      {(isInvitation || !item.isRead) && (
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          {isInvitation && (
+            <Button
+              variant="ghost"
+              className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+              render={<Link to="/doctor/invitations" />}
+            >
+              <MailOpen className="size-4" />
+              {t('notifications.viewInvitation')}
+            </Button>
+          )}
+          {!item.isRead && (
+            <Button
+              className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90"
+              disabled={isMarking}
+              onClick={() => state.markAsRead(item.id)}
+            >
+              {isMarking
+                ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
+                : <CheckCheck className="size-4" />}
+              {t('notifications.markRead')}
+            </Button>
+          )}
+        </div>
+      )}
+    </article>
   )
 }

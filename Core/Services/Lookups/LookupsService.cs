@@ -25,6 +25,29 @@ namespace Services.Abstractions.Lookups
             return result;
         }
 
+        public IEnumerable<LookupResponse> GetSupportTicketCategoriesAsync()
+        {
+            var supportTicketCategoriesList = Enum.GetValues<SupportTicketCategory>().ToList();
+            var result = supportTicketCategoriesList.Select(category => new LookupResponse()
+            {
+                Id = (int)category,
+                Name = category.ToString(),
+            });
+            return result;
+        }
+
+        public IEnumerable<LookupResponse> GetSupportTicketStatusesAsync()
+        {
+            var supportTicketStatusesList = Enum.GetValues<SupportTicketStatus>().ToList();
+            var result = supportTicketStatusesList.Select(status => new LookupResponse()
+            {
+                Id = (int)status,
+                Name = status.ToString(),
+            });
+            return result;
+        }
+
+
         public IEnumerable<LookupResponse> GetBloodTypesAsync()
         {
             var bloodTypesList = Enum.GetValues<BloodTypes>().ToList();
@@ -114,6 +137,7 @@ namespace Services.Abstractions.Lookups
             });
             return result;
         }
+
 
     }
 }

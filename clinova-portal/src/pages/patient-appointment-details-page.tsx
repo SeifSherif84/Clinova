@@ -131,12 +131,21 @@ function AppointmentContent({ d }: { d: PatientAppointmentDetails }) {
   } else if (state === 'Completed') {
     story = { tone: 'good', title: settled ? tr('story.completedPaid', 'Your visit is complete and everything is paid.') : tr('story.completed', 'Your visit is complete.') }
   } else if (state === 'NoShow') {
-    story = { tone: 'bad', title: tr('story.noShow', 'This appointment was marked as missed.') }
+    story = { tone: 'bad', title: tr('story.noShow', 'You didn’t attend this appointment, so it was marked as a no-show.'), note: tr('story.noShowNote', 'The deposit was kept by the clinic, and nothing else is due from you.') }
   } else if (state === 'Cancelled') {
-    if (hasRefund && refundTone === 'good') story = { tone: 'good', title: tr('story.cancelledRefunded', 'Your appointment was cancelled and your {{amount}} deposit has been refunded.', { amount: refundAmount }), note: nothingDue }
+    if (rejected && !hasRefund) story = { tone: 'bad', title: tr('story.cancelledRejected', 'Your payment proof was rejected, so this appointment was cancelled.'), note: d.depositPaymentRejectionReason ? tr('story.rejectedReason', 'Reason: {{reason}}', { reason: d.depositPaymentRejectionReason }) : nothingDue }
+    else if (hasRefund && refundTone === 'good') story = { tone: 'good', title: tr('story.cancelledRefunded', 'Your appointment was cancelled and your {{amount}} deposit has been refunded.', { amount: refundAmount }), note: nothingDue }
     else if (hasRefund && refundTone === 'warn') story = { tone: 'warn', title: tr('story.cancelledRefunding', 'Your appointment was cancelled. Your {{amount}} deposit refund is being processed.', { amount: refundAmount }), note: nothingDue }
     else if (hasRefund && refundTone === 'bad') story = { tone: 'bad', title: tr('story.cancelledRefundFailed', 'Your appointment was cancelled, but the {{amount}} refund couldn’t be completed. Please contact the clinic.', { amount: refundAmount }) }
-    else story = { tone: 'bad', title: d.totalPaidAmount > 0 ? tr('story.cancelledNoRefund', 'Your appointment was cancelled. The deposit was not refunded.') : tr('story.cancelledUnpaid', 'Your appointment was cancelled. No payment was made.'), note: nothingDue }
+    else story = d.totalPaidAmount > 0
+      ? {
+          tone: 'bad',
+          title: tr('story.cancelledNoRefund', 'Your appointment was cancelled. The deposit was not refunded.'),
+          note: d.fullRefundCancellationWindowMinutes != null
+            ? tr('story.noRefundWindow', 'A full refund applies only when you cancel at least {{duration}} before the appointment. See the cancellation and refund policy in the details below.', { duration: formatDuration(d.fullRefundCancellationWindowMinutes, locale) })
+            : tr('story.noRefundPolicy', 'The deposit wasn’t refunded under the cancellation and refund policy. See the details below.'),
+        }
+      : { tone: 'bad', title: tr('story.cancelledUnpaid', 'Your appointment was cancelled. No payment was made.'), note: nothingDue }
   } else if (state === 'Expired') {
     story = { tone: 'bad', title: tr('story.expired', 'This reservation expired before the deposit was paid, so the time slot was released.'), note: nothingDue }
   }

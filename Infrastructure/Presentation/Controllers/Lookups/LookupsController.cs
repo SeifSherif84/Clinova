@@ -23,6 +23,7 @@ namespace Presentation.Controllers.Enums
             return Ok(response);
         }
 
+
         [Authorize]
         [HttpGet("blood-types")] // Get api/lookups/blood-types
         public IActionResult GetBloodTypes()
@@ -90,6 +91,23 @@ namespace Presentation.Controllers.Enums
         public async Task<IActionResult> GetRegions([FromQuery] int governorateId)
         {
             var response = await _serviceManager.LookupsService.GetRegionsAsync(governorateId);
+            return Ok(response);
+        }
+
+
+        [Authorize]
+        [HttpGet("support-ticket-categories")] // Get api/lookups/support-ticket-categories
+        public IActionResult GetSupportTicketCategories()
+        {
+            var response = _serviceManager.LookupsService.GetSupportTicketCategoriesAsync();
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet("support-ticket-statuses")] // Get api/lookups/support-ticket-statuses
+        public IActionResult GetSupportTicketStatuses()
+        {
+            var response = _serviceManager.LookupsService.GetSupportTicketStatusesAsync();
             return Ok(response);
         }
 

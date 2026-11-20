@@ -31,6 +31,9 @@ namespace Domain.Entities.Enums
         ManualRefundConfirmed,
         AppointmentRescheduledByPatient,
         AppointmentRescheduledBySecretary,
-        DepositPaymentSuccessful
+        DepositPaymentSuccessful,
+        SupportTicketAdminReply,
+        ReviewApproved,
+        ReviewRejected
     }
 }

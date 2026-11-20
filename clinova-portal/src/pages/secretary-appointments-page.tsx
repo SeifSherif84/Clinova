@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { Ban, CalendarDays, CalendarPlus, CalendarX2, ChevronLeft, ChevronRight, Clock3, LoaderCircle, RefreshCw, RotateCcw, SearchX, Stethoscope, UserRound, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import ClinicNotAssigned from '@/components/clinic-not-assigned'
 import DoctorWorkspaceShell from '@/components/doctor-workspace-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { useApi } from '@/hooks/use-api'
 import { getErrorMessage } from '@/lib/api'
+import { isNotAssignedError } from '@/lib/guest-reservation'
 import { cancellationSource, formatTime, parseSlotDate, toAppointmentsQuery } from '@/lib/secretary-appointments'
 import { appointmentStatuses, depositPaymentStatuses, type CancellationSource, type PaginatedResult, type SecretaryAppointment, type SecretaryAppointmentFilters } from '@/types/secretary'
 
@@ -68,6 +70,7 @@ export default function SecretaryAppointmentsPage() {
     placeholderData: keepPreviousData,
   })
   const page = appointments.data
+  const notAssigned = isNotAssignedError(appointments.error)
   const activeFilters = [search.doctorName, search.patientSearch, search.slotDate, search.appointmentStatus, search.depositPaymentStatus].filter(Boolean).length
   const status = (value: string) => t('secretary.status.' + value, { defaultValue: value })
   const appointmentItems = [{ value: 'all', label: t('secretary.appointments.all') }, ...appointmentStatuses.map((value) => ({ value, label: status(value) }))]
@@ -152,7 +155,9 @@ export default function SecretaryAppointmentsPage() {
             </div>)}
           </div>}
 
-          {appointments.isError && !page && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          {notAssigned && <ClinicNotAssigned />}
+
+          {appointments.isError && !page && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(appointments.error)}</p>
             <Button variant="outline" className={grayButtonClass + ' mt-3'} disabled={appointments.isFetching} onClick={() => appointments.refetch()}>{appointments.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('invitations.retry')}</Button>
           </Card>}
@@ -160,13 +165,13 @@ export default function SecretaryAppointmentsPage() {
           {page && !page.items.length && (
             <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
               <div className="relative">
-                <span className="absolute inset-0 rounded-full bg-primary/20 motion-safe:animate-ping" />
+                <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
                 <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
-                  {activeFilters ? <SearchX className="size-8" /> : <CalendarDays className="size-8" />}
+                  {activeFilters ? <SearchX className="size-8 motion-safe:animate-bounce [animation-duration:2.4s]" /> : <CalendarDays className="size-8 motion-safe:animate-bounce [animation-duration:2.4s]" />}
                 </span>
-                <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
-                <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
-                <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
+                <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-pulse" />
+                <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse [animation-delay:200ms]" />
+                <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
               </div>
 
               <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t(activeFilters ? 'secretary.appointments.noMatchTitle' : 'secretary.appointments.emptyTitle')}</h2>

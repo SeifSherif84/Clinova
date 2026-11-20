@@ -190,7 +190,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
           {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
             <RadioGroupItem value={member.id} className="pointer-events-none absolute size-px opacity-0" />
-            <DoctorAvatar className="size-14" name={member.fullName} picture={member.profilePicture} />
+            <DoctorAvatar className="size-16" name={member.fullName} picture={member.profilePicture} />
             <span className="grid min-w-0 flex-1 gap-1">
               <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <strong className="truncate text-base font-bold">{member.fullName}</strong>
@@ -419,7 +419,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <strong className="block text-sm font-bold tracking-wide text-foreground uppercase">{t('secretary.guest.expiresIn')}</strong>
-              <span className="text-[11px] font-bold text-muted-foreground">{t('secretary.guest.expiresAt', { time: expiresAt })}</span>
+              <span className="text-xs font-semibold text-foreground/70">{t('secretary.guest.expiresAt', { time: expiresAt })}</span>
             </div>
             <span dir="ltr" className={`font-sans text-3xl font-bold tabular-nums ${lowTime ? 'text-warm' : 'text-primary'}`} aria-live="off">{countdown.label}</span>
           </div>
@@ -436,7 +436,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">{option.id === GuestPaymentMethod.ManualTransfer ? <ArrowLeftRight className="size-4.5" /> : <Banknote className="size-4.5" />}</span>
                 <span className="grid min-w-0 flex-1 gap-0.5 pt-0.5">
                   <strong className="text-sm font-bold">{key ? t(`secretary.guest.methods.${key}`) : option.name}</strong>
-                  {key && <span className="text-xs leading-5 font-medium text-muted-foreground">{t(`secretary.guest.methodHints.${key}`)}</span>}
+                  {key && <span className="text-[13px] leading-5 font-medium text-foreground/70">{t(`secretary.guest.methodHints.${key}`)}</span>}
                 </span>
                 <span aria-hidden="true" className="relative mt-0.5 grid size-6 shrink-0 place-items-center">
                   <span className="absolute inset-0 rounded-full border-2 border-border transition group-has-[[data-checked]]:opacity-0" />
@@ -454,7 +454,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
             <p className="text-sm font-bold text-destructive">{getErrorMessage(accounts.error)}</p>
             <Button type="button" variant="outline" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </div>}
-          {accounts.data && !accounts.data.length && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 p-3 text-xs leading-6 font-bold text-warm"><TriangleAlert className="mt-1 size-3.5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
+          {accounts.data && !accounts.data.length && <p className="flex items-start gap-3 rounded-xl border border-warm/20 bg-warm/10 px-4 py-3.5 text-sm leading-6 font-bold text-warm"><TriangleAlert className="mt-0.5 size-5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
           {accounts.data && accounts.data.length > 0 && <div className="grid gap-4">
             <RadioGroup aria-label={t('secretary.guest.account')} value={activeType ?? ''} disabled={countdown.expired || busy} onValueChange={(value) => { setAccountType(String(value)); setAccountId(''); setFormError('') }} className="grid gap-3 sm:grid-cols-2">
               {accountTypes.map((type) => {

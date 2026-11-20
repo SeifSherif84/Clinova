@@ -47,7 +47,7 @@ export default function NotificationBell() {
         </DropdownMenuLabel>
       </DropdownMenuGroup>
       <NotificationPreview state={state} language={i18n.resolvedLanguage} />
-      <DropdownMenuItem className="group m-0 justify-center gap-2 rounded-none border-t border-border bg-muted/30 p-3.5 text-center text-sm font-bold normal-case tracking-normal text-primary" render={<Link to="/notifications" />}>
+      <DropdownMenuItem className="group m-0 cursor-pointer justify-center gap-2 rounded-none border-t border-border bg-muted/30 p-3.5 text-center text-sm font-bold normal-case tracking-normal text-primary hover:bg-muted/30! focus:bg-muted/30! data-highlighted:bg-muted/30! data-highlighted:text-primary!" render={<Link to="/notifications" />}>
         {t('notifications.viewAll')}
         <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
       </DropdownMenuItem>
@@ -62,8 +62,8 @@ function NotificationPreview({ state, language }: { state: NotificationState; la
 
   if (state.isLoading) return <div className="grid min-h-28 place-items-center"><LoaderCircle className="animate-spin text-primary motion-reduce:animate-none" /></div>
   if (state.notifications.length === 0) return <div className="grid place-items-center gap-3 p-8 text-center">
-    <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Bell className="size-7" /></span>
-    <p className="max-w-64 text-xs font-medium leading-6 text-muted-foreground">{t('notifications.emptyDescription')}</p>
+    <span className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Bell className="size-7" /></span>
+    <p className="max-w-64 text-sm leading-7 font-medium text-foreground/75">{t('notifications.emptyDescription')}</p>
   </div>
 
   return <div className="grid max-h-96 gap-1.5 overflow-y-auto p-2.5">

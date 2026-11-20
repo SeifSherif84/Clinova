@@ -136,8 +136,6 @@ const patientProfileRoute = createRoute({
   beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
   component: lazyRouteComponent(() => import('@/pages/patient-profile-page')),
 })
-// Placeholders until the real pages are wired; swap the import when each one is built.
-const patientComingSoon = () => import('@/pages/patient-coming-soon-page')
 const patientDoctorsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/patient/doctors',
@@ -150,23 +148,39 @@ const patientDoctorRoute = createRoute({
   beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
   component: lazyRouteComponent(() => import('@/pages/patient-doctor-page')),
 })
-const patientSpecialtiesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/patient/specialties',
-  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
-  component: lazyRouteComponent(patientComingSoon),
-})
 const patientReviewsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/patient/reviews',
   beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
   component: lazyRouteComponent(() => import('@/pages/patient-reviews-page')),
 })
+const patientAboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/about',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-about-page')),
+})
 const patientFaqsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/patient/faqs',
   beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  validateSearch: (search: Record<string, unknown>): { topic?: string; q?: string } => ({
+    topic: typeof search.topic === 'string' ? search.topic : undefined,
+    q: typeof search.q === 'string' ? search.q : undefined,
+  }),
   component: lazyRouteComponent(() => import('@/pages/patient-faqs-page')),
+})
+const patientSupportRequestsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/support-requests',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-support-requests-page')),
+})
+const patientHelpRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/patient/help',
+  beforeLoad: ({ context, location }) => requirePatient(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/patient-help-page')),
 })
 const patientAppointmentsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -350,11 +364,13 @@ const routeTree = rootRoute.addChildren([
   patientProfileRoute,
   patientDoctorsRoute,
   patientDoctorRoute,
-  patientSpecialtiesRoute,
   patientAppointmentsRoute,
   patientAppointmentDetailsRoute,
   patientReviewsRoute,
   patientFaqsRoute,
+  patientHelpRoute,
+  patientSupportRequestsRoute,
+  patientAboutRoute,
   doctorInvitationsRoute,
   secretaryAppointmentsRoute,
   secretaryAppointmentDetailsRoute,

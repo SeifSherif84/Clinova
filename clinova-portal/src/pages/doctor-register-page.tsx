@@ -129,9 +129,9 @@ export default function DoctorRegisterPage() {
 
         <FormSection number="01" icon={<UserRound />} title={t('doctorRegister.personalTitle')} description={t('doctorRegister.personalDescription')}>
           <div className="grid gap-5 sm:grid-cols-2">
-            <FormField id="doctorFirstName" name="FirstName" label={t('fields.firstName')} placeholder="Mariam" icon={<UserRound size={18} />} maxLength={50} required />
+            <FormField id="doctorFirstName" name="FirstName" label={t('fields.firstName')} placeholder="Ahmed" icon={<UserRound size={18} />} maxLength={50} required />
             <FormField id="doctorLastName" name="LastName" label={t('fields.lastName')} placeholder="Khalil" icon={<UserRound size={18} />} maxLength={50} required />
-            <FormField id="doctorEmail" name="Email" type="email" label={t('fields.professionalEmail')} placeholder="dr.mariam@example.com" icon={<Mail size={18} />} autoComplete="email" required />
+            <FormField id="doctorEmail" name="Email" type="email" label={t('fields.professionalEmail')} placeholder="dr.ahmed@example.com" icon={<Mail size={18} />} autoComplete="email" required />
             <FormField id="doctorPhone" name="PhoneNumber" type="tel" label={t('fields.phone')} placeholder="01xxxxxxxxx" icon={<Phone size={18} />} pattern="01[0125][0-9]{8}" required />
           </div>
         </FormSection>

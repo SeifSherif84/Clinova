@@ -1,4 +1,5 @@
-﻿using Shared.Dtos.Auth;
+﻿using Shared.Dtos.Appointments;
+using Shared.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,7 @@ namespace Services.Abstractions.Auth
         Task<PatientRegistrationResponse> PatientRegistrationAsync(PatientRegistrationRequest request);
         Task<string> DeleteAccountAsync(string userId);
         Task<SecretaryRegistrationResponse> SecretaryRegistrationAsync(SecretaryRegistrationRequest request);
+        Task<PaginatedResult<AdminDoctorResponse>> AdminGetDoctorsAsync(string adminId, AdminDoctorQuery query);
+        Task<string> AdminUpdateDoctorApprovalStatusAsync(string adminId, string doctorId, AdminUpdateDoctorApprovalStatusRequest request);
     }
 }

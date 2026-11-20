@@ -88,7 +88,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
@@ -130,7 +130,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("WorkingHourId");
 
-                    b.ToTable("AppointmentSlots");
+                    b.ToTable("AppointmentSlots", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Clinic", b =>
@@ -216,7 +216,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId", "Type", "AccountIdentifier")
                         .IsUnique();
 
-                    b.ToTable("ClinicManualPaymentMethods");
+                    b.ToTable("ClinicManualPaymentMethods", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
@@ -270,7 +270,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId", "Provider")
                         .IsUnique();
 
-                    b.ToTable("ClinicOnlinePaymentAccounts");
+                    b.ToTable("ClinicOnlinePaymentAccounts", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentIntegration", b =>
@@ -299,7 +299,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicOnlinePaymentAccountId", "OnlinePaymentMethodType")
                         .IsUnique();
 
-                    b.ToTable("ClinicPaymentIntegrations");
+                    b.ToTable("ClinicPaymentIntegrations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPhoneNumbers", b =>
@@ -321,7 +321,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("ClinicPhoneNumbers");
+                    b.ToTable("ClinicPhoneNumbers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositPayment", b =>
@@ -395,7 +395,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicOnlinePaymentAccountId");
 
-                    b.ToTable("DepositPayments");
+                    b.ToTable("DepositPayments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositRefund", b =>
@@ -482,7 +482,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("RequestedBySecretaryId");
 
-                    b.ToTable("DepositRefunds");
+                    b.ToTable("DepositRefunds", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorClinic", b =>
@@ -503,7 +503,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("DoctorClinics");
+                    b.ToTable("DoctorClinics", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorInvitation", b =>
@@ -543,7 +543,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("DoctorSenderId");
 
-                    b.ToTable("DoctorInvitations");
+                    b.ToTable("DoctorInvitations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Governorate", b =>
@@ -561,7 +561,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Governorates");
+                    b.ToTable("Governorates", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.MedicalSpecialty", b =>
@@ -581,7 +581,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MedicalSpecialties");
+                    b.ToTable("MedicalSpecialties", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Notification", b =>
@@ -618,7 +618,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("UserAppId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Prescription", b =>
@@ -651,7 +651,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("AppointmentId")
                         .IsUnique();
 
-                    b.ToTable("Prescriptions");
+                    b.ToTable("Prescriptions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Region", b =>
@@ -674,7 +674,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("GovernorateId");
 
-                    b.ToTable("Regions");
+                    b.ToTable("Regions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.RemainingPayment", b =>
@@ -721,7 +721,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicManualPaymentMethodId");
 
-                    b.ToTable("RemainingPayments");
+                    b.ToTable("RemainingPayments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Review", b =>
@@ -757,7 +757,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("AppointmentId")
                         .IsUnique();
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.SecretaryInvitation", b =>
@@ -801,7 +801,76 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("SecretaryReceiverId");
 
-                    b.ToTable("SecretaryInvitations");
+                    b.ToTable("SecretaryInvitations", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OriginalMessage")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserAppId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserAppId");
+
+                    b.ToTable("SupportTickets", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicketMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SupportTicketId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("SupportTicketId");
+
+                    b.ToTable("SupportTicketMessages", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
@@ -840,7 +909,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("DoctorId", "ClinicId", "Day")
                         .IsUnique();
 
-                    b.ToTable("WorkingHours");
+                    b.ToTable("WorkingHours", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ClinicImages", b =>
@@ -862,7 +931,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("ClinicImages");
+                    b.ToTable("ClinicImages", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.UserApp", b =>
@@ -1143,7 +1212,7 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("BloodType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Secretary", b =>
@@ -1445,6 +1514,36 @@ namespace Persistence.Data.Migrations
                     b.Navigation("SecretaryReceiver");
                 });
 
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicket", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.UserApp", "UserApp")
+                        .WithMany("SupportTickets")
+                        .HasForeignKey("UserAppId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserApp");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicketMessage", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.UserApp", "Sender")
+                        .WithMany("SupportTicketMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.BusinessEntities.SupportTicket", "SupportTicket")
+                        .WithMany("Messages")
+                        .HasForeignKey("SupportTicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("SupportTicket");
+                });
+
             modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
                 {
                     b.HasOne("Domain.Entities.BusinessEntities.DoctorClinic", "DoctorClinic")
@@ -1635,6 +1734,11 @@ namespace Persistence.Data.Migrations
                     b.Navigation("Clinics");
                 });
 
+            modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicket", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
                 {
                     b.Navigation("AppointmentSlots");
@@ -1643,6 +1747,10 @@ namespace Persistence.Data.Migrations
             modelBuilder.Entity("Domain.Entities.Identity.UserApp", b =>
                 {
                     b.Navigation("Notifications");
+
+                    b.Navigation("SupportTicketMessages");
+
+                    b.Navigation("SupportTickets");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Doctor", b =>

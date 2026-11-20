@@ -44,7 +44,7 @@ export default function PatientProfilePage() {
   const profile = useQuery({ queryKey: profileKey, queryFn: () => api.request<PatientProfile>('/api/patients/me', {}, { notifyOnError: false }) })
 
   return (
-    <PatientShell>
+    <PatientShell hideFooter>
       <div className="mx-auto min-w-0 w-full max-w-7xl p-4 sm:p-6 lg:p-10">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>

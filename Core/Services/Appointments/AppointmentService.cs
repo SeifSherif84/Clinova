@@ -260,7 +260,6 @@ namespace Services.Appointments
                 throw;
             }
 
-
             var secretaryRepo = _unitOfWork.GetRepository<Secretary, string>();
             var secretarySpec = SecretarySpecifications.GetSecretariesByClinicId(appointment.AppointmentSlot.ClinicId);
             var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(secretarySpec);
@@ -1339,7 +1338,6 @@ namespace Services.Appointments
             if (appointment.AppointmentSlot.Status != SlotStatus.Booked)
                 throw new BadRequestException("The appointment slot is not currently booked.");
 
-
             var depositPayment = appointment.DepositPayment;
             if (depositPayment is null)
                 throw new InternalServerErrorException("The payment associated with this appointment could not be found.");
@@ -1347,13 +1345,12 @@ namespace Services.Appointments
             if (depositPayment.Status != DepositPaymentStatus.Paid)
                 throw new BadRequestException("Only appointments with a completed payment can be marked as no-show.");
 
-
-            var nowUtc = DateTime.UtcNow;
-            var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
-            var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
-            var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
-            if (nowUtc < appointmentEndUtc)
-                throw new BadRequestException("The appointment cannot be marked as no-show before its scheduled end time.");
+            //var nowUtc = DateTime.UtcNow;
+            //var egyptTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+            //var appointmentLocalEndDateTime = appointment.AppointmentSlot.Date.ToDateTime(appointment.AppointmentSlot.EndTime);
+            //var appointmentEndUtc = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(appointmentLocalEndDateTime, DateTimeKind.Unspecified), egyptTimeZone);
+            //if (nowUtc < appointmentEndUtc)
+            //    throw new BadRequestException("The appointment cannot be marked as no-show before its scheduled end time.");
 
             appointment.Status = AppointmentStatus.NoShow;
             var remainingPayment = appointment.RemainingPayment;

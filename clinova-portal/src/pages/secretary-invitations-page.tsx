@@ -47,9 +47,16 @@ export default function SecretaryInvitationsPage() {
   return (
     <DoctorWorkspaceShell active="secretary-invitations">
       <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
-        <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><MailOpen className="size-3" />{t('invitations.eyebrow')}</Badge>
-        <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.invitations.title')}</h1>
-        <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.invitations.description')}</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
+              <MailOpen className="size-3" />
+              {t('invitations.eyebrow')}
+            </Badge>
+            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.invitations.title')}</h1>
+            <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.invitations.description')}</p>
+          </div>
+        </div>
 
         <div className="mt-6 grid gap-4">
           {success && <Notice tone="success" message={success} />}
@@ -57,10 +64,10 @@ export default function SecretaryInvitationsPage() {
           {received.isError && (
             <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
               <p className="text-sm font-bold text-destructive">{getErrorMessage(received.error)}</p>
-              <Button variant="outline" className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => received.refetch()}><RefreshCw />{t('invitations.retry')}</Button>
+              <Button variant="ghost" className="mt-3 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => received.refetch()}><RefreshCw className="size-4" />{t('invitations.retry')}</Button>
             </Card>
           )}
-          {received.isSuccess && !invitations.length && (
+          {received.isSuccess && invitations.length === 0 && (
             <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
@@ -72,8 +79,12 @@ export default function SecretaryInvitationsPage() {
                 <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
               </div>
 
-              <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t('invitations.emptyReceivedTitle')}</h2>
-              <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('secretary.invitations.emptyDescription')}</p>
+              <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">
+                {t('invitations.emptyReceivedTitle')}
+              </h2>
+              <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">
+                {t('secretary.invitations.emptyDescription')}
+              </p>
             </section>
           )}
           {received.isSuccess && invitations.length > 0 && (
@@ -82,30 +93,35 @@ export default function SecretaryInvitationsPage() {
                 const pending = invitation.status.toLowerCase() === 'pending'
                 const busy = decide.isPending && decide.variables?.invitationId === invitation.id
                 return (
-                  <Card key={invitation.id} className="relative h-full rounded-2xl border border-border bg-card">
+                  <Card key={invitation.id} className="group relative h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
                     <Badge className={`absolute end-4 top-4 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>{statusLabel(invitation.status)}</Badge>
                     <CardContent className="flex h-full flex-col gap-4">
                       <div className="flex items-start gap-3 pe-20">
-                        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><UserRound className="size-5" /></span>
-                        <div className="min-w-0">
+                        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none"><UserRound className="size-6" /></span>
+                        <div className="min-w-0 flex-1">
                           <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('invitations.from')}</small>
                           <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{invitation.senderName}</h2>
                         </div>
                       </div>
-                      <div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-background/45">
+                      <div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-muted/30">
                         <div className="flex items-center gap-3 px-3 py-2.5"><Building2 className="size-4 shrink-0 text-primary" /><div className="min-w-0"><small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('invitations.clinic')}</small><strong className="block truncate text-sm font-bold">{invitation.clinicName}</strong></div></div>
                         <div className="flex items-center gap-3 px-3 py-2.5"><Clock3 className="size-4 shrink-0 text-primary" /><span className="truncate text-xs font-bold text-muted-foreground">{t('invitations.sentAt', { date: format(invitation.sentAt) })}</span></div>
                       </div>
                       {pending ? (
                         <div className="mt-auto flex flex-wrap gap-2">
-                          <Button className="h-10 flex-1 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'accept', clinicName: invitation.clinicName }) }}>
-                            {busy && decide.variables?.type === 'accept' ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Check />}{t('invitations.accept')}
+                          <Button className="h-10 flex-1 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'accept', clinicName: invitation.clinicName }) }}>
+                            {busy && decide.variables?.type === 'accept' ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Check className="size-4" />}{t('invitations.accept')}
                           </Button>
-                          <Button variant="outline" className="h-10 flex-1 rounded-xl border-destructive/20 bg-destructive/5 px-4 text-[13px] font-bold normal-case text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'reject', clinicName: invitation.clinicName }) }}>
-                            {busy && decide.variables?.type === 'reject' ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <X />}{t('invitations.reject')}
+                          <Button variant="outline" className="h-10 flex-1 cursor-pointer rounded-xl border-destructive/20 bg-destructive/5 px-4 text-[13px] font-bold normal-case tracking-normal text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'reject', clinicName: invitation.clinicName }) }}>
+                            {busy && decide.variables?.type === 'reject' ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <X className="size-4" />}{t('invitations.reject')}
                           </Button>
                         </div>
-                      ) : invitation.respondedAt && <p className="mt-auto text-xs font-bold text-muted-foreground">{t('invitations.respondedAt', { date: format(invitation.respondedAt) })}</p>}
+                      ) : invitation.respondedAt && (
+                        <div className={`mt-auto flex h-10 items-center justify-center gap-2 rounded-xl px-3 text-xs font-semibold ${invitation.status.toLowerCase() === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
+                          {invitation.status.toLowerCase() === 'rejected' ? <X className="size-4 shrink-0" /> : <Check className="size-4 shrink-0" />}
+                          <span className="truncate">{t('invitations.respondedAt', { date: format(invitation.respondedAt) })}</span>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 )

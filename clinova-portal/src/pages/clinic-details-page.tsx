@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, CircleDollarSign, Crown, ExternalLink, Landmark, LoaderCircle, MailPlus, MapPin, MoreHorizontal, PencilLine, Phone, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TrendingUp, UploadCloud, UserMinus, UsersRound, WalletCards } from 'lucide-react'
-import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react'
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Camera, ChevronDown, ChevronLeft, ChevronRight, CircleDollarSign, Crown, ExternalLink, ImageOff, Landmark, LoaderCircle, MailPlus, MapPin, Maximize2, MoreHorizontal, PencilLine, Phone, PhoneOff, Plus, RefreshCw, Save, Settings2, Stethoscope, Trash2, TrendingUp, UploadCloud, UserMinus, UsersRound, WalletCards, X, type LucideIcon } from 'lucide-react'
+import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClinicSecretariesCard, { SecretaryInviteCard } from '@/components/clinic-secretaries-card'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -44,6 +44,13 @@ function toEditForm(clinic: ClinicDetails): ClinicEditForm {
   return { name: clinic.name, streetName: clinic.streetName, buildingNumber: clinic.buildingNumber, landmark: clinic.landmark ?? '', googleMapsUrl: clinic.googleMapsUrl ?? '', consultationFee: String(clinic.consultationFee), depositPercentage: String(clinic.depositPercentage) }
 }
 
+function EmptyState({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
+  return <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/20 px-4 py-7 text-center">
+    <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" /></span>
+    <p className="max-w-xs text-sm leading-6 font-semibold text-muted-foreground">{children}</p>
+  </div>
+}
+
 export default function ClinicDetailsPage() {
   const { t, i18n } = useTranslation()
   const { clinicId } = useParams({ from: '/doctor/clinics/$clinicId' })
@@ -61,6 +68,7 @@ export default function ClinicDetailsPage() {
   const [success, setSuccess] = useState('')
   const [confirmation, setConfirmation] = useState<ClinicConfirmation | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [viewing, setViewing] = useState<number | null>(null)
   const previews = useMemo(() => newImages.map((file) => ({ file, url: URL.createObjectURL(file) })), [newImages])
   useEffect(() => () => previews.forEach((item) => URL.revokeObjectURL(item.url)), [previews])
 
@@ -69,6 +77,21 @@ export default function ClinicDetailsPage() {
   const currentMember = members.data?.find((member) => member.id === auth.user?.id)
   const isOwner = Boolean(currentMember?.isOwner)
   const money = useMemo(() => new Intl.NumberFormat(i18n.resolvedLanguage === 'ar' ? 'ar-EG' : 'en-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 2 }), [i18n.resolvedLanguage])
+
+  const images = details.data?.images ?? []
+  const stepPhoto = (direction: 1 | -1) => setViewing((current) => current == null || !images.length ? current : (current + direction + images.length) % images.length)
+  // Escape closes the viewer; the arrow keys move between photos.
+  useEffect(() => {
+    if (viewing == null) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setViewing(null); return }
+      if (images.length < 2) return
+      const direction = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+      if (direction) setViewing((current) => current == null ? current : (current + direction + images.length) % images.length)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [viewing, images.length])
 
   async function refreshClinic() {
     await Promise.all([
@@ -416,10 +439,11 @@ export default function ClinicDetailsPage() {
   {details.data.images.length ? (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {details.data.images.map((image, index) => (
-        <div className="relative grid gap-2 rounded-2xl border border-border/60 bg-background/40 p-2" key={image.id}>
-          <a href={image.url} target="_blank" rel="noreferrer">
-            <img className="aspect-video size-full rounded-xl object-cover" src={image.url} alt={t('clinicDetails.imageAlt', { number: index + 1 })} />
-          </a>
+        <div className="relative grid gap-2 rounded-2xl border border-border/60 bg-background/40 p-2 transition hover:border-primary/30" key={image.id}>
+          <button type="button" aria-label={t('secretary.myClinic.viewPhoto', { defaultValue: 'View photo' })} onClick={() => setViewing(index)} className="group relative block cursor-zoom-in overflow-hidden rounded-xl text-start outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+            <img className="block aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" src={image.url} alt={t('clinicDetails.imageAlt', { number: index + 1 })} loading="lazy" />
+            <span aria-hidden="true" className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/25 group-hover:opacity-100 motion-reduce:transition-none"><Maximize2 className="size-6 drop-shadow" /></span>
+          </button>
 {isOwner && (
   <Button
     type="button"
@@ -440,7 +464,7 @@ export default function ClinicDetailsPage() {
         </div>
       ))}
     </div>
-  ) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noImages')}</p>}
+  ) : <EmptyState icon={ImageOff}>{t('clinicDetails.noImages')}</EmptyState>}
   {isOwner && details.data.images.length < 6 && (
     <div className="grid gap-3.5">
       <Label
@@ -534,7 +558,7 @@ export default function ClinicDetailsPage() {
   ))}
 </CardContent></Card>
 
-{isOwner && <ClinicSecretariesCard clinicId={numericClinicId} />}
+<ClinicSecretariesCard clinicId={numericClinicId} canManage={isOwner} />
               </div>
 
               <div className="min-w-0 grid gap-5">
@@ -600,7 +624,7 @@ export default function ClinicDetailsPage() {
   </Button>
 )}
     </div>
-  )) : <p className="text-xs font-bold text-muted-foreground">{t('clinicDetails.noPhones')}</p>}
+  )) : <EmptyState icon={PhoneOff}>{t('clinicDetails.noPhones')}</EmptyState>}
   {isOwner && details.data.phoneNumbers.length < 6 && (
     <form className="grid gap-3" onSubmit={submitPhone}>
       <FormField id="newClinicPhone" label={t('clinicDetails.addPhone')} type="tel" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" required />
@@ -616,6 +640,16 @@ export default function ClinicDetailsPage() {
           </div>
         )}
       </div>
+      {viewing != null && images[viewing] && <div role="dialog" aria-modal="true" aria-label={details.data?.name} className="fixed inset-0 z-[60] grid place-items-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setViewing(null)}>
+        <img src={images[viewing].url} alt={details.data?.name} onClick={(event) => event.stopPropagation()} className="max-h-[85svh] max-w-full rounded-2xl object-contain shadow-2xl" />
+        <button type="button" aria-label={t('secretary.myClinic.closePhoto', { defaultValue: 'Close' })} onClick={() => setViewing(null)} className="absolute end-4 top-4 grid size-10 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"><X className="size-5" /></button>
+        {images.length > 1 && <>
+          <button type="button" aria-label={t('secretary.myClinic.previousPhoto', { defaultValue: 'Previous' })} onClick={(event) => { event.stopPropagation(); stepPhoto(-1) }} className="absolute start-3 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:start-5"><ChevronLeft className="size-5 rtl:rotate-180" /></button>
+          <button type="button" aria-label={t('secretary.myClinic.nextPhoto', { defaultValue: 'Next' })} onClick={(event) => { event.stopPropagation(); stepPhoto(1) }} className="absolute end-3 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 sm:end-5"><ChevronRight className="size-5 rtl:rotate-180" /></button>
+          <span dir="ltr" className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-bold tabular-nums text-white backdrop-blur">{viewing + 1} / {images.length}</span>
+        </>}
+      </div>}
+
       <ConfirmationDialog
         open={Boolean(confirmation)}
         title={confirmationCopy.title}

@@ -466,10 +466,8 @@ namespace Services.Abstractions.Clinics
             await GetDoctorClinicAccessAsync(userId, clinicId);
             var clinicSecretariesSpec = SecretarySpecifications.GetSecretariesByClinicId(clinicId);
             var secretaries = await _unitOfWork.GetRepository<Secretary, string>().GetAllAsync(clinicSecretariesSpec);
-
             if (!secretaries.Any())
                 return Enumerable.Empty<ClinicSecretaryResponse>();
-
             var clinicSecretariesResponse = _mapper.Map<IEnumerable<ClinicSecretaryResponse>>(secretaries);
             return clinicSecretariesResponse;
         }
@@ -574,22 +572,18 @@ namespace Services.Abstractions.Clinics
             if (string.IsNullOrWhiteSpace(userId))
                 throw new BadRequestException("We couldn't identify your account.");
 
-
             var doctor = await _unitOfWork.GetRepository<Doctor, string>().GetByIdAsync(userId);
             if (doctor is null)
                 throw new NotFoundException("We couldn't find your account.");
-
 
             var clinicSpec = new ClinicSpecifications(clinicId, includeClinicImages, includeClinicPhoneNumbers, includeClinicRegion);
             var clinic = await _unitOfWork.GetRepository<Clinic, int>().GetByIdAsync(clinicSpec);
             if (clinic is null)
                 throw new NotFoundException("The clinic you're trying to access could not be found.");
 
-
             var doctorClinic = await _unitOfWork.GetRepository<DoctorClinic>().GetByCompositeKeyAsync(doctor.Id, clinic.Id);
             if (doctorClinic is null)
                 throw new ResourceAccessDeniedException("You don't have access to this clinic.");
-
 
             return new DoctorClinicContext
             {

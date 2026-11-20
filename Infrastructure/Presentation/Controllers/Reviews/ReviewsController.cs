@@ -101,5 +101,25 @@ namespace Presentation.Controllers.Reviews
             var response = await _serviceManager.ReviewService.DoctorGetHisOwnReviewsAsync(doctorId ?? string.Empty, pageIndex, pageSize);
             return Ok(response);
         }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin")]
+        public async Task<IActionResult> AdminGetReviews([FromQuery] AdminReviewQuery query)
+        {
+            var adminId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ReviewService.AdminGetReviewsAsync(adminId ?? string.Empty, query);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{reviewId:int}/admin/status")]
+        public async Task<IActionResult> AdminUpdateReviewStatus([FromRoute] int reviewId, [FromBody] AdminUpdateReviewStatusRequest request)
+        {
+            var adminId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.ReviewService.AdminUpdateReviewStatusAsync(adminId ?? string.Empty, reviewId, request);
+            return Ok(response);
+        }
     }
 }

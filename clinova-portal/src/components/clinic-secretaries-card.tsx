@@ -63,7 +63,7 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
   )
 }
 
-export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }) {
+export default function ClinicSecretariesCard({ clinicId, canManage = false }: { clinicId: number; canManage?: boolean }) {
   const { t } = useTranslation()
   const api = useApi()
   const queryClient = useQueryClient()
@@ -107,7 +107,7 @@ export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }
                 {secretary.profilePicture ? <img className="size-full object-cover" src={secretary.profilePicture} alt="" /> : secretary.fullName.charAt(0)}
               </span>
               <strong className="min-w-0 flex-1 truncate text-sm font-bold">{secretary.fullName}</strong>
-              <Button
+              {canManage && <Button
                 variant="destructive"
                 size="icon"
                 className="size-9 shrink-0 cursor-pointer rounded-full border border-foreground/15 bg-foreground/10 text-foreground shadow-sm transition hover:border-[#c98a82]/50 hover:bg-[#f6e6e3] hover:text-[#b5645a] dark:hover:border-[#c98a82]/30 dark:hover:bg-[#c98a82]/15 dark:hover:text-[#d9968d]"
@@ -116,7 +116,7 @@ export default function ClinicSecretariesCard({ clinicId }: { clinicId: number }
                 onClick={() => { remove.reset(); setSuccess(''); setRemoving(secretary) }}
               >
                 {remove.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <UserMinus className="size-4" />}
-              </Button>
+              </Button>}
             </div>
           ))}
         </CardContent>

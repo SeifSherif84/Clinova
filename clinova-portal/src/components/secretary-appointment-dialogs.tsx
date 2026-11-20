@@ -222,11 +222,11 @@ function CancelForm({ details, onOpenChange, onDone }: FormProps) {
     {refundOutcome && <div className="relative isolate overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.07] via-card to-transparent p-4 sm:p-5">
       <span aria-hidden="true" className="pointer-events-none absolute -end-10 -top-10 -z-10 size-32 rounded-full bg-primary/10 blur-2xl" />
       <strong className="block text-sm font-bold">{t('secretary.cancellation.whatHappens')}</strong>
-      <ul className="mt-4 grid gap-3 sm:ps-1">
+      <ul className="mt-4 grid gap-3.5">
         {[refundOutcome, t('secretary.cancellation.outcome.slot'), hasRemainingDue(details) ? t('secretary.cancellation.outcome.balance', { amount: money(details.remainingPaymentAmount) }) : null].filter(Boolean).map((line, index) => (
-          <li key={index} className="flex items-start gap-3 text-[13px] leading-6 font-medium text-foreground/80">
-            <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Check className="size-3" strokeWidth={3} /></span>
-            <span className="min-w-0">{line}</span>
+          <li key={index} className="flex items-start gap-3 text-sm leading-6 font-semibold text-foreground">
+            <span className="grid h-6 shrink-0 place-items-center"><span className="grid size-6 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-4 ring-primary/10"><Check className="size-3.5" strokeWidth={3} /></span></span>
+            <span className="min-w-0 flex-1">{line}</span>
           </li>
         ))}
       </ul>
@@ -455,7 +455,7 @@ function CompleteForm({ details, onOpenChange, onDone }: FormProps) {
         <p className="text-sm font-bold text-destructive">{getErrorMessage(accounts.error)}</p>
         <Button type="button" variant="ghost" className={grayButton} disabled={accounts.isFetching} onClick={() => accounts.refetch()}>{accounts.isFetching ? spinner : <RefreshCw className="size-4" />}{t('errors.tryAgain')}</Button>
       </div>}
-      {accounts.data && !accounts.data.length && <Callout tone="warning" icon={TriangleAlert}>{t('secretary.guest.noAccounts')}</Callout>}
+      {accounts.data && !accounts.data.length && <p className="flex items-start gap-3 rounded-xl border border-warm/20 bg-warm/10 px-4 py-3.5 text-sm leading-6 font-bold text-warm"><TriangleAlert className="mt-0.5 size-5 shrink-0" />{t('secretary.guest.noAccounts')}</p>}
       {accounts.data && accounts.data.length > 0 && <div className="grid gap-4">
         <RadioGroup name="remainingPaymentAccountType" aria-label={t('secretary.complete.account')} value={activeType ?? ''} disabled={complete.isPending} onValueChange={(value) => { setAccountType(String(value)); setAccountId(''); setFormError('') }} className="grid gap-2.5">
           {accountTypes.map((type) => {

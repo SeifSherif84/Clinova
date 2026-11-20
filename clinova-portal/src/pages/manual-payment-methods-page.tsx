@@ -322,9 +322,9 @@ function PaymentWorkspace({ clinic }: { clinic: ClinicDetails }) {
                 <ProviderLogo type={type} className="shadow-sm" />
                 <div>
                   <strong className="block text-sm font-bold">{t(`manualPayments.${type}`)}</strong>
-                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">{t(type === 'VodafoneCash' ? 'manualPayments.wallet' : 'manualPayments.instant')}</span>
+                  <span className="mt-1 block text-[13px] leading-5 font-semibold text-foreground/75">{t(type === 'VodafoneCash' ? 'manualPayments.wallet' : 'manualPayments.instant')}</span>
                 </div>
-                <span className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-primary transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"><Plus className="size-3.5" />{t('manualPayments.add')}</span>
+                <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-primary transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"><Plus className="size-4" />{t('manualPayments.add')}</span>
               </button>
             ))}
           </div>

@@ -250,20 +250,22 @@ export default function DoctorInvitationsPage() {
                   : (invitation as SentInvitation).receiverName
 
                 return (
-<Card key={invitation.id} className="relative h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+<Card key={invitation.id} className="group relative h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
   <Badge className={`absolute end-4 top-4 z-10 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>
     {t(statusKey(invitation.status))}
   </Badge>
   <CardContent className="flex h-full flex-col gap-4">
     <div className="flex items-start gap-3 pe-20">
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
         <UserRound className="size-6" />
       </span>
       <div className="min-w-0 flex-1">
         <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
           {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
         </small>
-        <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{personName}</h2>
+        {/not registered/i.test(personName ?? '') || !personName?.trim()
+          ? <p className="mt-0.5 text-sm font-semibold text-muted-foreground italic">{personName?.trim() || t('invitations.notRegistered', { defaultValue: 'Not registered yet' })}</p>
+          : <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{personName}</h2>}
       </div>
     </div>
 

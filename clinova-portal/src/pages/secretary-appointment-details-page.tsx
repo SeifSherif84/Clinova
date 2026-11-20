@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
-import { ArrowLeft, Ban, Banknote, CalendarClock, CalendarDays, ChevronRight, CircleCheckBig, Clock3, Copy, Ellipsis, ExternalLink, HandCoins, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Sparkles, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, Wallet, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Ban, Banknote, CalendarClock, CalendarDays, ChevronDown, ChevronRight, CircleCheckBig, Clock3, Copy, Ellipsis, ExternalLink, HandCoins, Info, LoaderCircle, PhoneCall, ReceiptText, RefreshCw, ShieldAlert, Stethoscope, TriangleAlert, Undo2, UserRound, UserX, Wallet, type LucideIcon } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfirmationDialog from '@/components/confirmation-dialog'
@@ -30,7 +30,7 @@ const humanize = (value: string) => value.replace(/([a-z])([A-Z])/g, '$1 $2')
 
 // Open section inside the record: a small heading, optional trailing status, and content separated by a divider.
 function Section({ icon: Icon, title, aside, children }: { icon: LucideIcon; title: string; aside?: ReactNode; children: ReactNode }) {
-  return <section className="grid gap-3 rounded-2xl border border-border/60 bg-card p-5 shadow-sm sm:px-6">
+  return <section className="grid gap-3 border-t border-border/60 pt-6 first:border-t-0 first:pt-0">
     <div className="flex min-h-6 items-center justify-between gap-3">
       <h2 className="flex items-center gap-2.5 font-sans text-lg font-bold tracking-normal normal-case"><Icon className="size-6 text-primary" />{title}</h2>
       {aside}
@@ -112,6 +112,46 @@ export default function SecretaryAppointmentDetailsPage() {
   const refundedAt = data?.depositRefundProcessedAt ? new Date(data.depositRefundProcessedAt) : null
   const remainingDue = data ? data.remainingPaymentAmount > 0 && data.remainingPaymentStatus !== 'Paid' : false
   const dialogProps = { onOpenChange: (open: boolean) => { if (!open) setDialog(null) }, onDone: (result: DialogOutcome) => { setSuccess(result.message) } }
+
+  // One sentence that tells the secretary where things stand, built only from fields the API already returns.
+  const tr = (key: string, defaultValue: string, options?: Record<string, string | number>) => t('secretary.story.' + key, { defaultValue, ...options })
+  type StoryTone = 'good' | 'warn' | 'bad'
+  let story: { tone: StoryTone; title: string; note?: string } | null = null
+  if (data && allowed) {
+    const state = String(data.appointmentStatus)
+    const refundAmount = money(data.requestedDepositRefundAmount ?? data.depositPaymentAmount)
+    const hasRefund = data.requestedDepositRefundAmount != null || Boolean(data.depositRefundStatus)
+    const refundState = String(data.depositRefundStatus ?? '')
+    const refundTone: StoryTone = ['Refunded', 'Succeeded'].includes(refundState) ? 'good' : refundState === 'Failed' ? 'bad' : 'warn'
+    if (state === 'PendingPayment') {
+      story = data.depositPaymentStatus === 'Rejected'
+        ? { tone: 'warn', title: tr('rejected', 'The last payment proof was rejected. Waiting for the patient to pay the deposit again.'), note: data.depositPaymentSecretaryRejectionReason || undefined }
+        : { tone: 'warn', title: tr('pendingPayment', 'Waiting for the patient to pay the {{deposit}} deposit.', { deposit: money(data.depositPaymentAmount) }) }
+    } else if (state === 'PendingVerification') {
+      story = allowed.verify
+        ? { tone: 'warn', title: tr('verifyPending', 'The patient sent a {{deposit}} payment proof. Check it, then approve or reject the payment.', { deposit: money(data.depositPaymentAmount) }) }
+        : { tone: 'warn', title: tr('verifying', 'The patient sent a payment proof that is waiting for verification.') }
+    } else if (state === 'Confirmed') {
+      story = remainingDue
+        ? { tone: 'good', title: tr('confirmedDue', 'Confirmed. The {{deposit}} deposit was received, and {{remaining}} is still to be collected at the visit.', { deposit: money(data.depositPaymentAmount), remaining: money(data.remainingPaymentAmount) }), note: allowed.complete ? tr('completeAfter', 'Record the result after the visit.') : undefined }
+        : { tone: 'good', title: tr('confirmedPaid', 'Confirmed and fully paid.'), note: allowed.complete ? tr('completeAfter', 'Record the result after the visit.') : undefined }
+    } else if (state === 'Completed') {
+      story = { tone: 'good', title: remainingDue ? tr('completedDue', 'The visit is complete, but {{remaining}} is still unpaid.', { remaining: money(data.remainingPaymentAmount) }) : tr('completed', 'The visit is complete and everything is paid.') }
+    } else if (state === 'NoShow') {
+      story = { tone: 'bad', title: tr('noShow', 'The patient didn’t attend. The deposit was kept and the unpaid balance was cancelled.') }
+    } else if (state === 'Cancelled') {
+      if (allowed.confirmRefund) story = { tone: 'warn', title: tr('cancelledRefundDue', 'Cancelled. A {{amount}} refund is waiting for you.', { amount: refundAmount }), note: tr('recordRefund', 'Pay the patient back, then record the refund.') }
+      else if (hasRefund && refundTone === 'good') story = { tone: 'good', title: tr('cancelledRefunded', 'Cancelled, and the {{amount}} deposit was refunded.', { amount: refundAmount }) }
+      else if (hasRefund && refundTone === 'bad') story = { tone: 'bad', title: tr('cancelledRefundFailed', 'Cancelled, but the {{amount}} refund failed. Follow up with the patient and the payment provider.', { amount: refundAmount }) }
+      else if (hasRefund) story = { tone: 'warn', title: tr('cancelledRefunding', 'Cancelled. The {{amount}} deposit refund is being processed.', { amount: refundAmount }) }
+      else if (data.depositPaymentStatus === 'Rejected') story = { tone: 'bad', title: tr('cancelledRejected', 'Cancelled because the payment proof was rejected. No payment was received.'), note: data.depositPaymentSecretaryRejectionReason ? tr('rejectedReason', 'Reason: {{reason}}', { reason: data.depositPaymentSecretaryRejectionReason }) : undefined }
+      else if (data.totalPaidAmount > 0) story = { tone: 'bad', title: tr('cancelledKept', 'Cancelled with no refund. The clinic kept the {{amount}} deposit.', { amount: money(data.depositPaymentAmount) }), note: tr('cancelledKeptNote', 'The patient isn’t eligible for a refund, so there’s nothing to pay back.') }
+      else story = { tone: 'bad', title: tr('cancelledUnpaid', 'Cancelled. No payment was made.') }
+    } else if (state === 'Expired') {
+      story = { tone: 'bad', title: tr('expired', 'The reservation expired before the deposit was paid, so the time slot was released.') }
+    }
+  }
+  const StoryIcon = story?.tone === 'good' ? CircleCheckBig : story?.tone === 'bad' ? TriangleAlert : Info
 
   return (
     <DoctorWorkspaceShell active="secretary-appointments" topBackLink={backLink}>
@@ -218,8 +258,33 @@ export default function SecretaryAppointmentDetailsPage() {
                   </div>
               </div>}
 
-              {allowed.verify && <p className="flex items-start gap-2 rounded-xl border border-warm/20 bg-warm/10 px-3 py-2.5 text-xs leading-6 font-semibold text-warm sm:text-sm"><Sparkles className="mt-1 size-4 shrink-0" />{t('secretary.appointments.verifyHint')}</p>}
             </header>
+
+            {story && <section className="flex items-center gap-4 px-1 py-2" aria-label={tr('label', 'Appointment summary')}>
+              <span className="relative grid size-12 shrink-0 place-items-center">
+                <span aria-hidden="true" className={`absolute inset-0 rounded-full opacity-60 motion-safe:animate-pulse ${story.tone === 'good' ? 'bg-primary/15' : story.tone === 'warn' ? 'bg-warm/20' : 'bg-destructive/15'}`} />
+                <span className={`relative grid size-9 place-items-center rounded-full ${story.tone === 'good' ? 'bg-primary text-primary-foreground' : story.tone === 'warn' ? 'bg-warm text-white' : 'bg-destructive text-white'}`}>
+                  <StoryIcon className="size-5" />
+                </span>
+              </span>
+              <div className="min-w-0">
+                <p className="text-base leading-7 font-bold text-foreground sm:text-lg">
+                  {story.title.split(/(EGP\s?[\d,]+(?:\.\d+)?|[\d,]+(?:\.\d+)?\s?ج\.م\.?|ج\.م\.?\s?[\d,٠-٩]+(?:[.٫][\d٠-٩]+)?)/).map((part, index) => index % 2 === 1
+                    ? <span key={index} dir="ltr" className={`inline-block tabular-nums ${story.tone === 'good' ? 'text-primary' : story.tone === 'warn' ? 'text-warm' : 'text-destructive'}`}>{part}</span>
+                    : part)}
+                </p>
+                {story.note && <p className="mt-0.5 text-sm leading-6 font-semibold break-words text-muted-foreground">{story.note}</p>}
+              </div>
+            </section>}
+
+            <details className="group rounded-2xl border border-border/60 bg-card shadow-sm">
+              <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-2xl px-5 py-4 marker:hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none sm:px-6 [&::-webkit-details-marker]:hidden">
+                <span className="min-w-0 flex-1 font-sans text-lg font-bold">{tr('detailsToggle', 'Booking and payment details')}</span>
+                <span className="text-xs font-bold text-primary group-open:hidden">{tr('detailsShow', 'Show')}</span>
+                <span className="hidden text-xs font-bold text-primary group-open:inline">{tr('detailsHide', 'Hide')}</span>
+                <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
+              </summary>
+              <div className="grid gap-6 border-t border-border/60 p-5 sm:p-6">
             <Section icon={CalendarDays} title={t('secretary.appointments.appointmentSection')}>
               <dl className="grid gap-2.5 sm:grid-cols-2">
                 <div className="min-w-0 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
@@ -315,6 +380,8 @@ export default function SecretaryAppointmentDetailsPage() {
               {data.depositRefundStatus === 'Failed' && <p className="flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs leading-6 font-semibold text-destructive sm:text-sm"><TriangleAlert className="mt-1 size-4 shrink-0" />{t('secretary.cancellation.failedRefundHint')}</p>}
               {data.manualDepositRefundProofUrl && <Button className={primaryButton + ' justify-self-start'} render={<a href={resolveFileUrl(data.manualDepositRefundProofUrl)} target="_blank" rel="noreferrer" />}><ReceiptText />{t('secretary.appointments.viewRefundProof')}<ExternalLink className="size-3.5" /></Button>}
             </Section>}
+              </div>
+            </details>
           </article>
 
           <div className="grid gap-4 xl:sticky xl:top-24">

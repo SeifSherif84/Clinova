@@ -5,6 +5,7 @@ using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Data.Configurations;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,11 @@ namespace Persistence.Data.Contexts
 
         }
 
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -88,5 +94,16 @@ namespace Persistence.Data.Contexts
         public DbSet<DoctorInvitation> DoctorInvitations { get; set; }
         public DbSet<SecretaryInvitation> SecretaryInvitations { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<SupportTicket> SupportTickets { get; set; }
+        public DbSet<SupportTicketMessage> SupportTicketMessages { get; set; }
+    }
+
+
+    public class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+    {
+        public UtcDateTimeConverter() : base(v => v, // وقت الحفظ: سيبه زي ما هو
+                                             v => DateTime.SpecifyKind(v, DateTimeKind.Utc)) // وقت القراءة: حط ختم UTC
+        { }
     }
 }

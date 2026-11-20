@@ -110,5 +110,34 @@ namespace Services.Specifications.Doctors
 
             return specification;
         }
+
+        public static DoctorSpecifications AdminGetDoctors(DoctorApprovalStatus? approvalStatus,
+                                                           string? searchTerm,
+                                                           int pageIndex,
+                                                           int pageSize,
+                                                           bool applyPagination)
+        {
+            var specification = new DoctorSpecifications
+            {
+                Criteria = doctor => !doctor.IsDeleted && (!approvalStatus.HasValue || doctor.ApprovalStatus == approvalStatus.Value) &&
+
+                                     (string.IsNullOrWhiteSpace(searchTerm) ||
+                                      EF.Functions.Like(doctor.FirstName + " " + doctor.LastName, $"%{searchTerm}%") ||
+                                      EF.Functions.Like(doctor.FirstName, $"%{searchTerm}%") ||
+                                      EF.Functions.Like(doctor.LastName, $"%{searchTerm}%"))
+            };
+
+            specification.Includes.Add(doctor => doctor.MedicalSpecialty);
+            specification.OrderByDescending = doctor => doctor.CreatedAt;
+
+            if (applyPagination)
+            {
+                specification.IsPaginationEnabled = true;
+                specification.Skip = (pageIndex - 1) * pageSize;
+                specification.Take = pageSize;
+            }
+
+            return specification;
+        }
     }
 }

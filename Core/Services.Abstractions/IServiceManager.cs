@@ -21,6 +21,7 @@ using Services.Abstractions.SecretaryInvitations;
 using Services.Abstractions.Secretaries;
 using Services.Abstractions.Analytics;
 using Services.Abstractions.Reviews;
+using Services.Abstractions.SupportTickets;
 
 
 namespace Services.Abstractions
@@ -45,5 +46,6 @@ namespace Services.Abstractions
         ISecretaryService SecretaryService { get; }
         IDoctorAnalyticsService DoctorAnalyticsService { get; }
         IReviewService ReviewService { get; }
+        ISupportTicketService SupportTicketService { get; }
     }
 }

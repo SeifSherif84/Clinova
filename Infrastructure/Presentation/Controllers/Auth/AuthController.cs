@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Domain.Entities.BusinessEntities;
+using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Shared.Dtos.Auth;
@@ -13,7 +16,8 @@ namespace Presentation.Controllers.Auth
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(IServiceManager _serviceManager) : ControllerBase
+    public class AuthController(IServiceManager _serviceManager,
+                                UserManager<UserApp> _userManager) : ControllerBase
     {
 
         [HttpPost("doctor-registration")] // Post api/auth/doctor-registration
@@ -124,6 +128,51 @@ namespace Presentation.Controllers.Auth
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.AuthService.DeleteAccountAsync(userId ?? string.Empty);
             return Ok(response);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/doctors")]
+        public async Task<IActionResult> AdminGetDoctors([FromQuery] AdminDoctorQuery query)
+        {
+            var adminId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AuthService.AdminGetDoctorsAsync(adminId ?? string.Empty, query);
+            return Ok(response);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("admin/doctors/{doctorId}/approval-status")]
+        public async Task<IActionResult> AdminUpdateDoctorApprovalStatus([FromRoute] string doctorId, 
+                                                                         [FromBody] AdminUpdateDoctorApprovalStatusRequest request)
+        {
+            var adminId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = await _serviceManager.AuthService.AdminUpdateDoctorApprovalStatusAsync(adminId ?? string.Empty, doctorId, request);
+            return Ok(response);
+        }
+
+
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateAdmin()
+        {
+            var admin = new Patient
+            {
+                FirstName = "Admin",
+                LastName = "Clinova",
+                UserName = "admin@clinova.com",
+                Email = "admin@clinova.com",
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(admin, "Admin@123456");
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            var roleResult = await _userManager.AddToRoleAsync(admin, "Admin");
+
+            if (!roleResult.Succeeded)
+                return BadRequest(roleResult.Errors);
+
+            return Ok("Admin account created successfully.");
         }
 
     }

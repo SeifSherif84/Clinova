@@ -17,7 +17,9 @@ using Microsoft.IdentityModel.Tokens;
 using Services.Abstractions.Auth;
 using Services.FileStorage;
 using Services.MailKitFeature;
+using Services.Specifications.Doctors;
 using Services.Specifications.SecretaryInvitations;
+using Shared.Dtos.Appointments;
 using Shared.Dtos.Auth;
 using System;
 using System.Collections.Generic;
@@ -57,7 +59,6 @@ namespace Services.Auth
             var roleFlag = await _userManager.AddToRoleAsync(doctor, "Doctor");
             if (!roleFlag.Succeeded)
                 throw new RoleAssignmentException(roleFlag.Errors.Select(error => error.Description).ToList());
-
 
             var sendEmailConfirmationflag = await SendEmailConfirmationURL(doctor);
             if (!sendEmailConfirmationflag)
@@ -842,7 +843,6 @@ namespace Services.Auth
         }
 
 
-
         public async Task<string> DeleteAccountAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -863,6 +863,269 @@ namespace Services.Auth
                     result.Errors.Select(error => error.Description).ToList());
 
             return "Your account has been successfully deleted.";
+        }
+
+
+
+        public async Task<PaginatedResult<AdminDoctorResponse>> AdminGetDoctorsAsync(string adminId, AdminDoctorQuery query)
+        {
+            if (string.IsNullOrWhiteSpace(adminId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var user = await _userManager.FindByIdAsync(adminId);
+            if (user is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (!isAdmin)
+                throw new ResourceAccessDeniedException("You are not authorized to access doctor accounts.");
+
+            var pageIndex = query.PageIndex < 1 ? 1 : Math.Min(query.PageIndex, 100);
+            var pageSize = query.PageSize < 1 ? 10 : Math.Min(query.PageSize, 100);
+            var searchTerm = query.SearchTerm?.Trim();
+
+            var doctorRepo = _unitOfWork.GetRepository<Doctor, string>();
+            var countSpecification = DoctorSpecifications.AdminGetDoctors(query.ApprovalStatus, searchTerm, pageIndex, pageSize, applyPagination: false);
+            var totalCount = await doctorRepo.CountAsync(countSpecification);
+
+            if (totalCount == 0)
+            {
+                return new PaginatedResult<AdminDoctorResponse>
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    Items = new List<AdminDoctorResponse>()
+                };
+            }
+
+            var dataSpecification = DoctorSpecifications.AdminGetDoctors(query.ApprovalStatus, searchTerm, pageIndex, pageSize, applyPagination: true);
+            var doctors = await doctorRepo.GetAllAsync(dataSpecification);
+
+            var items = _mapper.Map<List<AdminDoctorResponse>>(doctors);
+
+            return new PaginatedResult<AdminDoctorResponse>
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = items
+            };
+        }
+
+        public async Task<string> AdminUpdateDoctorApprovalStatusAsync(string adminId, string doctorId, AdminUpdateDoctorApprovalStatusRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(adminId))
+                throw new BadRequestException("We couldn't identify your account.");
+
+            var user = await _userManager.FindByIdAsync(adminId);
+            if (user is null)
+                throw new NotFoundException("We couldn't find your account.");
+
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (!isAdmin)
+                throw new ResourceAccessDeniedException("You are not authorized to manage doctor accounts.");
+
+            if (request.ApprovalStatus != DoctorApprovalStatus.Approved && request.ApprovalStatus != DoctorApprovalStatus.Rejected)
+                throw new BadRequestException("You can only approve or reject a doctor account.");
+
+            var doctorRepo = _unitOfWork.GetRepository<Doctor, string>();
+            var doctor = await doctorRepo.GetByIdAsync(doctorId);
+            if (doctor is null || doctor.IsDeleted)
+                throw new NotFoundException($"Doctor with ID {doctorId} was not found.");
+
+            if (doctor.ApprovalStatus != DoctorApprovalStatus.Pending)
+                throw new BadRequestException("Only pending doctor accounts can be moderated.");
+
+            doctor.ApprovalStatus = request.ApprovalStatus;
+
+            var result = await _unitOfWork.SaveChangesAsync();
+            if (result == 0)
+                throw new InternalServerErrorException("We couldn't update the doctor account status right now. Please try again later.");
+
+            var emailSent = SendDoctorApprovalStatusEmail(doctor);
+            if (!emailSent)
+                throw new InternalServerErrorException("Doctor account status was updated successfully, but we couldn't send the notification email right now.");
+
+            return request.ApprovalStatus == DoctorApprovalStatus.Approved ? "Doctor account has been approved successfully." : "Doctor account has been rejected successfully.";
+        }
+
+        private bool SendDoctorApprovalStatusEmail(Doctor doctor)
+        {
+            var isApproved = doctor.ApprovalStatus == DoctorApprovalStatus.Approved;
+            var doctorName = $"{doctor.FirstName} {doctor.LastName}";
+
+            var email = new Email()
+            {
+                To = doctor.Email!,
+                Subject = isApproved ? "Your Clinova Doctor Account Has Been Approved"
+                                     : "Your Clinova Doctor Account Has Been Rejected",
+                Body = $$"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        body {
+                            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+                            background-color: #0a0b14;
+                            background-image: linear-gradient(160deg, #12142a 0%, #0a0b14 55%, #0d0a1c 100%);
+                            padding: 50px 20px;
+                        }
+
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #12131f;
+                            border-radius: 20px;
+                            padding: 46px 40px;
+                            border: 1px solid #23253a;
+                        }
+
+                        .header {
+                            text-align: center;
+                            margin-bottom: 32px;
+                        }
+
+                        .header h2 {
+                            font-size: 25px;
+                            font-weight: 800;
+                            letter-spacing: 1.5px;
+                            color: #f1f0fb;
+                            text-transform: uppercase;
+                        }
+
+                        .header h2 span {
+                            background: linear-gradient(90deg, #a5b4fc, #f0abfc);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        }
+
+                        .subtitle {
+                            color: #64748b;
+                            font-size: 12.5px;
+                            letter-spacing: 2.5px;
+                            text-transform: uppercase;
+                            margin-top: 8px;
+                        }
+
+                        .content {
+                            color: #cbd5e1;
+                            font-size: 15.5px;
+                            line-height: 1.75;
+                        }
+
+                        .content p {
+                            margin-bottom: 16px;
+                        }
+
+                        .greeting {
+                            font-size: 19px;
+                            font-weight: 700;
+                            color: #f1f5f9;
+                        }
+
+                        .status {
+                            background-color: #191a2a;
+                            padding: 16px 20px;
+                            border-radius: 12px;
+                            border: 1px solid #262841;
+                            border-left: 3px solid {{(isApproved ? "#22c55e" : "#ef4444")}};
+                            font-size: 14px;
+                            color: #cbd5e1;
+                            margin-top: 24px;
+                        }
+
+                        .divider-line {
+                            height: 1px;
+                            background-color: #23253a;
+                            margin: 34px 0 22px;
+                        }
+
+                        .footer {
+                            text-align: center;
+                            font-size: 13px;
+                            color: #64748b;
+                        }
+
+                        .footer strong {
+                            color: #c4b5fd;
+                        }
+                    </style>
+                </head>
+
+                <body>
+                    <div class="container">
+
+                        <div class="header">
+                            <h2>CLI<span>NOVA</span></h2>
+                            <div class="subtitle">Doctor Account Review</div>
+                        </div>
+
+                        <div class="content">
+
+                            <p class="greeting">
+                                Dear Dr. {{doctorName}},
+                            </p>
+
+                            {{(isApproved
+                                        ? """
+                                  <p>
+                                      Great news! Your doctor registration request
+                                      has been approved by the Clinova administration.
+                                  </p>
+
+                                  <p>
+                                      Your account is now ready to use.
+                                      You can log in to Clinova and start managing
+                                      your clinic and appointments.
+                                  </p>
+                                  """
+                                        : """
+                                  <p>
+                                      Unfortunately, your doctor registration request
+                                      has been rejected by the Clinova administration.
+                                  </p>
+
+                                  <p>
+                                      Your account will remain inaccessible.
+                                      If you need further clarification regarding
+                                      this decision, please contact our support team.
+                                  </p>
+                                  """)}}
+
+                            <div class="status">
+                                {{(isApproved
+                                            ? "✓ Your doctor account has been successfully approved. You can now log in to Clinova."
+                                            : "✕ Your doctor registration request has been rejected.")}}
+                            </div>
+
+                        </div>
+
+                        <div class="divider-line"></div>
+
+                        <div class="footer">
+                            Best regards,<br>
+                            <strong>Clinova Team</strong>
+                        </div>
+
+                    </div>
+                </body>
+                </html>
+                """,
+                IsHtml = true
+            };
+
+            var result = _mailService.SendMail(email);
+            return result;
         }
 
     }
