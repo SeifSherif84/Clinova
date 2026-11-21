@@ -106,7 +106,7 @@ export default function AddClinicPage() {
   {t('clinicForm.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinicForm.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinicForm.description')}</p></div>
 
-        <form className="mt-6 grid gap-5" onSubmit={handleSubmit}>
+        <form className="mt-5 grid gap-4 sm:mt-6 sm:gap-5" onSubmit={handleSubmit}>
           {(formError || createClinic.error) && <Notice message={formError || getErrorMessage(createClinic.error)} />}
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
@@ -119,7 +119,7 @@ export default function AddClinicPage() {
       <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.identityTitle')}</h3>
     </div>
   </div>
-  <CardContent className="grid gap-5 p-5 sm:grid-cols-2">
+  <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:gap-5 sm:p-5">
               <FormField className="sm:col-span-2" id="clinicName" name="Name" label={t('clinicForm.name')} maxLength={100} required placeholder={t('clinicForm.namePlaceholder')} />
               <FormField id="streetName" name="StreetName" label={t('clinicForm.street')} maxLength={150} required placeholder={t('clinicForm.streetPlaceholder')} />
               <FormField id="buildingNumber" name="BuildingNumber" label={t('clinicForm.building')} maxLength={10} required placeholder="12A" />
@@ -138,7 +138,7 @@ export default function AddClinicPage() {
       <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.locationTitle')}</h3>
     </div>
   </div>
-  <CardContent className="grid gap-5 p-5 sm:grid-cols-2">
+  <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:gap-5 sm:p-5">
               <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.governorate')}</Label><Select items={governorates.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={governorateId} onValueChange={changeGovernorate} disabled={governorates.isLoading || governorates.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 !text-base !font-normal !leading-normal text-foreground [&_[data-slot=select-value]]:!text-base [&_[data-slot=select-value]]:!font-normal"><SelectValue placeholder={governorates.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseGovernorate')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{governorates.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
               <div className="grid gap-2"><Label className="text-xs font-semibold text-foreground/80">{t('clinicForm.region')}</Label><Select items={regions.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? []} value={regionId} onValueChange={setRegionId} disabled={!governorateId || regions.isLoading || regions.isError}><SelectTrigger className="h-12 w-full rounded-xl border border-input bg-background/40 px-3 !text-base !font-normal !leading-normal text-foreground [&_[data-slot=select-value]]:!text-base [&_[data-slot=select-value]]:!font-normal"><SelectValue placeholder={regions.isLoading ? t('clinicForm.loading') : t('clinicForm.chooseRegion')} /></SelectTrigger><SelectContent className="rounded-xl border border-border bg-popover">{regions.data?.map((item) => <SelectItem className="rounded-lg" key={item.id} value={String(item.id)}>{item.name}</SelectItem>)}</SelectContent></Select></div>
             </CardContent>
@@ -154,7 +154,7 @@ export default function AddClinicPage() {
       <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.billingTitle')}</h3>
     </div>
   </div>
-  <CardContent className="grid gap-5 p-5 sm:grid-cols-2"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
+  <CardContent className="grid grid-cols-2 gap-3 p-4 sm:gap-5 sm:p-5"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
 </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">
@@ -170,8 +170,8 @@ export default function AddClinicPage() {
       </div>
     </div>
   </div>
-  <CardContent className="grid gap-3 p-5">
-              {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="ghost" size="icon" className="mb-0.5 size-10 shrink-0 cursor-pointer rounded-xl bg-foreground/5 text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
+  <CardContent className="grid gap-3 p-4 sm:p-5">
+              {phoneNumbers.map((phone, index) => <div className="flex items-end gap-2" key={index}><FormField className="min-w-0 flex-1" id={`clinicPhone${index}`} label={t('clinicForm.phoneLabel', { number: index + 1 })} type="tel" value={phone} onChange={(event) => updatePhone(index, event.target.value)} pattern="01[0125][0-9]{8}" placeholder="01xxxxxxxxx" /><Button type="button" variant="ghost" size="icon" className="mb-0.5 size-10 shrink-0 cursor-pointer rounded-xl bg-foreground/5 text-foreground hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" aria-label={t('clinicForm.removePhone')} disabled={phoneNumbers.length === 1} onClick={() => setPhoneNumbers((current) => current.filter((_, itemIndex) => itemIndex !== index))}><Minus /></Button></div>)}
               <Button type="button" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" disabled={phoneNumbers.length >= 6} onClick={() => setPhoneNumbers((current) => [...current, ''])}><Plus className="size-4" />{t('clinicForm.addPhone')}</Button>
             </CardContent>
           </Card>
@@ -189,8 +189,8 @@ export default function AddClinicPage() {
       </div>
     </div>
   </div>
-  <CardContent className="p-5">
-  <Label className={`group flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center normal-case tracking-normal transition hover:-translate-y-0.5 hover:bg-foreground/5 hover:shadow-md motion-reduce:transition-none dark:bg-transparent dark:hover:bg-foreground/5 ${images.length ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03]'}`} htmlFor="clinicImages">
+  <CardContent className="p-4 sm:p-5">
+  <Label className={`group flex min-h-36 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-4 text-center sm:min-h-40 sm:p-6 normal-case tracking-normal transition hover:-translate-y-0.5 hover:bg-foreground/5 hover:shadow-md motion-reduce:transition-none dark:bg-transparent dark:hover:bg-foreground/5 ${images.length ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03]'}`} htmlFor="clinicImages">
     <Input className="sr-only" id="clinicImages" name="Images" type="file" multiple accept=".jpg,.jpeg,.png,.webp" onChange={handleImages} />
     <span className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
       <Upload className="size-6" />
@@ -207,7 +207,7 @@ export default function AddClinicPage() {
 </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicForm.create')}</Button></div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end"><Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics" />}>{t('clinicForm.cancel')}</Button><Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={createClinic.isPending || governorates.isError || regions.isError}>{createClinic.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}{t('clinicForm.create')}</Button></div>
         </form>
       </div>
     </DoctorWorkspaceShell>
