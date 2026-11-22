@@ -37,7 +37,7 @@ function NotificationContent() {
         </div>
         {state.unreadCount > 0 && (
           <Button
-            className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+            className="h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 sm:w-fit"
             variant="ghost"
             disabled={state.isMarkingAll}
             onClick={state.markAllAsRead}
@@ -73,7 +73,7 @@ function NotificationContent() {
         )}
 
         {!state.isLoading && !state.isError && state.notifications.length === 0 && (
-          <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+          <section className="relative isolate grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
 
             <div className="relative">
               <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
@@ -85,8 +85,8 @@ function NotificationContent() {
               <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
             </div>
 
-            <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t('notifications.emptyTitle')}</h2>
-            <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('notifications.emptyDescription')}</p>
+            <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{t('notifications.emptyTitle')}</h2>
+            <p className="mt-4 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:mt-5 sm:text-base">{t('notifications.emptyDescription')}</p>
           </section>
         )}
 
@@ -137,10 +137,10 @@ function NotificationRow({ item, language }: { item: NotificationItem; language?
   return (
     <article
       aria-label={item.title}
-      className={`group relative grid gap-3 overflow-hidden rounded-2xl border p-4 transition-colors motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:p-5 ${item.isRead ? 'border-border bg-card hover:bg-muted/30' : 'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07]'}`}
+      className={`group relative grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-3 overflow-hidden rounded-2xl border p-4 transition-colors motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:p-5 ${item.isRead ? 'border-border bg-card hover:bg-muted/30' : 'border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.07]'}`}
     >
 
-      <span aria-hidden="true" className={`grid size-11 shrink-0 place-items-center rounded-xl ${tile}`}>
+      <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-xl sm:size-11 ${tile}`}>
         <Icon className="size-5" />
       </span>
 
@@ -160,11 +160,11 @@ function NotificationRow({ item, language }: { item: NotificationItem; language?
       </div>
 
       {(isInvitation || !item.isRead) && (
-        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+        <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
           {isInvitation && (
             <Button
               variant="ghost"
-              className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"
+              className="h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 sm:w-fit"
               render={<Link to="/doctor/invitations" />}
             >
               <MailOpen className="size-4" />
@@ -173,7 +173,7 @@ function NotificationRow({ item, language }: { item: NotificationItem; language?
           )}
           {!item.isRead && (
             <Button
-              className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90"
+              className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 sm:w-fit"
               disabled={isMarking}
               onClick={() => state.markAsRead(item.id)}
             >

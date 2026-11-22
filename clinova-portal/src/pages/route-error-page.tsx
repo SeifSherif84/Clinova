@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 export default function RouteErrorPage({ reset }: { error: unknown; reset: () => void }) {
   const { t } = useTranslation()
   return (
-    <main className="relative grid min-h-svh place-content-center justify-items-center gap-5 bg-[radial-gradient(circle_at_center,var(--color-card),var(--color-background)_68%)] p-8 text-center text-foreground">
+    <main className="relative grid min-h-svh place-content-center justify-items-center gap-5 bg-[radial-gradient(circle_at_center,var(--color-card),var(--color-background)_68%)] p-5 text-center text-foreground sm:p-8">
       <div className="absolute top-5 end-5"><PreferencesControls /></div>
       <Brand />
       <span className="mt-6 grid size-16 place-items-center rounded-2xl bg-destructive/10 text-destructive"><TriangleAlert className="size-7" /></span>
       <h1 className="font-heading text-2xl font-medium sm:text-3xl">{t('errors.routeTitle')}</h1>
       <p className="max-w-lg text-sm leading-6 text-muted-foreground">{t('errors.routeMessage')}</p>
-      <div className="flex flex-wrap justify-center gap-2"><Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={reset}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<a href="/" />}><Home className="size-4" />{t('common.returnHome')}</Button></div>
+      <div className="flex w-full max-w-xs flex-col gap-2 sm:w-auto sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center"><Button className="h-10 rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={reset}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal text-foreground hover:bg-foreground/10" render={<a href="/" />}><Home className="size-4" />{t('common.returnHome')}</Button></div>
     </main>
   )
 }

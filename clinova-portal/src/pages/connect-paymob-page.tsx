@@ -38,7 +38,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
         <p className="max-w-xl text-[15px] leading-7 font-semibold text-foreground/75">{t('paymob.ux.overview')}</p>
         <Button className={paymobButtonClass + ' h-10 shrink-0 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90'} onClick={() => goToSection('paymob-connect')}><ArrowRight className="rotate-90" />{t('paymob.ux.ready')}</Button>
       </div>
-      <nav aria-label={t('paymob.stepsLabel')} className="border-t border-border/70 bg-muted/30 px-5 py-6 sm:px-8">
+      <nav aria-label={t('paymob.stepsLabel')} className="border-t border-border/70 bg-muted/30 px-3 py-5 min-[400px]:px-5 min-[400px]:py-6 sm:px-8">
         <ol className="flex items-start justify-between gap-2">
           {(['account', 'credentials', 'connect'] as const).map((step, index, arr) => (
             <li key={step} className="flex flex-1 items-start last:flex-none">
@@ -63,7 +63,7 @@ function ConnectPaymobSetup({ clinicId }: { clinicId: string }) {
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <Button role="link" className={paymobButtonClass + ' h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90'} render={<a href="https://paymob.com/" target="_blank" rel="noopener noreferrer" />}><ExternalLink />{t('paymob.openPaymob')}</Button>
           <div className="flex min-w-0 flex-wrap items-center gap-5">
-            <span className="truncate text-sm font-semibold text-muted-foreground">{t('paymob.existingAccount')}</span>
+            <span className="text-sm font-semibold text-muted-foreground sm:truncate">{t('paymob.existingAccount')}</span>
             <button
               type="button"
               onClick={() => goToSection('paymob-credentials')}

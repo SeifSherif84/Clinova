@@ -38,12 +38,12 @@ function ShareRing({ initials, share, active }: { initials: string; share: numbe
 
 function AmountTile({ dot, label, value, tone }: { dot: string; label: string; value: string; tone: string }) {
   return (
-    <div className="grid min-w-0 gap-1 rounded-xl bg-muted/40 px-3.5 py-3 transition-colors duration-200 group-hover:bg-muted/60">
+    <div className="grid min-w-0 gap-1 rounded-xl bg-muted/40 px-3 py-2.5 transition-colors duration-200 group-hover:bg-muted/60 lg:px-3.5 lg:py-3">
       <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
         <span className={`size-2 shrink-0 rounded-full ${dot}`} />
         <span className="truncate">{label}</span>
       </span>
-      <strong className={`break-words text-lg font-bold leading-tight tabular-nums ${tone}`}>{value}</strong>
+      <strong className={`break-words text-base font-bold leading-tight tabular-nums lg:text-lg ${tone}`}>{value}</strong>
     </div>
   )
 }
@@ -115,7 +115,7 @@ export function DoctorsSection({
                         <ShareRing initials={initials} share={share} active={total > 0} />
                         <div className="grid min-w-0 flex-1 gap-1.5">
                           <strong className="truncate text-base font-bold" title={doctor.doctorName}>{doctor.doctorName}</strong>
-                          <div className="flex flex-nowrap gap-1.5">
+                          <div className="flex flex-wrap gap-1.5 lg:flex-nowrap">
                             <StatPill icon={<CalendarCheck2 />} label={`${t('analytics.doctors.confirmed')}:`} value={doctor.confirmedAppointments} />
                             <StatPill icon={<CircleCheckBig />} label={`${t('analytics.doctors.completed')}:`} value={doctor.completedAppointments} />
                           </div>
@@ -137,7 +137,7 @@ export function DoctorsSection({
                         </div>
                       </div>
 
-                      <div className="mt-auto grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+                      <div className="mt-auto grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
                         <AmountTile dot="bg-primary" label={t('analytics.doctors.collected')} value={money(doctor.collectedAmount)} tone="text-primary" />
                         <AmountTile dot="bg-warm" label={t('analytics.doctors.expected')} value={money(doctor.expectedAmount)} tone="text-warm" />
                       </div>

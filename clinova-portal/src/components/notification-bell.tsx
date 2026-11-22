@@ -38,7 +38,7 @@ export default function NotificationBell() {
               type="button"
               disabled={state.isMarkingAll}
               onClick={state.markAllAsRead}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1.5 text-[11px] font-bold text-primary outline-none transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-60"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-2 text-[11px] sm:py-1.5 font-bold text-primary outline-none transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-60"
             >
               {state.isMarkingAll ? <LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" /> : <CheckCheck className="size-3.5" />}
               {t('notifications.markAllRead')}

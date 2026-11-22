@@ -23,9 +23,10 @@ export default function AuthShell({ eyebrow, title, description, children, wide 
       <div className="pointer-events-none absolute -top-40 -end-40 size-[28rem] rounded-full bg-primary/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-48 -start-40 size-[30rem] rounded-full bg-warm/10 blur-3xl" />
       <header className="relative z-20 mx-auto flex min-h-20 w-full max-w-screen-2xl items-center justify-between gap-3 px-4 sm:min-h-24 sm:px-6 lg:px-8">
-        <Brand />
-        <div className="flex items-center gap-2">
-<Badge variant="secondary" className="hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2.5 text-xs font-bold tracking-wider text-primary lg:inline-flex">
+        <span className="min-w-0 sm:hidden"><Brand compact /></span>
+        <span className="hidden sm:block"><Brand /></span>
+        <div className="flex shrink-0 items-center gap-2">
+<Badge variant="secondary" className="hidden items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2.5 text-xs font-bold tracking-wider text-primary md:inline-flex">
   <ShieldCheck className="size-4" /> {t('common.protectedAccess')}
 </Badge>
           <PreferencesControls />
@@ -48,13 +49,13 @@ export default function AuthShell({ eyebrow, title, description, children, wide 
           </div>
         </aside>
 
-        <Card className="gap-0 overflow-hidden rounded-3xl border border-border bg-card/95 py-0 shadow-2xl shadow-foreground/10 ring-1 ring-foreground/5 backdrop-blur-xl">
-          <CardHeader className="justify-items-start gap-3 px-5 pt-7 pb-5 text-start sm:px-8 sm:pt-9 lg:px-10 lg:pt-10">
+        <Card className={`mx-auto w-full gap-0 overflow-hidden rounded-3xl border border-border bg-card/95 py-0 shadow-2xl shadow-foreground/10 ring-1 ring-foreground/5 backdrop-blur-xl lg:mx-0 lg:max-w-none ${wide ? 'sm:max-w-3xl' : 'sm:max-w-xl'}`}>
+          <CardHeader className="justify-items-start gap-2.5 px-4 pt-6 pb-4 text-start min-[400px]:gap-3 min-[400px]:px-5 min-[400px]:pt-7 min-[400px]:pb-5 sm:px-8 sm:pt-9 lg:px-10 lg:pt-10">
             <Badge variant="secondary" className="h-auto w-fit self-start px-0 py-1 text-start text-[13px] text-primary">{eyebrow}</Badge>
-            <CardTitle className="self-start text-start font-sans text-3xl leading-tight font-medium tracking-[-.035em] text-foreground normal-case sm:text-4xl lg:text-5xl">{title}</CardTitle>
+            <CardTitle className="self-start text-start font-sans text-[1.65rem] leading-tight font-medium tracking-[-.035em] text-foreground normal-case min-[400px]:text-3xl sm:text-4xl lg:text-5xl">{title}</CardTitle>
             <CardDescription className="max-w-xl self-start text-start text-sm leading-6 text-muted-foreground">{description}</CardDescription>
           </CardHeader>
-          <CardContent className="px-5 pb-7 sm:px-8 sm:pb-9 lg:px-10 lg:pb-10">{children}</CardContent>
+          <CardContent className="px-4 pb-6 min-[400px]:px-5 min-[400px]:pb-7 sm:px-8 sm:pb-9 lg:px-10 lg:pb-10">{children}</CardContent>
         </Card>
       </section>
     </main>

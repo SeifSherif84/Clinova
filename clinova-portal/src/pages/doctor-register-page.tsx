@@ -21,8 +21,8 @@ const maxImageSize = 5 * 1024 * 1024
 
 function FormSection({ number, icon, title, description, children }: { number: string; icon: ReactNode; title: string; description: string; children: ReactNode }) {
   return (
-    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:p-5">
-      <div className="flex items-center gap-2.5">
+    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-3.5 sm:p-5">
+      <div className="flex items-center gap-2 sm:gap-2.5">
         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
         <div className="grid min-w-0 flex-1 gap-0.5">
           <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{title}</h2>
@@ -47,7 +47,7 @@ interface UploadFieldProps {
 function UploadField({ id, name, title, fileName, chooseImage, onChange }: UploadFieldProps) {
   return (
     <Label
-      className={`group flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border-2 border-dashed px-4 py-4 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${fileName ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
+      className={`group flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed px-3 py-3.5 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none sm:gap-3.5 sm:px-4 sm:py-4 ${fileName ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
       htmlFor={id}
     >
       <Input className="sr-only" id={id} name={name} type="file" accept=".jpg,.jpeg,.png,.webp" onChange={onChange} required />
@@ -187,7 +187,7 @@ export default function DoctorRegisterPage() {
                   <span key={rule.key} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${index < passed ? strengthTone : 'bg-muted'}`} />
                 ))}
               </div>
-              <ul className="grid gap-1.5 sm:grid-cols-2">
+              <ul className="grid gap-1.5 min-[400px]:grid-cols-2">
                 {rules.map((rule) => (
                   <li key={rule.key} className={`flex items-center gap-2 text-xs font-semibold transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'text-primary' : 'text-muted-foreground'}`}>
                     <span className={`grid size-4 shrink-0 place-items-center rounded-full transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>

@@ -121,7 +121,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
         </small>
         <strong
           dir="ltr"
-          className={`-ms-1 mt-5 block text-start font-sans text-4xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl ${
+          className={`-ms-1 mt-5 block text-start font-sans text-2xl min-[380px]:text-3xl leading-none font-bold tracking-tight tabular-nums sm:text-5xl ${
             overview.netCollected < 0
               ? 'text-destructive'
               : 'bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent'
@@ -218,7 +218,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
             <div className="grid justify-items-center gap-1.5">
               <strong
                 dir="ltr"
-                className="font-sans text-2xl font-bold leading-none tabular-nums tracking-tight"
+                className="font-sans text-xl font-bold leading-none tabular-nums tracking-tight sm:text-2xl"
               >
                 {money(shown.value)}
               </strong>
@@ -231,7 +231,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
       </div>
 
       {/* Legend */}
-      <dl className="mt-8 grid grid-cols-[1fr_auto_1fr] justify-items-center gap-x-6 gap-y-4">
+      <dl className="mt-8 grid grid-cols-2 justify-items-center gap-x-4 gap-y-4 sm:grid-cols-[1fr_auto_1fr] sm:gap-x-6 [&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1">
         {legend.map((item) => (
           <div
             key={item.key}
@@ -242,7 +242,7 @@ function NetSummary({ overview, money }: { overview: FinancialOverview; money: (
             <dt
               onMouseEnter={() => setFocus(item.key)}
               onMouseLeave={() => setFocus(null)}
-              className="pointer-events-auto flex w-fit cursor-default items-center justify-center gap-1.5 pb-1.5 text-[11px] leading-tight font-bold tracking-wider whitespace-nowrap text-muted-foreground uppercase"
+              className="pointer-events-auto flex w-fit cursor-default items-center justify-center gap-1.5 pb-1.5 text-center text-[11px] leading-tight font-bold tracking-wider whitespace-normal text-muted-foreground uppercase sm:whitespace-nowrap"
             >
               <span className={`size-2 shrink-0 rounded-full ${item.dot}`} />
               {info[item.key].label}
@@ -326,6 +326,7 @@ function MethodLedger({ bars, money, hovered, onHover, topKey }: {
                     </strong>
                     <small className="block truncate text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t(`analytics.category.${bar.category}`, { defaultValue: humanize(bar.category) })}</small>
                   </div>
+                  <ChevronDown aria-hidden="true" className={`ms-auto size-4 shrink-0 text-muted-foreground transition-transform duration-300 motion-reduce:transition-none md:hidden ${open ? 'rotate-180' : ''}`} />
                 </div>
 
                 <div className="min-w-0">

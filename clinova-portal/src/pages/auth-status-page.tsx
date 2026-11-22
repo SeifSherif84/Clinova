@@ -32,14 +32,14 @@ export default function AuthStatusPage() {
     <AuthShell eyebrow={t(`authStatus.${content.eyebrow}`)} title={t(`authStatus.${content.title}`)} description={t(`authStatus.${content.description}`)}>
       <div className="grid justify-items-center gap-4 text-center">
         <span className={`grid size-16 place-items-center rounded-full ${statusTone}`}><Icon className="size-7" /></span>
-        {email && <p className="max-w-full truncate text-sm font-semibold text-muted-foreground"><strong dir="ltr" className="font-bold text-foreground">{email}</strong></p>}
+        {email && <p className="max-w-full text-sm font-semibold text-muted-foreground"><strong dir="ltr" className="block max-w-full truncate font-bold text-foreground">{email}</strong></p>}
         {reason === 'pending' && (
           <div className="my-3 flex w-full items-start justify-center">
-            <span className="grid w-24 justify-items-center gap-2 text-xs font-bold text-primary"><i className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground not-italic shadow-md shadow-primary/25">1</i>{t('authStatus.verified')}</span>
+            <span className="grid w-20 justify-items-center gap-2 text-xs font-bold text-primary sm:w-24"><i className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground not-italic shadow-md shadow-primary/25">1</i>{t('authStatus.verified')}</span>
             <b className="mt-[1.1rem] h-0.5 w-5 rounded-full bg-primary/40 sm:w-10" />
-            <span className="grid w-24 justify-items-center gap-2 text-xs font-bold text-primary"><i className="grid size-9 place-items-center rounded-full border-2 border-primary bg-primary/10 text-sm font-bold not-italic ring-4 ring-primary/10">2</i>{t('authStatus.review')}</span>
+            <span className="grid w-20 justify-items-center gap-2 text-xs font-bold text-primary sm:w-24"><i className="grid size-9 place-items-center rounded-full border-2 border-primary bg-primary/10 text-sm font-bold not-italic ring-4 ring-primary/10">2</i>{t('authStatus.review')}</span>
             <b className="mt-[1.1rem] h-0.5 w-5 rounded-full bg-border sm:w-10" />
-            <span className="grid w-24 justify-items-center gap-2 text-xs font-bold text-muted-foreground"><i className="grid size-9 place-items-center rounded-full border-2 border-border text-sm font-bold not-italic">3</i>{t('authStatus.ready')}</span>
+            <span className="grid w-20 justify-items-center gap-2 text-xs font-bold text-muted-foreground sm:w-24"><i className="grid size-9 place-items-center rounded-full border-2 border-border text-sm font-bold not-italic">3</i>{t('authStatus.ready')}</span>
           </div>
         )}
         {resend.isSuccess && <Notice tone="success" message={t('authStatus.resendSuccess')} />}

@@ -139,7 +139,7 @@ export function PaymobConnectionForm(props: Props) {
           </div>
         )}
       </div>
-      <div key={fieldVersion} className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
+      <div key={fieldVersion} className="grid gap-x-6 gap-y-6 md:grid-cols-2 lg:gap-x-12">
         {credentialNames.map((name) => <CredentialField key={name} name={name} disabled={busy} error={fieldErrors[name]}
           onBlur={(event) => {
             // Let submit validate and focus errors without moving the button mid-click.
@@ -151,7 +151,7 @@ export function PaymobConnectionForm(props: Props) {
           replacing={!update || Boolean(replacing[name])}
           onReplace={update ? (replace) => replaceField(name, replace) : undefined} />)}
       </div>
-      {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-5 py-5 dark:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6">
+      {!update && <div className="mt-6 flex flex-col items-start gap-4 rounded-2xl bg-primary/5 px-4 py-4 dark:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-6 sm:py-5">
         <div className="min-w-0">
           <p className="text-sm font-semibold leading-5 text-foreground">{t('paymob.securityTitle')}</p>
           <p className="mt-1 max-w-md text-[13px] leading-6 font-medium text-foreground/75">{t('paymob.securityShort')}</p>
@@ -168,7 +168,7 @@ export function PaymobConnectionForm(props: Props) {
           </DialogContent>
         </Dialog>
       </div>}
-      <fieldset disabled={busy} className="mt-10 grid">
+      <fieldset disabled={busy} className="mt-7 grid sm:mt-10">
         <legend className="mb-3 text-sm font-bold text-foreground">{t('paymob.consentTitle')}</legend>
         <div className="flex items-start gap-4 py-1">
           <Checkbox id="paymob-authorized" aria-label={t(update ? 'paymob.updateConsent' : 'paymob.authorized')} checked={authorized} onCheckedChange={setAuthorized} className="mt-0.5 shrink-0 cursor-pointer rounded disabled:cursor-not-allowed" />
@@ -179,7 +179,7 @@ export function PaymobConnectionForm(props: Props) {
           <Label htmlFor="paymob-understood" className="max-w-2xl cursor-pointer text-[15px] font-semibold normal-case leading-6 tracking-normal text-foreground">{t('paymob.understood')}</Label>
         </div>}
       </fieldset>
-      <div className="mt-10 grid gap-4">
+      <div className="mt-7 grid gap-4 sm:mt-10">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
           <Button type="submit" disabled={!available || !complete || !authorized || (!update && !understood) || busy} aria-describedby={'paymob-next-step paymob-save-note' + (!available ? ' ' + (props.unavailableNoticeId ?? 'paymob-unavailable') : '')} className={paymobButtonClass + ' w-full shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto'} aria-busy={busy}>
             {busy ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Link2 className="size-4" />}{t(busy ? 'paymob.saving' : update ? 'paymob.update' : 'paymob.connect')}

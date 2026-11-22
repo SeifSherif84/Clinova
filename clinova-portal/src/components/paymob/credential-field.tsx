@@ -57,7 +57,7 @@ export function CredentialField({ name, disabled, error, onBlur, stored = false,
           aria-invalid={Boolean(error) || undefined} onBlur={onBlur}
           aria-describedby={(sensitive ? id + '-sensitive' : '') + (sensitive && error ? ' ' : '') + (error ? id + '-error' : '') || undefined}
           placeholder={t(onReplace ? 'paymob.newValue' : 'paymob.enter', { field: label })}
-          className={'h-12 rounded-2xl border border-input bg-background/60 px-4 text-sm shadow-none transition-colors focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/15 aria-invalid:border-destructive/60 aria-invalid:ring-2 aria-invalid:ring-destructive/10 ' + (sensitive ? 'pr-12' : '')} />
+          className={'h-12 rounded-2xl border border-input bg-background/60 px-4 text-base shadow-none transition-colors sm:text-sm focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/15 aria-invalid:border-destructive/60 aria-invalid:ring-2 aria-invalid:ring-destructive/10 ' + (sensitive ? 'pr-12' : '')} />
         {sensitive && <Button type="button" variant="ghost" size="icon" disabled={disabled} aria-label={t(visible ? 'paymob.hide' : 'paymob.show', { field: label })} aria-pressed={visible} onClick={() => setVisible(!visible)} className="absolute right-1.5 top-1.5 size-9 rounded-xl text-muted-foreground">{visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</Button>}
       </div>
       {error && <p id={id + '-error'} className={required ? 'sr-only' : 'px-1 text-xs leading-5 text-destructive'}>{error}</p>}

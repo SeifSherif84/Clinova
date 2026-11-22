@@ -48,21 +48,21 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
               <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('paymob.pageTitle')}</h1>
               <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('paymob.pageDescription')}</p>
             </>}
-            <section className={'relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card p-6 sm:p-10 ' + (hideIntro ? 'mt-0' : 'mt-5')}>
+            <section className={'relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card p-5 sm:p-10 ' + (hideIntro ? 'mt-0' : 'mt-5')}>
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent dark:hidden" />
               <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl dark:hidden" />
-              <div className="grid items-center gap-10 lg:grid-cols-[1.3fr_1fr]">
+              <div className="grid items-center gap-6 sm:gap-10 md:grid-cols-[1.2fr_1fr] lg:grid-cols-[1.3fr_1fr]">
                 <div>
                   <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
                     <Landmark className="size-3.5 shrink-0" />
                     <span className="min-w-0 break-words">{clinic.data.name}</span>
                   </span>
-                  <h2 className="mt-4 max-w-lg font-sans text-3xl leading-tight font-bold sm:text-4xl">{title}</h2>
+                  <h2 className="mt-4 max-w-lg font-sans text-2xl leading-tight font-bold sm:text-4xl">{title}</h2>
                   <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{description}</p>
                 </div>
-                <div className="relative mx-auto grid h-36 w-full max-w-xs grid-cols-[auto_1fr_auto] items-center gap-2 sm:h-40 sm:max-w-sm">
-                  <span className="relative z-10 grid size-20 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
-                    <Landmark className="size-8" />
+                <div className="relative mx-auto grid h-28 w-full max-w-xs grid-cols-[auto_1fr_auto] items-center gap-2 sm:h-40 sm:max-w-sm">
+<span className="relative z-10 grid size-16 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-4 ring-primary/10 sm:size-20 sm:ring-8">
+  <Landmark className="size-6 sm:size-8" />
                   </span>
 <div className="relative h-full w-full">
   <svg aria-hidden="true" className="absolute inset-0 size-full" viewBox="0 0 160 80" fill="none">
@@ -82,8 +82,8 @@ export function PaymobPageFrame({ clinicId, title, description, back = 'settings
   </svg>
 </div>
 <div className="relative z-10 mt-1.5 grid shrink-0 justify-items-center">
-  <span className="flex h-14 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
-    <img src="/payment-providers/paymob2.png" alt="" className="h-12 max-w-[95%] object-contain" />
+  <span className="flex h-11 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-md sm:h-14 sm:w-28">
+    <img src="/payment-providers/paymob2.png" alt="" className="h-9 max-w-[95%] object-contain sm:h-12" />
   </span>
 </div>
                 </div>

@@ -60,7 +60,7 @@ export function DateRangeFilter({ preset, custom, invalid, refreshing, onPreset,
       </div>
 
       {preset === 'custom' && (
-        <div className="flex w-fit max-w-full flex-col gap-3 rounded-xl border border-border/60 bg-muted/40 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+        <div className="grid w-full grid-cols-1 gap-3 rounded-xl border border-border/60 bg-muted/40 p-4 min-[420px]:grid-cols-2 sm:flex sm:w-fit sm:max-w-full sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
           <CalendarDays className="hidden size-6 shrink-0 text-primary sm:block" />
           <label className="flex flex-col gap-1.5 text-sm font-bold text-foreground sm:flex-row sm:items-center sm:gap-2.5">
             {t('analytics.from')}

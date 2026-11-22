@@ -104,8 +104,8 @@ function ReadOnlyField({
   value?: string | null;
 }) {
   return (
-    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
-      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+    <div className="group flex min-w-0 items-center gap-2.5 rounded-2xl border border-border/60 bg-background/45 px-3 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 sm:gap-3.5 sm:px-4">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15 sm:size-11">
         {icon}
       </span>
       <span className="grid min-w-0 gap-1">
@@ -381,7 +381,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
 
         {profile.data && (
           <div className="min-w-0 grid gap-5">
-            <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
+            <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-4 sm:p-7">
               <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
 
               <div className="relative z-10 min-w-0 grid items-center gap-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
@@ -397,7 +397,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                     accept=".jpg,.jpeg,.png,.webp"
                     onChange={handlePictureChange}
                   />
-                  <span className="relative grid size-36 place-items-center overflow-hidden rounded-3xl border-4 border-card bg-gradient-to-br from-primary to-primary/65 text-3xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl">
+                  <span className="relative grid size-28 place-items-center overflow-hidden rounded-3xl border-4 border-card bg-gradient-to-br from-primary to-primary/65 text-3xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl sm:size-36">
                     {activePicture ? (
                       <img
                         className="size-full object-cover"
@@ -420,7 +420,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                 </Label>
 
                 <div className="min-w-0 text-center sm:text-start">
-                  <h2 className="break-words font-sans text-3xl leading-tight font-bold sm:text-5xl">
+                  <h2 className="break-words font-sans text-2xl leading-tight font-bold min-[400px]:text-3xl sm:text-5xl">
                     {fullName}
                   </h2>
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
@@ -532,7 +532,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </div>
                     </div>
                   </div>
-                  <CardContent className="p-5">
+                  <CardContent className="p-4 sm:p-5">
                     {(formError || updateProfile.error) && (
                       <Notice
                         message={
@@ -700,7 +700,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </h3>
                     </div>
                   </div>
-                  <CardContent className="grid min-w-0 gap-3 p-5 sm:grid-cols-2">
+                  <CardContent className="grid min-w-0 grid-cols-1 gap-3 p-4 min-[400px]:grid-cols-2 sm:p-5">
                     <ReadOnlyField
                       icon={<Mail className="size-4" />}
                       label={t("doctorProfile.email")}
@@ -721,7 +721,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       label={t("doctorProfile.syndicateNumber")}
                       value={profile.data.syndicateNumber}
                     />
-                    <p className="text-xs font-bold leading-4 text-muted-foreground sm:col-span-2">
+                    <p className="text-xs font-bold leading-4 text-muted-foreground min-[400px]:col-span-2">
                       {t("doctorProfile.readOnlyHint")}
                     </p>
                   </CardContent>
@@ -848,7 +848,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </div>
                     </div>
                   </div>
-<CardContent className="p-5">
+<CardContent className="p-4 sm:p-5">
   {(passwordError || changePassword.error) && (
     <Notice
       message={

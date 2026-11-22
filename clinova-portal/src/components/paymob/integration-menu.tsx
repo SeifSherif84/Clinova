@@ -109,7 +109,7 @@ export function PaymobIntegrationMenu({ clinicId, accountId, accountActive, inte
             </div>
             <p className="text-xs leading-6 font-semibold text-muted-foreground">{t('paymob.integrationIdHint')}</p>
           </div>
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
             <Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} disabled={busy} onClick={() => setEditing(false)}><X />{t('paymob.cancelIntegration')}</Button>
             <Button type="submit" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={busy} aria-busy={busy}>{busy ? <LoaderCircle className={spinnerClass} /> : <Save />}{t('paymob.integration.save')}</Button>
           </div>

@@ -63,7 +63,7 @@ export function PaymobCredentialsGuide() {
             const isLeftCol = i % 2 === 0
             const isTopRow = i < 2
 const cellClasses = [
-  'flex items-baseline gap-4 border-border px-0 py-6',
+  'flex items-baseline gap-4 border-border px-0 py-4 sm:py-6',
   i < 3 ? 'border-b' : '',
   !isTopRow ? 'sm:border-b-0' : '',
   isLeftCol ? 'sm:border-e sm:pe-7' : 'sm:ps-7',

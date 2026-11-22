@@ -34,7 +34,7 @@ export function AnalyticsSection({
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block font-sans text-2xl font-bold tracking-tight">{title}</span>
+        <span className="block font-sans text-xl font-bold tracking-tight sm:text-2xl">{title}</span>
         {description && (
           <span className="mt-1 block text-xs leading-5 text-muted-foreground sm:text-sm">
             {description}

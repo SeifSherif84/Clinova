@@ -132,12 +132,12 @@ export default function DoctorInvitationsPage() {
             <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('invitations.title')}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('invitations.description')}</p>
           </div>
-<div className="grid justify-items-center gap-2">
-  <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-card/70 p-1.5" role="group" aria-label={t('invitations.viewLabel')}>
+<div className="grid w-full justify-items-center gap-2 sm:w-auto">
+  <div className="inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-card/70 p-1.5 sm:w-fit" role="group" aria-label={t('invitations.viewLabel')}>
     <Button
       type="button"
       variant={view === 'received' ? 'default' : 'ghost'}
-      className="h-9 rounded-full px-4 text-[13px] font-bold normal-case tracking-normal cursor-pointer"
+      className="h-9 flex-1 rounded-full px-3 text-[13px] font-bold normal-case tracking-normal cursor-pointer sm:flex-none sm:px-4"
       aria-pressed={view === 'received'}
       onClick={() => {
         setView('received')
@@ -152,7 +152,7 @@ export default function DoctorInvitationsPage() {
     <Button
       type="button"
       variant={view === 'sent' || view === 'secretaries' ? 'default' : 'ghost'}
-      className="h-9 rounded-full px-4 text-[13px] font-bold normal-case tracking-normal cursor-pointer"
+      className="h-9 flex-1 rounded-full px-3 text-[13px] font-bold normal-case tracking-normal cursor-pointer sm:flex-none sm:px-4"
       aria-pressed={view === 'sent' || view === 'secretaries'}
       onClick={() => {
         if (view !== 'sent' && view !== 'secretaries') setView('sent')
@@ -166,7 +166,7 @@ export default function DoctorInvitationsPage() {
     </Button>
   </div>
 
-  <div className={`inline-flex w-fit items-center gap-0.5 rounded-full border border-border bg-muted/60 p-1 ${view === 'sent' || view === 'secretaries' ? '' : 'invisible'}`} role="group" aria-label={t('secretary.invitations.doctorTab')}>
+  <div className={`inline-flex w-full items-center gap-0.5 rounded-full border border-border bg-muted/60 p-1 sm:w-fit ${view === 'sent' || view === 'secretaries' ? '' : 'invisible max-sm:hidden'}`} role="group" aria-label={t('secretary.invitations.doctorTab')}>
       <button
         type="button"
         aria-pressed={view === 'sent'}
@@ -175,7 +175,7 @@ export default function DoctorInvitationsPage() {
           setSuccess('')
           action.reset()
         }}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'sent' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
+        className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold normal-case transition-all cursor-pointer sm:flex-none sm:py-1.5 ${view === 'sent' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
       >
         {t('secretary.invitations.doctorChip')}
         <span className={`text-[10px] tabular-nums ${view === 'sent' ? 'text-primary' : 'text-muted-foreground'}`}>{sent.data?.length ?? 0}</span>
@@ -188,7 +188,7 @@ export default function DoctorInvitationsPage() {
           setSuccess('')
           action.reset()
         }}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold normal-case transition-all cursor-pointer ${view === 'secretaries' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
+        className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold normal-case transition-all cursor-pointer sm:flex-none sm:py-1.5 ${view === 'secretaries' ? 'bg-primary/15 text-primary ring-1 ring-primary/30' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'}`}
       >
         {t('secretary.invitations.doctorTab')}
         <span className={`text-[10px] tabular-nums ${view === 'secretaries' ? 'text-primary' : 'text-muted-foreground'}`}>{secretariesSent.data?.length ?? 0}</span>
@@ -264,7 +264,7 @@ export default function DoctorInvitationsPage() {
           {t(view === 'received' ? 'invitations.from' : 'invitations.to')}
         </small>
         {/not registered/i.test(personName ?? '') || !personName?.trim()
-          ? <p className="mt-0.5 text-sm font-semibold text-muted-foreground italic">{personName?.trim() || t('invitations.notRegistered', { defaultValue: 'Not registered yet' })}</p>
+          ? <p className="mt-0.5 text-sm font-semibold text-muted-foreground italic break-words">{personName?.trim() || t('invitations.notRegistered', { defaultValue: 'Not registered yet' })}</p>
           : <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{personName}</h2>}
       </div>
     </div>

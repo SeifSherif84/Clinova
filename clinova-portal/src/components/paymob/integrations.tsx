@@ -99,7 +99,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
           <p className="mt-1 max-w-2xl text-sm leading-7 font-medium text-foreground/75">{t('paymob.integrationsDescription')}</p>
         </div>
       </div>
-      {canAdd && account.integrations.length > 0 && <Button className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
+      {canAdd && account.integrations.length > 0 && <Button className="h-10 w-full rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 sm:w-auto" disabled={busy || refreshing} onClick={() => openEditor()}>{refreshing ? <LoaderCircle className={spinnerClass} /> : <Plus className="size-4" />}{t('paymob.addIntegration')}</Button>}
     </div>
 
     {disabled && <Alert role="note" className="mt-5 rounded-xl border-border bg-muted/40"><Info /><AlertDescription className="leading-6">{t('paymob.integrationsDisabled')}</AlertDescription></Alert>}
@@ -107,8 +107,8 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
 
     {account.integrations.length ? <>
       <ul className="mt-5 grid gap-3">{account.integrations.map((integration) => (
-        <li key={integration.id} className="group relative flex min-w-0 items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg motion-reduce:transition-none sm:p-5">
-          <span aria-hidden="true" className="flex h-14 w-24 shrink-0 items-center justify-center">
+        <li key={integration.id} className="group relative flex min-w-0 flex-wrap items-center gap-x-4 gap-y-3 overflow-hidden rounded-2xl sm:flex-nowrap border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg motion-reduce:transition-none sm:p-5">
+          <span aria-hidden="true" className="flex h-14 w-16 shrink-0 items-center justify-center sm:w-24">
             <img src={`/payment-integration-method/${integration.paymentMethod === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className={`${integration.paymentMethod === 'Card' ? 'h-8' : 'size-14'} max-w-full object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal`} />
           </span>
           <div className="min-w-0">
@@ -126,15 +126,15 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
               <span className="truncate">{integration.integrationId}</span>
             </span>
           </div>
-          <div className="ms-auto shrink-0">
+          <div className="w-full shrink-0 border-t border-border/60 pt-3 sm:ms-auto sm:w-auto sm:border-t-0 sm:pt-0">
             <PaymobIntegrationMenu clinicId={clinicId} accountId={account.accountId} accountActive={account.isActive} integration={integration} refreshing={refreshing} />
           </div>
         </li>
       ))}</ul>
     </> : <div className="mt-5 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-muted/40 to-transparent">
-      <div className={`grid gap-8 p-6 sm:p-10 ${disabled ? '' : 'lg:grid-cols-[1.1fr_1fr] lg:items-center'}`}>
+      <div className={`grid gap-6 p-5 sm:gap-8 sm:p-10 ${disabled ? '' : 'md:grid-cols-[1.1fr_1fr] md:items-center'}`}>
         <div>
-          <h3 className="max-w-sm font-sans text-3xl leading-[1.15] font-bold sm:text-4xl">{t('paymob.integrationsEmptyTitle')}</h3>
+          <h3 className="max-w-sm font-sans text-2xl leading-[1.15] font-bold sm:text-4xl">{t('paymob.integrationsEmptyTitle')}</h3>
           <p className="mt-4 max-w-sm text-sm leading-7 text-muted-foreground">{t(disabled ? 'paymob.integrationsDisabled' : 'paymob.integrationsNeeded')}</p>
           {!disabled && <p className="mt-6 hidden items-center gap-2.5 text-xs font-bold text-primary/70 lg:flex">
             <span className="h-px w-9 bg-primary/25" />
@@ -143,7 +143,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
           </p>}
         </div>
         {!disabled && <div className="grid gap-3 sm:grid-cols-2">{methods.map((value) => (
-          <button key={value} type="button" disabled={busy || refreshing} onClick={() => openEditor(value)} aria-label={t('paymob.addMethodIntegration', { method: t('paymob.method.' + value) })} className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-5 text-start transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg disabled:pointer-events-none disabled:opacity-60">
+          <button key={value} type="button" disabled={busy || refreshing} onClick={() => openEditor(value)} aria-label={t('paymob.addMethodIntegration', { method: t('paymob.method.' + value) })} className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-4 text-start sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg disabled:pointer-events-none disabled:opacity-60">
               <img src={`/payment-integration-method/${value === 'Card' ? 'Visa' : 'Wallet_App_icon_iOS_12'}.png`} alt="" className="size-14 object-contain mix-blend-multiply dark:rounded-xl dark:mix-blend-normal" />
             <div>
               <strong className="block text-sm font-bold">{t('paymob.method.' + value)}</strong>
@@ -169,12 +169,12 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
         </DialogHeader>
         {method && <form noValidate onSubmit={submit} className="grid gap-5">
           {error && <Notice message={t('paymob.' + error)} />}
-          <div className="grid gap-6 sm:grid-cols-[minmax(0,15rem)_1fr]">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-card to-transparent p-5">
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,15rem)_1fr] sm:gap-6">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-card to-transparent p-4 sm:p-5">
               <div className="flex items-center">
                 <MethodLogo method={method} />
               </div>
-              <p className="mt-6 text-xs font-bold text-muted-foreground">{t('paymob.method.' + method)}</p>
+              <p className="mt-4 text-xs font-bold text-muted-foreground sm:mt-6">{t('paymob.method.' + method)}</p>
               <p dir={enteredId.trim() ? 'ltr' : undefined} className={`mt-2 text-lg font-bold ${enteredId.trim() ? 'break-all font-mono' : 'font-sans text-muted-foreground'}`}>
                 {enteredId.trim() || t('paymob.previewPlaceholder', { defaultValue: 'Your Integration ID' })}
               </p>
@@ -188,7 +188,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
                     const checked = method === value
                     const linked = !available.includes(value)
                     return <button key={value} type="button" role="radio" aria-checked={checked} disabled={linked || busy || refreshing} onClick={() => { if (checked) return; setSelected(value); setIntegrationId(''); setError(''); setInvalid(false) }}
-                      className={'rounded-lg px-4 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed ' + (checked ? 'bg-card text-foreground shadow-sm' : linked ? 'text-muted-foreground/60' : 'text-muted-foreground hover:text-foreground')}>
+                      className={'rounded-lg px-4 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed sm:py-2 ' + (checked ? 'bg-card text-foreground shadow-sm' : linked ? 'text-muted-foreground/60' : 'text-muted-foreground hover:text-foreground')}>
                       {t('paymob.method.' + value)}{linked && <span className="text-[10px] font-bold uppercase tracking-wider"> · {t('paymob.methodLinked')}</span>}
                     </button>
                   })}
@@ -209,7 +209,7 @@ export function PaymobIntegrations({ clinicId, account, refreshing }: { clinicId
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
             <Button type="button" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} disabled={busy} onClick={closeEditor}><X />{t('paymob.cancelIntegration')}</Button>
             <Button type="submit" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} disabled={busy || refreshing} aria-busy={busy}>{busy || refreshing ? <LoaderCircle className={spinnerClass} /> : <Link2 />}{t('paymob.linkIntegration')}</Button>
           </div>

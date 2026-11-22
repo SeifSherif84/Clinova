@@ -11,7 +11,7 @@ export default function PaymobCredentialsGuidePage() {
   return <PaymobPageFrame clinicId={clinicId} back="settings" title={t('paymob.guideTitle')} description={t('paymob.guideIntro')}>
     {() => <>
       <PaymobCredentialsGuide />
-      <div className="relative mt-10 overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/8 via-card to-transparent p-6 sm:p-8">
+      <div className="relative mt-8 overflow-hidden rounded-3xl border border-primary/15 sm:mt-10 bg-gradient-to-br from-primary/8 via-card to-transparent p-5 sm:p-8">
   <div aria-hidden="true" className="pointer-events-none absolute -end-10 -top-10 size-40 rounded-full bg-primary/10 blur-3xl" />
   <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
     <div className="min-w-0">
@@ -21,7 +21,7 @@ export default function PaymobCredentialsGuidePage() {
       </span>
       <p className="mt-3 max-w-md text-sm leading-7 text-foreground/80">{t('paymob.guideFinish')}</p>
     </div>
-    <Button role="link" className="h-10 w-fit shrink-0 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}>
+    <Button role="link" className="h-10 w-full shrink-0 cursor-pointer rounded-xl bg-primary px-4 sm:w-fit text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}>
       {t('paymob.backConnect')}<ArrowRight className="size-4 rtl:rotate-180" />
     </Button>
   </div>

@@ -89,7 +89,7 @@ function Breakdown({ data }: { data: AppointmentOverview }) {
   })
 
   return (
-    <div className="grid items-center gap-8 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14">
+    <div className="grid items-center gap-8 md:grid-cols-[15rem_minmax(0,1fr)] md:gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14">
       {/* Ring */}
       <div className="relative mx-auto aspect-square w-full max-w-[16rem]">
         <div className="absolute inset-[14%] rounded-full bg-gradient-to-b from-primary/[0.06] to-transparent" aria-hidden="true" />

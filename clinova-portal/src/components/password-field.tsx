@@ -20,7 +20,7 @@ export default function PasswordField({ label, hint, error, id, ...props }: Pass
       <Label htmlFor={id} className="text-xs font-semibold text-foreground/80">{label}</Label>
       <div className="relative min-w-0 max-w-full">
         <LockKeyhole className="pointer-events-none absolute top-1/2 start-3 z-10 size-[18px] -translate-y-1/2 text-primary/70" />
-        <Input id={id} type={visible ? 'text' : 'password'} aria-invalid={Boolean(error)} className="h-12 rounded-xl border border-input bg-background/40 pe-11 ps-10 text-[15px] font-medium placeholder:text-sm placeholder:font-medium text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" {...props} />
+        <Input id={id} type={visible ? 'text' : 'password'} aria-invalid={Boolean(error)} className="h-12 rounded-xl border border-input bg-background/40 pe-11 ps-10 text-base font-medium sm:text-[15px] placeholder:text-sm placeholder:font-medium text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" {...props} />
         <Button
           variant="ghost"
           size="icon-sm"

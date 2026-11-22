@@ -74,7 +74,7 @@ export function RevenueBarChart({ bars, metric, onMetric, hovered, onHover, mone
               role="radio"
               aria-checked={metric === value}
               onClick={() => onMetric(value)}
-              className={`h-7 cursor-pointer rounded-full px-3.5 text-xs font-bold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${metric === value ? 'bg-background text-primary shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-background/60 hover:text-foreground'}`}
+              className={`h-9 px-4 sm:h-7 sm:px-3.5 cursor-pointer rounded-full text-xs font-bold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${metric === value ? 'bg-background text-primary shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-background/60 hover:text-foreground'}`}
             >
               {t(`analytics.financial.${value}`)}
             </button>
@@ -164,12 +164,12 @@ export function RevenueBarChart({ bars, metric, onMetric, hovered, onHover, mone
                         {/* value label riding on top of the pillar */}
                         <span
                           dir="ltr"
-                          className={`pointer-events-none absolute start-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap tabular-nums transition-[bottom,opacity,background-color] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none rtl:translate-x-1/2 ${
+                          className={`pointer-events-none absolute start-1/2 flex w-full -translate-x-1/2 items-center justify-center gap-1 rounded-xl px-1 py-0.5 text-center text-[10px] font-bold whitespace-normal break-words tabular-nums sm:w-auto sm:rounded-full sm:px-2.5 sm:py-1 sm:text-xs sm:whitespace-nowrap transition-[bottom,opacity,background-color] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none rtl:translate-x-1/2 ${
                             bar.value < 0 ? 'bg-destructive/10 text-destructive' : isLeader ? 'bg-primary/10 text-primary ring-1 ring-primary/25' : 'text-foreground'
                           } ${dimmed ? 'opacity-35' : ''}`}
                           style={{ bottom: `calc(${pct}% + ${LABEL_OFFSET}px)`, transitionDelay: delay }}
                         >
-                          {champion?.key === bar.key && <Trophy aria-hidden="true" className="size-3.5" />}
+                          {champion?.key === bar.key && <Trophy aria-hidden="true" className="hidden size-3.5 sm:block" />}
                           {money(bar.value)}
                         </span>
 
@@ -177,7 +177,7 @@ export function RevenueBarChart({ bars, metric, onMetric, hovered, onHover, mone
                         {active && (
                           <span
                             role="tooltip"
-                            className={`pointer-events-none absolute top-0 z-30 w-60 rounded-2xl border border-border/70 bg-popover/95 p-4 text-start shadow-xl ring-1 ring-black/5 backdrop-blur-xl ${
+                            className={`pointer-events-none absolute top-0 z-30 hidden w-60 rounded-2xl border border-border/70 bg-popover/95 p-4 sm:block text-start shadow-xl ring-1 ring-black/5 backdrop-blur-xl ${
                               side === 'after' ? 'start-full ms-1' : side === 'before' ? 'end-full me-1' : 'start-1/2 -translate-x-1/2 rtl:translate-x-1/2'
                             }`}
                           >
@@ -224,8 +224,8 @@ export function RevenueBarChart({ bars, metric, onMetric, hovered, onHover, mone
                 const isLeader = leader?.key === bar.key
                 return (
                   <div key={bar.key} className={`min-w-0 px-1 text-center transition-opacity duration-300 ${hovered !== null && hovered !== bar.key ? 'opacity-40' : ''}`}>
-                    <strong className={`block truncate text-xs font-bold sm:text-sm ${isLeader ? 'text-foreground' : 'text-foreground/70'}`}>{label(bar)}</strong>
-                    <small className="block truncate text-[10px] font-bold tracking-wider text-primary/70 uppercase">{category(bar)}</small>
+                    <strong className={`block break-words text-xs font-bold sm:truncate sm:text-sm ${isLeader ? 'text-foreground' : 'text-foreground/70'}`}>{label(bar)}</strong>
+                    <small className="block break-words text-[10px] font-bold tracking-wider text-primary/70 uppercase sm:truncate">{category(bar)}</small>
                   </div>
                 )
               })}

@@ -14,11 +14,11 @@ export function PaymobSettingsRow({ clinicId, configuration }: { clinicId: strin
       <div className="relative isolate overflow-hidden rounded-3xl border border-primary/10 bg-card">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
         <div aria-hidden="true" className="pointer-events-none absolute -end-20 -top-20 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="p-6 sm:p-10">
+        <div className="p-5 sm:p-10">
           <div>
-            <h2 className="font-sans text-3xl leading-tight font-bold sm:text-4xl">{t('paymob.heroTitle')}</h2>
+            <h2 className="font-sans text-2xl leading-tight font-bold sm:text-4xl">{t('paymob.heroTitle')}</h2>
             <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{t('paymob.heroDescription')}</p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center">
               <Button role="link" className={paymobButtonClass + ' bg-primary text-primary-foreground hover:bg-primary/90'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} />}><Link2 />{t('paymob.navigation')}</Button>
               <Button role="link" variant="outline" className={paymobButtonClass + ' border-transparent bg-foreground/5 text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10'} render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen />{t('paymob.howItWorks')}</Button>
             </div>

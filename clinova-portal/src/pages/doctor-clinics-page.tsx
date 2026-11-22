@@ -24,7 +24,7 @@ export default function DoctorClinicsPage() {
   <Building2 className="size-3" />
   {t('clinics.eyebrow')}
 </Badge><h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('clinics.title')}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('clinics.description')}</p></div>
-          <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
+          <Button className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 sm:w-auto" render={<Link to="/doctor/clinics/new" />}><Plus />{t('clinics.addClinic')}</Button>
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" /><p className="text-xs text-muted-foreground">{t('clinics.loading')}</p></Card>}
@@ -53,18 +53,18 @@ export default function DoctorClinicsPage() {
 <Card key={clinic.id} className="group relative rounded-2xl border border-border bg-card transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
   <CardContent className="grid h-full gap-5">
     <div className="flex items-start justify-between gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none"><Building2 className="size-6" /></span>
-        <div>
-          <h2 className="font-sans text-lg font-bold leading-tight">{clinic.name}</h2>
+        <div className="min-w-0 max-sm:pe-24">
+          <h2 className="font-sans text-lg font-bold leading-tight break-words">{clinic.name}</h2>
           <Badge className="absolute end-4 top-4 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-bold tracking-wider text-primary uppercase">{t('clinics.connected')}</Badge>
         </div>
       </div>
     </div>
     <p className="flex items-start gap-2 text-sm leading-6 font-semibold text-muted-foreground"><MapPin className="mt-1 size-4 shrink-0 text-primary" />{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</p>
     <div className="grid grid-cols-2 gap-3">
-      <span className="grid gap-2 rounded-xl bg-background/100 p-4"><small className="flex items-center gap-1.5 whitespace-nowrap text-xs font-bold tracking-normal text-foreground/60 uppercase"><CircleDollarSign className="size-5 shrink-0" />{t('clinics.consultation')}</small><strong className="text-base">{money.format(clinic.consultationFee)}</strong></span>
-      <span className="grid gap-2 rounded-xl bg-background/100 p-4"><small className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-5 shrink-0" />{t('clinics.deposit')}</small><strong className="text-base">{clinic.depositPercentage}%</strong></span>
+      <span className="grid min-w-0 gap-2 rounded-xl bg-background/100 p-3 sm:p-4"><small className="flex items-center gap-1.5 text-xs font-bold tracking-normal text-foreground/60 uppercase sm:whitespace-nowrap"><CircleDollarSign className="size-4 shrink-0 sm:size-5" />{t('clinics.consultation')}</small><strong className="text-base break-words">{money.format(clinic.consultationFee)}</strong></span>
+      <span className="grid min-w-0 gap-2 rounded-xl bg-background/100 p-3 sm:p-4"><small className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-foreground/60 uppercase"><WalletCards className="size-4 shrink-0 sm:size-5" />{t('clinics.deposit')}</small><strong className="text-base">{clinic.depositPercentage}%</strong></span>
     </div>
     <Button className="mt-auto h-10 w-full cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId" params={{ clinicId: String(clinic.id) }} />}>{t('clinics.openClinic')}<ArrowRight className="rtl:rotate-180" /></Button>
   </CardContent>

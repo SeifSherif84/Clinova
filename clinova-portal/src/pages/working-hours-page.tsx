@@ -231,7 +231,7 @@ export default function WorkingHoursPage() {
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loadingClinics')}</p></Card>}
         {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
         {clinics.data?.length === 0 && (
-          <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+          <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
             <div className="relative">
               <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
               <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -242,7 +242,7 @@ export default function WorkingHoursPage() {
               <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
             </div>
 
-            <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">
+            <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">
               {t('workingHours.noClinicsTitle')}
             </h2>
             <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">
@@ -260,21 +260,21 @@ export default function WorkingHoursPage() {
             {(localError || actionError) && <Notice message={localError || getErrorMessage(actionError)} />}
             {success && <Notice tone="success" message={success} />}
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <Card className="flex-col items-start gap-2 rounded-2xl border border-border bg-card p-2.5 shadow-sm transition-shadow hover:shadow-md min-[400px]:gap-3 min-[400px]:p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.weeklyHours')}</small>
                   <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{t('workingHours.hoursValue', { count: Math.round((weeklyMinutes / 60) * 10) / 10 })}</strong>
                 </div>
               </Card>
-              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <Card className="flex-col items-start gap-2 rounded-2xl border border-border bg-card p-2.5 shadow-sm transition-shadow hover:shadow-md min-[400px]:gap-3 min-[400px]:p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CalendarClock className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.activeSchedules')}</small>
                   <strong className="mt-1 block text-xl leading-none font-bold text-foreground sm:text-3xl">{activeCount}</strong>
                 </div>
               </Card>
-              <Card className="flex-col items-start gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <Card className="flex-col items-start gap-2 rounded-2xl border border-border bg-card p-2.5 shadow-sm transition-shadow hover:shadow-md min-[400px]:gap-3 min-[400px]:p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Building2 className="size-4.5" /></span>
                 <div className="min-w-0">
                   <small className="block truncate text-[9px] font-bold tracking-wider text-muted-foreground uppercase sm:text-[11px]">{t('workingHours.connectedClinics')}</small>
@@ -285,10 +285,10 @@ export default function WorkingHoursPage() {
 
             <div className="grid min-w-0 gap-5">
               <Card className="min-w-0 rounded-2xl border border-border bg-card">
-                <CardHeader className="!pb-3 border-b border-border/40">
+                <CardHeader className="!pb-3 border-b border-border/40 max-sm:px-4">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0"><CardTitle className="flex items-center gap-2 font-sans text-xl font-bold normal-case tracking-normal"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"><CalendarClock className="size-7" /></span>{t('workingHours.calendarTitle')}</CardTitle><p className="mt-3 w-fit max-w-full rounded-lg bg-primary/[0.04] px-3 py-2 text-[13px] leading-5 font-semibold text-foreground/90 sm:text-sm">{t('workingHours.scheduleDescription')}</p></div>
-                    <div className="grid min-w-60 gap-1.5">
+                    <div className="grid w-full gap-1.5 sm:w-auto sm:min-w-60">
   <Label className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.clinicFilter')}</Label>
   <Select
     items={[{ value: 'all', label: t('workingHours.allClinics') }, ...clinics.data.map((clinic) => ({ value: String(clinic.id), label: clinic.name }))]}
@@ -379,13 +379,13 @@ export default function WorkingHoursPage() {
                         </div>
                       </div>
 
-                      <div className="grid gap-3 p-4 lg:hidden">
+                      <div className="grid gap-3 p-3 sm:p-4 lg:hidden">
                         <p className="flex items-center gap-2 text-xs leading-5 text-muted-foreground"><MousePointerClick className="size-4 shrink-0 text-primary" />{t('workingHours.mobileHint')}</p>
                         {orderedDays.map((day) => {
                           const dayEntries = visibleEntries.filter((entry) => entry.workingHour.day.toLowerCase() === day.name.toLowerCase()).sort((left, right) => timeToMinutes(left.workingHour.startTime) - timeToMinutes(right.workingHour.startTime))
                           return (
                             <section className="overflow-hidden rounded-2xl border border-border/60 bg-background/35" key={day.id}>
-                              <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-3">
+                              <div className="flex items-center justify-between gap-3 border-b border-border/50 px-3 py-3 sm:px-4">
                                 <div><h3 className="text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-xs font-semibold text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
                                 <Button type="button" variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
                               </div>
@@ -434,7 +434,7 @@ export default function WorkingHoursPage() {
         </div>
       </DialogHeader>
 
-      <div className="grid gap-6 p-6">
+      <div className="grid gap-5 p-4 sm:gap-6 sm:p-6">
         {(localError || saveWorkingHour.error || toggleWorkingHour.error) && <Notice message={localError || getErrorMessage(saveWorkingHour.error || toggleWorkingHour.error)} />}
         <form className="grid min-w-0 gap-6" onSubmit={submitEditor}>
           <div className="grid gap-2.5">
@@ -466,18 +466,18 @@ export default function WorkingHoursPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2.5">
               <Label htmlFor="workingHourStart" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.startTime')}</Label>
-              <input id="workingHourStart" type="time" step={60} required value={editor.startTime} onChange={(event) => updateEditor('startTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+              <input id="workingHourStart" type="time" step={60} required value={editor.startTime} onChange={(event) => updateEditor('startTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-base font-bold tabular-nums shadow-sm outline-none sm:text-sm transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
             </div>
             <div className="grid gap-2.5">
               <Label htmlFor="workingHourEnd" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.endTime')}</Label>
-              <input id="workingHourEnd" type="time" step={60} required value={editor.endTime} onChange={(event) => updateEditor('endTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+              <input id="workingHourEnd" type="time" step={60} required value={editor.endTime} onChange={(event) => updateEditor('endTime', event.target.value)} className="h-12 w-full cursor-pointer rounded-xl border border-border bg-background/40 px-3.5 text-base font-bold tabular-nums shadow-sm outline-none sm:text-sm transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
             </div>
           </div>
 
           <div className="grid gap-2.5">
             <Label htmlFor="workingHourDuration" className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{t('workingHours.slotMinutes')}</Label>
             <div className="flex flex-wrap items-center gap-2">
-              <input id="workingHourDuration" type="number" min={1} max={1440} step={1} required value={editor.slotDurationMinutes} onChange={(event) => updateEditor('slotDurationMinutes', event.target.value)} className="h-12 w-28 rounded-xl border border-border bg-background/40 px-3.5 text-sm font-bold tabular-nums shadow-sm outline-none transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
+              <input id="workingHourDuration" type="number" min={1} max={1440} step={1} required value={editor.slotDurationMinutes} onChange={(event) => updateEditor('slotDurationMinutes', event.target.value)} className="h-12 w-28 rounded-xl border border-border bg-background/40 px-3.5 text-base font-bold tabular-nums shadow-sm outline-none sm:text-sm transition-all hover:border-primary/40 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20" />
               {[15, 30, 45, 60].map((minutes) => (
                 <button
                   type="button"
@@ -543,11 +543,11 @@ export default function WorkingHoursPage() {
 
           {editor.startTime && editor.endTime && editor.endTime > editor.startTime && Number(editor.slotDurationMinutes) > 0 && (
             <div className="grid grid-cols-3 divide-x divide-primary/15 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-primary/[0.04] to-transparent">
-              <div className="grid min-w-0 content-between gap-2 px-3 py-3 sm:px-4">
+              <div className="grid min-w-0 content-between gap-2 px-2 py-3 min-[400px]:px-3 sm:px-4">
                 <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"><Clock3 className="size-3.5 shrink-0 text-primary" /><span className="truncate">{t('workingHours.summaryHours', { defaultValue: 'Working hours' })}</span></span>
                 <strong className="truncate text-sm font-bold tabular-nums sm:text-base" dir="ltr">{editor.startTime} - {editor.endTime}</strong>
               </div>
-              <div className="grid min-w-0 content-between gap-2 px-3 py-3 sm:px-4">
+              <div className="grid min-w-0 content-between gap-2 px-2 py-3 min-[400px]:px-3 sm:px-4">
                 <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"><Timer className="size-3.5 shrink-0 text-primary" /><span className="truncate">{t('workingHours.summaryDuration', { defaultValue: 'Per appointment' })}</span></span>
                 <strong className="truncate text-sm font-bold tabular-nums sm:text-base">{t('workingHours.minutesShort', { count: Number(editor.slotDurationMinutes), defaultValue: '{{count}} min' })}</strong>
               </div>
@@ -572,7 +572,7 @@ export default function WorkingHoursPage() {
                 <span className="ms-2 max-w-40 overflow-hidden text-[13px] font-bold whitespace-nowrap opacity-100 transition-all duration-300 sm:ms-0 sm:max-w-0 sm:opacity-0 sm:group-hover/delete:ms-2 sm:group-hover/delete:max-w-40 sm:group-hover/delete:opacity-100 sm:group-focus-visible/delete:ms-2 sm:group-focus-visible/delete:max-w-40 sm:group-focus-visible/delete:opacity-100">{t('workingHours.delete')}</span>
               </button>
             ) : <span />}
-            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row [&>button]:w-full sm:[&>button]:w-auto">
               <Button type="button" variant="outline" className="h-10 cursor-pointer rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 disabled:cursor-not-allowed dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" disabled={saveWorkingHour.isPending} onClick={() => { setEditor(null); setLocalError(''); saveWorkingHour.reset() }}><X />{t('workingHours.cancel')}</Button>
               <Button type="submit" className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 disabled:cursor-not-allowed" disabled={saveWorkingHour.isPending || !editor.clinicId}>{saveWorkingHour.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <Save />}{t(editor.mode === 'create' ? 'workingHours.create' : 'workingHours.save')}</Button>
             </div>

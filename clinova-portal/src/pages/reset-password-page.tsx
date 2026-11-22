@@ -40,14 +40,14 @@ export default function ResetPasswordPage() {
           <span className="grid size-16 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><KeyRound className="size-7" /></span>
           <h2 className="mt-2 font-sans text-2xl font-bold">{t('resetPassword.updatedTitle')}</h2>
           <p className="mb-2 text-sm text-muted-foreground">{t('resetPassword.updatedDescription')}</p>
-          <Link to="/login" search={{ redirect: undefined }} className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground transition-colors hover:bg-primary/90">{t('common.continueToSignIn')} <ArrowRight className="size-4 rtl:rotate-180" /></Link>
+          <Link to="/login" search={{ redirect: undefined }} className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 sm:h-10 text-[13px] font-bold normal-case tracking-normal text-primary-foreground transition-colors hover:bg-primary/90">{t('common.continueToSignIn')} <ArrowRight className="size-4 rtl:rotate-180" /></Link>
         </div>
       ) : (
         <form className="grid gap-5" onSubmit={handleSubmit}>
           {(formError || update.error) && <Notice message={formError || getErrorMessage(update.error)} />}
           <PasswordField id="newPassword" name="newPassword" label={t('fields.newPassword')} placeholder={t('fields.strongPassword')} hint={t('fields.passwordHint')} autoComplete="new-password" required />
           <PasswordField id="confirmNewPassword" name="confirmPassword" label={t('fields.confirmNewPassword')} placeholder={t('fields.repeatNewPassword')} autoComplete="new-password" required />
-          <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={update.isPending}>
+          <Button className="h-11 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90 sm:h-10" type="submit" disabled={update.isPending}>
             {update.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <>{t('resetPassword.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
           </Button>
         </form>

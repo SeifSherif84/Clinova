@@ -46,13 +46,13 @@ export function SecretaryInviteCard({ clinicId }: { clinicId: number }) {
           <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.clinic.inviteTitle')}</h3>
         </div>
       </div>
-      <CardContent className="grid gap-4 p-5">
+      <CardContent className="grid gap-4 p-5 max-sm:p-4">
         {success && <Notice tone="success" message={success} />}
         {invite.error && <Notice message={getErrorMessage(invite.error)} />}
         <form className="grid gap-3" onSubmit={submit}>
           <p className="text-sm leading-6 font-bold text-muted-foreground">{t('secretary.clinic.inviteDescription')}</p>
           <FormField id="inviteSecretaryEmail" label={t('secretary.clinic.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={256} autoComplete="email" placeholder="secretary@example.com" required />
-          <Button type="submit" className="h-10 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90" disabled={invite.isPending}>
+          <Button type="submit" className="h-11 rounded-xl bg-primary px-4 text-[13px] font-bold normal-case text-primary-foreground hover:bg-primary/90 sm:h-10" disabled={invite.isPending}>
             {invite.isPending ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <MailPlus />}
             {t('secretary.clinic.invite')}
           </Button>
@@ -96,21 +96,21 @@ export default function ClinicSecretariesCard({ clinicId, canManage = false }: {
             <Badge className="px-2.5 py-1 text-sm font-bold text-foreground">{secretaries.data?.length ?? 0}</Badge>
           </div>
         </div>
-        <CardContent className="grid gap-3 p-5">
+        <CardContent className="grid gap-3 p-5 max-sm:p-4">
           {success && <Notice tone="success" message={success} />}
           {secretaries.isLoading && <LoaderCircle className="animate-spin text-primary motion-reduce:animate-none" />}
           {secretaries.error && <Notice message={getErrorMessage(secretaries.error)} />}
           {secretaries.isSuccess && !secretaries.data.length && <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">{t('secretary.clinic.empty')}</p>}
           {secretaries.data?.map((secretary) => (
             <div key={secretary.id} className="group flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-3 py-1.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md motion-reduce:transition-none">
-              <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm ring-2 ring-primary/15">
+              <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm ring-2 ring-primary/15 max-sm:size-12 max-sm:text-lg">
                 {secretary.profilePicture ? <img className="size-full object-cover" src={secretary.profilePicture} alt="" /> : secretary.fullName.charAt(0)}
               </span>
-              <strong className="min-w-0 flex-1 truncate text-sm font-bold">{secretary.fullName}</strong>
+              <strong className="min-w-0 flex-1 truncate text-sm font-bold max-sm:whitespace-normal max-sm:break-words">{secretary.fullName}</strong>
               {canManage && <Button
                 variant="destructive"
                 size="icon"
-                className="size-9 shrink-0 cursor-pointer rounded-full border border-foreground/15 bg-foreground/10 text-foreground shadow-sm transition hover:border-[#c98a82]/50 hover:bg-[#f6e6e3] hover:text-[#b5645a] dark:hover:border-[#c98a82]/30 dark:hover:bg-[#c98a82]/15 dark:hover:text-[#d9968d]"
+                className="size-10 shrink-0 cursor-pointer rounded-full border border-foreground/15 sm:size-9 bg-foreground/10 text-foreground shadow-sm transition hover:border-[#c98a82]/50 hover:bg-[#f6e6e3] hover:text-[#b5645a] dark:hover:border-[#c98a82]/30 dark:hover:bg-[#c98a82]/15 dark:hover:text-[#d9968d]"
                 aria-label={t('secretary.clinic.remove', { name: secretary.fullName })}
                 disabled={remove.isPending}
                 onClick={() => { remove.reset(); setSuccess(''); setRemoving(secretary) }}

@@ -29,7 +29,7 @@ function FaqAnswer({ topic, clinicId }: { topic: PaymobTutorial; clinicId: strin
   const { t } = useTranslation()
   const clinovaGuide = clinovaTopics.includes(topic)
   const steps = t('paymob.tutorials.' + topic + '.steps', { returnObjects: true }) as string[]
-  return <div className="pb-10 ps-4 sm:ps-6">
+  return <div className="pb-8 ps-2 pe-2 sm:pb-10 sm:ps-6 sm:pe-0">
     <p className="max-w-2xl text-sm font-semibold leading-7 text-muted-foreground">{t('paymob.tutorials.' + topic + '.intro')}</p>
     <ol className="mt-6 max-w-2xl">{steps.map((step, index) => <li key={index} className="relative flex items-start gap-4 pb-6 last:pb-0">
       {index < steps.length - 1 && <span aria-hidden="true" className="absolute start-[13px] top-8 bottom-1 w-px bg-primary/15" />}
@@ -42,8 +42,8 @@ function FaqAnswer({ topic, clinicId }: { topic: PaymobTutorial; clinicId: strin
       ))}
     </div>
     {topic === 'test-live' && <PaymobEnvironmentNote />}
-    {!clinovaGuide && <Button role="link" variant="ghost" className="mt-4 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink className="size-4" />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
-    {topic === 'update-disconnect' && <Button role="link" variant="ghost" className="mt-4 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 className="size-4" />{t('paymob.viewSettings')}</Button>}
+    {!clinovaGuide && <Button role="link" variant="ghost" className="mt-4 h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 sm:w-fit" render={<a href={topic === 'create-account' ? 'https://paymob.com/' : 'https://developers.paymob.com/paymob-docs/getting-started/new-dashboard'} target="_blank" rel="noopener noreferrer" />}><ExternalLink className="size-4" />{t(topic === 'create-account' ? 'paymob.openPaymob' : 'paymob.officialGuide')}</Button>}
+    {topic === 'update-disconnect' && <Button role="link" variant="ghost" className="mt-4 h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 sm:w-fit" render={<Link to="/doctor/clinics/$clinicId/payments" params={{ clinicId }} />}><Settings2 className="size-4" />{t('paymob.viewSettings')}</Button>}
   </div>
 }
 
@@ -53,19 +53,19 @@ export default function PaymobHelpPage() {
   const [open, setOpen] = useState<PaymobTutorial | null>(null)
   return <PaymobPageFrame clinicId={clinicId} hideIntro title={t('paymob.helpTitle')} description={t('paymob.ux.helpStart')}>
     {() => <>
-      <div className="mt-2 grid gap-14 sm:gap-16">
+      <div className="mt-2 grid gap-10 sm:gap-16">
         {groups.map(({ label, topics }) => <section key={label} aria-labelledby={'help-' + label} className="min-w-0">
           <h2 id={'help-' + label} className="font-sans text-xl font-bold">
             {t('paymob.ux.' + label)}
           </h2>
-          <ul className="mt-4 divide-y divide-border/50 border-s border-border/60 ps-4 sm:ps-6">
+          <ul className="mt-4 divide-y divide-border/50 border-s border-border/60 ps-2 sm:ps-6">
             {topics.map((topic) => {
               const expanded = open === topic
               return <li key={topic} className={'overflow-hidden rounded-2xl transition-colors duration-200 motion-reduce:transition-none ' + (expanded ? 'bg-primary/5' : '')}>
                 <h3>
                   <button type="button" id={'faq-' + topic} aria-expanded={expanded} aria-controls={'faq-panel-' + topic}
                     onClick={() => setOpen(expanded ? null : topic)}
-                    className={'group flex min-h-14 w-full cursor-pointer items-center gap-4 rounded-2xl px-4 py-4 text-start text-base font-bold transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring ' + (expanded ? 'text-primary' : 'text-foreground hover:bg-muted/50')}>
+                    className={'group flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl px-3 py-3.5 text-start text-base font-bold transition-colors sm:gap-4 sm:px-4 sm:py-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring ' + (expanded ? 'text-primary' : 'text-foreground hover:bg-muted/50')}>
                     <span className={'h-5 w-1 shrink-0 rounded-full transition-colors duration-200 motion-reduce:transition-none ' + (expanded ? 'bg-primary' : 'bg-transparent')} />
                     <span className="min-w-0 flex-1">{t('paymob.tutorials.' + topic + '.title')}</span>
                     <ChevronDown className={'size-4 shrink-0 text-muted-foreground transition-transform duration-200 motion-reduce:transition-none ' + (expanded ? 'rotate-180 text-primary' : '')} />
@@ -79,9 +79,9 @@ export default function PaymobHelpPage() {
           </ul>
         </section>)}
       </div>
-      <div className="mt-12 flex flex-wrap gap-2 border-t border-border/60 pt-6">
-        <Button role="link" className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="size-4 rtl:rotate-180" />{t('paymob.backConnect')}</Button>
-        <Button role="link" variant="ghost" className="h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.openGuide')}</Button>
+      <div className="mt-10 flex flex-col gap-2 border-t border-border/60 pt-6 sm:mt-12 sm:flex-row sm:flex-wrap">
+        <Button role="link" className="h-10 w-full cursor-pointer rounded-xl bg-primary px-4 sm:w-fit text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/connect" params={{ clinicId }} hash="paymob-connect" />}><ArrowLeft className="size-4 rtl:rotate-180" />{t('paymob.backConnect')}</Button>
+        <Button role="link" variant="ghost" className="h-10 w-full cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 sm:w-fit" render={<Link to="/doctor/clinics/$clinicId/payments/paymob/guide" params={{ clinicId }} />}><BookOpen className="size-4" />{t('paymob.openGuide')}</Button>
       </div>
     </>}
   </PaymobPageFrame>
