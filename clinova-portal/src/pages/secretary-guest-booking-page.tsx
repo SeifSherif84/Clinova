@@ -58,7 +58,7 @@ function SectionCard({ icon, title, step, children }: { icon: ReactNode; title: 
         {step && <span className="shrink-0 rounded-full bg-background/70 px-2 py-1 text-xs font-bold text-muted-foreground">{t('secretary.guest.step', { number: step })}</span>}
       </div>
     </div>
-    <CardContent className="grid gap-5 p-5">{children}</CardContent>
+    <CardContent className="grid gap-4 p-4 min-[400px]:gap-5 min-[400px]:p-5">{children}</CardContent>
   </Card>
 }
 
@@ -188,9 +188,9 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         </div>}
         {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noDoctors')}</p>}
         {members.data && members.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.doctorStep')} value={doctor?.id ?? ''} onValueChange={(value) => selectDoctor(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
+          {members.data.map((member) => <label key={member.id} className="group relative flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-3 py-2.5 transition min-[400px]:gap-4 min-[400px]:px-4 hover:-translate-y-0.5 hover:bg-primary/5 dark:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/10 has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-60">
             <RadioGroupItem value={member.id} className="pointer-events-none absolute size-px opacity-0" />
-            <DoctorAvatar className="size-16" name={member.fullName} picture={member.profilePicture} />
+            <DoctorAvatar className="size-12 min-[400px]:size-16" name={member.fullName} picture={member.profilePicture} />
             <span className="grid min-w-0 flex-1 gap-1">
               <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <strong className="truncate text-base font-bold">{member.fullName}</strong>
@@ -210,7 +210,7 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
         {!doctor ? <Hint icon={<Stethoscope className="text-primary" />}>{t('secretary.guest.pickDoctorFirst')}</Hint> : <div className="grid gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-0">
           <div className="grid content-start gap-3 lg:pe-8">
             <Label className="text-sm font-bold text-foreground">{t('secretary.guest.dayLabel')}</Label>
-            <div className="relative justify-self-start">
+            <div className="relative max-w-full justify-self-center overflow-x-auto sm:justify-self-start">
               <Calendar
                 mode="single"
                 selected={date ? parseSlotDate(date) ?? undefined : undefined}
@@ -245,8 +245,8 @@ function ReservationForm({ clinic, initialDoctorId, onReserved }: { clinic: Clin
             {date && slots.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingSlots')}</p>}
             {date && slots.isError && <p role="alert" className="text-xs font-bold text-destructive">{getErrorMessage(slots.error)}</p>}
             {date && slots.data && !slots.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noSlots')}</p>}
-            {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="mt-1 grid grid-cols-2 gap-2.5">
-              {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-2.5 py-3 text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:-translate-y-0.5 not-has-[[data-checked]]:hover:bg-primary/5 dark:not-has-[[data-checked]]:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
+            {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="mt-1 grid grid-cols-2 gap-2 min-[400px]:gap-2.5">
+              {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-1.5 py-3 text-[13px] min-[400px]:px-2.5 min-[400px]:text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:-translate-y-0.5 not-has-[[data-checked]]:hover:bg-primary/5 dark:not-has-[[data-checked]]:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
                 <RadioGroupItem value={String(item.id)} className="pointer-events-none absolute size-px opacity-0" />
                 <Clock3 aria-hidden="true" className="size-4 shrink-0 stroke-[2.25] opacity-80" />
                 <span dir="ltr">{formatTime(item.startTime)} – {formatTime(item.endTime)}</span>
@@ -491,7 +491,7 @@ function GuestCheckout({ reservation, onConfirmed, onReleased }: { reservation: 
 
         {!countdown.expired && <div className="flex flex-wrap gap-2.5 border-t border-border/50 pt-5">
           <Button type="button" className={primaryButton + ' flex-1 sm:flex-none'} disabled={busy} onClick={submit}>{confirm.isPending ? spinner : <CircleCheckBig />}{t('secretary.guest.confirm')}</Button>
-          <Button type="button" variant="outline" className={button + ' rounded-xl border-destructive/20 bg-destructive/5 text-destructive hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive'} disabled={busy} onClick={() => { cancel.reset(); setConfirmCancel(true) }}>{cancel.isPending ? spinner : <Ban />}{t('secretary.guest.cancel')}</Button>
+          <Button type="button" variant="outline" className={button + ' flex-1 rounded-xl border-destructive/20 bg-destructive/5 text-destructive hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive sm:flex-none'} disabled={busy} onClick={() => { cancel.reset(); setConfirmCancel(true) }}>{cancel.isPending ? spinner : <Ban />}{t('secretary.guest.cancel')}</Button>
           {failed && <Button type="button" variant="outline" className={grayButton} disabled={busy} onClick={() => onReleased()}><RotateCcw />{t('secretary.guest.startOver')}</Button>}
         </div>}
       </SectionCard>

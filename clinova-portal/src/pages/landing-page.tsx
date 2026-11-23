@@ -20,8 +20,9 @@ export default function LandingPage() {
       <div className="pointer-events-none absolute -top-48 -end-48 size-[34rem] rounded-full bg-primary/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-48 -start-48 size-[32rem] rounded-full bg-warm/10 blur-3xl" />
       <nav className="relative z-20 mx-auto flex min-h-20 w-full max-w-screen-2xl items-center justify-between gap-3 px-4 sm:min-h-24 sm:px-6 lg:px-8">
-        <Brand />
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <span className="min-w-0 sm:hidden"><Brand compact /></span>
+        <span className="hidden sm:block"><Brand /></span>
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                     <Badge variant="secondary" className="me-1 hidden items-center gap-2 text-sm font-bold text-muted-foreground xl:inline-flex [&>svg]:size-4!"><ShieldCheck /> {t('common.securePlatform')}</Badge>
           <PreferencesControls compact />
           {auth.isAuthenticated ? (
@@ -61,8 +62,8 @@ export default function LandingPage() {
           <div className="relative -rotate-2 overflow-hidden rounded-[2rem] border border-primary/15 bg-gradient-to-br from-primary/15 via-card to-warm/10 p-6 shadow-xl shadow-primary/10 rtl:rotate-2">
             <MedicalIllustration />
           </div>
-          <Card className="absolute start-0 top-4 flex-row items-center gap-2 rounded-2xl border border-border bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl sm:-start-6 sm:top-6 sm:gap-3 sm:px-4 sm:py-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><HeartPulse className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.connectedCare')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
-          <Card className="absolute end-0 bottom-0 flex-row items-center gap-2 rounded-2xl border border-border bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl sm:-end-6 sm:gap-3 sm:px-4 sm:py-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><CalendarDays className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.schedule')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
+          <Card className="absolute start-0 top-4 max-w-[85%] flex-row items-center gap-2 rounded-2xl border border-border bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl sm:-start-6 sm:top-6 sm:max-w-none sm:gap-3 sm:px-4 sm:py-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><HeartPulse className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.connectedCare')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.connectedCareDescription')}</small></span></Card>
+          <Card className="absolute end-0 bottom-0 max-w-[85%] flex-row items-center gap-2 rounded-2xl border border-border bg-card/90 px-3 py-2 shadow-xl backdrop-blur-xl sm:-end-6 sm:max-w-none sm:gap-3 sm:px-4 sm:py-3"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><CalendarDays className="size-5" /></span><span className="grid"><strong className="text-sm">{t('landing.schedule')}</strong><small className="text-xs font-semibold text-muted-foreground">{t('landing.scheduleDescription')}</small></span></Card>
         </div>
       </section>
 

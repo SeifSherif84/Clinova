@@ -98,7 +98,7 @@ function ClinicDetailsModal({ clinicId, doctorId, onClose, tr, retryLabel }: { c
               <div className={clinic.landmark ? '' : 'sm:col-span-2'}><dt className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{tr('address', 'Address')}</dt><dd className="mt-1 text-sm font-semibold">{clinic.buildingNumber} {clinic.streetName}, {clinic.regionName}</dd></div>
               {clinic.landmark && <div className="sm:ps-10"><dt className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{tr('landmark', 'Nearby landmark')}</dt><dd className="mt-1 text-sm font-semibold">{clinic.landmark}</dd></div>}
             </dl>
-            {clinic.googleMapsUrl && <a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer noopener" className="inline-flex h-10 w-fit items-center gap-2 rounded-xl bg-primary px-4 text-[13px] font-bold text-primary-foreground transition hover:bg-primary/90"><MapPin className="size-4" />{tr('openMap', 'Open in Google Maps')}<ExternalLink className="size-3.5" /></a>}
+            {clinic.googleMapsUrl && <a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer noopener" className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[13px] font-bold text-primary-foreground transition hover:bg-primary/90 sm:w-fit sm:justify-start"><MapPin className="size-4" />{tr('openMap', 'Open in Google Maps')}<ExternalLink className="size-3.5" /></a>}
             {phones.length > 0 && <div>
               <p className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">{tr('phones', 'Phone numbers')}</p>
               <div className="mt-2 flex flex-wrap gap-2">{phones.map((phone) => <a key={phone} dir="ltr" href={`tel:${phone}`} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1.5 text-sm font-bold text-primary transition hover:bg-primary/15"><Phone className="size-3.5" />{phone}</a>)}</div>
@@ -207,7 +207,7 @@ export default function PatientDoctorPage() {
   }
 
   return <PatientShell>
-    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 pb-28 sm:px-6 lg:px-8 lg:py-14 lg:pb-14">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 pb-28 sm:px-6 sm:py-10 sm:pb-28 lg:px-8 lg:py-14 lg:pb-14">
       <nav aria-label="breadcrumb" className="flex flex-wrap items-center gap-2 text-xs font-bold text-muted-foreground">
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
         <span aria-hidden="true">/</span>
@@ -220,17 +220,17 @@ export default function PatientDoctorPage() {
         <main className="grid min-w-0 gap-10">
           {/* Header */}
           <section aria-busy={header.isLoading}>
-            {header.isLoading && <div className="flex flex-col gap-6 sm:flex-row sm:items-center"><Skeleton className="size-36 rounded-3xl sm:size-44" /><div className="grid flex-1 gap-3"><Skeleton className="h-6 w-32 rounded-full" /><Skeleton className="h-10 w-2/3" /><Skeleton className="h-5 w-1/2" /></div></div>}
+            {header.isLoading && <div className="flex flex-col gap-6 sm:flex-row sm:items-center"><Skeleton className="size-28 rounded-3xl min-[400px]:size-36 sm:size-44" /><div className="grid flex-1 gap-3"><Skeleton className="h-6 w-32 rounded-full" /><Skeleton className="h-10 w-2/3" /><Skeleton className="h-5 w-1/2" /></div></div>}
             {header.isError && <ErrorBox error={header.error} onRetry={() => header.refetch()} retryLabel={retryLabel} />}
             {doctor && <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-              <div className="relative size-36 shrink-0 overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/65 shadow-xl shadow-primary/15 ring-4 ring-card sm:size-44">
+              <div className="relative size-28 shrink-0 overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/65 shadow-xl shadow-primary/15 ring-4 ring-card min-[400px]:size-36 sm:size-44">
                 {doctor.profilePictureUrl && !pictureFailed
                   ? <img src={doctor.profilePictureUrl} alt={doctor.doctorName} onError={() => setPictureFailed(true)} className="size-full object-cover object-top" />
                   : <span className="grid size-full place-items-center font-sans text-5xl font-bold text-primary-foreground">{initials}</span>}
               </div>
               <div className="min-w-0">
                 <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><Stethoscope className="size-3" />{doctor.medicalSpecialtyName}</Badge>
-                <h1 className="mt-3 font-sans text-3xl leading-tight font-bold sm:text-5xl">{doctor.doctorName}</h1>
+                <h1 className="mt-3 font-sans text-2xl leading-tight font-bold break-words min-[400px]:text-3xl sm:text-5xl">{doctor.doctorName}</h1>
                 {doctor.title && <p className="mt-1.5 text-sm font-semibold text-muted-foreground sm:text-base">{doctor.title}</p>}
                 <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold">
                   {doctor.experienceYears != null && <span className="inline-flex items-center gap-2"><Briefcase className="size-4 text-primary" />{tr('experience', '{{years}} years of experience', { years: doctor.experienceYears })}</span>}
@@ -293,7 +293,7 @@ export default function PatientDoctorPage() {
                       {review.isAnonymous ? <UserRound className="size-5" /> : review.patientName.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
                     </span>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
                         <strong className="truncate text-base font-bold">{review.isAnonymous ? tr('anonymous', 'Anonymous Patient') : review.patientName}</strong>
                         <Stars value={review.rating} />
                       </div>
@@ -332,12 +332,12 @@ export default function PatientDoctorPage() {
                     <h3 className="font-sans text-lg font-bold">{clinic.clinicName}</h3>
                     <p className="mt-1.5 flex items-start gap-1.5 text-sm font-semibold text-muted-foreground"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" />{clinic.streetName}, {clinic.regionName}, {clinic.governorateName}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 rounded-2xl bg-foreground/[0.04] p-3 text-center">
+                  <div className="grid grid-cols-3 gap-1 rounded-2xl bg-foreground/[0.04] p-2.5 text-center max-[400px]:[&_p:nth-child(2)]:text-sm sm:gap-2 sm:p-3">
                     <div><p className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{tr('consultation', 'Consultation')}</p><p className="mt-1 text-[15px] font-bold">{money(clinic.consultationFee)}</p></div>
                     <div className="border-x border-border/60"><p className="text-xs font-bold tracking-wider text-primary uppercase">{tr('deposit', 'Deposit')}</p><p className="mt-1 text-[15px] font-bold text-primary">{money(clinic.depositAmount)}</p></div>
                     <div><p className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{tr('remaining', 'Remaining')}</p><p className="mt-1 text-[15px] font-bold">{money(clinic.remainingAmount)}</p></div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 max-sm:[&>button]:flex-1">
                     <Button type="button" className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={() => bookHere(clinic.clinicId)}><CalendarDays className="size-4" />{selected ? tr('selected', 'Selected') : tr('bookHere', 'Book here')}</Button>
                     <Button type="button" variant="ghost" className={grayButton} onClick={() => setDetailsId(clinic.clinicId)}>{tr('viewDetails', 'View clinic details')}</Button>
                   </div>
@@ -348,8 +348,8 @@ export default function PatientDoctorPage() {
         </main>
 
         {/* Booking panel */}
-        <aside id="booking" className="scroll-mt-28 lg:sticky lg:top-28" aria-label={tr('bookTitle', 'Book an appointment')}>
-          <div className="relative isolate overflow-hidden rounded-3xl border border-primary/15 bg-card p-5 shadow-xl shadow-primary/10 sm:p-6">
+        <aside id="booking" className="scroll-mt-28 md:max-lg:mx-auto md:max-lg:w-full md:max-lg:max-w-xl lg:sticky lg:top-28" aria-label={tr('bookTitle', 'Book an appointment')}>
+          <div className="relative isolate overflow-hidden rounded-3xl border border-primary/15 bg-card p-4 shadow-xl shadow-primary/10 min-[400px]:p-5 sm:p-6">
             <span aria-hidden="true" className="pointer-events-none absolute -end-12 -top-12 -z-10 size-40 rounded-full bg-primary/10 blur-3xl" />
             <>
               <h2 className="font-sans text-xl font-bold">{tr('bookTitle', 'Book an appointment')}</h2>
@@ -394,10 +394,10 @@ export default function PatientDoctorPage() {
               {slots.isLoading && <div className="mt-2 grid grid-cols-3 gap-2">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-10 rounded-xl" />)}</div>}
               {slots.isError && <ErrorBox error={slots.error} onRetry={() => slots.refetch()} retryLabel={retryLabel} />}
               {slots.data && slots.data.length === 0 && <p className="mt-2 rounded-2xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">{tr('noSlots', 'No available times on this day.')}</p>}
-              {slots.data && slots.data.length > 0 && <div role="radiogroup" aria-label={tr('step3', 'Choose a time')} className="mt-2 grid grid-cols-3 gap-2">
+              {slots.data && slots.data.length > 0 && <div role="radiogroup" aria-label={tr('step3', 'Choose a time')} className="mt-2 grid grid-cols-3 gap-2 md:max-lg:grid-cols-4">
                 {slots.data.map((slot) => {
                   const selected = slot.id === slotId
-                  return <button key={slot.id} type="button" role="radio" aria-checked={selected} onClick={() => setSlotId(slot.id)} className={`h-10 cursor-pointer rounded-xl border text-[13px] font-bold tabular-nums transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${selected ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25' : 'border-border hover:bg-primary/5'}`}>
+                  return <button key={slot.id} type="button" role="radio" aria-checked={selected} onClick={() => setSlotId(slot.id)} className={`h-11 cursor-pointer rounded-xl border text-[13px] font-bold tabular-nums transition sm:h-10 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${selected ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25' : 'border-border hover:bg-primary/5'}`}>
                     {parseTime(slot.startTime).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}
                   </button>
                 })}

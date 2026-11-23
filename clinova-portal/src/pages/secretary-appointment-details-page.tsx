@@ -164,28 +164,28 @@ export default function SecretaryAppointmentDetailsPage() {
           <Skeleton className="h-56 rounded-xl motion-reduce:animate-none" />
         </div>}
 
-        {unavailable && <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center">
+        {unavailable && <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card px-4 py-10 text-center sm:px-6 sm:py-12">
           <span className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">{errorStatus === 403 ? <ShieldAlert className="size-6" /> : <CalendarDays className="size-6" />}</span>
           <h1 className="mt-4 font-heading text-xl font-bold sm:text-2xl">{t(errorStatus === 403 ? 'secretary.appointments.forbiddenTitle' : 'secretary.appointments.notFoundTitle')}</h1>
           <p className="mt-2 max-w-md text-xs leading-6 text-muted-foreground sm:text-sm">{t(errorStatus === 403 ? 'secretary.appointments.forbiddenDescription' : 'secretary.appointments.notFoundDescription')}</p>
           <Button variant="outline" className={grayButton + ' mt-5'} render={<Link to="/secretary/appointments" search={listSearch} />}><ArrowLeft className="rtl:rotate-180" />{t('secretary.appointments.back')}</Button>
         </div>}
 
-        {details.isError && !unavailable && <div className="flex flex-col items-center rounded-xl border border-destructive/20 bg-card p-8 text-center">
+        {details.isError && !unavailable && <div className="flex flex-col items-center rounded-xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
           <p className="text-sm font-bold text-destructive">{getErrorMessage(details.error)}</p>
           <Button variant="outline" className={grayButton + ' mt-3'} disabled={details.isFetching} onClick={() => details.refetch()}>{details.isFetching ? spinner : <RefreshCw />}{t('invitations.retry')}</Button>
         </div>}
 
         {data && allowed && <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <article className="grid min-w-0 gap-4">
-            <header className="relative isolate grid gap-5 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm sm:p-7">
+            <header className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-4 shadow-sm min-[400px]:p-5 sm:gap-5 sm:p-7">
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
                 <span className="absolute -end-12 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-3.5 py-1.5 text-xs font-extrabold tracking-wider text-primary uppercase">{t('secretary.appointments.number', { id: data.appointmentId })}</span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`${statusClass} ${statusTone(data.appointmentStatus)} !px-3 !py-1 !text-xs !font-extrabold`}>{status(data.appointmentStatus)}</span>
                   {(allowed.cancel || canReschedule) && <Popover open={menuOpen} onOpenChange={setMenuOpen}>
                     <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" disabled={action.isPending} />} aria-label={t('secretary.outcome.manage', { defaultValue: 'Manage appointment' })}><Ellipsis className="size-5" /></PopoverTrigger>
@@ -204,14 +204,14 @@ export default function SecretaryAppointmentDetailsPage() {
                 </div>
               </div>
 
-              <div className="flex min-w-0 items-center gap-4">
-                <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary text-xl font-bold text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 sm:size-20 sm:text-2xl">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-lg font-bold text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 min-[400px]:size-16 min-[400px]:text-xl sm:size-20 sm:text-2xl">
                   {data.patientName.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
                 </span>
                 <h1 className="min-w-0 break-words font-sans text-2xl leading-tight font-bold sm:text-4xl">{data.patientName}</h1>
               </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-3">
+              <div className="grid gap-2 min-[400px]:grid-cols-2 sm:grid-cols-3 sm:gap-2.5">
                 <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3">
                   <CalendarDays className="size-5 shrink-0 text-primary" />
                   <span className="grid min-w-0 leading-tight">
@@ -226,7 +226,7 @@ export default function SecretaryAppointmentDetailsPage() {
                     <strong dir="ltr" className="truncate text-start text-sm font-bold">{formatTime(data.slotStartTime)} – {formatTime(data.slotEndTime)}</strong>
                   </span>
                 </div>
-                <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3">
+                <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3 min-[400px]:max-sm:col-span-2">
                   <Stethoscope className="size-5 shrink-0 text-primary" />
                   <span className="grid min-w-0 leading-tight">
                     <small className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.doctor')}</small>
@@ -238,7 +238,7 @@ export default function SecretaryAppointmentDetailsPage() {
               {allowed.complete && <div className="grid gap-3">
                   <h2 className="font-sans text-base font-bold tracking-normal normal-case">{t('secretary.outcome.title', { defaultValue: 'Record the appointment result' })}</h2>
                   <div role="group" aria-label={t('secretary.outcome.title', { defaultValue: 'Record the outcome' })} className="relative grid gap-3 sm:grid-cols-2">
-                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('complete') }} className="group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-3.5 text-start sm:gap-4 sm:p-4 transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                       <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition duration-200 group-hover:scale-105"><CircleCheckBig className="size-4.5" /></span>
                       <span className="relative grid min-w-0 gap-0.5">
                         <strong className="text-[15px] font-bold">{t('secretary.outcome.completed', { defaultValue: 'Completed' })}</strong>
@@ -246,7 +246,7 @@ export default function SecretaryAppointmentDetailsPage() {
                       </span>
                       <span className="relative ms-auto grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition duration-200 group-hover:bg-primary group-hover:text-primary-foreground"><ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" /></span>
                     </button>
-                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }} className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 text-start transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                    <button type="button" disabled={action.isPending} onClick={() => { action.reset(); setDialog('no-show') }} className="group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-3.5 text-start sm:gap-4 sm:p-4 transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                       <span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-foreground/10 text-foreground/70 ring-4 ring-foreground/5 transition duration-200 group-hover:scale-105 group-hover:bg-foreground/20 group-hover:text-foreground">{busy('mark-no-show') ? spinner : <UserX className="size-4.5" />}</span>
                       <span className="relative grid min-w-0 gap-0.5">
                         <strong className="text-[15px] font-bold">{t('secretary.outcome.noShow', { defaultValue: 'No-show' })}</strong>
@@ -278,13 +278,13 @@ export default function SecretaryAppointmentDetailsPage() {
             </section>}
 
             <details className="group rounded-2xl border border-border/60 bg-card shadow-sm">
-              <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-2xl px-5 py-4 marker:hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none sm:px-6 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-2xl px-4 py-3.5 marker:hidden sm:px-5 sm:py-4 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none sm:px-6 [&::-webkit-details-marker]:hidden">
                 <span className="min-w-0 flex-1 font-sans text-lg font-bold">{tr('detailsToggle', 'Booking and payment details')}</span>
                 <span className="text-xs font-bold text-primary group-open:hidden">{tr('detailsShow', 'Show')}</span>
                 <span className="hidden text-xs font-bold text-primary group-open:inline">{tr('detailsHide', 'Hide')}</span>
                 <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
               </summary>
-              <div className="grid gap-6 border-t border-border/60 p-5 sm:p-6">
+              <div className="grid gap-5 border-t border-border/60 p-4 sm:gap-6 sm:p-6">
             <Section icon={CalendarDays} title={t('secretary.appointments.appointmentSection')}>
               <dl className="grid gap-2.5 sm:grid-cols-2">
                 <div className="min-w-0 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
@@ -304,7 +304,7 @@ export default function SecretaryAppointmentDetailsPage() {
                   <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{t('secretary.appointments.phone')}</dt>
                   <dd dir="ltr" className="mt-1.5 truncate text-start text-base font-bold tabular-nums">{data.patientPhoneNumber}</dd>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
                   {copyButton(data.patientPhoneNumber)}
                   <Button className={primaryButton} render={<a href={`tel:${data.patientPhoneNumber}`} />}><PhoneCall />{t('secretary.appointments.call')}</Button>
                 </div>
@@ -385,7 +385,7 @@ export default function SecretaryAppointmentDetailsPage() {
           </article>
 
           <div className="grid gap-4 xl:sticky xl:top-24">
-          {showAside && <aside className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 shadow-sm dark:border-border dark:bg-card dark:bg-none">
+          {showAside && <aside className="relative isolate grid gap-4 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-4 shadow-sm sm:p-5 dark:border-border dark:bg-card dark:bg-none">
             <span aria-hidden="true" className="pointer-events-none absolute -end-8 -top-8 -z-10 size-28 rounded-full bg-primary/10 blur-2xl dark:hidden" />
             <div className="flex items-center gap-2.5">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><CircleCheckBig className="size-4.5" /></span>
@@ -395,10 +395,10 @@ export default function SecretaryAppointmentDetailsPage() {
             {allowed.verify && (rejecting ? <div className="grid gap-3">
               <Label htmlFor="secretaryRejectReason" className="text-sm font-bold normal-case tracking-normal text-foreground">{t('secretary.appointments.reasonLabel')}</Label>
               <div className="grid gap-1.5">
-                <Textarea id="secretaryRejectReason" value={reason} maxLength={500} autoFocus onChange={(event) => { setReason(event.target.value); setFormError('') }} placeholder={t('secretary.appointments.reasonPlaceholder')} className="min-h-28 resize-none rounded-xl border border-input bg-background/70 px-3.5 py-3 text-sm leading-6 font-medium transition placeholder:text-sm placeholder:font-medium focus-visible:border-destructive/50 focus-visible:ring-2 focus-visible:ring-destructive/10" />
+                <Textarea id="secretaryRejectReason" value={reason} maxLength={500} autoFocus onChange={(event) => { setReason(event.target.value); setFormError('') }} placeholder={t('secretary.appointments.reasonPlaceholder')} className="min-h-28 resize-none rounded-xl border border-input bg-background/70 px-3.5 py-3 text-base leading-6 sm:text-sm font-medium transition placeholder:text-sm placeholder:font-medium focus-visible:border-destructive/50 focus-visible:ring-2 focus-visible:ring-destructive/10" />
                 <small className="justify-self-end text-xs font-bold tabular-nums text-muted-foreground" dir="ltr">{reason.trim().length}/500</small>
               </div>
-              <div className="grid grid-cols-[1fr_1.4fr] gap-2.5">
+              <div className="grid grid-cols-[1fr_1.4fr] gap-2.5 max-sm:[&>button]:h-11">
                 <Button variant="outline" className={grayButton + ' w-full'} disabled={action.isPending} onClick={() => { setRejecting(false); setFormError('') }}>{t('paymob.cancelIntegration')}</Button>
                 <Button className={dangerButton + ' w-full'} disabled={action.isPending} onClick={submitRejection}>{busy('reject') && spinner}{t('secretary.appointments.reject')}</Button>
               </div>

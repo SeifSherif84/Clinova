@@ -29,7 +29,7 @@ export default function PatientHelpPage() {
   return <PatientShell>
     <div className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 -end-40 -z-10 size-[30rem] rounded-full bg-primary/15 blur-3xl dark:hidden" />
-      <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-16">
         <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
           <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
           <span aria-hidden="true">/</span>
@@ -37,13 +37,13 @@ export default function PatientHelpPage() {
         </nav>
 
         {/* Hero */}
-        <section className="mx-auto mt-10 max-w-3xl text-center">
+        <section className="mx-auto mt-8 max-w-3xl text-center sm:mt-10">
           <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><LifeBuoy className="size-3" />{tr('eyebrow', 'Help Center')}</Badge>
-          <h1 className="mt-4 font-sans text-4xl font-bold sm:text-6xl">{tr('title', 'We’re Here to Help')}</h1>
+          <h1 className="mt-4 font-sans text-3xl font-bold min-[400px]:text-4xl sm:text-6xl">{tr('title', 'We’re Here to Help')}</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">{tr('subtitle', 'Whether you need help with an appointment, payment, or your Clinova account, we’re here to make things easier.')}</p>
           <div className="group relative mt-8 text-start">
-            <Search className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} aria-label={tr('searchLabel', 'Search help')} placeholder={tr('searchPlaceholder', 'Search for questions, e.g. refund or deposit')} className="h-14 w-full rounded-2xl border border-input bg-card ps-12 pe-12 text-base font-medium shadow-sm outline-none transition placeholder:text-sm placeholder:font-medium focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 [&::-webkit-search-cancel-button]:hidden" />
+            <Search className="pointer-events-none absolute start-3.5 top-1/2 size-5 sm:start-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} aria-label={tr('searchLabel', 'Search help')} placeholder={tr('searchPlaceholder', 'Search for questions, e.g. refund or deposit')} className="h-12 w-full rounded-2xl border border-input bg-card ps-11 pe-11 text-base sm:h-14 sm:ps-12 sm:pe-12 font-medium shadow-sm outline-none transition placeholder:text-sm placeholder:font-medium focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 [&::-webkit-search-cancel-button]:hidden" />
             {query && <button type="button" aria-label={tr('clearSearch', 'Clear search')} onClick={() => setQuery('')} className="absolute end-3 top-1/2 grid size-8 -translate-y-1/2 cursor-pointer place-items-center rounded-lg text-muted-foreground transition hover:bg-foreground/5 hover:text-foreground"><X className="size-4" /></button>}
           </div>
         </section>
@@ -73,7 +73,7 @@ export default function PatientHelpPage() {
         </section>}
 
         {/* Topics */}
-        <section className="mt-16" aria-labelledby="help-topics">
+        <section className="mt-12 sm:mt-16" aria-labelledby="help-topics">
           <h2 id="help-topics" className="font-sans text-2xl font-bold sm:text-3xl">{tr('topicsTitle', 'Browse Help Topics')}</h2>
           <p className="mt-2 text-sm leading-7 text-muted-foreground">{tr('topicsDesc', 'Pick a topic to jump straight to the questions that matter.')}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -92,11 +92,11 @@ export default function PatientHelpPage() {
         </section>
 
         {/* Popular questions */}
-        <section className="mx-auto mt-16 max-w-3xl" aria-labelledby="popular-questions">
+        <section className="mx-auto mt-12 max-w-3xl sm:mt-16" aria-labelledby="popular-questions">
           <h2 id="popular-questions" className="text-center font-sans text-2xl font-bold sm:text-3xl">{tr('popularTitle', 'Popular Questions')}</h2>
           <div className="mt-8 grid gap-3">
-            {popular.map((item) => <details key={item.id} className="group rounded-2xl border border-border bg-card px-5 transition duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 open:border-primary/25 open:shadow-sm">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-start text-base font-bold marker:hidden focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+            {popular.map((item) => <details key={item.id} className="group rounded-2xl border border-border bg-card px-4 transition duration-200 sm:px-5 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 open:border-primary/25 open:shadow-sm">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-start text-[15px] font-bold marker:hidden sm:py-4 sm:text-base focus-visible:outline-none [&::-webkit-details-marker]:hidden">
                 {item.q}
                 <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180 group-open:text-primary motion-reduce:transition-none" />
               </summary>
@@ -109,22 +109,22 @@ export default function PatientHelpPage() {
         </section>
 
         {/* Contact */}
-        <section id="contact" className="mt-20 scroll-mt-28" aria-labelledby="contact-title">
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+        <section id="contact" className="mt-14 scroll-mt-28 sm:mt-20" aria-labelledby="contact-title">
+          <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
             <div>
               <div className="flex items-center gap-4">
                 <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><MessageSquareText className="size-6" /></span>
                 <h2 id="contact-title" className="min-w-0 font-sans text-2xl font-bold sm:text-3xl">{tr('contactTitle', 'Contact Our Support Team')}</h2>
               </div>
               <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{tr('contactDesc', 'Send us your question and our team will reply right here in Clinova. You can follow every conversation under My Support Requests.')}</p>
-              <a href={`mailto:${supportEmail}`} className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+              <a href={`mailto:${supportEmail}`} className="mt-6 flex w-full min-w-0 items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 sm:inline-flex sm:w-auto transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                 <span className="grid gap-0.5 text-start">
                   <small className="text-[13px] font-bold text-muted-foreground">{tr('emailLabel', 'You can also email us')}</small>
-                  <strong dir="ltr" className="text-base font-bold">{supportEmail}</strong>
+                  <strong dir="ltr" className="break-all text-sm font-bold min-[400px]:text-base">{supportEmail}</strong>
                 </span>
               </a>
             </div>
-            <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7">
+            <div className="rounded-3xl border border-border bg-card p-4 shadow-sm min-[400px]:p-5 sm:p-7">
               <SupportContactForm />
             </div>
           </div>

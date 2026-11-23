@@ -101,42 +101,42 @@ export default function SecretaryAppointmentsPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarDays className="size-3" />{t('secretary.workspace')}</Badge>
-            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.appointments.title')}</h1>
+            <h1 className="mt-2 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-4xl">{t('secretary.appointments.title')}</h1>
           </div>
-          <Button className={primaryButtonClass} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
+          <Button className={primaryButtonClass + ' w-full sm:w-auto'} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
         </div>
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-3">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="group relative min-w-40 max-w-64 flex-1">
+            <div className="group relative w-full min-w-40 flex-1 sm:w-auto sm:max-w-64">
               <UserRound className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-              <input type="search" id="secretaryPatientFilter" value={patientDraft} maxLength={100} placeholder={t('secretary.appointments.patientPlaceholder')} onChange={(event) => setPatientDraft(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-sm outline-none transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" />
+              <input type="search" id="secretaryPatientFilter" value={patientDraft} maxLength={100} placeholder={t('secretary.appointments.patientPlaceholder')} onChange={(event) => setPatientDraft(event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-base outline-none transition sm:h-10 sm:text-sm focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" />
             </div>
-            <div className="group relative min-w-40 max-w-64 flex-1">
+            <div className="group relative w-full min-w-40 flex-1 sm:w-auto sm:max-w-64">
               <Stethoscope className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-              <input type="search" id="secretaryDoctorFilter" value={doctorDraft} maxLength={100} placeholder={t('secretary.appointments.doctorPlaceholder')} onChange={(event) => setDoctorDraft(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-sm outline-none transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" />
+              <input type="search" id="secretaryDoctorFilter" value={doctorDraft} maxLength={100} placeholder={t('secretary.appointments.doctorPlaceholder')} onChange={(event) => setDoctorDraft(event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-base outline-none transition sm:h-10 sm:text-sm focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10" />
             </div>
-            <div className="relative w-56 shrink-0">
+            <div className="relative w-full shrink-0 sm:w-56">
               <input
                 type="date"
                 id="secretaryDateFilter"
                 value={search.slotDate ?? ''}
                 onChange={(event) => setFilters({ slotDate: event.target.value || undefined })}
-                className="h-10 w-full rounded-xl border border-input bg-background/40 px-3 text-sm text-foreground outline-none transition focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:rounded-md [&::-webkit-calendar-picker-indicator]:p-1 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:transition [&::-webkit-calendar-picker-indicator]:hover:bg-primary/10 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
+                className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-base text-foreground outline-none transition sm:h-10 sm:text-sm focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:rounded-md [&::-webkit-calendar-picker-indicator]:p-1 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:transition [&::-webkit-calendar-picker-indicator]:hover:bg-primary/10 [&::-webkit-calendar-picker-indicator]:hover:opacity-100"
               />
             </div>
             <Select items={appointmentItems} value={search.appointmentStatus ?? 'all'} onValueChange={(value) => setFilters({ appointmentStatus: appointmentStatuses.find((item) => item === value) })}>
-              <SelectTrigger className="h-10 w-auto min-w-36 shrink-0 rounded-xl border border-input bg-background/40 px-3"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-11 w-full min-w-36 shrink-0 rounded-xl border border-input bg-background/40 px-3 sm:h-10 sm:w-auto"><SelectValue /></SelectTrigger>
               <SelectContent className="w-56 rounded-xl border border-border bg-popover text-popover-foreground">
                 {appointmentItems.map((item) => <SelectItem className="rounded-lg" key={item.value} value={item.value}>{item.label}</SelectItem>)}
               </SelectContent>
             </Select>
-            {activeFilters > 0 && <Button variant="outline" className={grayButtonClass + ' ms-auto shrink-0'} onClick={clearFilters}><RotateCcw className="size-3.5" />{t('secretary.appointments.clearFilters')}</Button>}
+            {activeFilters > 0 && <Button variant="outline" className={grayButtonClass + ' w-full shrink-0 sm:ms-auto sm:w-auto'} onClick={clearFilters}><RotateCcw className="size-3.5" />{t('secretary.appointments.clearFilters')}</Button>}
           </div>
           <div role="radiogroup" aria-label={t('secretary.appointments.depositStatus')} className="-mx-1 mt-2.5 flex gap-1.5 overflow-x-auto px-1 pb-0.5">
             {paymentOptions.map((option) => {
               const selected = search.depositPaymentStatus === option.value
-              return <button key={option.label} type="button" role="radio" aria-checked={selected} onClick={() => setFilters({ depositPaymentStatus: option.value })} className={`h-8 shrink-0 rounded-full border px-3.5 text-xs font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'}`}>{option.label}</button>
+              return <button key={option.label} type="button" role="radio" aria-checked={selected} onClick={() => setFilters({ depositPaymentStatus: option.value })} className={`h-9 shrink-0 rounded-full border px-3.5 text-xs font-bold whitespace-nowrap transition sm:h-8 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'}`}>{option.label}</button>
             })}
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function SecretaryAppointmentsPage() {
           </div>}
 
           {appointments.isLoading && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" role="status" aria-label={t('secretary.appointments.loading')}>
-            {Array.from({ length: 6 }, (_, index) => <div key={index} className="grid gap-4 rounded-2xl border border-border bg-card p-5">
+            {Array.from({ length: 6 }, (_, index) => <div key={index} className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
               <div className="flex justify-between"><Skeleton className="h-6 w-28 rounded-lg motion-reduce:animate-none" /><Skeleton className="h-6 w-20 rounded-full motion-reduce:animate-none" /></div>
               <div className="flex items-center gap-3"><Skeleton className="size-11 rounded-xl motion-reduce:animate-none" /><Skeleton className="h-5 w-40 rounded-lg motion-reduce:animate-none" /></div>
               <Skeleton className="h-4 w-32 rounded-lg motion-reduce:animate-none" />
@@ -157,13 +157,13 @@ export default function SecretaryAppointmentsPage() {
 
           {notAssigned && <ClinicNotAssigned />}
 
-          {appointments.isError && !page && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          {appointments.isError && !page && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(appointments.error)}</p>
             <Button variant="outline" className={grayButtonClass + ' mt-3'} disabled={appointments.isFetching} onClick={() => appointments.refetch()}>{appointments.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('invitations.retry')}</Button>
           </Card>}
 
           {page && !page.items.length && (
-            <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+            <section className="relative isolate grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
                 <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -174,7 +174,7 @@ export default function SecretaryAppointmentsPage() {
                 <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
               </div>
 
-              <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t(activeFilters ? 'secretary.appointments.noMatchTitle' : 'secretary.appointments.emptyTitle')}</h2>
+              <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{t(activeFilters ? 'secretary.appointments.noMatchTitle' : 'secretary.appointments.emptyTitle')}</h2>
               <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t(activeFilters ? 'secretary.appointments.noMatchDescription' : 'secretary.appointments.emptyDescription')}</p>
               {activeFilters > 0 && <Button variant="outline" className={grayButtonClass + ' mt-6'} onClick={clearFilters}><RotateCcw />{t('secretary.appointments.clearFilters')}</Button>}
             </section>
@@ -244,7 +244,7 @@ export default function SecretaryAppointmentsPage() {
             </div>
             {page.totalPages > 1 && <nav aria-label={t('secretary.appointments.pagination')} className="mt-6 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs font-bold text-muted-foreground">{t('secretary.appointments.pageOf', { page: page.pageIndex, total: page.totalPages })}</span>
-              <div className="flex gap-2">
+              <div className="flex w-full gap-2 max-sm:[&>button]:flex-1 sm:w-auto">
                 <Button variant="outline" className={grayButtonClass} disabled={page.pageIndex <= 1 || appointments.isFetching} onClick={() => goTo(page.pageIndex - 1)}><ChevronLeft className="rtl:rotate-180" />{t('secretary.appointments.previous')}</Button>
                 <Button variant="outline" className={grayButtonClass} disabled={page.pageIndex >= page.totalPages || appointments.isFetching} onClick={() => goTo(page.pageIndex + 1)}>{t('secretary.appointments.next')}<ChevronRight className="rtl:rotate-180" /></Button>
               </div>

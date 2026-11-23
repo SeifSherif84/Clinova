@@ -52,7 +52,7 @@ export default function PatientProfilePage() {
               <UserRound className="size-3" />
               {t('patient.profile.eyebrow', { defaultValue: 'Patient profile' })}
             </Badge>
-            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('patient.profile.title', { defaultValue: 'My profile' })}</h1>
+            <h1 className="mt-2 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-4xl">{t('patient.profile.title', { defaultValue: 'My profile' })}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('patient.profile.description', { defaultValue: 'Manage your personal details and profile picture.' })}</p>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function PatientProfilePage() {
           </Card>
         )}
         {profile.isError && (
-          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(profile.error)}</p>
             <Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" disabled={profile.isFetching} onClick={() => profile.refetch()}>
               {profile.isFetching ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <RefreshCw className="size-4" />}
@@ -186,7 +186,7 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
         <div className="relative z-10 min-w-0 grid items-center gap-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
           <Label htmlFor="patientProfilePicture" className="group relative mx-auto grid cursor-pointer justify-items-center gap-2 sm:mx-0" title={t('doctorProfile.pictureRules')}>
             <Input id="patientProfilePicture" className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={choosePicture} />
-            <span className="relative grid size-36 place-items-center overflow-hidden rounded-3xl border-4 border-card bg-gradient-to-br from-primary to-primary/65 text-3xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl">
+            <span className="relative grid size-28 place-items-center overflow-hidden rounded-3xl border-4 border-card min-[400px]:size-36 bg-gradient-to-br from-primary to-primary/65 text-3xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl">
               {activePicture ? <img className="size-full object-cover" src={activePicture} alt={t('doctorProfile.pictureAlt', { name: fullName })} /> : initials}
               <span className="absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition group-hover:opacity-100">
                 <span className="grid gap-1 justify-items-center text-white">
@@ -201,12 +201,12 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
           </Label>
 
           <div className="min-w-0 text-center sm:text-start">
-            <h2 className="break-words font-sans text-3xl leading-tight font-bold sm:text-5xl">{fullName}</h2>
+            <h2 className="break-words font-sans text-2xl leading-tight font-bold min-[400px]:text-3xl sm:text-5xl">{fullName}</h2>
           </div>
 
-          <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
+          <div className="flex w-full items-center gap-1 self-end sm:mx-0 sm:w-auto">
             {!isEditing && (
-              <Button className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={startEditing}>
+              <Button className="h-10 flex-1 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal sm:flex-none" onClick={startEditing}>
                 <PencilLine className="size-4" />
                 {t('doctorProfile.edit')}
               </Button>
@@ -283,7 +283,7 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
               <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('patient.profile.personalTitle', { defaultValue: 'Personal information' })}</h3>
             </div>
           </div>
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <form className="grid gap-5" onSubmit={submit}>
               <div className="grid min-w-0 gap-5 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-5">
                 <FormField id="patientProfileFirstName" label={t('fields.firstName')} value={shown.firstName} onChange={(event) => setFirstName(event.target.value)} maxLength={50} disabled={!isEditing} required />
@@ -331,7 +331,7 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
                 </div>
               </div>
               {isEditing && (
-                <div className="flex flex-wrap justify-end gap-2 border-t border-border/50 pt-5">
+                <div className="flex flex-col-reverse gap-2 border-t border-border/50 pt-5 sm:flex-row sm:flex-wrap sm:justify-end">
                   <Button type="button" variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={cancelEditing} disabled={save.isPending}>
                     <X className="size-4" />
                     {t('doctorProfile.cancel')}
@@ -356,7 +356,7 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
               <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('doctorProfile.accountTitle')}</h3>
             </div>
           </div>
-          <CardContent className="grid min-w-0 gap-3 p-5 sm:grid-cols-2">
+          <CardContent className="grid min-w-0 gap-3 p-4 sm:grid-cols-2 sm:p-5">
             <ReadOnlyField icon={<Mail className="size-4" />} label={t('fields.email')} value={profile.email} ltr />
             <ReadOnlyField icon={<Phone className="size-4" />} label={t('patient.profile.phoneNumber', { defaultValue: 'Phone number' })} value={profile.phoneNumber} ltr />
           </CardContent>
@@ -376,7 +376,7 @@ function ProfileContent({ profile }: { profile: PatientProfile }) {
               </div>
             </div>
 
-            <div className="grid justify-items-center px-6 py-5">
+            <div className="grid justify-items-center px-4 py-5 sm:px-6">
               <div className="relative size-36 overflow-hidden rounded-3xl border-4 border-background shadow-lg ring-1 ring-border">
                 <img className="size-full object-cover" src={picturePreview ?? ''} alt="" />
               </div>

@@ -16,7 +16,7 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d
 
 function FormSection({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
-    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:p-5">
+    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-3 min-[400px]:p-4 sm:p-5">
       <div className="flex items-center gap-2.5">
         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
         <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{title}</h2>
@@ -68,7 +68,7 @@ export default function PatientRegisterPage() {
         {(formError || register.error) && <Notice message={formError || getErrorMessage(register.error)} />}
 
         <FormSection icon={<UserRound />} title={t('patientRegister.sections.personal', { defaultValue: 'Personal details' })}>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <FormField id="firstName" name="firstName" label={t('fields.firstName')} placeholder="Nour" icon={<UserRound size={18} />} autoComplete="given-name" maxLength={50} required />
             <FormField id="lastName" name="lastName" label={t('fields.lastName')} placeholder="Hassan" icon={<UserRound size={18} />} autoComplete="family-name" maxLength={50} required />
           </div>
@@ -77,7 +77,7 @@ export default function PatientRegisterPage() {
         </FormSection>
 
         <FormSection icon={<KeyRound />} title={t('patientRegister.sections.security', { defaultValue: 'Create your password' })}>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <PasswordField id="patientPassword" name="password" label={t('fields.password')} placeholder={t('fields.strongPassword')} autoComplete="new-password" value={passwordValue} onChange={(event) => setPasswordValue(event.target.value)} required />
             <PasswordField id="patientConfirmPassword" name="confirmPassword" label={t('fields.confirmPassword')} placeholder={t('fields.repeatPassword')} autoComplete="new-password" value={confirmValue} onChange={(event) => setConfirmValue(event.target.value)} required />
           </div>
@@ -89,7 +89,7 @@ export default function PatientRegisterPage() {
                   <span key={rule.key} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${index < passed ? strengthTone : 'bg-muted'}`} />
                 ))}
               </div>
-              <ul className="grid gap-1.5 sm:grid-cols-2">
+              <ul className="grid gap-1.5 min-[400px]:grid-cols-2">
                 {rules.map((rule) => (
                   <li key={rule.key} className={`flex items-center gap-2 text-xs font-semibold transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'text-primary' : 'text-muted-foreground'}`}>
                     <span className={`grid size-4 shrink-0 place-items-center rounded-full transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
@@ -111,7 +111,7 @@ export default function PatientRegisterPage() {
         </FormSection>
 
         <p className="text-xs leading-5 text-muted-foreground">{t('patientRegister.terms')}</p>
-        <Button className="h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90" type="submit" disabled={register.isPending}>
+        <Button className="h-11 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold tracking-normal text-primary-foreground normal-case hover:bg-primary/90 sm:h-10" type="submit" disabled={register.isPending}>
           {register.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <>{t('patientRegister.submit')} <ArrowRight className="size-4 rtl:rotate-180" /></>}
         </Button>
         <p className="text-center text-sm font-semibold text-muted-foreground">{t('common.alreadyRegistered')} <Link to="/login" search={{ redirect: undefined }} className="font-semibold text-primary hover:text-primary/75">{t('common.signIn')}</Link></p>

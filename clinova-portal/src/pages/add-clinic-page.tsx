@@ -154,7 +154,7 @@ export default function AddClinicPage() {
       <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('clinicForm.billingTitle')}</h3>
     </div>
   </div>
-  <CardContent className="grid grid-cols-2 gap-3 p-4 sm:gap-5 sm:p-5"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
+  <CardContent className="grid grid-cols-1 gap-3 p-4 min-[400px]:grid-cols-2 sm:gap-5 sm:p-5"><FormField id="consultationFee" name="ConsultationFee" label={t('clinicForm.consultationFee')} type="number" min={0} max={100000} step="0.01" required placeholder="500" /><FormField id="depositPercentage" name="DepositPercentage" label={t('clinicForm.depositPercentage')} type="number" min={1} max={100} step="0.01" required placeholder="25" /></CardContent>
 </Card>
 
 <Card className="rounded-2xl border border-border bg-card p-0 gap-0 overflow-hidden">

@@ -38,8 +38,8 @@ export default function ResetPasswordPage() {
       {update.isSuccess ? (
         <div className="grid justify-items-center gap-3 text-center">
           <span className="grid size-16 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><KeyRound className="size-7" /></span>
-          <h2 className="mt-2 font-sans text-2xl font-bold">{t('resetPassword.updatedTitle')}</h2>
-          <p className="mb-2 text-sm text-muted-foreground">{t('resetPassword.updatedDescription')}</p>
+          <h2 className="mt-2 font-sans text-xl font-bold sm:text-2xl">{t('resetPassword.updatedTitle')}</h2>
+          <p className="mb-2 text-sm break-words text-muted-foreground">{t('resetPassword.updatedDescription')}</p>
           <Link to="/login" search={{ redirect: undefined }} className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 sm:h-10 text-[13px] font-bold normal-case tracking-normal text-primary-foreground transition-colors hover:bg-primary/90">{t('common.continueToSignIn')} <ArrowRight className="size-4 rtl:rotate-180" /></Link>
         </div>
       ) : (

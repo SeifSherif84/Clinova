@@ -364,7 +364,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
           </Card>
         )}
         {profile.isError && (
-          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">
               {getErrorMessage(profile.error)}
             </p>
@@ -739,7 +739,7 @@ function handlePictureChange(event: ChangeEvent<HTMLInputElement>) {
                       </h3>
                     </div>
                   </div>
-                  <CardContent className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
+                  <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5">
                     <a
                     
                       className="group flex items-center gap-3.5 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg"

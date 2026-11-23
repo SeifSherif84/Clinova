@@ -28,7 +28,7 @@ export default function DoctorClinicsPage() {
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" /><p className="text-xs text-muted-foreground">{t('clinics.loading')}</p></Card>}
-        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><p className="text-sm font-semibold text-destructive">{getErrorMessage(clinics.error)}</p><Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" onClick={() => clinics.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
+        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8"><p className="text-sm font-semibold text-destructive">{getErrorMessage(clinics.error)}</p><Button className="mt-3 h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" variant="ghost" onClick={() => clinics.refetch()}><RefreshCw />{t('clinics.retry')}</Button></Card>}
 
 {clinics.data?.length === 0 && (
   <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">

@@ -47,7 +47,7 @@ function Kpi({ icon, label, value }: { icon: ReactNode; label: string; value: st
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
       <span className="grid min-w-0 gap-0.5">
         <small className="truncate text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{label}</small>
-        <strong dir="ltr" className="truncate text-start text-base font-bold tabular-nums">{value}</strong>
+        <strong dir="ltr" className="text-start text-sm font-bold break-words tabular-nums sm:truncate sm:text-base">{value}</strong>
       </span>
     </div>
   )

@@ -87,7 +87,7 @@ export function DoctorsSection({
         {(data) => {
           if (data.doctors.length === 0) {
             return (
-              <div className="grid place-items-center gap-3 rounded-2xl border border-dashed border-border/70 bg-muted/30 px-6 py-12 text-center">
+              <div className="grid place-items-center gap-3 rounded-2xl border border-dashed border-border/70 bg-muted/30 px-4 py-10 text-center sm:px-6 sm:py-12">
                 <span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary [&>svg]:size-6">
                   <Stethoscope />
                 </span>

@@ -33,13 +33,13 @@ function Bubble({ mine, text, time, label }: { mine: boolean; text: string; time
     <span aria-hidden="true" className={`grid size-8 shrink-0 place-items-center rounded-full ${mine ? 'bg-primary/10 text-primary' : 'bg-foreground/5 text-foreground'}`}>
       {mine ? <UserRound className="size-4" /> : <LifeBuoy className="size-4" />}
     </span>
-    <div className={`flex min-w-0 max-w-[82%] flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
+    <div className={`flex min-w-0 max-w-[88%] flex-col gap-1 sm:max-w-[82%] ${mine ? 'items-end' : 'items-start'}`}>
       <span className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
         {label}
         <span aria-hidden="true" className="size-0.5 rounded-full bg-muted-foreground/60" />
         <time className="font-semibold">{time}</time>
       </span>
-      <p className={`rounded-2xl px-4 py-2.5 text-[15px] leading-7 font-medium break-words whitespace-pre-wrap ${mine ? 'rounded-ee-md bg-primary text-primary-foreground' : 'rounded-es-md border border-border bg-card text-foreground'}`}>{text}</p>
+      <p className={`rounded-2xl px-3.5 py-2.5 text-[15px] leading-7 font-medium break-words whitespace-pre-wrap sm:px-4 ${mine ? 'rounded-ee-md bg-primary text-primary-foreground' : 'rounded-es-md border border-border bg-card text-foreground'}`}>{text}</p>
     </div>
   </div>
 }
@@ -87,7 +87,7 @@ function Conversation({ ticket, myId, h, categoryLabel, statusLabel, stamp, onBa
       </div>
     </header>
 
-    <div ref={box} className="grid max-h-[30rem] min-h-64 content-start gap-5 overflow-y-auto bg-muted/20 p-4 sm:p-5 lg:max-h-[calc(100dvh-30rem)]">
+    <div ref={box} className="grid max-h-[26rem] min-h-56 content-start gap-4 sm:max-h-[30rem] sm:min-h-64 sm:gap-5 overflow-y-auto bg-muted/20 p-4 sm:p-5 lg:max-h-[calc(100dvh-30rem)]">
       <Bubble mine text={ticket.originalMessage} time={stamp(ticket.createdAt)} label={h('you', 'You')} />
       {ticket.messages.map((item) => <Bubble key={item.id} mine={item.senderId === myId} text={item.message} time={stamp(item.createdAt)} label={item.senderId === myId ? h('you', 'You') : h('supportTeam', 'Support team')} />)}
     </div>
@@ -99,7 +99,7 @@ function Conversation({ ticket, myId, h, categoryLabel, statusLabel, stamp, onBa
       <textarea value={draft} rows={3} maxLength={3000} disabled={send.isPending} aria-label={h('replyLabel', 'Your reply')} placeholder={h('replyPlaceholder', 'Write a message…')} onChange={(event) => { setDraft(event.target.value); setError(''); setSent(false) }} className="w-full resize-none rounded-xl border border-input bg-background/40 px-3 py-2.5 text-base leading-7 font-medium outline-none transition placeholder:text-sm placeholder:font-medium focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10 disabled:opacity-60" />
       <div className="flex items-center justify-between gap-3">
         <span dir="ltr" className="text-[13px] font-semibold tabular-nums text-muted-foreground">{draft.length}/3000</span>
-        <Button type="submit" className="h-10 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={send.isPending}>
+        <Button type="submit" className="h-11 w-fit cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90 sm:h-10" disabled={send.isPending}>
           {send.isPending ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Send className="size-4 rtl:-scale-x-100" />}
           {h('send', 'Send message')}
         </Button>
@@ -129,7 +129,7 @@ export default function PatientSupportRequestsPage() {
 
   return <PatientShell>
     <div>
-      <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-16">
         <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
           <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
           <span aria-hidden="true">/</span>
@@ -138,7 +138,7 @@ export default function PatientSupportRequestsPage() {
 
         <div className="mt-6 max-w-2xl">
           <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><LifeBuoy className="size-3" />{s('eyebrow', 'Support')}</Badge>
-          <h1 className="mt-3 font-sans text-3xl font-bold sm:text-5xl">{t('patientPortal.nav.supportRequests', { defaultValue: 'My Support Requests' })}</h1>
+          <h1 className="mt-3 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-5xl">{t('patientPortal.nav.supportRequests', { defaultValue: 'My Support Requests' })}</h1>
           <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{s('description', 'Track your support requests, read replies from our team, and continue your conversations whenever you need.')}</p>
         </div>
 
@@ -148,31 +148,31 @@ export default function PatientSupportRequestsPage() {
             <Skeleton className="hidden h-96 rounded-2xl motion-reduce:animate-none lg:block" />
           </div>}
 
-          {tickets.isError && <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-5">
+          {tickets.isError && <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5">
             <p className="min-w-0 flex-1 text-sm font-bold text-destructive">{getErrorMessage(tickets.error)}</p>
             <Button type="button" variant="ghost" className={grayButton} disabled={tickets.isFetching} onClick={() => tickets.refetch()}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button>
           </div>}
 
-          {tickets.isSuccess && items.length === 0 && <section className="relative isolate -mt-8 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+          {tickets.isSuccess && items.length === 0 && <section className="relative isolate -mt-8 grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
             <div className="relative">
               <span className="relative grid size-16 place-items-center rounded-full bg-primary text-primary-foreground ring-8 ring-primary/10"><Inbox className="size-7" /></span>
               <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
               <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
               <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
             </div>
-            <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{s('emptyTitle', 'No support requests yet')}</h2>
+            <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{s('emptyTitle', 'No support requests yet')}</h2>
             <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{h('requestsEmpty', 'You haven’t submitted any support requests yet.')}</p>
             <Button className="mt-6 h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/patient/help" hash="contact" />}><LifeBuoy className="size-4" />{s('goHelp', 'Go to the Help Center')}</Button>
           </section>}
 
           {items.length > 0 && <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-8">
             <div className={`${selected ? 'hidden lg:block' : 'block'} overflow-hidden rounded-2xl border border-border bg-card shadow-sm`}>
-              <ul className="max-h-[calc(100dvh-12rem)] divide-y divide-border/60 overflow-y-auto" aria-label={t('patientPortal.nav.supportRequests', { defaultValue: 'My Support Requests' })}>
+              <ul className="max-h-[calc(100dvh-10rem)] divide-y divide-border/60 overflow-y-auto sm:max-h-[calc(100dvh-12rem)]" aria-label={t('patientPortal.nav.supportRequests', { defaultValue: 'My Support Requests' })}>
                 {items.map((ticket) => {
                   const active = ticket.id === selected?.id
                   const replies = ticket.messages.length
                   return <li key={ticket.id}>
-                    <button type="button" aria-current={active ? 'true' : undefined} onClick={() => setSelectedId(ticket.id)} className={`group relative flex w-full cursor-pointer items-start gap-3.5 px-4 py-4 text-start outline-none transition-colors focus-visible:bg-muted/50 motion-reduce:transition-none sm:px-5 ${active ? 'bg-primary/5' : 'hover:bg-muted/40'}`}>
+                    <button type="button" aria-current={active ? 'true' : undefined} onClick={() => setSelectedId(ticket.id)} className={`group relative flex w-full cursor-pointer items-start gap-3 px-3.5 py-3.5 text-start sm:gap-3.5 sm:px-4 sm:py-4 outline-none transition-colors focus-visible:bg-muted/50 motion-reduce:transition-none sm:px-5 ${active ? 'bg-primary/5' : 'hover:bg-muted/40'}`}>
                       <span className={`grid size-10 shrink-0 place-items-center rounded-xl transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:shadow-primary/20 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0 ${active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'}`}><LifeBuoy className="size-5" /></span>
                       <span className="grid min-w-0 flex-1 gap-1.5">
                         <span className="flex items-center justify-between gap-3">

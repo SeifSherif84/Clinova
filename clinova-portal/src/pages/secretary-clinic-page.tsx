@@ -50,7 +50,7 @@ export default function SecretaryClinicPage() {
         <div>
           {clinic.isLoading && <p role="status" className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.myClinic.loading')}</p>}
           {notAssigned && <ClinicNotAssigned />}
-          {clinic.isError && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          {clinic.isError && !notAssigned && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(clinic.error)}</p>
             <Button variant="ghost" className={grayButton + ' mt-3 w-fit'} disabled={clinic.isFetching} onClick={() => clinic.refetch()}>{clinic.isFetching ? <LoaderCircle className="animate-spin motion-reduce:animate-none" /> : <RefreshCw />}{t('errors.tryAgain')}</Button>
           </Card>}
@@ -90,7 +90,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
   const address = [`${clinic.buildingNumber} ${clinic.streetName}`.trim(), clinic.regionName].filter(Boolean).join(' · ')
 
   return <div className="grid gap-5">
-    <Card className="relative overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
+    <Card className="relative overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-4 min-[400px]:p-5 sm:p-7">
       <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative flex flex-wrap items-end justify-between gap-5">
         <div className="min-w-0">
@@ -98,15 +98,15 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
             <UsersRound className="size-3" />
             {t('secretary.myClinic.secretaryBadge', { defaultValue: 'Secretary' })}
           </Badge>
-          <h2 className="mt-3 break-words font-sans text-3xl font-bold sm:text-5xl">{clinic.name}</h2>
+          <h2 className="mt-3 break-words font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-5xl">{clinic.name}</h2>
           <p className="mt-3 flex min-w-0 items-start gap-2 text-xs font-bold text-muted-foreground">
             <MapPin className="size-4 shrink-0 text-primary" />
             <span className="min-w-0 break-words">{address}{clinic.landmark ? ` · ${clinic.landmark}` : ''}</span>
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {clinic.googleMapsUrl && <Button variant="ghost" className={grayButton} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
-          <Button className={primaryButton} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          {clinic.googleMapsUrl && <Button variant="ghost" className={grayButton + ' max-sm:flex-1'} render={<a href={clinic.googleMapsUrl} target="_blank" rel="noreferrer" />}><MapPin />{t('secretary.myClinic.openMaps')}<ExternalLink className="size-3.5" /></Button>}
+          <Button className={primaryButton + ' max-sm:flex-1'} render={<Link to="/secretary/guest-booking" search={{ doctorId: undefined }} />}><CalendarPlus />{t('secretary.guest.title')}</Button>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={<button type="button" aria-label={t('secretary.profile.moreActions')} className="grid size-10 cursor-pointer place-items-center rounded-xl bg-foreground/5 text-foreground outline-none transition-colors hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30 data-[popup-open]:bg-foreground/10" />}
@@ -149,7 +149,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
       <div className="grid content-start gap-5">
         <Card className="gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
           <SectionTitle icon={<Building2 className="size-6" />}>{t('secretary.myClinic.infoTitleShort', { defaultValue: 'Information' })}</SectionTitle>
-          <CardContent className="grid gap-3 p-5 sm:grid-cols-2">
+          <CardContent className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5">
             <Tile icon={<MapPin />} label={t('secretary.myClinic.region')} value={clinic.regionName} />
             <Tile icon={<Landmark />} label={t('secretary.myClinic.landmark')} value={clinic.landmark || '—'} />
             <Tile icon={<CircleDollarSign />} label={t('secretary.myClinic.fee')} value={money(clinic.consultationFee)} />
@@ -159,7 +159,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
 
         <Card className="gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
           <SectionTitle icon={<ImageIcon className="size-6" />} count={clinic.images.length}>{t('secretary.myClinic.imagesTitle')}</SectionTitle>
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             {clinic.images.length ? <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {clinic.images.map((image, index) => <button key={image.id} type="button" aria-label={t('secretary.myClinic.viewPhoto', { defaultValue: 'View photo' })} onClick={() => setViewing(index)} className="group relative cursor-zoom-in rounded-2xl border border-border/60 bg-background/40 p-2 text-start outline-none transition hover:border-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40">
                 <span className="relative block overflow-hidden rounded-xl">
@@ -175,7 +175,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
       <div className="grid content-start gap-5">
         <Card className="gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
           <SectionTitle icon={<UsersRound className="size-6" />} count={members.data?.length}>{t('secretary.myClinic.doctorsTitle')}</SectionTitle>
-          <CardContent className="grid gap-3 p-5">
+          <CardContent className="grid gap-3 p-4 sm:p-5">
             {members.isLoading && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.guest.loadingDoctors')}</p>}
             {members.isError && <div className="grid justify-items-start gap-2">
               <p className="text-sm font-bold text-destructive">{getErrorMessage(members.error)}</p>
@@ -183,8 +183,8 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
             </div>}
             {members.data && !members.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.myClinic.noDoctors')}</p>}
             {members.data?.length ? <ul className="-mx-2 grid divide-y divide-border/50">
-              {members.data.map((member) => <li key={member.id} className="group flex min-w-0 items-center gap-4 rounded-2xl px-2 py-3.5 transition-colors hover:bg-primary/5">
-                <span className="shrink-0 rounded-xl"><DoctorAvatar className="size-[4.5rem]" name={member.fullName} picture={member.profilePicture} /></span>
+              {members.data.map((member) => <li key={member.id} className="group flex min-w-0 items-center gap-3 rounded-2xl px-2 py-3 sm:gap-4 sm:py-3.5 transition-colors hover:bg-primary/5">
+                <span className="shrink-0 rounded-xl"><DoctorAvatar className="size-14 sm:size-[4.5rem]" name={member.fullName} picture={member.profilePicture} /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <strong className="truncate text-base font-bold">{member.fullName}</strong>
@@ -200,7 +200,7 @@ function ClinicOverview({ clinic }: { clinic: ClinicDetails }) {
 
         <Card className="gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0">
           <SectionTitle icon={<Phone className="size-6" />} count={clinic.phoneNumbers.length}>{t('secretary.myClinic.phonesTitle')}</SectionTitle>
-          <CardContent className="grid gap-2 p-5">
+          <CardContent className="grid gap-2 p-4 sm:p-5">
             {clinic.phoneNumbers.length ? clinic.phoneNumbers.map((phone) => <div key={phone.id} className="flex cursor-default items-center gap-3 rounded-2xl border border-border/60 bg-background/45 p-3 text-sm font-bold transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Phone className="size-4" /></span>
               <span dir="ltr" className="cursor-text select-text">{phone.phoneNumber}</span>

@@ -64,10 +64,10 @@ export default function PatientAboutPage() {
     <section className="relative isolate overflow-hidden">
       <div aria-hidden="true" className="pointer-events-none absolute -top-40 -end-40 -z-10 size-[34rem] rounded-full bg-primary/15 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-48 -start-40 -z-10 size-[30rem] rounded-full bg-warm/10 blur-3xl" />
-      <div className={`${container} grid items-center gap-14 pt-12 pb-16 sm:pt-16 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16 lg:pb-24`}>
+      <div className={`${container} grid items-center gap-10 pt-10 pb-14 sm:gap-14 sm:pt-16 sm:pb-16 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16 lg:pb-24`}>
         <div className="text-center lg:text-start">
           <Badge className="rounded-full border border-primary/15 bg-primary/10 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-primary uppercase">{a('eyebrow', 'About Clinova')}</Badge>
-          <h1 className="mt-5 font-sans text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl lg:text-6xl rtl:tracking-normal">{a('heroTitle', 'Better Connections. Better Care.')}</h1>
+          <h1 className="mt-5 font-sans text-3xl leading-[1.1] min-[400px]:text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl rtl:tracking-normal">{a('heroTitle', 'Better Connections. Better Care.')}</h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-8 font-medium text-foreground/80 lg:mx-0 sm:text-lg">{a('heroDescription', 'Bringing patients, doctors, and clinics together through a simpler, more organized healthcare experience.')}</p>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base lg:mx-0">{a('heroNote', 'Clinova is more than a doctor-booking website. It connects the patient booking experience with the clinic management experience in one platform.')}</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
@@ -79,7 +79,7 @@ export default function PatientAboutPage() {
           </div>
         </div>
 
-        <div className="mx-auto grid w-full max-w-xl items-center gap-5 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_minmax(0,1fr)] sm:gap-0">
+        <div className="mx-auto grid w-full max-w-xl grid-cols-2 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_minmax(0,1fr)] sm:gap-0">
           <style>{`
             @keyframes about-flow { 0% { inset-inline-start: 0; opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } 100% { inset-inline-start: calc(100% - 6px); opacity: 0 } }
             @keyframes about-breathe { 0%, 100% { transform: scale(1); opacity: .55 } 50% { transform: scale(1.14); opacity: .15 } }
@@ -90,18 +90,18 @@ export default function PatientAboutPage() {
             .about-beat { animation: about-beat 2.4s ease-in-out infinite }
             @media (prefers-reduced-motion: reduce) { .about-dot, .about-ring, .about-beat { animation: none } .about-dot { display: none } }
           `}</style>
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-lg shadow-primary/5">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-lg shadow-primary/5 sm:p-5">
             <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><UserRound className="size-5" /></span>
             <strong className="mt-4 block text-base font-bold">{a('sidePatients', 'Patients')}</strong>
             <p className="mt-1 text-xs leading-6 font-medium text-muted-foreground">{a('sidePatientsText', 'Discover doctors, book, and follow their visits.')}</p>
           </div>
           <span aria-hidden="true" className="relative hidden w-8 border-t-2 border-dashed border-primary/30 sm:block"><span className="about-dot absolute -top-1 size-1.5 rounded-full bg-primary" /></span>
-          <div className="relative mx-auto grid place-items-center">
+          <div className="relative order-first col-span-2 mx-auto grid place-items-center py-3 sm:order-none sm:col-span-1 sm:py-0">
             <span aria-hidden="true" className="about-ring absolute size-28 rounded-full bg-primary/10" />
             <span className="relative grid size-24 place-items-center rounded-full bg-card shadow-xl ring-8 ring-primary/10"><img src={logoUrl} alt="Clinova" className="about-beat size-14" /></span>
           </div>
           <span aria-hidden="true" className="relative hidden w-8 border-t-2 border-dashed border-primary/30 sm:block"><span className="about-dot about-dot-2 absolute -top-1 size-1.5 rounded-full bg-primary" /></span>
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-lg shadow-primary/5">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-lg shadow-primary/5 sm:p-5">
             <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Building2 className="size-5" /></span>
             <strong className="mt-4 block text-base font-bold">{a('sideClinics', 'Clinics')}</strong>
             <p className="mt-1 text-xs leading-6 font-medium text-muted-foreground">{a('sideClinicsText', 'Organize appointments, schedules, and payments.')}</p>
@@ -111,16 +111,16 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Story */}
-    <section className="border-y border-border/70 bg-card/40 py-16 lg:py-24">
-      <div className={`${container} grid items-start gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20`}>
+    <section className="border-y border-border/70 bg-card/40 py-12 sm:py-16 lg:py-24">
+      <div className={`${container} grid items-start gap-8 sm:gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20`}>
         <div className="lg:sticky lg:top-28">
           <Eyebrow>{a('storyEyebrow', 'Our story')}</Eyebrow>
           <h2 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{a('storyTitle', 'Where it all started')}</h2>
-          <blockquote className="mt-8 border-s-4 border-primary ps-5 font-sans text-xl leading-9 font-semibold text-foreground/90">{a('storyQuote', 'Many clinics needed a more organized and modern way to manage their daily operations.')}</blockquote>
+          <blockquote className="mt-6 border-s-4 border-primary ps-4 font-sans text-lg leading-8 sm:mt-8 sm:ps-5 sm:text-xl sm:leading-9 font-semibold text-foreground/90">{a('storyQuote', 'Many clinics needed a more organized and modern way to manage their daily operations.')}</blockquote>
         </div>
 
         <div className="grid gap-8">
-          <div className="grid gap-5 text-base leading-8 text-foreground/80">
+          <div className="grid gap-4 text-[15px] leading-7 text-foreground/80 sm:gap-5 sm:text-base sm:leading-8">
             <p>{a('storyP1', 'Clinova began with a simple observation. While working in marketing at a dental radiology center, our founder regularly visited doctors at their clinics.')}</p>
             <p>{a('storyP2', 'Along the way, a pattern kept appearing: many clinics were still managing appointments, schedules, and payments with paper and pen, Excel sheets, Word documents, or other outdated ways of organizing the day.')}</p>
             <p>{a('storyP3', 'It showed how much a clinic’s daily work depends on staying organized, and how much easier it could be with a modern, connected system.')}</p>
@@ -128,7 +128,7 @@ export default function PatientAboutPage() {
           </div>
 
           <div className="grid items-stretch gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-            <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-5">
+            <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 sm:p-5">
               <small className="text-xs font-bold tracking-wider text-muted-foreground uppercase">{a('beforeTitle', 'How many clinics were managing')}</small>
               <ul className="mt-4 grid gap-2.5">
                 <li className="flex items-center gap-3 text-sm font-semibold text-muted-foreground"><PenLine className="size-4 shrink-0" />{a('beforePaper', 'Paper and pen')}</li>
@@ -138,7 +138,7 @@ export default function PatientAboutPage() {
               </ul>
             </div>
             <span aria-hidden="true" className="grid place-items-center text-primary"><span className="grid size-10 place-items-center rounded-full bg-primary/10"><ArrowRight className="size-4 rotate-90 sm:rotate-0 rtl:sm:rotate-180" /></span></span>
-            <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm">
+            <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-card p-4 shadow-sm sm:p-5">
               <small className="text-xs font-bold tracking-wider text-primary uppercase">{a('afterTitle', 'One connected platform')}</small>
               <ul className="mt-4 grid gap-2.5">
                 <CheckItem>{a('after1', 'Doctors and secretaries organize clinic operations')}</CheckItem>
@@ -152,29 +152,29 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Mission */}
-    <section className={`${container} py-16 lg:py-24`}>
-      <div className="relative isolate overflow-hidden rounded-[2rem] bg-[#06382b] text-white shadow-2xl shadow-primary/20">
+    <section className={`${container} py-12 sm:py-16 lg:py-24`}>
+      <div className="relative isolate overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-[#06382b] text-white shadow-2xl shadow-primary/20">
         <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-[.12] [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:22px_22px]" />
 
-        <div className="grid gap-10 p-8 sm:p-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:p-16">
+        <div className="grid gap-8 p-5 min-[400px]:p-6 sm:gap-10 sm:p-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:p-16">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-bold tracking-[.14em] text-emerald-200 uppercase">
               <HeartPulse className="size-3.5" />
               {a('missionEyebrow', 'Our mission')}
             </span>
-            <p className="mt-6 font-sans text-2xl leading-[1.35] font-bold sm:text-3xl lg:text-[2rem]">{a('missionText', 'To make healthcare experiences more organized and accessible, by simplifying how patients find and book doctors and helping doctors and clinic staff manage their daily operations more efficiently.')}</p>
+            <p className="mt-5 font-sans text-xl leading-[1.4] font-bold min-[400px]:text-2xl sm:mt-6 sm:text-3xl lg:text-[2rem]">{a('missionText', 'To make healthcare experiences more organized and accessible, by simplifying how patients find and book doctors and helping doctors and clinic staff manage their daily operations more efficiently.')}</p>
             <span aria-hidden="true" className="mt-8 block h-1 w-16 rounded-full bg-emerald-300/70" />
           </div>
 
-          <ul className="grid gap-4">
-            <li className="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-5 transition duration-200 hover:bg-white/[0.12] motion-reduce:transition-none sm:p-6">
+          <ul className="grid gap-4 md:max-lg:grid-cols-2">
+            <li className="group flex items-start gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-4 sm:gap-4 sm:p-5 transition duration-200 hover:bg-white/[0.12] motion-reduce:transition-none sm:p-6">
               <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-emerald-300 text-[#06382b] shadow-lg shadow-emerald-300/20"><UserRound className="size-6" /></span>
               <div className="min-w-0">
                 <strong className="block text-lg font-bold">{a('missionPatients', 'For patients')}</strong>
                 <p className="mt-1 text-sm leading-7 font-medium text-white/80">{a('missionPatientsText', 'Finding and booking the right doctor feels simple and clear.')}</p>
               </div>
             </li>
-            <li className="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-5 transition duration-200 hover:bg-white/[0.12] motion-reduce:transition-none sm:p-6">
+            <li className="group flex items-start gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-4 sm:gap-4 sm:p-5 transition duration-200 hover:bg-white/[0.12] motion-reduce:transition-none sm:p-6">
               <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-emerald-300 text-[#06382b] shadow-lg shadow-emerald-300/20"><Building2 className="size-6" /></span>
               <div className="min-w-0">
                 <strong className="block text-lg font-bold">{a('missionClinics', 'For doctors and clinics')}</strong>
@@ -187,15 +187,15 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Patient journey */}
-    <section id="journey" className="scroll-mt-28 border-y border-border/70 bg-card/40 py-16 lg:py-24">
+    <section id="journey" className="scroll-mt-28 border-y border-border/70 bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className={container}>
         <SectionHeading eyebrow={a('journeyEyebrow', 'How Clinova works')} title={a('journeyTitle', 'The patient journey')} description={a('journeyDescription', 'Six steps, from searching for a doctor to sharing your experience.')} />
-        <ol className="relative mx-auto mt-14 grid max-w-5xl">
-          <span aria-hidden="true" className="pointer-events-none absolute inset-y-6 start-6 border-s-2 border-dashed border-primary/25 lg:start-1/2" />
-          {journey.map((step, index) => <li key={step.key} className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-10">
-            <span className="relative z-10 col-start-1 row-start-1 grid size-12 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 lg:col-start-2">{step.icon}</span>
+        <ol className="relative mx-auto mt-10 grid max-w-5xl sm:mt-14">
+          <span aria-hidden="true" className="pointer-events-none absolute inset-y-5 start-5 border-s-2 border-dashed border-primary/25 sm:inset-y-6 sm:start-6 lg:start-1/2" />
+          {journey.map((step, index) => <li key={step.key} className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 sm:gap-x-5 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-10">
+            <span className="relative z-10 col-start-1 row-start-1 grid size-10 place-items-center rounded-xl sm:size-12 bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 lg:col-start-2">{step.icon}</span>
             <div className={`col-start-2 row-start-1 min-w-0 pb-10 lg:pb-12 ${index % 2 === 0 ? 'lg:col-start-1' : 'lg:col-start-3'}`}>
-              <div className={`rounded-2xl border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-6 ${step.deposit ? 'border-primary/30 bg-gradient-to-br from-primary/[0.06] via-card to-card' : 'border-border bg-card hover:border-primary/30'}`}>
+              <div className={`rounded-2xl border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0 max-sm:p-4 sm:p-6 ${step.deposit ? 'border-primary/30 bg-gradient-to-br from-primary/[0.06] via-card to-card' : 'border-border bg-card hover:border-primary/30'}`}>
                 <span className="text-base font-bold tracking-wider text-primary">0{index + 1}</span>
                 <h3 className="mt-1 text-lg font-bold">{step.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-muted-foreground">{step.text}</p>
@@ -214,9 +214,9 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Respecting everyone's time */}
-    <section className={`${container} py-16 lg:py-24`}>
+    <section className={`${container} py-12 sm:py-16 lg:py-24`}>
       <SectionHeading eyebrow={a('timeEyebrow', 'A fair commitment')} title={a('timeTitle', 'A booking experience that respects everyone’s time')} description={a('timeDescription', 'A confirmed appointment makes things more reliable for patients and for doctors.')} />
-      <div className="mt-12 grid overflow-hidden rounded-3xl border border-border bg-card shadow-sm lg:grid-cols-2">
+      <div className="mt-8 grid overflow-hidden rounded-3xl border border-border bg-card shadow-sm sm:mt-12 lg:grid-cols-2">
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-4">
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Clock3 className="size-6" /></span>
@@ -233,8 +233,8 @@ export default function PatientAboutPage() {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-6 rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/[0.07] via-card to-card p-7 sm:p-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,4fr)_minmax(0,4fr)] lg:gap-0">
-        <div className="lg:pe-10">
+      <div className="mt-5 grid gap-6 rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/[0.07] via-card to-card p-5 sm:p-10 md:max-lg:grid-cols-2 lg:grid-cols-[minmax(0,4fr)_minmax(0,4fr)_minmax(0,4fr)] lg:gap-0">
+        <div className="md:max-lg:col-span-2 lg:pe-10">
           <h3 className="text-lg font-bold">{a('policyTitle', 'Cancellations and refunds')}</h3>
           <p className="mt-2 text-sm leading-7 text-muted-foreground">{a('policyNote', 'You can follow refund information for your appointments from My Appointments.')}</p>
         </div>
@@ -250,18 +250,18 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Why Clinova */}
-    <section className="border-y border-border/70 bg-card/40 py-16 lg:py-24">
+    <section className="border-y border-border/70 bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className={container}>
         <SectionHeading eyebrow={a('whyEyebrow', 'Why choose Clinova')} title={a('whyTitle', 'Built for both sides of care')} description={a('whyDescription', 'One platform that supports patients and the clinics that care for them.')} />
-        <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-7 sm:p-10">
+        <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:p-10">
             <div className="flex items-center gap-3">
               <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><UserRound className="size-5" /></span>
               <h3 className="text-xl font-bold">{a('whyPatients', 'For patients')}</h3>
             </div>
             <ul className="mt-6 grid gap-3.5 sm:grid-cols-2">{patientBenefits.map((item) => <CheckItem key={item}>{item}</CheckItem>)}</ul>
           </div>
-          <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-7 sm:p-10">
+          <div className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:p-10">
             <div className="flex items-center gap-3">
               <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><Building2 className="size-5" /></span>
               <h3 className="text-xl font-bold">{a('whyClinics', 'For doctors and clinic staff')}</h3>
@@ -273,12 +273,12 @@ export default function PatientAboutPage() {
     </section>
 
     {/* Vision */}
-    <section className={`${container} py-16 lg:py-24`}>
+    <section className={`${container} py-12 sm:py-16 lg:py-24`}>
       <div className="mx-auto max-w-3xl text-center">
         <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10"><HeartPulse className="size-7" /></span>
         <div className="mt-5"><Eyebrow>{a('visionEyebrow', 'Our vision')}</Eyebrow></div>
         <p className="mt-3 font-sans text-2xl leading-snug font-bold sm:text-4xl">{a('visionTitle', 'A more connected and organized healthcare experience.')}</p>
-        <p className="mt-5 text-base leading-8 text-muted-foreground">{a('visionText', 'We want patients to find the right doctors and manage their appointments more easily, while helping doctors and clinics move toward more efficient and organized daily operations.')}</p>
+        <p className="mt-4 text-[15px] leading-7 text-muted-foreground sm:mt-5 sm:text-base sm:leading-8">{a('visionText', 'We want patients to find the right doctors and manage their appointments more easily, while helping doctors and clinics move toward more efficient and organized daily operations.')}</p>
       </div>
     </section>
   </PatientShell>

@@ -42,7 +42,7 @@ function byMonth(rows: PatientGetHisOwnReviewResponse[], locale: string) {
 
 
 function DateTile({ day, locale }: { day: Date; locale: string }) {
-  return <span aria-hidden="true" className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary leading-none text-primary-foreground">
+  return <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary leading-none text-primary-foreground sm:size-16">
     <span className="grid justify-items-center gap-1">
       <small className="text-[11px] font-bold">{day.toLocaleDateString(locale, { month: 'short' })}</small>
       <strong className="font-sans text-2xl font-bold tabular-nums">{day.toLocaleDateString(locale, { day: 'numeric' })}</strong>
@@ -68,7 +68,7 @@ export default function PatientReviewsPage() {
       : tr('statusPending', 'Pending approval')
 
   return <PatientShell>
-    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-16">
       <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
         <span aria-hidden="true">/</span>
@@ -77,38 +77,38 @@ export default function PatientReviewsPage() {
 
       <div className="mt-6 max-w-2xl">
         <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><MessageSquareText className="size-3" />{tr('eyebrow', 'Reviews')}</Badge>
-        <h1 className="mt-3 font-sans text-3xl font-bold sm:text-5xl">{t('patientPortal.nav.reviews', { defaultValue: 'My Reviews' })}</h1>
+        <h1 className="mt-3 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-5xl">{t('patientPortal.nav.reviews', { defaultValue: 'My Reviews' })}</h1>
         <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{tr('subtitle', 'Manage and track your feedback about doctors.')}</p>
       </div>
 
       <div className="mt-8">
         {reviews.isLoading && <div role="status" aria-label={tr('loading', 'Loading your reviews')} className="divide-y divide-border/60">
           {Array.from({ length: 4 }, (_, index) => <div key={index} className="flex items-center gap-4 py-5">
-            <Skeleton className="size-16 shrink-0 rounded-2xl motion-reduce:animate-none" />
+            <Skeleton className="size-14 shrink-0 rounded-2xl motion-reduce:animate-none sm:size-16" />
             <div className="grid flex-1 gap-2.5"><Skeleton className="h-5 w-48 max-w-full motion-reduce:animate-none" /><Skeleton className="h-4 w-36 max-w-full motion-reduce:animate-none" /><Skeleton className="h-4 w-52 max-w-full motion-reduce:animate-none" /></div>
             <Skeleton className="hidden h-12 w-40 rounded-xl sm:block motion-reduce:animate-none" />
           </div>)}
         </div>}
 
-        {reviews.isError && <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-5">
+        {reviews.isError && <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5">
           <p className="min-w-0 flex-1 text-sm font-bold text-destructive">{getErrorMessage(reviews.error)}</p>
           <Button type="button" variant="ghost" className={grayButton} disabled={reviews.isFetching} onClick={() => reviews.refetch()}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button>
         </div>}
 
-        {reviews.isSuccess && items.length === 0 && <section className="relative isolate -mt-8 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+        {reviews.isSuccess && items.length === 0 && <section className="relative isolate -mt-8 grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
           <div className="relative">
             <span className="relative grid size-16 place-items-center rounded-full bg-primary text-primary-foreground ring-8 ring-primary/10"><MessageSquareText className="size-7" /></span>
             <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
             <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
             <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
           </div>
-          <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{tr('emptyTitle', 'No reviews yet')}</h2>
+          <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{tr('emptyTitle', 'No reviews yet')}</h2>
           <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{tr('emptyDescription', 'Your submitted reviews will appear here after you share your experience with a doctor.')}</p>
           <Button className="mt-6 h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" render={<Link to="/patient/appointments" />}><CalendarDays className="size-4" />{t('patientPortal.nav.appointments', { defaultValue: 'My Appointments' })}</Button>
         </section>}
 
         {reviews.isSuccess && items.length > 0 && <>
-          <div className="grid gap-10">
+          <div className="grid gap-8 sm:gap-10">
             {byMonth(items, locale).map((group) => <section key={group.key} aria-label={group.label}>
               <h2 className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
                 {group.label}
@@ -120,9 +120,9 @@ export default function PatientReviewsPage() {
                   to="/patient/appointments/$appointmentId"
                   params={{ appointmentId: String(review.appointmentId) }}
                   aria-label={`${tr('viewAppointment', 'View Appointment')}: ${review.doctorName}`}
-                  className="group flex h-full min-w-0 flex-col gap-4 rounded-3xl border border-border bg-card p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  className="group flex h-full min-w-0 flex-col gap-4 rounded-3xl border border-border bg-card p-4 transition duration-200 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <div className="flex items-start gap-3.5">
+                  <div className="flex flex-wrap items-start gap-3.5 sm:flex-nowrap">
                     <DateTile day={parseUtc(review.createdAt)} locale={locale} />
                     <div className="min-w-0 flex-1 self-center">
                       <h3 className="truncate font-sans text-lg font-bold">{review.doctorName}</h3>
@@ -131,14 +131,14 @@ export default function PatientReviewsPage() {
                         <span className="min-w-0 truncate">{review.clinicName}</span>
                       </p>
                     </div>
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${statusPill[review.status] ?? 'bg-muted text-muted-foreground'}`}>{statusLabel(review.status)}</span>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold max-sm:order-last ${statusPill[review.status] ?? 'bg-muted text-muted-foreground'}`}>{statusLabel(review.status)}</span>
                   </div>
 
                   <Stars value={review.rating} />
 
                   <div className="flex-1">
                     {review.comment?.trim()
-                      ? <p dir="auto" className="line-clamp-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-base leading-7 font-medium whitespace-pre-line text-foreground"><span aria-hidden="true" className="me-0.5">“</span>{review.comment}<span aria-hidden="true" className="ms-0.5">”</span></p>
+                      ? <p dir="auto" className="line-clamp-4 rounded-2xl border border-border/60 bg-muted/30 px-3 py-2.5 text-[15px] leading-7 font-medium whitespace-pre-line text-foreground sm:px-4 sm:py-3 sm:text-base"><span aria-hidden="true" className="me-0.5">“</span>{review.comment}<span aria-hidden="true" className="ms-0.5">”</span></p>
                       : <p className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-base leading-7 font-medium text-muted-foreground italic">{tr('noComment', 'No written comment.')}</p>}
                   </div>
 

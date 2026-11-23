@@ -28,7 +28,7 @@ function FormSection({ number, icon, title, description, children }: { number: s
           <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{title}</h2>
           <p className="text-xs leading-5 text-muted-foreground">{description}</p>
         </div>
-        <span className="rounded-full border border-primary/15 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary tabular-nums">{number}</span>
+        <span className="shrink-0 rounded-full border border-primary/15 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary tabular-nums">{number}</span>
       </div>
       {children}
     </section>

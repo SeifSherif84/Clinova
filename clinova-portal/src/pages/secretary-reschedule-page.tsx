@@ -33,14 +33,14 @@ function SectionCard({ icon, title, children }: { icon: ReactNode; title: string
         <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{title}</h3>
       </div>
     </div>
-    <CardContent className="grid gap-5 p-5">{children}</CardContent>
+    <CardContent className="grid gap-5 p-3.5 sm:p-5">{children}</CardContent>
   </Card>
 }
 
 function SummaryRow({ icon, label, last = false, children }: { icon: ReactNode; label: string; last?: boolean; children: ReactNode }) {
   return <div className={`flex items-baseline justify-between gap-3 py-3 ${last ? '' : 'border-b border-dashed border-border/70'}`}>
-    <span className="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase [&>svg]:size-4 [&>svg]:text-primary/70">{icon}{label}</span>
-    <span className="text-end text-sm font-bold">{children}</span>
+    <span className="flex shrink-0 items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase [&>svg]:size-4 [&>svg]:text-primary/70">{icon}{label}</span>
+    <span className="min-w-0 text-end text-sm font-bold break-words">{children}</span>
   </div>
 }
 
@@ -129,12 +129,12 @@ export default function SecretaryReschedulePage() {
 
           {validId && details.isLoading && <p role="status" className="flex items-center gap-2 py-8 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />{t('secretary.appointments.loadingDetails')}</p>}
 
-          {(!validId || details.isError) && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          {(!validId || details.isError) && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{validId ? getErrorMessage(details.error) : t('secretary.appointments.notFoundTitle')}</p>
             {validId && <Button variant="outline" className={grayButton + ' mt-3'} disabled={details.isFetching} onClick={() => details.refetch()}>{details.isFetching ? spinner : <RefreshCw />}{t('errors.tryAgain')}</Button>}
           </Card>}
 
-          {data && !eligible && <Card className="items-center rounded-3xl border border-dashed border-border bg-card px-6 py-12 text-center">
+          {data && !eligible && <Card className="items-center rounded-3xl border border-dashed border-border bg-card px-4 py-10 text-center sm:px-6 sm:py-12">
             <span className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground"><TriangleAlert className="size-6" /></span>
             <h2 className="mt-4 font-sans text-xl font-bold">{t('secretary.reschedule.notEligibleTitle', { defaultValue: 'This appointment can’t be rescheduled' })}</h2>
             <p className="mt-2 max-w-md text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.reschedule.notEligibleDescription', { defaultValue: 'Only confirmed appointments can be moved to a new time.' })}</p>
@@ -183,7 +183,7 @@ export default function SecretaryReschedulePage() {
                     {date && slots.isError && <p role="alert" className="text-xs font-bold text-destructive">{getErrorMessage(slots.error)}</p>}
                     {date && slots.data && !slots.data.length && <p className="text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.guest.noSlots')}</p>}
                     {date && slots.data && slots.data.length > 0 && <RadioGroup aria-label={t('secretary.guest.timeLabel')} value={slotId} onValueChange={(value) => setSlotId(String(value))} className="mt-1 grid grid-cols-2 gap-2.5">
-                      {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-background/45 px-2.5 py-3 text-sm font-bold whitespace-nowrap tabular-nums transition not-has-[[data-checked]]:hover:-translate-y-0.5 not-has-[[data-checked]]:hover:bg-primary/5 dark:not-has-[[data-checked]]:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
+                      {slots.data.map((item) => <label key={item.id} className="group relative flex min-w-0 cursor-pointer items-center justify-center gap-1 rounded-xl border border-border/60 bg-background/45 px-1.5 py-3 text-[13px] font-bold whitespace-nowrap tabular-nums transition sm:gap-1.5 sm:px-2.5 sm:text-sm not-has-[[data-checked]]:hover:-translate-y-0.5 not-has-[[data-checked]]:hover:bg-primary/5 dark:not-has-[[data-checked]]:hover:bg-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/20 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary has-[[data-checked]]:text-primary-foreground has-[[data-checked]]:shadow-md has-[[data-checked]]:shadow-primary/25">
                         <RadioGroupItem value={String(item.id)} className="pointer-events-none absolute size-px opacity-0" />
                         <Clock3 aria-hidden="true" className="size-4 shrink-0 stroke-[2.25] opacity-80" />
                         <span dir="ltr">{formatTime(item.startTime)} – {formatTime(item.endTime)}</span>
@@ -203,7 +203,7 @@ export default function SecretaryReschedulePage() {
                     <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.reschedule.summaryTitle', { defaultValue: 'Reschedule summary' })}</h3>
                   </div>
                 </div>
-                <CardContent className="grid gap-3 p-5">
+                <CardContent className="grid gap-3 p-3.5 sm:p-5">
                   <div className="grid">
                     <SummaryRow icon={<UserRound />} label={t('secretary.appointments.patient')}>{data.patientName}</SummaryRow>
                     <SummaryRow icon={<Stethoscope />} label={t('secretary.guest.doctor')}>{data.doctorName}</SummaryRow>

@@ -37,7 +37,7 @@ function byMonth(rows: Row[], locale: string) {
 }
 
 function DateTile({ day, locale, muted, highlight = false }: { day: Date; locale: string; muted: boolean; highlight?: boolean }) {
-  return <span aria-hidden="true" className={`grid size-16 shrink-0 place-items-center rounded-2xl leading-none ${muted ? 'bg-muted text-muted-foreground' : highlight ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'bg-primary/10 text-primary'}`}>
+  return <span aria-hidden="true" className={`grid size-14 shrink-0 place-items-center rounded-2xl leading-none sm:size-16 ${muted ? 'bg-muted text-muted-foreground' : highlight ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'bg-primary/10 text-primary'}`}>
     <span className="grid justify-items-center gap-1">
       <small className="text-[11px] font-bold">{day.toLocaleDateString(locale, { month: 'short' })}</small>
       <strong className="font-sans text-2xl font-bold tabular-nums">{day.toLocaleDateString(locale, { day: 'numeric' })}</strong>
@@ -54,7 +54,7 @@ function AppointmentRow({ row, locale, tr, status, money, isNext = false }: { ro
   return <Link
     to="/patient/appointments/$appointmentId"
     params={{ appointmentId: String(item.appointmentId) }}
-    className={`group -mx-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-4 rounded-2xl px-3 py-3 transition-colors hover:bg-primary/[0.06] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-x-6 ${isNext ? 'bg-primary/[0.04]' : ''}`}
+    className={`group -mx-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-3 rounded-2xl px-3 py-3 sm:gap-y-4 sm:gap-x-4 transition-colors hover:bg-primary/[0.06] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:gap-x-6 ${isNext ? 'bg-primary/[0.04]' : ''}`}
   >
     <DateTile day={day} locale={locale} muted={group !== 'upcoming'} highlight={isNext} />
 
@@ -63,10 +63,10 @@ function AppointmentRow({ row, locale, tr, status, money, isNext = false }: { ro
         {tr('nextVisit', 'Your next visit')} {new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(daysUntil(item.slotDate), 'day')}
       </p>}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <h3 className="min-w-0 truncate font-sans text-lg font-bold">{item.doctorName}</h3>
-          <span aria-hidden="true" className="h-4 w-px shrink-0 bg-muted-foreground/40" />
-          <span className="min-w-0 truncate text-sm font-semibold text-muted-foreground">{item.clinicName}</span>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 sm:flex-nowrap">
+          <h3 className="min-w-0 font-sans text-base font-bold max-sm:w-full sm:truncate sm:text-lg">{item.doctorName}</h3>
+          <span aria-hidden="true" className="hidden h-4 w-px shrink-0 bg-muted-foreground/40 sm:block" />
+          <span className="min-w-0 text-sm font-semibold text-muted-foreground sm:truncate">{item.clinicName}</span>
         </div>
         <StatusPill status={item.appointmentStatus} label={status(item.appointmentStatus)} />
       </div>
@@ -99,7 +99,7 @@ function AppointmentRow({ row, locale, tr, status, money, isNext = false }: { ro
 function ListSkeleton({ label }: { label: string }) {
   return <div role="status" aria-label={label} className="mt-8 divide-y divide-border/60">
     {Array.from({ length: 4 }, (_, index) => <div key={index} className="flex items-center gap-4 py-5">
-      <Skeleton className="size-16 shrink-0 rounded-2xl motion-reduce:animate-none" />
+      <Skeleton className="size-14 shrink-0 rounded-2xl motion-reduce:animate-none sm:size-16" />
       <div className="grid flex-1 gap-2.5"><Skeleton className="h-5 w-48 max-w-full motion-reduce:animate-none" /><Skeleton className="h-4 w-36 max-w-full motion-reduce:animate-none" /><Skeleton className="h-4 w-52 max-w-full motion-reduce:animate-none" /></div>
       <Skeleton className="hidden h-12 w-40 rounded-xl sm:block motion-reduce:animate-none" />
     </div>)}
@@ -107,14 +107,14 @@ function ListSkeleton({ label }: { label: string }) {
 }
 
 function EmptyState({ tr }: { tr: Tr }) {
-  return <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+  return <section className="relative isolate grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
     <div className="relative">
       <span className="relative grid size-16 place-items-center rounded-full bg-primary text-primary-foreground ring-8 ring-primary/10"><CalendarDays className="size-7" /></span>
       <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
       <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
       <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
     </div>
-    <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{tr('emptyTitle', 'No appointments yet')}</h2>
+    <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{tr('emptyTitle', 'No appointments yet')}</h2>
     <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{tr('emptyDescription', 'When you book a visit, it will show up here so you can follow its status and payments.')}</p>
     <Button className={primaryButton + ' mt-6'} render={<Link to="/patient/doctors" />}><Stethoscope className="size-4" />{tr('findDoctor', 'Find a doctor')}</Button>
   </section>
@@ -161,7 +161,7 @@ export default function PatientAppointmentsPage() {
   const tabLabels: Record<Tab, string> = { all: tr('tabAll', 'All'), upcoming: tr('tabUpcoming', 'Upcoming'), past: tr('tabPast', 'Past'), cancelled: tr('tabCancelled', 'Cancelled') }
 
   return <PatientShell>
-    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-16">
       <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
         <span aria-hidden="true">/</span>
@@ -174,15 +174,15 @@ export default function PatientAppointmentsPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-2xl">
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><CalendarDays className="size-3" />{tr('eyebrow', 'My appointments')}</Badge>
-            <h1 className="mt-3 font-sans text-3xl font-bold sm:text-5xl">{tr('title', 'Your appointments')}</h1>
+            <h1 className="mt-3 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-5xl">{tr('title', 'Your appointments')}</h1>
             <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{tr('description', 'Every visit you have booked, with its status and payments, in one place.')}</p>
           </div>
-          <Button className={primaryButton} render={<Link to="/patient/doctors" />}><CalendarPlus className="size-4" />{tr('book', 'Book an appointment')}</Button>
+          <Button className={primaryButton + ' w-full sm:w-auto'} render={<Link to="/patient/doctors" />}><CalendarPlus className="size-4" />{tr('book', 'Book an appointment')}</Button>
         </div>
 
         {appointments.isLoading && <ListSkeleton label={tr('loading', 'Loading your appointments')} />}
 
-        {appointments.isError && <div className="mt-8 flex flex-wrap items-center gap-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-6">
+        {appointments.isError && <div className="mt-8 flex flex-wrap items-center gap-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-4 sm:p-6">
           <p className="min-w-0 flex-1 text-sm font-bold text-destructive">{getErrorMessage(appointments.error)}</p>
           <Button type="button" variant="ghost" className={grayButton} disabled={appointments.isFetching} onClick={() => appointments.refetch()}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button>
         </div>}
@@ -194,7 +194,7 @@ export default function PatientAppointmentsPage() {
           <div role="radiogroup" aria-label={tr('filterLabel', 'Filter appointments')} className="-mx-1 mt-8 flex gap-2 overflow-x-auto px-1 pb-1">
             {tabs.map((key) => {
               const selected = tab === key
-              return <button key={key} type="button" role="radio" aria-checked={selected} onClick={() => setTab(key)} className={`inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border px-4 text-[13px] font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'}`}>
+              return <button key={key} type="button" role="radio" aria-checked={selected} onClick={() => setTab(key)} className={`inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border px-4 sm:h-9 text-[13px] font-bold whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none motion-reduce:transition-none ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'}`}>
                 {tabLabels[key]}
                 <span className={`rounded-full px-1.5 text-[11px] tabular-nums ${selected ? 'bg-primary-foreground/20' : 'bg-muted'}`}>{counts[key]}</span>
               </button>

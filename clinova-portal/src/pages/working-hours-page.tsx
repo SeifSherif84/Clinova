@@ -229,7 +229,7 @@ export default function WorkingHoursPage() {
         </div>
 
         {clinics.isLoading && <Card className="mt-6 min-h-72 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loadingClinics')}</p></Card>}
-        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
+        {clinics.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8"><Notice message={getErrorMessage(clinics.error)} /><Button className="mt-3 h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" variant="outline" onClick={() => clinics.refetch()}><RefreshCw />{t('workingHours.retry')}</Button></Card>}
         {clinics.data?.length === 0 && (
           <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
             <div className="relative">
@@ -310,7 +310,7 @@ export default function WorkingHoursPage() {
                 </CardHeader>
                 <CardContent className="min-w-0 p-0">
                   {(hoursLoading || days.isLoading) && <div className="grid min-h-72 place-items-center p-6"><div className="grid justify-items-center gap-3"><LoaderCircle className="size-7 animate-spin text-primary motion-reduce:animate-none" /><p className="text-xs text-muted-foreground">{t('workingHours.loading')}</p></div></div>}
-                  {queryError && <div className="grid justify-items-start gap-3 p-6"><Notice message={getErrorMessage(queryError)} /><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => { clinics.refetch(); days.refetch(); hourQueries.forEach((query) => query.refetch()) }}><RefreshCw />{t('workingHours.retry')}</Button></div>}
+                  {queryError && <div className="grid justify-items-start gap-3 p-4 sm:p-6"><Notice message={getErrorMessage(queryError)} /><Button variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => { clinics.refetch(); days.refetch(); hourQueries.forEach((query) => query.refetch()) }}><RefreshCw />{t('workingHours.retry')}</Button></div>}
                   {hoursReady && !queryError && (
                     <>
                       <div className="hidden max-h-[46rem] max-w-full overflow-auto [scrollbar-width:thin] lg:block" dir="ltr">
@@ -386,8 +386,8 @@ export default function WorkingHoursPage() {
                           return (
                             <section className="overflow-hidden rounded-2xl border border-border/60 bg-background/35" key={day.id}>
                               <div className="flex items-center justify-between gap-3 border-b border-border/50 px-3 py-3 sm:px-4">
-                                <div><h3 className="text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-xs font-semibold text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
-                                <Button type="button" variant="outline" className="h-10 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
+                                <div className="min-w-0"><h3 className="truncate text-sm font-bold">{dayLabel(day.name)}</h3><small className="text-xs font-semibold text-muted-foreground">{dayEntries.length} {t('workingHours.schedules')}</small></div>
+                                <Button type="button" variant="outline" className="h-10 shrink-0 rounded-xl border-transparent bg-foreground/5 px-4 text-[13px] font-bold normal-case text-foreground shadow-none hover:bg-foreground/10 dark:border-transparent dark:bg-foreground/5 dark:hover:bg-foreground/10" onClick={() => startCreating(day)}><Plus />{t('workingHours.add')}</Button>
                               </div>
                               <div className="grid gap-2 p-3">
                                 {dayEntries.length ? dayEntries.map((entry) => (

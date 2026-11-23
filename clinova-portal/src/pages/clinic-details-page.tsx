@@ -286,7 +286,7 @@ export default function ClinicDetailsPage() {
     <DoctorWorkspaceShell active="clinics" topBackLink={topBackLink}>
       <div className="mx-auto min-w-0 w-full max-w-screen-2xl p-4 sm:p-6 lg:p-10">
         {details.isLoading && <Card className="mt-6 min-h-80 items-center justify-center rounded-3xl border border-border bg-card"><LoaderCircle className="size-7 animate-spin text-primary" />{t('clinicDetails.loading')}</Card>}
-        {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-8 text-center"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => details.refetch()}><RefreshCw className="size-4" />{t('clinics.retry')}</Button></Card>}
+        {details.isError && <Card className="mt-6 items-center rounded-3xl border border-destructive/20 p-5 text-center sm:p-8"><p className="text-sm text-destructive">{getErrorMessage(details.error)}</p><Button variant="ghost" className="h-10 cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30" onClick={() => details.refetch()}><RefreshCw className="size-4" />{t('clinics.retry')}</Button></Card>}
 
         {details.data && (
           <div className="mt-5 min-w-0 grid gap-5">

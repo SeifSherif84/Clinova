@@ -209,7 +209,7 @@ export default function DoctorInvitationsPage() {
           )}
 
           {activeQuery.isError && (
-            <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+            <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
               <span className="grid size-14 place-items-center rounded-2xl bg-destructive/10 text-destructive">
                 <X className="size-6" />
               </span>
@@ -255,7 +255,7 @@ export default function DoctorInvitationsPage() {
     {t(statusKey(invitation.status))}
   </Badge>
   <CardContent className="flex h-full flex-col gap-4">
-    <div className="flex items-start gap-3 pe-20">
+    <div className="flex items-start gap-3 pe-24 sm:pe-20">
       <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none">
         <UserRound className="size-6" />
       </span>

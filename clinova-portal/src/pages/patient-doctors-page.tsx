@@ -25,7 +25,7 @@ function DoctorCard({ doctor }: { doctor: PatientDoctorResponse }) {
   const picture = doctor.profilePictureUrl && !imageFailed ? doctor.profilePictureUrl : null
   const initials = doctor.doctorName.replace(/^dr\.?\s*/i, '').split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
 
-  return <Link to="/patient/doctors/$doctorId" params={{ doctorId: String(doctor.doctorId) }} className="group relative isolate grid cursor-pointer content-start gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3 transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+  return <Link to="/patient/doctors/$doctorId" params={{ doctorId: String(doctor.doctorId) }} className="group relative isolate grid cursor-pointer content-start gap-3 overflow-hidden rounded-2xl border border-border bg-card p-2.5 transition duration-300 sm:p-3 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
     <div className="relative aspect-[1/1] w-full overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
       {picture
         ? <img src={picture} alt={doctor.doctorName} loading="lazy" onError={() => setImageFailed(true)} className="size-full object-cover object-top transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" />
@@ -37,7 +37,7 @@ function DoctorCard({ doctor }: { doctor: PatientDoctorResponse }) {
     </div>
 
     <div className="grid gap-1 px-1 pb-1 text-center">
-      <h2 className="truncate font-sans text-base font-bold leading-tight">{doctor.doctorName}</h2>
+      <h2 className="truncate font-sans text-sm font-bold leading-tight sm:text-base">{doctor.doctorName}</h2>
       <p className="flex items-center justify-center gap-1.5 truncate text-[13px] font-semibold text-primary"><Stethoscope className="size-3.5 shrink-0" /><span className="truncate">{doctor.medicalSpecialtyName}</span></p>
       {doctor.experienceYears != null && <p className="flex items-center justify-center gap-1.5 text-[13px] font-semibold text-muted-foreground">
         <Briefcase className="size-3.5 shrink-0 text-primary/70" />
@@ -114,7 +114,7 @@ export default function PatientDoctorsPage() {
 
   return <PatientShell>
     <div className="relative isolate overflow-hidden">
-      <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-16">
         <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
           <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
           <span aria-hidden="true">/</span>
@@ -123,13 +123,13 @@ export default function PatientDoctorsPage() {
 
         <div className="mt-6 max-w-2xl">
           <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase"><Stethoscope className="size-3" />{t('patientPortal.doctors.eyebrow', { defaultValue: 'Doctors' })}</Badge>
-          <h1 className="mt-3 font-sans text-3xl font-bold sm:text-5xl">{t('patientPortal.doctors.title', { defaultValue: 'Find the right doctor' })}</h1>
+          <h1 className="mt-3 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-5xl">{t('patientPortal.doctors.title', { defaultValue: 'Find the right doctor' })}</h1>
           <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{t('patientPortal.doctors.description', { defaultValue: 'Search by name, specialty, or location and browse doctors who fit what you need.' })}</p>
         </div>
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-3 sm:p-4">
           <div className="flex flex-wrap items-end gap-x-6 gap-y-4">
-            <div className="grid min-w-44 max-w-72 flex-1 gap-1.5">
+            <div className="grid w-full min-w-44 flex-1 gap-1.5 sm:w-auto sm:max-w-72">
               <label htmlFor="doctorSearch" className="text-[13px] font-bold text-muted-foreground">{t('patientPortal.doctors.labelName', { defaultValue: 'Or type a name' })}</label>
               <div className="group relative">
                 <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
@@ -142,12 +142,12 @@ export default function PatientDoctorsPage() {
                   aria-label={t('patientPortal.doctors.searchLabel', { defaultValue: 'Doctor name' })}
                   placeholder={t('patientPortal.doctors.searchPlaceholder', { defaultValue: 'Search by name' })}
                   onChange={(event) => setName(event.target.value)}
-                  className="h-10 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-base font-medium outline-none transition placeholder:text-sm placeholder:font-medium focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10"
+                  className="h-11 w-full rounded-xl border border-input bg-background/40 ps-9 pe-3 text-base font-medium sm:h-10 outline-none transition placeholder:text-sm placeholder:font-medium focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary/10"
                 />
               </div>
             </div>
 
-            <div className="grid gap-1.5">
+            <div className="grid gap-1.5 max-sm:w-full">
               <span className="text-[13px] font-bold text-muted-foreground">{t('patientPortal.doctors.labelSpecialty', { defaultValue: "I'm looking for a doctor" })}</span>
               <Select
                 items={[allLabel('patientPortal.doctors.allSpecialties', 'All specialties'), ...(specialties.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? [])]}
@@ -155,7 +155,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={(value) => { setSpecialtyId(value ?? ALL); setPageIndex(1) }}
                 disabled={specialties.isLoading || specialties.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.specialty', { defaultValue: 'Specialty' })} className="h-10 w-auto min-w-44 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
+                <SelectTrigger aria-label={t('patientPortal.doctors.specialty', { defaultValue: 'Specialty' })} className="h-11 w-full min-w-44 shrink-0 cursor-pointer rounded-xl sm:h-10 sm:w-auto border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <Stethoscope className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>
@@ -166,7 +166,7 @@ export default function PatientDoctorsPage() {
               </Select>
             </div>
 
-            <div className="grid gap-1.5">
+            <div className="grid gap-1.5 max-sm:w-full">
               <span className="text-[13px] font-bold text-muted-foreground">{t('patientPortal.doctors.labelGovernorate', { defaultValue: 'In governorate' })}</span>
               <Select
                 items={[allLabel('patientPortal.doctors.allGovernorates', 'All governorates'), ...(governorates.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? [])]}
@@ -174,7 +174,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={changeGovernorate}
                 disabled={governorates.isLoading || governorates.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.governorate', { defaultValue: 'Governorate' })} className="h-10 w-auto min-w-40 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
+                <SelectTrigger aria-label={t('patientPortal.doctors.governorate', { defaultValue: 'Governorate' })} className="h-11 w-full min-w-40 shrink-0 cursor-pointer rounded-xl sm:h-10 sm:w-auto border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <MapPin className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>
@@ -185,7 +185,7 @@ export default function PatientDoctorsPage() {
               </Select>
             </div>
 
-            <div className="grid gap-1.5">
+            <div className="grid gap-1.5 max-sm:w-full">
               <span className="text-[13px] font-bold text-muted-foreground">{t('patientPortal.doctors.labelRegion', { defaultValue: 'In region' })}</span>
               <Select
                 items={[allLabel('patientPortal.doctors.allRegions', 'All regions'), ...(regions.data?.map((item) => ({ value: String(item.id), label: item.name })) ?? [])]}
@@ -193,7 +193,7 @@ export default function PatientDoctorsPage() {
                 onValueChange={(value) => { setRegionId(value ?? ALL); setPageIndex(1) }}
                 disabled={governorateId === ALL || regions.isLoading || regions.isError}
               >
-                <SelectTrigger aria-label={t('patientPortal.doctors.region', { defaultValue: 'Region' })} className="h-10 w-auto min-w-36 shrink-0 cursor-pointer rounded-xl border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
+                <SelectTrigger aria-label={t('patientPortal.doctors.region', { defaultValue: 'Region' })} className="h-11 w-full min-w-36 shrink-0 cursor-pointer rounded-xl sm:h-10 sm:w-auto border border-input bg-background/40 px-3 text-sm disabled:cursor-not-allowed">
                   <MapPin className="size-4 text-primary/70" />
                   <SelectValue />
                 </SelectTrigger>
@@ -204,7 +204,7 @@ export default function PatientDoctorsPage() {
               </Select>
             </div>
 
-            {hasFilters && <Button type="button" variant="ghost" className={grayButton + ' ms-auto shrink-0'} onClick={clearFilters}><RotateCcw className="size-3.5" />{t('patientPortal.doctors.clear', { defaultValue: 'Clear filters' })}</Button>}
+            {hasFilters && <Button type="button" variant="ghost" className={grayButton + ' w-full shrink-0 sm:ms-auto sm:w-auto'} onClick={clearFilters}><RotateCcw className="size-3.5" />{t('patientPortal.doctors.clear', { defaultValue: 'Clear filters' })}</Button>}
           </div>
         </div>
 
@@ -213,12 +213,12 @@ export default function PatientDoctorsPage() {
             {Array.from({ length: 12 }, (_, index) => <Skeleton key={index} className="aspect-[4/5] rounded-2xl motion-reduce:animate-none" />)}
           </div>}
 
-          {doctors.isError && !result && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          {doctors.isError && !result && <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(doctors.error)}</p>
             <Button type="button" variant="ghost" className={grayButton + ' mt-3'} disabled={doctors.isFetching} onClick={() => doctors.refetch()}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button>
           </Card>}
 
-          {result && result.items.length === 0 && <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+          {result && result.items.length === 0 && <section className="relative isolate grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
             <div className="relative">
               <span className="relative grid size-16 place-items-center rounded-full bg-primary text-primary-foreground ring-8 ring-primary/10">
                 {hasFilters ? <SearchX className="size-7" /> : <Stethoscope className="size-7" />}
@@ -228,7 +228,7 @@ export default function PatientDoctorsPage() {
               <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
             </div>
 
-            <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{t('patientPortal.doctors.emptyTitle', { defaultValue: 'No doctors found' })}</h2>
+            <h2 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{t('patientPortal.doctors.emptyTitle', { defaultValue: 'No doctors found' })}</h2>
             <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{t('patientPortal.doctors.emptyDescription', { defaultValue: 'Try a different name or loosen your filters to see more doctors.' })}</p>
             {hasFilters && <Button type="button" className={primaryButton + ' mt-6'} onClick={clearFilters}><RotateCcw className="size-4" />{t('patientPortal.doctors.clear', { defaultValue: 'Clear filters' })}</Button>}
           </section>}
@@ -239,7 +239,7 @@ export default function PatientDoctorsPage() {
               {result.items.map((doctor) => <DoctorCard key={doctor.doctorId} doctor={doctor} />)}
             </div>
 
-            {totalPages > 1 && <nav aria-label="pagination" className="mt-8 flex items-center justify-center gap-3">
+            {totalPages > 1 && <nav aria-label="pagination" className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button type="button" variant="ghost" className={grayButton} disabled={pageIndex <= 1 || doctors.isFetching} onClick={() => setPageIndex((current) => Math.max(1, current - 1))}><ChevronLeft className="size-4 rtl:rotate-180" />{t('patientPortal.doctors.previous', { defaultValue: 'Previous' })}</Button>
               <span className="text-xs font-bold tabular-nums text-muted-foreground">{t('patientPortal.doctors.pageOf', { page: result.pageIndex, total: totalPages, defaultValue: 'Page {{page}} of {{total}}' })}</span>
               <Button type="button" variant="ghost" className={grayButton} disabled={pageIndex >= totalPages || doctors.isFetching} onClick={() => setPageIndex((current) => Math.min(totalPages, current + 1))}>{t('patientPortal.doctors.next', { defaultValue: 'Next' })}<ChevronRight className="size-4 rtl:rotate-180" /></Button>

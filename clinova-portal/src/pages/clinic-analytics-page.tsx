@@ -97,7 +97,7 @@ export default function ClinicAnalyticsPage() {
         {!validId ? (
           <Notice message={t('clinicDetails.invalidId')} />
         ) : blockedStatus !== undefined ? (
-          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-4 py-10 text-center sm:px-6 sm:py-12">
             <span className="grid size-12 place-items-center rounded-xl bg-muted text-muted-foreground">
               <ShieldAlert className="size-6" />
             </span>

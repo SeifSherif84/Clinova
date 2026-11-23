@@ -53,13 +53,13 @@ function Fact({ icon, label, children }: { icon: ReactNode; label: string; child
     <span className="shrink-0 text-primary [&>svg]:size-6">{icon}</span>
     <div className="min-w-0">
       <dt className="text-sm font-semibold text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-base font-bold">{children}</dd>
+      <dd className="mt-0.5 text-sm font-bold sm:max-lg:text-sm lg:text-base max-sm:text-base">{children}</dd>
     </div>
   </div>
 }
 
 function ProofButton({ url, children }: { url: string; children: ReactNode }) {
-  return <Button className={primaryButton + ' w-fit'} render={<a href={resolveFileUrl(url)} target="_blank" rel="noreferrer" />}>
+  return <Button className={primaryButton + ' w-full sm:w-fit'} render={<a href={resolveFileUrl(url)} target="_blank" rel="noreferrer" />}>
     <ReceiptText className="size-4" />{children}<ExternalLink className="size-3.5" />
   </Button>
 }
@@ -166,10 +166,10 @@ function AppointmentContent({ d }: { d: PatientAppointmentDetails }) {
       onConfirm={() => cancel.mutate()}
       onOpenChange={(open) => { if (!open && !cancel.isPending) { setConfirmOpen(false); cancel.reset() } }}
     />
-    <header className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm sm:p-9">
+    <header className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm min-[400px]:p-5 sm:p-9">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-3.5 py-1.5 text-xs font-extrabold tracking-wider text-primary uppercase">{tr('number', 'Appointment #{{id}}', { id: d.appointmentId })}</span>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <StatusPill large status={d.appointmentStatus} label={status(d.appointmentStatus)} />
           {canCancel && <Popover open={menuOpen} onOpenChange={setMenuOpen}>
             <PopoverTrigger render={<Button type="button" variant="ghost" size="icon" className="size-10 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary" disabled={cancel.isPending} />} aria-label={tr('manage', 'Manage appointment')}><Ellipsis className="size-5" /></PopoverTrigger>
@@ -187,12 +187,12 @@ function AppointmentContent({ d }: { d: PatientAppointmentDetails }) {
           </Popover>}
         </div>
       </div>
-      <h1 className="mt-4 font-sans text-3xl leading-tight font-bold break-words sm:text-5xl">{d.doctorName}</h1>
+      <h1 className="mt-4 font-sans text-2xl leading-tight font-bold break-words min-[400px]:text-3xl sm:text-5xl">{d.doctorName}</h1>
       <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground sm:text-base"><MapPin className="size-4 shrink-0 text-primary" />{d.clinicName}</p>
-      <dl className="mt-7 grid divide-y divide-border/50 rounded-2xl border border-border/60 bg-muted/30 sm:grid-cols-3 sm:divide-x sm:divide-y-0 rtl:sm:divide-x-reverse">
-        <div className="px-5 py-4"><Fact icon={<CalendarDays />} label={tr('date', 'Date')}>{dayLong}</Fact></div>
-        <div className="px-5 py-4"><Fact icon={<Clock3 />} label={tr('time', 'Time')}><span dir="ltr">{timeRange}</span></Fact></div>
-        <div className="px-5 py-4"><Fact icon={<CalendarCheck2 />} label={tr('bookedOn', 'Booked on')}>{stamp(d.bookingDate)}</Fact></div>
+      <dl className="mt-6 grid divide-y divide-border/50 rounded-2xl border border-border/60 bg-muted/30 sm:mt-7 sm:grid-cols-3 sm:divide-x sm:divide-y-0 rtl:sm:divide-x-reverse">
+        <div className="px-4 py-3.5 sm:px-5 sm:py-4"><Fact icon={<CalendarDays />} label={tr('date', 'Date')}>{dayLong}</Fact></div>
+        <div className="px-4 py-3.5 sm:px-5 sm:py-4"><Fact icon={<Clock3 />} label={tr('time', 'Time')}><span dir="ltr">{timeRange}</span></Fact></div>
+        <div className="px-4 py-3.5 sm:px-5 sm:py-4"><Fact icon={<CalendarCheck2 />} label={tr('bookedOn', 'Booked on')}>{stamp(d.bookingDate)}</Fact></div>
       </dl>
       {held && <p className="mt-6 flex items-start gap-3 rounded-2xl border border-warm/25 bg-warm/10 px-4 py-3 text-sm leading-6 font-semibold text-warm"><Timer className="mt-0.5 size-5 shrink-0" />{tr('heldBanner', "Your slot is held until {{time}}. It may be released if the booking isn't completed by then.", { time: stamp(d.reservationExpiresAt as string) })}</p>}
     </header>
@@ -219,14 +219,14 @@ function AppointmentContent({ d }: { d: PatientAppointmentDetails }) {
         <PatientDepositPayment d={d} money={money} />
 
         <details className="group rounded-2xl border border-border/60 bg-card shadow-sm">
-          <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-2xl px-5 py-4 marker:hidden focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none sm:px-6 [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-2xl px-4 py-3.5 marker:hidden sm:px-5 sm:py-4 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none sm:px-6 [&::-webkit-details-marker]:hidden">
             <span className="min-w-0 flex-1 font-sans text-lg font-bold">{tr('detailsToggle', 'Booking and payment details')}</span>
             <span className="text-xs font-bold text-primary group-open:hidden">{tr('detailsShow', 'Show')}</span>
             <span className="hidden text-xs font-bold text-primary group-open:inline">{tr('detailsHide', 'Hide')}</span>
             <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
           </summary>
 
-          <div className="grid gap-6 border-t border-border/60 p-5 sm:p-6">
+          <div className="grid gap-5 border-t border-border/60 p-4 sm:gap-6 sm:p-6">
             <section className={blockClass} aria-label={tr('infoSection', 'Appointment')}>
               <SectionTitle icon={<CalendarDays />}>{tr('infoSection', 'Appointment')}</SectionTitle>
               <dl className="grid gap-2.5 sm:grid-cols-2">
@@ -306,12 +306,12 @@ function AppointmentContent({ d }: { d: PatientAppointmentDetails }) {
         </details>
       </div>
 
-      <aside className="grid gap-4 lg:sticky lg:top-28" aria-label={tr('paymentSummary', 'Payment summary')}>
+      <aside className="grid gap-4 md:max-lg:grid-cols-2 md:max-lg:items-start lg:sticky lg:top-28" aria-label={tr('paymentSummary', 'Payment summary')}>
         <div className="relative isolate overflow-hidden rounded-3xl border border-primary/15 bg-card p-5 shadow-xl shadow-primary/10 sm:p-6">
           <span aria-hidden="true" className="pointer-events-none absolute -end-12 -top-12 -z-10 size-40 rounded-full bg-primary/10 blur-3xl" />
           <h2 className="font-sans text-lg font-bold">{tr('paymentSummary', 'Payment summary')}</h2>
           <p className="mt-5 text-sm font-semibold text-muted-foreground">{tr('consultationFee', 'Consultation fee')}</p>
-          <strong dir="ltr" className="mt-1 block text-start font-sans text-4xl font-bold tabular-nums">{money(d.consultationFee)}</strong>
+          <strong dir="ltr" className="mt-1 block text-start font-sans text-3xl font-bold tabular-nums sm:text-4xl">{money(d.consultationFee)}</strong>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-foreground/10" role="img" aria-label={`${paidPercent}%`}>
             <span className="block h-full rounded-full bg-primary transition-all duration-500 motion-reduce:transition-none" style={{ width: `${paidPercent}%` }} />
           </div>
@@ -366,7 +366,7 @@ export default function PatientAppointmentDetailsPage() {
   const unavailable = !valid || errorStatus === 404 || forbidden
 
   return <PatientShell>
-    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
       <nav aria-label="breadcrumb" className="flex flex-wrap items-center gap-2 text-xs font-bold text-muted-foreground">
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"><House className="size-3.5" />{t('patientPortal.nav.home', { defaultValue: 'Home' })}</Link>
         <span aria-hidden="true">/</span>
@@ -380,19 +380,19 @@ export default function PatientAppointmentDetailsPage() {
 
       {valid && details.isLoading && <DetailsSkeleton label={tr('loadingDetails', 'Loading appointment details')} />}
 
-      {unavailable && <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+      {unavailable && <section className="relative isolate mt-6 grid place-items-center overflow-hidden px-4 py-14 text-center sm:py-28">
         <div className="relative">
           <span className="relative grid size-16 place-items-center rounded-full bg-primary text-primary-foreground ring-8 ring-primary/10">{forbidden ? <ShieldAlert className="size-7" /> : <SearchX className="size-7" />}</span>
           <span className="absolute -end-6 -top-3 size-3 rounded-full bg-primary/40 motion-safe:animate-bounce" />
           <span className="absolute -start-8 top-8 size-2 rounded-full bg-primary/30 motion-safe:animate-pulse" />
           <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse" />
         </div>
-        <h1 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">{forbidden ? tr('forbiddenTitle', 'This appointment is not available to you') : tr('notFoundTitle', 'We could not find this appointment')}</h1>
+        <h1 className="mt-8 font-sans text-2xl font-bold sm:mt-10 sm:text-4xl">{forbidden ? tr('forbiddenTitle', 'This appointment is not available to you') : tr('notFoundTitle', 'We could not find this appointment')}</h1>
         <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">{forbidden ? tr('forbiddenDescription', 'You can only open appointments that belong to your account. Check your appointments list instead.') : tr('notFoundDescription', 'It may have been removed, or the link may be incorrect. Open your appointments list to find it.')}</p>
         <Button className={primaryButton + ' mt-6'} render={<Link to="/patient/appointments" />}><ArrowLeft className="size-4 rtl:rotate-180" />{tr('back', 'Back to my appointments')}</Button>
       </section>}
 
-      {details.isError && !unavailable && <div className="mt-6 flex flex-wrap items-center gap-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-6">
+      {details.isError && !unavailable && <div className="mt-6 flex flex-wrap items-center gap-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-4 sm:p-6">
         <p className="min-w-0 flex-1 text-sm font-bold text-destructive">{getErrorMessage(details.error)}</p>
         <Button type="button" variant="ghost" className={grayButton} disabled={details.isFetching} onClick={() => details.refetch()}><RefreshCw className="size-4" />{t('errors.tryAgain')}</Button>
       </div>}

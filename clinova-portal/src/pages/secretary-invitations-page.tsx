@@ -46,14 +46,14 @@ export default function SecretaryInvitationsPage() {
 
   return (
     <DoctorWorkspaceShell active="secretary-invitations">
-      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-4 sm:p-6 lg:p-10">
+      <div className="mx-auto w-full min-w-0 max-w-screen-2xl p-3 min-[400px]:p-4 sm:p-6 lg:p-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
               <MailOpen className="size-3" />
               {t('invitations.eyebrow')}
             </Badge>
-            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.invitations.title')}</h1>
+            <h1 className="mt-2 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-4xl">{t('secretary.invitations.title')}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.invitations.description')}</p>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function SecretaryInvitationsPage() {
             </Card>
           )}
           {received.isSuccess && invitations.length === 0 && (
-            <section className="relative isolate grid place-items-center overflow-hidden px-4 py-20 text-center sm:py-28">
+            <section className="relative isolate grid place-items-center overflow-hidden px-4 py-12 text-center sm:py-28">
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/15 motion-safe:animate-pulse" />
                 <span className="relative grid size-20 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 ring-8 ring-primary/10">
@@ -79,10 +79,10 @@ export default function SecretaryInvitationsPage() {
                 <span className="absolute -end-10 bottom-4 size-2.5 rounded-full bg-primary/25 motion-safe:animate-pulse [animation-delay:400ms]" />
               </div>
 
-              <h2 className="mt-10 font-sans text-2xl font-bold sm:text-4xl">
+              <h2 className="mt-8 font-sans text-xl font-bold min-[400px]:text-2xl sm:mt-10 sm:text-4xl">
                 {t('invitations.emptyReceivedTitle')}
               </h2>
-              <p className="mt-5 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:text-base">
+              <p className="mt-4 max-w-md text-sm leading-7 font-medium text-muted-foreground sm:mt-5 sm:text-base">
                 {t('secretary.invitations.emptyDescription')}
               </p>
             </section>
@@ -94,10 +94,10 @@ export default function SecretaryInvitationsPage() {
                 const busy = decide.isPending && decide.variables?.invitationId === invitation.id
                 return (
                   <Card key={invitation.id} className="group relative h-full rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
-                    <Badge className={`absolute end-4 top-4 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClass(invitation.status)}`}>{statusLabel(invitation.status)}</Badge>
+                    <Badge className={`absolute end-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-bold sm:end-4 sm:top-4 ${statusClass(invitation.status)}`}>{statusLabel(invitation.status)}</Badge>
                     <CardContent className="flex h-full flex-col gap-4">
                       <div className="flex items-start gap-3 pe-20">
-                        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none"><UserRound className="size-6" /></span>
+                        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 transition group-hover:scale-105 motion-reduce:transition-none sm:size-12"><UserRound className="size-5 sm:size-6" /></span>
                         <div className="min-w-0 flex-1">
                           <small className="block text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{t('invitations.from')}</small>
                           <h2 className="line-clamp-2 font-sans text-lg font-bold leading-tight">{invitation.senderName}</h2>
@@ -108,7 +108,7 @@ export default function SecretaryInvitationsPage() {
                         <div className="flex items-center gap-3 px-3 py-2.5"><Clock3 className="size-4 shrink-0 text-primary" /><span className="truncate text-xs font-bold text-muted-foreground">{t('invitations.sentAt', { date: format(invitation.sentAt) })}</span></div>
                       </div>
                       {pending ? (
-                        <div className="mt-auto flex flex-wrap gap-2">
+                        <div className="mt-auto grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                           <Button className="h-10 flex-1 cursor-pointer rounded-xl bg-primary px-4 text-[13px] font-bold normal-case tracking-normal text-primary-foreground hover:bg-primary/90" disabled={decide.isPending} onClick={() => { decide.reset(); setSuccess(''); setConfirmation({ invitationId: invitation.id, type: 'accept', clinicName: invitation.clinicName }) }}>
                             {busy && decide.variables?.type === 'accept' ? <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" /> : <Check className="size-4" />}{t('invitations.accept')}
                           </Button>

@@ -26,8 +26,8 @@ const maxImageSize = 5 * 1024 * 1024
 
 function ReadOnlyField({ icon, label, value, ltr = false }: { icon: ReactNode; label: string; value?: string | null; ltr?: boolean }) {
   return (
-    <div className="group flex min-w-0 items-center gap-3.5 rounded-2xl border border-border/60 bg-background/45 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
-      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+    <div className="group flex min-w-0 items-center gap-3 rounded-2xl border border-border/60 bg-background/45 px-3 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 sm:gap-3.5 sm:px-4">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15 sm:size-11">
         {icon}
       </span>
       <span className="grid min-w-0 gap-1">
@@ -47,14 +47,14 @@ export default function SecretaryProfilePage() {
 
   return (
     <DoctorWorkspaceShell active="secretary-profile">
-      <div className="mx-auto min-w-0 w-full max-w-screen-2xl p-4 sm:p-6 lg:p-10">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="mx-auto min-w-0 w-full max-w-screen-2xl p-3 min-[400px]:p-4 sm:p-6 lg:p-10">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-4 sm:mb-6">
           <div>
             <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-wider text-primary uppercase">
               <UserRound className="size-3" />
               {t('secretary.profile.eyebrow')}
             </Badge>
-            <h1 className="mt-2 font-sans text-3xl font-bold sm:text-4xl">{t('secretary.profile.title')}</h1>
+            <h1 className="mt-2 font-sans text-2xl font-bold min-[400px]:text-3xl sm:text-4xl">{t('secretary.profile.title')}</h1>
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.profile.description')}</p>
           </div>
         </div>
@@ -174,13 +174,13 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
 
   return (
     <div className="min-w-0 grid gap-5">
-      <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-5 sm:p-7">
+      <Card className="relative min-w-0 overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/12 via-card to-primary/5 p-4 sm:p-7">
         <span className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
 
-        <div className="relative z-10 min-w-0 grid items-center gap-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
+        <div className="relative z-10 min-w-0 grid items-center gap-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-7">
           <Label htmlFor="secretaryProfilePicture" className="group relative mx-auto grid cursor-pointer justify-items-center gap-2 sm:mx-0" title={t('doctorProfile.pictureRules')}>
             <Input id="secretaryProfilePicture" className="sr-only" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={choosePicture} />
-            <span className="relative grid size-36 place-items-center overflow-hidden rounded-3xl border-4 border-card bg-gradient-to-br from-primary to-primary/65 text-3xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl">
+            <span className="relative grid size-28 place-items-center overflow-hidden rounded-3xl border-4 border-card bg-gradient-to-br from-primary to-primary/65 text-2xl font-bold text-primary-foreground shadow-lg transition group-hover:-translate-y-0.5 group-hover:shadow-xl sm:size-36 sm:text-3xl">
               {activePicture ? <img className="size-full object-cover" src={activePicture} alt={t('doctorProfile.pictureAlt', { name: fullName })} /> : initials}
               <span className="absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition group-hover:opacity-100">
                 <span className="grid gap-1 justify-items-center text-white">
@@ -195,12 +195,12 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
           </Label>
 
           <div className="min-w-0 text-center sm:text-start">
-            <h2 className="break-words font-sans text-3xl leading-tight font-bold sm:text-5xl">{fullName}</h2>
+            <h2 className="break-words font-sans text-2xl leading-tight font-bold min-[400px]:text-3xl sm:text-5xl">{fullName}</h2>
           </div>
 
-          <div className="mx-auto flex items-center gap-1 self-end sm:mx-0">
+          <div className="flex w-full items-center gap-2 self-end sm:mx-0 sm:w-auto sm:gap-1">
             {!isEditing && (
-              <Button className="h-10 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal" onClick={startEditing}>
+              <Button className="h-10 flex-1 cursor-pointer rounded-xl px-4 text-[13px] font-bold normal-case tracking-normal sm:flex-none" onClick={startEditing}>
                 <PencilLine className="size-4" />
                 {t('doctorProfile.edit')}
               </Button>
@@ -278,9 +278,9 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
                 <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('secretary.profile.personalTitle')}</h3>
               </div>
             </div>
-            <CardContent className="p-5">
-              <form className="grid gap-5" onSubmit={submit}>
-                <div className="grid min-w-0 gap-5 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:p-5">
+            <CardContent className="p-3.5 sm:p-5">
+              <form className="grid gap-4 sm:gap-5" onSubmit={submit}>
+                <div className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-4 rounded-2xl border border-border/60 bg-muted/30 p-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:gap-5 sm:p-5">
                   <FormField id="secretaryProfileFirstName" label={t('fields.firstName')} value={shown.firstName} onChange={(event) => setFirstName(event.target.value)} maxLength={50} disabled={!isEditing} required />
                   <FormField id="secretaryProfileLastName" label={t('fields.lastName')} value={shown.lastName} onChange={(event) => setLastName(event.target.value)} maxLength={50} disabled={!isEditing} required />
                   <FormField id="secretaryProfileBirth" type="date" label={t('secretary.profile.dateOfBirth')} value={shown.dateOfBirth} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setDateOfBirth(event.target.value)} disabled={!isEditing} />
@@ -331,7 +331,7 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
                 <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('doctorProfile.accountTitle')}</h3>
               </div>
             </div>
-            <CardContent className="grid min-w-0 gap-3 p-5 sm:grid-cols-2">
+            <CardContent className="grid min-w-0 gap-3 p-3.5 sm:grid-cols-2 sm:p-5">
               <ReadOnlyField icon={<Mail className="size-4" />} label={t('fields.email')} value={profile.email} ltr />
               <ReadOnlyField icon={<Phone className="size-4" />} label={t('secretary.profile.phoneNumber', { defaultValue: 'Phone number' })} value={profile.phoneNumber} ltr />
             </CardContent>
@@ -352,8 +352,8 @@ function ProfileContent({ profile }: { profile: SecretaryProfile }) {
                     <h3 className="min-w-0 flex-1 truncate font-sans text-base font-bold">{t('doctorProfile.verificationTitle')}</h3>
                   </div>
                 </div>
-                <CardContent className="grid grid-cols-1 gap-3 p-5">
-                  <a className="group flex items-center gap-3.5 rounded-2xl border border-border bg-background/35 px-4 py-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg" href={profile.nationalIdImageUrl} target="_blank" rel="noreferrer">
+                <CardContent className="grid grid-cols-1 gap-3 p-3.5 sm:p-5">
+                  <a className="group flex items-center gap-3 rounded-2xl border border-border bg-background/35 px-3 py-2.5 transition sm:gap-3.5 sm:px-4 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-lg" href={profile.nationalIdImageUrl} target="_blank" rel="noreferrer">
                     <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
                       <FileText className="size-5" />
                     </span>

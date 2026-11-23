@@ -59,7 +59,7 @@ function NotificationContent() {
         )}
 
         {state.isError && (
-          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-8 text-center">
+          <Card className="items-center rounded-3xl border border-destructive/20 bg-card p-5 text-center sm:p-8">
             <p className="text-sm font-bold text-destructive">{getErrorMessage(state.error)}</p>
             <Button
               className="mt-3 h-10 w-fit cursor-pointer rounded-xl bg-foreground/5 px-4 text-[13px] font-bold normal-case tracking-normal hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/30"

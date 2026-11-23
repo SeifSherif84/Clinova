@@ -38,7 +38,7 @@ const buttonClass = 'h-10 cursor-pointer rounded-xl bg-primary px-4 text-[13px] 
 
 function FormSection({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
-    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-4 sm:p-5">
+    <section className="grid gap-4 rounded-2xl border border-border/60 bg-muted/30 p-3.5 sm:p-5">
       <div className="flex items-center gap-2.5">
         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg ring-4 shadow-primary/30 ring-primary/10 [&>svg]:size-4.5">{icon}</span>
         <h2 className="font-sans text-sm font-bold tracking-normal normal-case">{title}</h2>
@@ -84,7 +84,7 @@ export default function SecretaryRegisterPage() {
     return (
       <AuthShell eyebrow={t('secretary.register.eyebrow')} title={t('secretary.register.invalidTitle')} description={t('secretary.register.invalidDescription')}>
         <Notice message={t('secretary.register.invalidLink')} />
-        <div className="grid justify-items-center gap-4 rounded-3xl border border-dashed border-destructive/25 bg-destructive/5 p-6 text-center">
+        <div className="grid justify-items-center gap-4 rounded-3xl border border-dashed border-destructive/25 bg-destructive/5 p-4 text-center sm:p-6">
           <span className="grid size-16 place-items-center rounded-3xl bg-destructive/10 text-destructive shadow-inner"><LinkIcon className="size-7" /></span>
           <p className="max-w-sm text-xs leading-6 text-muted-foreground sm:text-sm">{t('secretary.register.invalidHint')}</p>
           <Button className={buttonClass} render={<Link to="/login" search={{ redirect: undefined }} />}><LogIn className="size-4" />{t('common.signIn')}</Button>
@@ -127,7 +127,7 @@ export default function SecretaryRegisterPage() {
 
         <FormSection icon={<ShieldCheck />} title={t('secretary.register.nationalId')}>
           <Label
-            className={`group flex min-w-0 cursor-pointer items-center gap-3.5 rounded-2xl border-2 border-dashed px-4 py-4 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none ${nationalIdName ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
+            className={`group flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed px-3 py-3.5 normal-case tracking-normal transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none sm:gap-3.5 sm:px-4 sm:py-4 ${nationalIdName ? 'border-primary/50 bg-primary/[0.05]' : 'border-primary/30 bg-primary/[0.03] hover:border-primary/60 hover:bg-primary/[0.06]'}`}
             htmlFor="secretaryNationalId"
           >
             <Input className="sr-only" id="secretaryNationalId" name="NationalId" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(event: ChangeEvent<HTMLInputElement>) => setNationalIdName(event.target.files?.[0]?.name ?? '')} required />
@@ -155,7 +155,7 @@ export default function SecretaryRegisterPage() {
                   <span key={rule.key} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${index < passed ? strengthTone : 'bg-muted'}`} />
                 ))}
               </div>
-              <ul className="grid gap-1.5 sm:grid-cols-2">
+              <ul className="grid gap-1.5 min-[400px]:grid-cols-2">
                 {rules.map((rule) => (
                   <li key={rule.key} className={`flex items-center gap-2 text-xs font-semibold transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'text-primary' : 'text-muted-foreground'}`}>
                     <span className={`grid size-4 shrink-0 place-items-center rounded-full transition-colors duration-200 motion-reduce:transition-none ${rule.met ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>

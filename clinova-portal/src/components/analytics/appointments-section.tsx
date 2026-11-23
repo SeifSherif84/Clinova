@@ -130,12 +130,12 @@ function Breakdown({ data }: { data: AppointmentOverview }) {
                 <span aria-hidden="true" className="absolute inset-0 -z-10 rounded-full bg-current opacity-[0.14]" />
                 {t(`analytics.appointments.${focused.label}`)}
               </span>
-              <strong className={`${focused.tone} font-sans text-5xl font-bold leading-none tabular-nums tracking-tight`}>{focused.value}</strong>
+              <strong className={`${focused.tone} font-sans text-4xl font-bold leading-none tabular-nums tracking-tight sm:text-5xl`}>{focused.value}</strong>
               <span className="text-sm font-semibold tabular-nums text-muted-foreground">{focused.share}%</span>
             </div>
           ) : (
             <div className="grid justify-items-center gap-1.5">
-              <strong className="font-sans text-6xl font-bold leading-none tabular-nums tracking-tight">{total}</strong>
+              <strong className="font-sans text-5xl font-bold leading-none tabular-nums tracking-tight sm:text-6xl">{total}</strong>
               <span className="max-w-[9rem] text-[13px] font-semibold leading-snug text-muted-foreground">{t('analytics.appointments.total')}</span>
             </div>
           )}
