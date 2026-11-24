@@ -38,7 +38,7 @@ namespace Web.Middleware
                     NotFoundException => (StatusCodes.Status404NotFound, "Not Found", exception.Message),
                     ConflictException => (StatusCodes.Status409Conflict, "Conflict", exception.Message),
                     InternalServerErrorException => (StatusCodes.Status500InternalServerError, "Internal Server Error", exception.Message),
-                    _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", "An unexpected error occurred.")
+                    _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", exception.ToString())
                 };
 
                 context.Response.StatusCode = statusCode;
