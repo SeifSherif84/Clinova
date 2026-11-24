@@ -94,7 +94,7 @@ namespace Web
 
             builder.Services.AddAutoMapper(MapperConfig =>
             {
-                MapperConfig.AddProfile(new AuthProfile());
+                MapperConfig.AddProfile(new AuthProfile(builder.Configuration));
                 MapperConfig.AddProfile(new DoctorProfile(builder.Configuration));
                 MapperConfig.AddProfile(new ClinicProfile(builder.Configuration));
                 MapperConfig.AddProfile(new DoctorInvitationProfile());

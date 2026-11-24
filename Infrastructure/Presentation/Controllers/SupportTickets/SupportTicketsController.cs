@@ -58,8 +58,7 @@ namespace Presentation.Controllers.SupportTickets
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{ticketId:int}/admin")] // GET api/support-tickets/{ticketId}/admin
-        public async Task<IActionResult> AdminGetSupportTicketDetails(
-            [FromRoute] int ticketId)
+        public async Task<IActionResult> AdminGetSupportTicketDetails([FromRoute] int ticketId)
         {
             var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var response = await _serviceManager.SupportTicketService.AdminGetSupportTicketDetailsAsync(adminId ?? string.Empty, ticketId);
