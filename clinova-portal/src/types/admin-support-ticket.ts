@@ -5,7 +5,7 @@ export interface AdminSupportTicket {
   patientId: string
   patientName: string
   category: string
-  status: TicketStatus | string
+  status: TicketStatus
   originalMessage: string
   createdAt: string
 }
