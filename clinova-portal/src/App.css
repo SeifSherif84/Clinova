@@ -78,9 +78,9 @@
 }
 
 @theme inline {
-  --font-sans: "Noto Sans Variable", sans-serif;
-  --font-arabic: "Noto Sans Arabic Variable", sans-serif;
-  --font-heading: "Playfair Display Variable", serif;
+  --font-sans: "Noto Sans Variable", "Noto Sans Arabic Variable", sans-serif;
+  --font-arabic: "Noto Sans Variable", "Noto Sans Arabic Variable", sans-serif;
+  --font-heading: "Playfair Display Variable", "Noto Sans Arabic Variable", serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -149,15 +149,23 @@
   }
 
   html[dir="rtl"] body {
-    font-family: "Noto Sans Arabic Variable", sans-serif;
+    font-family: "Noto Sans Variable", "Noto Sans Arabic Variable", sans-serif;
   }
 
   html[dir="rtl"] {
-    --font-heading: "Noto Sans Arabic Variable", sans-serif;
+    --font-heading: "Noto Sans Variable", "Noto Sans Arabic Variable", sans-serif;
   }
 
   html[dir="rtl"] .font-heading {
     letter-spacing: 0;
+  }
+
+  /* Form fields keep the same look in both languages. */
+  input,
+  textarea,
+  select {
+    font-family: "Noto Sans Variable", "Noto Sans Arabic Variable", sans-serif;
+    font-synthesis: none;
   }
 }
 

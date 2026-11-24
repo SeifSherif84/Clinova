@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, LoaderCircle, LogOut, MailOpen, ShieldCheck, Sparkles, Star, Stethoscope, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/use-auth'
 import NotificationBell from '@/components/notification-bell'
 import MobileNavigationMenu from '@/components/mobile-navigation-menu'
 
-type WorkspaceSection = 'clinics' | 'invitations' | 'notifications' | 'working-hours' | 'profile' | 'patient-profile' | 'secretary-appointments' | 'secretary-guest-booking' | 'secretary-clinic' | 'secretary-invitations' | 'secretary-profile'
+type WorkspaceSection = 'clinics' | 'invitations' | 'reviews' | 'notifications' | 'working-hours' | 'profile' | 'patient-profile' | 'secretary-appointments' | 'secretary-guest-booking' | 'secretary-clinic' | 'secretary-invitations' | 'secretary-profile'
 
 // Shared sidebar shell for clinic staff; the navigation follows the signed-in role.
 export default function DoctorWorkspaceShell({ children, active, topBackLink }: { children: ReactNode; active: WorkspaceSection; topBackLink?: ReactNode }) {
@@ -48,6 +48,7 @@ export default function DoctorWorkspaceShell({ children, active, topBackLink }: 
           <Link className={active === 'invitations' ? activeItem : navItem} to="/doctor/invitations"><MailOpen />{t('dashboard.invitations')}</Link>
           <Link className={active === 'notifications' ? activeItem : navItem} to="/notifications"><Bell />{t('dashboard.notifications')}</Link>
           <Link className={active === 'working-hours' ? activeItem : navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 />{t('dashboard.workingHours')}</Link>
+          <Link className={active === 'reviews' ? activeItem : navItem} to="/doctor/reviews"><Star />{t('dashboard.reviews')}</Link>
           <Link className={active === 'profile' ? activeItem : navItem} to="/doctor/profile"><Stethoscope />{t('dashboard.profile')}</Link>
         </nav>}
         <Card className="mt-auto flex-row items-center gap-2.5 rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 shadow-none ring-0 dark:bg-transparent">

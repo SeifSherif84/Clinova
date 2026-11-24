@@ -5,6 +5,7 @@ import { paymobEn, paymobAr } from '@/locales/paymob'
 import { manualPaymentsEn, manualPaymentsAr } from '@/locales/manual-payments'
 import { secretaryEn, secretaryAr } from '@/locales/secretary'
 import { analyticsEn, analyticsAr } from '@/locales/analytics'
+import { adminEn, adminAr } from '@/locales/admin'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { patientPortalEn, patientPortalAr, patientEn, patientAr } from '@/locales/patient'
@@ -13,6 +14,7 @@ const resources = {
   en: {
     translation: {
       manualPayments: manualPaymentsEn,
+      admin: adminEn,
       secretary: secretaryEn,
       analytics: analyticsEn,
       patientPortal: patientPortalEn,
@@ -253,6 +255,7 @@ const resources = {
         clinics: 'My clinics',
         invitations: 'Invitations',
         workingHours: 'Working hours',
+        reviews: 'My reviews',
         profile: 'My profile',
         secureSession: 'Secure session',
         protected: 'Your access is protected',
@@ -590,6 +593,27 @@ const resources = {
         confirmPictureTitle: 'Confirm your new photo',
         confirmPictureDescription: 'This will replace your current profile picture.',
       },
+      doctorReviews: {
+        eyebrow: 'Patient feedback',
+        title: 'My reviews',
+        description: 'See what patients say about your care. Only approved reviews are shown here.',
+        loading: 'Loading your reviews…',
+        retry: 'Try again',
+        averageRating: 'Average rating',
+        outOf: 'out of 5',
+        totalReviews_one: 'Rated by {{count}} visitor',
+        totalReviews: 'Rated by {{count}} visitors',
+        ratingLabel: '{{count}} out of 5 stars',
+        anonymous: 'Anonymous patient',
+        anonymousBadge: 'Anonymous',
+        noComment: 'No written comment.',
+        emptyTitle: 'No reviews yet',
+        emptyDescription: 'Approved patient reviews will appear here after your appointments.',
+        pagination: 'Reviews pagination',
+        pageOf: 'Page {{page}} of {{total}}',
+        previous: 'Previous',
+        next: 'Next',
+      },
       notFound: {
         title: 'This page took a wellness break.',
         description: 'Let’s bring you back to somewhere familiar.',
@@ -600,6 +624,7 @@ const resources = {
   ar: {
     translation: {
       manualPayments: manualPaymentsAr,
+      admin: adminAr,
       secretary: secretaryAr,
       analytics: analyticsAr,
       patientPortal: patientPortalAr,
@@ -843,6 +868,7 @@ const resources = {
         closeMenu: '\u0625\u063a\u0644\u0627\u0642 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u062a\u0646\u0642\u0644',
         navigation: '\u0627\u0644\u062a\u0646\u0642\u0644 \u0641\u064a \u0645\u0633\u0627\u062d\u0629 \u0627\u0644\u0639\u0645\u0644',
         workingHours: 'ساعات العمل',
+        reviews: 'تقييماتي',
         profile: 'ملفي الشخصي',
         secureSession: 'جلسة آمنة',
         protected: 'وصولك محمي',
@@ -1177,6 +1203,26 @@ const resources = {
         manageClinics: 'إدارة العيادات',
         confirmPictureTitle: 'تأكيد الصورة الجديدة',
         confirmPictureDescription: 'سيتم استبدال صورتك الشخصية الحالية بهذه الصورة.',
+      },
+      doctorReviews: {
+        eyebrow: 'آراء المرضى',
+        title: 'تقييماتي',
+        description: 'اطّلع على آراء المرضى في رعايتك. تظهر هنا التقييمات المعتمدة فقط.',
+        loading: 'جارٍ تحميل تقييماتك…',
+        retry: 'إعادة المحاولة',
+        averageRating: 'متوسط التقييم',
+        outOf: 'من 5',
+        totalReviews: 'تم التقييم بواسطة {{count}} زائر',
+        ratingLabel: '{{count}} من 5 نجوم',
+        anonymous: 'مريض مجهول',
+        anonymousBadge: 'مجهول',
+        noComment: 'لا يوجد تعليق مكتوب.',
+        emptyTitle: 'لا توجد تقييمات بعد',
+        emptyDescription: 'ستظهر هنا تقييمات المرضى المعتمدة بعد مواعيدك.',
+        pagination: 'التنقل بين صفحات التقييمات',
+        pageOf: 'صفحة {{page}} من {{total}}',
+        previous: 'السابق',
+        next: 'التالي',
       },
       notFound: {
         title: 'يبدو أن هذه الصفحة أخذت استراحة صحية.',

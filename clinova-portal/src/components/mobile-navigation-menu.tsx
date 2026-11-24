@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, MailOpen, Menu, Sparkles, Stethoscope, UserRound, X } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, Clock3, MailOpen, Menu, Sparkles, Star, Stethoscope, UserRound, X } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,7 @@ export default function MobileNavigationMenu() {
           {notifications.unreadCount > 0 && <span className="ms-auto rounded-full border border-warm/20 bg-warm/10 px-2 py-0.5 text-[10px] font-bold text-warm">{notifications.unreadCount > 99 ? '99+' : notifications.unreadCount}</span>}
         </DropdownMenuItem>
         {isDoctor && <DropdownMenuItem className={pathname === '/doctor/working-hours' ? activeClass : itemClass} render={<Link to="/doctor/working-hours" search={{ clinicId: undefined }} />}><Clock3 />{t('dashboard.workingHours')}</DropdownMenuItem>}
+        {isDoctor && <DropdownMenuItem className={pathname === '/doctor/reviews' ? activeClass : itemClass} render={<Link to="/doctor/reviews" />}><Star />{t('dashboard.reviews')}</DropdownMenuItem>}
         {isDoctor
           ? <DropdownMenuItem className={pathname === '/doctor/profile' ? activeClass : itemClass} render={<Link to="/doctor/profile" />}><Stethoscope />{t('dashboard.profile')}</DropdownMenuItem>
           : isSecretary

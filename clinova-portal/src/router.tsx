@@ -1,6 +1,9 @@
 import { createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, redirect } from '@tanstack/react-router'
 import LoadingScreen from '@/components/loading-screen'
 import RootLayout from '@/components/root-layout'
+import { parseAdminDoctorFilters } from '@/lib/admin-doctors'
+import { parseAdminReviewFilters } from '@/lib/admin-reviews'
+import { parseAdminTicketFilters } from '@/lib/admin-support-tickets'
 import { parseAppointmentFilters } from '@/lib/secretary-appointments'
 import type { AuthContextValue } from '@/providers/auth-context'
 import LandingPage from '@/pages/landing-page'
@@ -73,6 +76,8 @@ const dashboardRoute = createRoute({
     if (!context.auth.isAuthenticated) {
       throw redirect({ to: '/login', search: { redirect: '/dashboard' } })
     }
+    // Administrators have their own area instead of the staff dashboard.
+    if (context.auth.user?.roles.some((role) => role.toLowerCase() === 'admin')) throw redirect({ to: '/admin' })
   },
   component: lazyRouteComponent(() => import('@/pages/dashboard-page')),
 })
@@ -130,6 +135,45 @@ function requirePatient(context: RouterContext, pathname: string) {
   if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: pathname } })
   if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'patient')) throw redirect({ to: '/dashboard' })
 }
+function requireAdmin(context: RouterContext, pathname: string) {
+  if (!context.auth.isAuthenticated) throw redirect({ to: '/login', search: { redirect: pathname } })
+  if (!context.auth.user?.roles.some((role) => role.toLowerCase() === 'admin')) throw redirect({ to: '/dashboard' })
+}
+const adminIndexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  beforeLoad: ({ context, location }) => requireAdmin(context, location.pathname),
+  component: lazyRouteComponent(() => import('@/pages/admin-dashboard-page')),
+})
+const adminReviewsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/reviews',
+  beforeLoad: ({ context, location }) => requireAdmin(context, location.pathname),
+  validateSearch: parseAdminReviewFilters,
+  component: lazyRouteComponent(() => import('@/pages/admin-reviews-page')),
+})
+const adminDoctorsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/doctors',
+  beforeLoad: ({ context, location }) => requireAdmin(context, location.pathname),
+  validateSearch: parseAdminDoctorFilters,
+  component: lazyRouteComponent(() => import('@/pages/admin-doctors-page')),
+})
+const adminSupportTicketsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/support-tickets',
+  beforeLoad: ({ context, location }) => requireAdmin(context, location.pathname),
+  validateSearch: parseAdminTicketFilters,
+  component: lazyRouteComponent(() => import('@/pages/admin-support-tickets-page')),
+})
+const adminSupportTicketDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/support-tickets/$ticketId',
+  beforeLoad: ({ context, location }) => requireAdmin(context, location.pathname),
+  // Carries the list filters so "back" returns to the same filtered page.
+  validateSearch: parseAdminTicketFilters,
+  component: lazyRouteComponent(() => import('@/pages/admin-support-ticket-details-page')),
+})
 const patientProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/patient/profile',
@@ -347,6 +391,13 @@ const clinicAnalyticsRoute = createRoute({
   component: lazyRouteComponent(() => import('@/pages/clinic-analytics-page')),
 })
 
+const doctorReviewsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/doctor/reviews',
+  beforeLoad: ({ context }) => requireDoctor(context),
+  component: lazyRouteComponent(() => import('@/pages/doctor-reviews-page')),
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -361,6 +412,7 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   notificationsRoute,
   doctorProfileRoute,
+  doctorReviewsRoute,
   patientProfileRoute,
   patientDoctorsRoute,
   patientDoctorRoute,
@@ -391,6 +443,11 @@ const routeTree = rootRoute.addChildren([
   paymobHelpRoute,
   paymobTutorialRoute,
   clinicAnalyticsRoute,
+  adminIndexRoute,
+  adminReviewsRoute,
+  adminDoctorsRoute,
+  adminSupportTicketsRoute,
+  adminSupportTicketDetailsRoute,
 ])
 
 export const router = createRouter({

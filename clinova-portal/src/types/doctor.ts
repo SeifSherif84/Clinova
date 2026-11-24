@@ -115,3 +115,23 @@ export interface AvailableSlot {
   startTime: string
   endTime: string
 }
+
+
+export interface DoctorOwnReview {
+  reviewId: number
+  appointmentId: number
+  rating: number
+  comment: string | null
+  isAnonymous: boolean
+  patientName: string
+  createdAt: string
+}
+
+export interface DoctorOwnReviewsResult {
+  pageIndex: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
+  averageRating: number
+  items: DoctorOwnReview[]
+}

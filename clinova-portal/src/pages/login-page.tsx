@@ -41,8 +41,11 @@ export default function LoginPage() {
   // The new session reaches the router context on the next render; navigating straight from
   // onSuccess would hit the dashboard guard with the old signed-out state and bounce back here.
   useEffect(() => {
-    if (login.isSuccess && auth.isAuthenticated) void navigate({ to: '/dashboard' })
-  }, [login.isSuccess, auth.isAuthenticated, navigate])
+    if (!login.isSuccess || !auth.isAuthenticated) return
+    const isAdmin = auth.user?.roles.some((role) => role.toLowerCase() === 'admin')
+    if (isAdmin) void navigate({ to: '/admin' })
+    else void navigate({ to: '/dashboard' })
+  }, [login.isSuccess, auth.isAuthenticated, auth.user, navigate])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

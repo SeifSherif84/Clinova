@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Building2, CalendarDays, CalendarPlus, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Stethoscope, UserRound } from 'lucide-react'
+import { Bell, Building2, CalendarDays, CalendarPlus, ChevronRight, Clock3, LoaderCircle, LogOut, MailOpen, Search, ShieldCheck, Sparkles, Star, Stethoscope, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Brand from '@/components/brand'
 import PreferencesControls from '@/components/preferences-controls'
@@ -42,6 +42,7 @@ export default function DashboardPage() {
           {isDoctor && <Link className={navItem} to="/doctor/invitations"><MailOpen /> {t('dashboard.invitations')}</Link>}
           <Link className={navItem} to="/notifications"><Bell /> {t('dashboard.notifications')}</Link>
           {isDoctor && <Link className={navItem} to="/doctor/working-hours" search={{ clinicId: undefined }}><Clock3 /> {t('dashboard.workingHours')}</Link>}
+          {isDoctor && <Link className={navItem} to="/doctor/reviews"><Star /> {t('dashboard.reviews')}</Link>}
           {isDoctor ? <Link className={navItem} to="/doctor/profile"><Stethoscope /> {t('dashboard.profile')}</Link> : isSecretary ? <Link className={navItem} to="/secretary/profile"><UserRound /> {t('dashboard.profile')}</Link> : <Link className={navItem} to="/patient/profile"><UserRound /> {t('dashboard.profile')}</Link>}
         </nav>
         <Card className="mt-auto flex-row items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 px-3 py-3 shadow-sm">
