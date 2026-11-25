@@ -151,29 +151,28 @@ namespace Presentation.Controllers.Auth
         }
 
 
-        [HttpPost("create-admin")]
-        public async Task<IActionResult> CreateAdmin()
-        {
-            var admin = new Patient
-            {
-                FirstName = "Admin",
-                LastName = "Clinova",
-                UserName = "admin@clinova.com",
-                Email = "admin@clinova.com",
-                EmailConfirmed = true
-            };
+        //[HttpPost("create-admin")]
+        //public async Task<IActionResult> CreateAdmin()
+        //{
+        //    var admin = new Patient
+        //    {
+        //        FirstName = "Admin",
+        //        LastName = "Clinova",
+        //        UserName = "admin@clinova.com",
+        //        Email = "admin@clinova.com",
+        //        EmailConfirmed = true
+        //    };
 
-            var result = await _userManager.CreateAsync(admin, "Admin@123456");
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+        //    var result = await _userManager.CreateAsync(admin, "Admin@123456");
+        //    if (!result.Succeeded)
+        //        return BadRequest(result.Errors);
 
-            var roleResult = await _userManager.AddToRoleAsync(admin, "Admin");
+        //    var roleResult = await _userManager.AddToRoleAsync(admin, "Admin");
 
-            if (!roleResult.Succeeded)
-                return BadRequest(roleResult.Errors);
+        //    if (!roleResult.Succeeded)
+        //        return BadRequest(roleResult.Errors);
 
-            return Ok("Admin account created successfully.");
-        }
-
+        //    return Ok("Admin account created successfully.");
+        //}
     }
 }

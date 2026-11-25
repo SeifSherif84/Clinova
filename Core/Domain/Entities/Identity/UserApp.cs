@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities.Identity
 {
-    public abstract class UserApp : IdentityUser, ISoftDelete
+    public class UserApp : IdentityUser, ISoftDelete
     {
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;

@@ -88,7 +88,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments", (string)null);
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.AppointmentSlot", b =>
@@ -130,7 +130,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("WorkingHourId");
 
-                    b.ToTable("AppointmentSlots", (string)null);
+                    b.ToTable("AppointmentSlots");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Clinic", b =>
@@ -216,7 +216,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId", "Type", "AccountIdentifier")
                         .IsUnique();
 
-                    b.ToTable("ClinicManualPaymentMethods", (string)null);
+                    b.ToTable("ClinicManualPaymentMethods");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicOnlinePaymentAccount", b =>
@@ -270,7 +270,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicId", "Provider")
                         .IsUnique();
 
-                    b.ToTable("ClinicOnlinePaymentAccounts", (string)null);
+                    b.ToTable("ClinicOnlinePaymentAccounts");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPaymentIntegration", b =>
@@ -299,7 +299,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("ClinicOnlinePaymentAccountId", "OnlinePaymentMethodType")
                         .IsUnique();
 
-                    b.ToTable("ClinicPaymentIntegrations", (string)null);
+                    b.ToTable("ClinicPaymentIntegrations");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.ClinicPhoneNumbers", b =>
@@ -321,7 +321,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("ClinicPhoneNumbers", (string)null);
+                    b.ToTable("ClinicPhoneNumbers");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositPayment", b =>
@@ -395,7 +395,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicOnlinePaymentAccountId");
 
-                    b.ToTable("DepositPayments", (string)null);
+                    b.ToTable("DepositPayments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DepositRefund", b =>
@@ -482,7 +482,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("RequestedBySecretaryId");
 
-                    b.ToTable("DepositRefunds", (string)null);
+                    b.ToTable("DepositRefunds");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorClinic", b =>
@@ -503,7 +503,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("DoctorClinics", (string)null);
+                    b.ToTable("DoctorClinics");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.DoctorInvitation", b =>
@@ -543,7 +543,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("DoctorSenderId");
 
-                    b.ToTable("DoctorInvitations", (string)null);
+                    b.ToTable("DoctorInvitations");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Governorate", b =>
@@ -561,7 +561,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Governorates", (string)null);
+                    b.ToTable("Governorates");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.MedicalSpecialty", b =>
@@ -581,7 +581,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MedicalSpecialties", (string)null);
+                    b.ToTable("MedicalSpecialties");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Notification", b =>
@@ -618,7 +618,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("UserAppId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Prescription", b =>
@@ -651,7 +651,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("AppointmentId")
                         .IsUnique();
 
-                    b.ToTable("Prescriptions", (string)null);
+                    b.ToTable("Prescriptions");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Region", b =>
@@ -674,7 +674,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("GovernorateId");
 
-                    b.ToTable("Regions", (string)null);
+                    b.ToTable("Regions");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.RemainingPayment", b =>
@@ -721,7 +721,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicManualPaymentMethodId");
 
-                    b.ToTable("RemainingPayments", (string)null);
+                    b.ToTable("RemainingPayments");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Review", b =>
@@ -757,7 +757,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("AppointmentId")
                         .IsUnique();
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.SecretaryInvitation", b =>
@@ -801,7 +801,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("SecretaryReceiverId");
 
-                    b.ToTable("SecretaryInvitations", (string)null);
+                    b.ToTable("SecretaryInvitations");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicket", b =>
@@ -838,7 +838,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("UserAppId");
 
-                    b.ToTable("SupportTickets", (string)null);
+                    b.ToTable("SupportTickets");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.SupportTicketMessage", b =>
@@ -870,7 +870,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("SupportTicketId");
 
-                    b.ToTable("SupportTicketMessages", (string)null);
+                    b.ToTable("SupportTicketMessages");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.WorkingHour", b =>
@@ -909,7 +909,7 @@ namespace Persistence.Data.Migrations
                     b.HasIndex("DoctorId", "ClinicId", "Day")
                         .IsUnique();
 
-                    b.ToTable("WorkingHours", (string)null);
+                    b.ToTable("WorkingHours");
                 });
 
             modelBuilder.Entity("Domain.Entities.ClinicImages", b =>
@@ -931,7 +931,7 @@ namespace Persistence.Data.Migrations
 
                     b.HasIndex("ClinicId");
 
-                    b.ToTable("ClinicImages", (string)null);
+                    b.ToTable("ClinicImages");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.UserApp", b =>
@@ -1212,7 +1212,7 @@ namespace Persistence.Data.Migrations
                     b.Property<string>("BloodType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Patients", (string)null);
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("Domain.Entities.BusinessEntities.Secretary", b =>
